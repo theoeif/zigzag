@@ -1,41 +1,37 @@
-from django.shortcuts import render
-
-# Create your views here.
-
-# views.py
+from rest_framework import generics
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.db.models import Q
-
-from .models import Event, Circle, Tag, Address
-
-
-from .models import Event, Circle, User
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
-
 from django.db.models import Q
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.shortcuts import get_object_or_404
 
-from .models import Event, Circle
-from .serializers import EventSerializer
+from .models import (
+    Event,
+    Circle,
+    Address,
+    UserAddress,
+    EventInvitation,
+    Tag
+)
+from .serializers import (
+    EventSerializer,
+    AddressSerializer,
+    UserAddressSerializer,
+    EventInvitationSerializer,
+    RegisterSerializer,
+    TagSerializer,
+)
+
 
 class EventViewSet(viewsets.ModelViewSet):
     """
     ViewSet for event CRUD, permissions, and private markers.
     """
-    serializer_class = EventSerializer  # ← This fixes the error
+    serializer_class = EventSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     lookup_field = "id"
@@ -52,7 +48,6 @@ class EventViewSet(viewsets.ModelViewSet):
         get_events = Event.objects.filter(
             Q(creator=user) | Q(circles__in=user_circles)
         ).distinct()
-        print(get_events)
         return get_events
 
     def perform_create(self, serializer):
@@ -74,29 +69,30 @@ class EventViewSet(viewsets.ModelViewSet):
         address_data = request.data.get("address", None)
 
         if address_data and isinstance(address_data, dict):
-            # Expecting {"id": 1, "address_line": "...", ...}
-            addr_id = address_data.pop("id", None)
-            if addr_id:
-                from .models import Address
-                try:
-                    address = Address.objects.get(id=addr_id)
-                except Address.DoesNotExist:
-                    return Response(
-                        {"detail": f"Address with id {addr_id} not found."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                # Update only provided fields on the address
-                for field, value in address_data.items():
-                    setattr(address, field, value)
-                address.save()
-                # Attach the updated address to the event instance
+            addr_id = address_data.get("id")
+            if addr_id is None:
+                return Response({"detail": "Address id is required in partial update."}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                address = Address.objects.get(id=addr_id)
+            except Address.DoesNotExist:
+                return Response({"detail": f"Address with id {addr_id} not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Update only provided address fields
+            address_serializer = AddressSerializer(address, data=address_data, partial=True)
+            address_serializer.is_valid(raise_exception=True)
+            address_serializer.save()
+
+            # Attach the updated address to the event instance
+            if event.address_id != address.id:
                 event.address = address
                 event.save(update_fields=["address"])
 
-            # Remove address from request data so DRF doesn’t try to re-validate
+            # Remove address from request data so DRF doesn’t try to re-validate nested
             mutable_data = request.data.copy()
             mutable_data.pop("address", None)
             serializer = self.get_serializer(event, data=mutable_data, partial=True)
+        else:
+            serializer = self.get_serializer(event, data=request.data, partial=True)
 
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
@@ -144,3 +140,213 @@ class EventViewSet(viewsets.ModelViewSet):
         ]
     
         return Response({"private_markers": markers}, status=status.HTTP_200_OK)
+
+class CircleViewSet(viewsets.ModelViewSet):
+    """
+    Manage circles and their members.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = "id"
+    lookup_url_kwarg = "id"
+
+    from .serializers import CircleSerializer  # local import to avoid circular
+    serializer_class = CircleSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        # Circles user created or is a member of
+        return Circle.objects.filter(Q(creator=user) | Q(members=user)).distinct()
+
+    def perform_create(self, serializer):
+        circle = serializer.save(creator=self.request.user)
+        circle.members.add(self.request.user)
+
+    def check_object_permissions(self, request, obj):
+        if request.method in ["PUT", "PATCH", "DELETE"] and obj.creator != request.user:
+            self.permission_denied(request, message="Only the creator can modify this circle.")
+
+    @action(detail=True, methods=["post"])
+    def add_members(self, request, id=None):
+        circle = self.get_object()
+        member_ids = request.data.get("member_ids", [])
+        if not isinstance(member_ids, list):
+            return Response({"detail": "member_ids must be a list"}, status=status.HTTP_400_BAD_REQUEST)
+        if circle.creator != request.user:
+            raise PermissionDenied("Only the creator can add members.")
+        added, existing, errors = [], [], []
+        for uid in member_ids:
+            user = get_object_or_404(circle.members.model, id=uid)
+            if circle.members.filter(id=user.id).exists():
+                existing.append(user.id)
+            else:
+                circle.members.add(user)
+                added.append(user.id)
+        return Response({"circle": circle.id, "added": added, "already_present": existing, "errors": errors})
+
+    @action(detail=True, methods=["post"])
+    def remove_members(self, request, id=None):
+        circle = self.get_object()
+        member_ids = request.data.get("member_ids", [])
+        if not isinstance(member_ids, list):
+            return Response({"detail": "member_ids must be a list"}, status=status.HTTP_400_BAD_REQUEST)
+        if circle.creator != request.user:
+            raise PermissionDenied("Only the creator can remove members.")
+        removed, errors = [], []
+        for uid in member_ids:
+            try:
+                user = circle.members.get(id=uid)
+                circle.members.remove(user)
+                removed.append(user.id)
+            except circle.members.model.DoesNotExist:
+                errors.append(f"User {uid} not in circle")
+        return Response({"circle": circle.id, "removed": removed, "errors": errors})
+
+
+class UserAddressViewSet(viewsets.ModelViewSet):
+    """
+    Manage addresses of the authenticated user.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserAddressSerializer
+
+    def get_queryset(self):
+        return UserAddress.objects.filter(user=self.request.user).select_related("address")
+
+    def create(self, request, *args, **kwargs):
+        address_serializer = AddressSerializer(data=request.data)
+        address_serializer.is_valid(raise_exception=True)
+        address = address_serializer.save()
+        ua = UserAddress.objects.create(user=request.user, address=address, label=request.data.get("label", ""))
+        return Response(UserAddressSerializer(ua).data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request, *args, **kwargs):
+        user_address = get_object_or_404(UserAddress, user=request.user, id=kwargs.get("pk"))
+        new_label = request.data.get("label")
+        if new_label is None:
+            return Response({"detail": "Label is required for update."}, status=status.HTTP_400_BAD_REQUEST)
+        user_address.label = new_label
+        user_address.save(update_fields=["label"])
+        return Response(UserAddressSerializer(user_address).data)
+
+    def destroy(self, request, *args, **kwargs):
+        user_address = get_object_or_404(UserAddress, user=request.user, id=kwargs.get("pk"))
+        address = user_address.address
+        user_address.delete()
+        # also delete address (since it's user-owned entry point)
+        address.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MultiCircleMembersView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        circle_ids = request.data.get("circle_ids", [])
+        if not circle_ids:
+            return Response({"error": "No circle IDs provided."}, status=status.HTTP_400_BAD_REQUEST)
+        circles = Circle.objects.filter(id__in=circle_ids)
+        found_ids = set(str(c.id) for c in circles)
+        missing_ids = set(str(cid) for cid in circle_ids) - found_ids
+        if missing_ids:
+            return Response({"error": f"Circles not found: {', '.join(sorted(missing_ids))}"}, status=status.HTTP_404_NOT_FOUND)
+        user_ids = circles.values_list("members__id", flat=True).distinct()
+        from .models import User  # local import
+        users = User.objects.filter(id__in=user_ids)
+        data = [{"id": u.id, "username": u.username, "first_name": u.first_name, "last_name": u.last_name} for u in users]
+        return Response(data)
+
+
+class EventInvitationViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = EventInvitationSerializer
+
+    def get_queryset(self):
+        return EventInvitation.objects.filter(event__creator=self.request.user)
+
+    def perform_create(self, serializer):
+        event_id = self.request.data.get("event")
+        event = get_object_or_404(Event, id=event_id)
+        if event.creator != self.request.user:
+            raise PermissionDenied("Only the event creator can send invitations")
+        serializer.save(event=event)
+
+
+class VerifyInvitationView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        token = request.query_params.get("token")
+        if not token:
+            return Response({"error": "No invitation token provided"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            invitation = EventInvitation.objects.get(token=token)
+            return Response({
+                "valid": True,
+                "event_id": str(invitation.event.id),
+                "event_title": invitation.event.title,
+            })
+        except EventInvitation.DoesNotExist:
+            return Response({"valid": False, "error": "Invalid invitation"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AcceptInvitationView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        token = request.data.get("token")
+        if not token:
+            return Response({"error": "No invitation token provided"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            invitation = EventInvitation.objects.get(token=token)
+            if not invitation.accepted:
+                invitation.accepted = True
+                invitation.accepted_at = invitation.accepted_at or invitation.created_at
+                invitation.save(update_fields=["accepted", "accepted_at"])
+
+            event = invitation.event
+            event.participants.get_or_create(user=request.user)
+            return Response({
+                "success": True,
+                "event_id": str(event.id),
+                "is_participant": True,
+            })
+        except EventInvitation.DoesNotExist:
+            return Response({"error": "Invalid invitation token"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class EventShareTokenView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        event_id = request.data.get("event")
+        if not event_id:
+            return Response({"error": "No event ID provided"}, status=status.HTTP_400_BAD_REQUEST)
+        event = get_object_or_404(Event, id=event_id)
+        if event.creator != request.user:
+            raise PermissionDenied("Only the event creator can generate share tokens")
+        if event.shareable_link is False:
+            return Response({"error": "The host has disabled link sharing for this event"}, status=status.HTTP_403_FORBIDDEN)
+        invitation = EventInvitation.objects.create(event=event, email=f"share_{request.user.username}@example.com")
+        return Response({"token": str(invitation.token), "invitation_link": invitation.invitation_link})
+
+from ratelimit.decorators import ratelimit
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+    
+    @ratelimit(key='ip', rate='5/h', block=True)  # Limit to 5 requests per hour per IP
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+class TagListView(generics.ListAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [AllowAny]
+
