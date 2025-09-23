@@ -1,0 +1,76 @@
+[project]
+name = "zigzag"
+version = "0.1.0"
+description = "Please have fun"
+readme = "README.md"
+requires-python = ">=3.9, <3.11"
+dependencies = [
+    "cryptography>=41.0.7",
+    "django-allauth>=65.11.2",
+    "django-cors-headers>=4.8.0",
+    "django>=4.2.17,<5.0",
+    "djangorestframework-simplejwt>=5.3.1",
+    "djangorestframework>=3.15.2",
+    "requests>=2.32.3",
+]
+authors = [
+  {name = "BlueMountain"},
+  {name = "Dartagnan"},
+  {name = "Another person"},
+]
+
+
+
+[tool.uv.asgiref]
+version = "3.8.1"
+
+[tool.uv.backports.zoneinfo]
+version = "0.2.1"
+
+[tool.uv.certifi]
+version = "2025.1.31"
+
+[tool.uv.cffi]
+version = "1.17.1"
+
+[tool.uv.charset-normalizer]
+version = "3.4.1"
+
+[tool.uv.cryptography]
+version = "41.0.4"
+
+[tool.uv.Django]
+version = "4.2.17"
+
+[tool.uv.django-allauth]
+version = "65.4.1"
+
+[tool.uv.django-cors-headers]
+version = "4.4.0"
+
+[tool.uv.djangorestframework]
+version = "3.15.2"
+
+[tool.uv.djangorestframework-simplejwt]
+version = "5.3.1"
+
+[tool.uv.idna]
+version = "3.10"
+
+[tool.uv.pycparser]
+version = "2.22"
+
+[tool.uv.PyJWT]
+version = "2.9.0"
+
+[tool.uv.requests]
+version = "2.32.3"
+
+[tool.uv.sqlparse]
+version = "0.5.3"
+
+[tool.uv.typing-extensions]
+version = "4.12.2"
+
+[tool.uv.urllib3]
+version = "2.2.3"
