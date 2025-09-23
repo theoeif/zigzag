@@ -233,6 +233,15 @@ wheels = [
 ]
 
 [[package]]
+name = "python-memcached"
+version = "1.62"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/3c/204e5c6087efc85b52a68edce8678d44eb28718f5f145e036c277beb467c/python-memcached-1.62.tar.gz", hash = "sha256:0285470599b7f593fbf3bec084daa1f483221e68c1db2cf1d846a9f7c2655103", size = 28591, upload-time = "2024-01-14T15:56:03.134Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/1b/3b15a37831ae34a264d7d5b71f3ae9fe74a81251453a3ec2135e76888ef1/python_memcached-1.62-py2.py3-none-any.whl", hash = "sha256:1bdd8d2393ff53e80cd5e9442d750e658e0b35c3eebb3211af137303e3b729d1", size = 15136, upload-time = "2024-01-14T15:56:01.725Z" },
+]
+
+[[package]]
 name = "requests"
 version = "2.32.5"
 source = { registry = "https://pypi.org/simple" }
@@ -295,6 +304,7 @@ dependencies = [
     { name = "django-ratelimit" },
     { name = "djangorestframework" },
     { name = "djangorestframework-simplejwt" },
+    { name = "python-memcached" },
     { name = "requests" },
 ]
 
@@ -307,5 +317,6 @@ requires-dist = [
     { name = "django-ratelimit", specifier = ">=4.1.0" },
     { name = "djangorestframework", specifier = ">=3.15.2" },
     { name = "djangorestframework-simplejwt", specifier = ">=5.3.1" },
+    { name = "python-memcached", specifier = ">=1.62" },
     { name = "requests", specifier = ">=2.32.3" },
 ]

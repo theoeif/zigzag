@@ -21,12 +21,16 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenBlacklistView,
 )
+from events.views import RegisterView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # events app urls
     path('api/events/', include('events.urls')),
+
+    # customer registration for limiting bots
+    path('api/register/', RegisterView.as_view(), name='register'),
 
     # token urls   
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
