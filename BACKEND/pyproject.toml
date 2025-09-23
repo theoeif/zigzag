@@ -12,13 +12,13 @@ dependencies = [
     "djangorestframework-simplejwt>=5.3.1",
     "djangorestframework>=3.15.2",
     "requests>=2.32.3",
+    "django-ratelimit>=4.1.0",
 ]
 authors = [
   {name = "BlueMountain"},
   {name = "Dartagnan"},
   {name = "Another person"},
 ]
-
 
 
 [tool.uv.asgiref]
@@ -74,3 +74,7 @@ version = "4.12.2"
 
 [tool.uv.urllib3]
 version = "2.2.3"
+
+# to limits bots ip address.
+[tool.uv.django-ratelimit] 
+version = "4.1.0"
