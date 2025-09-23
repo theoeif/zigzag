@@ -3,66 +3,45 @@
 
 # 🔧 Project Setup
 
-## 🧱 Prerequisites
+## Prerequisites
 
-* Python 3.x
+* ***Python >=3.9, <3.11*** 
 * Node.js (Install: [https://nodejs.org/en/download](https://nodejs.org/en/download))
 * OS: Windows/macOS
 
 ---
 
-## ⚙️ Backend (Django)
+## Backend (Django)
 
-### 🐍 Setup
-
-**Windows:**
+### requirements
 
 ```bash
-python -m venv venv
-venv\Scripts\activate
+uv init
+uv sync
+source .venv/bin/activate
 ```
 
-**macOS:**
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Install deps:
-
-```bash
-pip install -r requirements.txt
-```
-
-DB setup:
+### DB setup:
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-Run server:
+### Run server:
 
 ```bash
-cd BACKEND/myprojects
-python manage.py runserver
-```
-
-Quick run (macOS):
-
-```bash
-source venv/bin/activate && cd myproject && python3 manage.py runserver
+source .venv/bin/activate && cd myproject && python3 manage.py runserver
 ```
 
 ---
 
-## 🌐 Frontend
+## Frontend
 
 Setup:
 
 ```bash
-cd FRONTEND
+cd FRONTEND/zigzag
 npm install --legacy-peer-deps
 ```
 
@@ -72,6 +51,8 @@ Run:
 npm run dev
 ```
 
----
+[App Link](https://duckduckgo.com)
 
-Let me know if you want a version with Docker, `.env` config, or deployment steps.
+[Doc github markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+
+---
