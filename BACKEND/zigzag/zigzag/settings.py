@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'ratelimit',
+    'django_ratelimit', # TODO : Redis for django ratelimit in production to enable Cache for Ip across severs
 ]
 
 REST_FRAMEWORK = {

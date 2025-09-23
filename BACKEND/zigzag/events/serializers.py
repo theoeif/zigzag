@@ -54,9 +54,7 @@ class EventInvitationSerializer(serializers.ModelSerializer):
         read_only_fields = ['token', 'created_at', 'accepted', 'accepted_at', 'invitation_link']
 
 
-from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
 class RegisterSerializer(serializers.ModelSerializer):

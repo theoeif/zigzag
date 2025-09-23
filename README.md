@@ -31,7 +31,7 @@ python manage.py migrate
 ### Run server:
 
 ```bash
-source .venv/bin/activate && cd myproject && python3 manage.py runserver
+source .venv/bin/activate && cd myproject && python3 manage.py runserver --skip-checks
 ```
 
 ---
