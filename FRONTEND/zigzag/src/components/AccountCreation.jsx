@@ -7,10 +7,8 @@ import { AuthContext } from "../contexts/AuthProvider";
 const AccountCreation = () => {
   const [formData, setFormData] = useState({
     username: "",
-    email: "",
     password: "",
     password2: "",
-    address: "",
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -23,23 +21,20 @@ const AccountCreation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await register(formData);
+      const { username, password, password2 } = formData;
+      const data = await register({ username, password, password2 });
       console.log("Account created:", data);
 
       // Mimic login.jsx behavior: store tokens and connect
-      if (data?.access && data?.refresh) {
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        if (data.username || formData.username) {
-          localStorage.setItem("username", data.username || formData.username);
-        }
+      // if (data?.access && data?.refresh) {
+      //   localStorage.setItem("access_token", data.access);
+      //   localStorage.setItem("refresh_token", data.refresh);
+      //   if (data.username || formData.username) {
+      //     localStorage.setItem("username", data.username || formData.username);
+      //   }
         setIsConnected(true);
         navigate("/");
         return;
-      }
-
-      // Fallback: if tokens not returned (older backend), go to login
-      navigate("/login");
     } catch (err) {
       console.error(err);
       setError(err.response?.data || "An error occurred");
@@ -69,20 +64,6 @@ const AccountCreation = () => {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="email" className={styles.label}></label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className={styles.input}
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}></label>
             <input
               type="password"
@@ -107,20 +88,6 @@ const AccountCreation = () => {
               required
               className={styles.input}
               placeholder="Confirm your password"
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="address" className={styles.label}></label>
-            <textarea
-              name="address"
-              id="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              className={styles.input}
-              placeholder="Enter your address"
-              rows={3}
             />
           </div>
 

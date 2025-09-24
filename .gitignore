@@ -1,0 +1,25 @@
+# external libraries
+
+# External NODE libraries
+node_modules/*
+node_modules/
+
+
+# External PYTHON libraries
+venv/
+.venv/
+other/
+venv2/
+
+# Computer dependencies
+*.pyc
+.DS_Store
+__pycache__/
+.vscode/
+ingest_venv/
+**/.DS_Store
+
+
+# db 
+migrations/
+db.sqlite3
