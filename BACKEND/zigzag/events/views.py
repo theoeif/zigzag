@@ -337,13 +337,26 @@ class EventShareTokenView(APIView):
         return Response({"token": str(invitation.token), "invitation_link": invitation.invitation_link})
 
 from django_ratelimit.decorators import ratelimit
+from rest_framework_simplejwt.tokens import RefreshToken
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
     
-    @ratelimit(key='ip', rate='5/h', block=True)  # Limit to 5 requests per hour per IP
+    # @ratelimit(key='ip', rate='5/h', block=True)  # Limit to 5 requests per hour per IP
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        refresh = RefreshToken.for_user(user)
+        access = refresh.access_token
+
+        return Response({
+            "access": str(access),
+            "refresh": str(refresh),
+            "username": user.username,
+        }, status=status.HTTP_201_CREATED)
 
 class TagListView(generics.ListAPIView):
     queryset = Tag.objects.all()

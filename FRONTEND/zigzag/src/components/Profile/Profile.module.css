@@ -1,0 +1,756 @@
+/* Profile.module.css */
+
+.profilePage {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0fdf4; /* Soft green background */
+  min-height: 100vh;
+}
+
+/* Section title styles */
+h2 {
+  font-size: 1.8em;
+  color: #2d6a4f; /* Deep green for titles */
+  margin-bottom: 10px;
+}
+
+/* Address list styles */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #d3e4cd;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #344e41; /* Neutral dark green */
+}
+
+/* Button for delete action */
+.deleteButton {
+  background-color: #d90429; /* Strong red */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.deleteButton:hover {
+  background-color: #e63946; /* Slightly brighter red on hover */
+}
+
+/* Address input styles */
+.addressInput {
+  padding: 12px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  border: 1px solid #d3e4cd;
+  border-radius: 6px;
+  font-size: 1em;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Add button styles */
+.addButton {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.addButton:hover {
+  background: #1565c0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+}
+
+.addButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.4);
+}
+
+/* Error message styles */
+.errorMessage {
+  color: #d90429; /* Red for errors */
+  font-size: 0.9em;
+  margin-top: 8px;
+}
+
+/* Fix manage button container positioning and prevent header overlap */
+.manageButtonContainer {
+  display: flex;
+  justify-content: flex-end; /* Change from space-between to flex-end */
+  padding: 10px 0;
+  margin: 80px 0 20px 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* Make both buttons consistent in size and styling */
+.manageButton, .saveButton {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px; /* Consistent padding */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  font-size: 0.95rem; /* Consistent font size */
+  font-weight: 500;
+  min-width: 140px; /* Ensure minimum width */
+  justify-content: center; /* Center content */
+}
+
+/* Specific styles for manage button */
+.manageButton {
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.manageButton:hover {
+  background-color: #c7c7c7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Specific styles for save button */
+.saveButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 0.95rem;
+  font-weight: 500;
+  z-index: 1000;
+}
+
+.saveButton:hover {
+  background-color: #43a047;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Add animation styles for the save button */
+.saveButton.saving {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.saveButton.saved {
+  background-color: #2e7d32;
+  pointer-events: none;
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.checkmark {
+  display: inline-block;
+  animation: checkmark 0.4s ease-in-out;
+}
+
+/* Improved Remote Work Section styling */
+.remoteWorkSection {
+  background: #f5f5f5; 
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 15px 0;
+  border: 1px solid #e0e0e0;
+}
+
+.remoteDaysLabel {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.remoteDaysInput {
+  width: 60px;
+  padding: 8px;
+  font-size: 1rem;
+  text-align: center;
+  border: 2px solid #40916c; /* Match LeftMenu green */
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.remoteDaysInput:focus {
+  border-color: #2d6a4f; /* Darker green on focus */
+  box-shadow: 0 0 8px rgba(64, 145, 108, 0.5);
+}
+
+.remoteDaysBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.remoteDay {
+  flex: 1;
+  padding: 12px 8px;
+  background-color: #f5f5f5;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  min-width: 60px;
+  border: 1px solid #e0e0e0;
+}
+
+.remoteDay:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.remoteDay.active {
+  background-color: #40916c; /* Green color from LeftMenu */
+  color: white;
+  font-weight: 500;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  border-color: #40916c;
+}
+
+/* Add styling for disabled remote days */
+.remoteDay.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.remoteDay.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.remoteDayCountInput {
+  width: 50px;
+  padding: 5px;
+  font-size: 16px;
+  text-align: center;
+  margin-left: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.remoteDayCountInput.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.vacationContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vacationInput {
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Timetable Styles */
+
+.timetable {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.timetableDay {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  text-align: center;
+}
+
+.timetableDay h4 {
+  margin: 0;
+}
+
+.timetableDay p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Time Range Picker Modal */
+.timeRangePickerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.timeRangePicker {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  z-index: 1101;
+  position: relative;
+  max-width: 400px;
+  width: 90%;
+  animation: fadeInScale 0.3s ease;
+}
+
+@keyframes fadeInScale {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.timeRangePicker h4 {
+  margin: 0 0 20px;
+  color: #2d6a4f;
+  font-size: 1.2rem;
+}
+
+.timeRangePicker input[type="time"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #d3e4cd;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.timeRangePicker input[type="time"]:focus {
+  border-color: #40916c;
+  box-shadow: 0 0 5px rgba(64, 145, 108, 0.4);
+  outline: none;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.timeRangePicker button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.timeRangePicker button:first-child {
+  background-color: #40916c;
+  color: white;
+}
+
+.timeRangePicker button:first-child:hover {
+  background-color: #2d6a4f;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.timeRangePicker button:last-child {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.timeRangePicker button:last-child:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.remoteWorkSection {
+  background: #f9f9f9; 
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.remoteDaysContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.remoteDaysLabel {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.remoteDaysInput {
+  width: 60px;
+  padding: 8px;
+  font-size: 1.2rem;
+  text-align: center;
+  border: 2px solid #4CAF50;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.remoteDaysInput:focus {
+  border-color: #388E3C;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.profilePage {
+  background: #f5f5f5;
+  padding: 20px;
+}
+
+.sectionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.subSection {
+  margin-top: 15px;
+}
+
+.subTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #555;
+}
+
+.timetable {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.timetableDay {
+  background: #eee;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.remoteWorkSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.remoteDaysLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.remoteDaysInput {
+  width: 60px;
+  padding: 8px;
+  font-size: 1rem;
+  text-align: center;
+  border: 2px solid #4CAF50;
+  border-radius: 5px;
+}
+
+.vacationContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dateInput, .vacationInput {
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+}
+
+.addressList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.addressItem {
+  margin-bottom: 10px;
+}
+
+.addAddressSection {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.addressInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 500px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.labelInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.labelSuggestions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 8px 0;
+  gap: 8px;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.labelSuggestions p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.localizeButton {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+}
+
+.localizeButton:hover {
+  background: #1565c0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.localizeButton:active {
+  transform: translateY(0);
+}
+
+.errorBanner {
+  background: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.errorBanner button {
+  background: none;
+  border: none;
+  color: #c62828;
+  cursor: pointer;
+  font-size: 1.2em;
+}
+
+.lookingForInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  margin-top: 10px;
+}
+
+.lookingForInput:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* Project-style tag styling */
+.projectTag {
+  display: inline-block;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 16px;
+  padding: 4px 10px;
+  margin-right: 8px;
+  margin-bottom: 5px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.projectTag:hover {
+  background-color: #bbdefb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* Google Maps linking styles */
+.addressTextContainer {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.addressTextContainer:hover .directionIcon {
+  opacity: 1;
+}
+
+.directionIcon {
+  margin-left: 8px;
+  color: #4285F4;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Modal overlay for popups */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+/* Address popup styles */
+.addressPopup {
+  animation: fadeInScale 0.3s ease;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+@keyframes fadeInScale {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}

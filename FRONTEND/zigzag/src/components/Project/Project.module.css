@@ -1,0 +1,2226 @@
+/* ==================== */
+/*     Profile Styles   */
+/* ==================== */
+
+/* Overall page layout */
+.profilePageProject {
+  padding-top: 40px;
+  padding-bottom: 20px; 
+  font-family: Arial, sans-serif;
+  background-color: #f0fdf4; /* Soft green background */
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  opacity: 1; /* Changed from animation to direct opacity */
+  overflow-y: auto; /* Ensure scrolling works */
+  overflow-x: hidden;
+  padding-left: 25px; /* Added left padding */
+  padding-right: 25px; /* Added right padding for balance */
+  will-change: auto !important;
+  perspective: none !important;
+}
+
+/* Section titles */
+.h2Project {
+  margin-top: 60px;
+  font-size: 2.2em;
+  color: #1b4332; /* Darker forest green */
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 5;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  border-bottom: none !important;
+  padding-bottom: 10px;
+  text-transform: capitalize;
+  position: relative;
+}
+
+.h2Project::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #2d6a4f, #40916c);
+  border-radius: 2px;
+}
+
+.h3Project {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0; /* Changed to keep consistent with sectionHeaderProject */
+  color: #1b4332; /* Darker forest green to match main heading */
+  text-align: left;
+  padding: 0 0 8px 0;
+  border-radius: 0;
+  box-shadow: none;
+  position: relative;
+  letter-spacing: -0.3px;
+}
+
+/* Individual section styling for consistency */
+.contentWithPaddingProject > div > .h3Project {
+  border-bottom: 2px solid rgba(64, 145, 108, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.contentWithPaddingProject > div > .h3Project::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, #2d6a4f, #40916c);
+  border-radius: 1px;
+}
+
+/* Form Scrolling Enhancement Styles */
+.fluidScrollContainer {
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+  scroll-behavior: smooth;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stickyFormHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+  border-bottom: 1px solid #eee;
+}
+
+.fluidScrollSection {
+  max-height: 200px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  padding: 5px;
+}
+
+.stickyFormFooter {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 15px 0 5px;
+  border-top: 1px solid #f0f0f0;
+  z-index: 5;
+}
+
+/* Scrollbar styling for better UX */
+.fluidScrollContainer::-webkit-scrollbar,
+.fluidScrollSection::-webkit-scrollbar {
+  width: 8px;
+}
+
+.fluidScrollContainer::-webkit-scrollbar-track,
+.fluidScrollSection::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.fluidScrollContainer::-webkit-scrollbar-thumb,
+.fluidScrollSection::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.fluidScrollContainer::-webkit-scrollbar-thumb:hover,
+.fluidScrollSection::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* ==================== */
+/*      List Styles     */
+/* ==================== */
+
+ulProject {
+  list-style: none;
+  padding: 0;
+}
+
+
+/* ==================== */
+/*   Button & Input     */
+/* ==================== */
+
+.deleteButtonProject {
+  background-color: transparent;
+  color: #dc3545; /* Red for delete */
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.deleteButtonProject:hover {
+  background-color: rgba(220, 53, 69, 0.1); /* Light red background on hover */
+  transform: translateY(-2px);
+}
+
+.addressInputProject {
+  padding: 12px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  border: 1px solid #d3e4cd;
+  border-radius: 6px;
+  font-size: 1em;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.addButtonProject {
+  background-color: #40916c;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  cursor: pointer;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.addButtonProject:hover {
+  background-color: #52b788;
+}
+
+.errorMessageProject {
+  color: #d90429;
+  font-size: 0.9em;
+  margin-top: 8px;
+}
+
+/* ==================== */
+/*   Event Card Styles  */
+/* ==================== */
+
+/* Default styling for each event card rendered as an <li> */
+ulProject li {
+  display: flex;
+  flex-direction: column;  /* Vertical stacking by default */
+  align-items: flex-start; /* Left-align content */
+  background-color: #ffffff;
+  border: 1px solid #d3e4cd;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  color: #344e41;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect on the event card */
+ulProject li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* --------------------------- */
+/* Event Content Typography    */
+/* --------------------------- */
+
+/* Title styling */
+ulProject li h4 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #2d6a4f;
+  margin-bottom: 0.5em;
+}
+
+/* Description & time styling */
+ulProject li p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5em;
+  line-height: 1.5;
+}
+
+/* Link styling */
+ulProject li a {
+  font-size: 1rem;
+  color: #40916c;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s, color 0.3s;
+  align-self: flex-start; /* Keep the link aligned to the start */
+}
+
+ulProject li a:hover {
+  color: #52b788;
+  border-bottom-color: #52b788;
+}
+
+/* ==================== */
+/* Responsive Adjustments */
+/* ==================== */
+
+/* On wider screens (tablets and above), display event content side by side */
+@media (min-width: 768px) {
+  ulProject li {
+    flex-direction: row;       /* Arrange content horizontally */
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+  }
+  
+  /* You can adjust typography on wider screens if desired */
+  ulProject li h4 {
+    font-size: 1.4rem;
+  }
+  
+  ulProject li p {
+    font-size: 1rem;
+    margin-bottom: 0; /* Remove extra margin when laid out in row */
+  }
+  
+  /* If needed, space out the different pieces of content */
+  /* For example, if you wrap text and links in separate containers */
+}
+
+/* For screens 768px and below (mobile & portrait) */
+@media (max-width: 768px) {
+  .profilePageProject {
+    padding: 15px;
+  }
+  
+  h2Project {
+    font-size: 1.5em;
+  }
+}
+
+/* For extra small devices (480px and below) */
+@media (max-width: 480px) {
+  h2Project {
+    font-size: 1.3em;
+  }
+  
+  ulProject li {
+    padding: 15px 18px;
+  }
+  
+  .left-menuProject {
+    width: 100%;
+  }
+  
+  .left-menuProject .left-menu-iconProject {
+    font-size: 2rem;
+  }
+}
+
+/* Divider to separate project categories */
+.dividerProject {
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 15px 0; /* Reduced from 30px */
+  width: 100%;
+}
+
+.eventItemProject {
+  margin-bottom: 20px; /* Adds space between events */
+  padding-bottom: 15px; /* Adds spacing inside each event box */
+  border-bottom: 1px solid #e0e0e0; /* Adds a separator between events */
+}
+
+.eventItemProject h4 {
+  font-size: 1.3rem; 
+  font-weight: bold;
+  color: #2d6a4f;
+  margin-bottom: 15px; /* Increase spacing below the title */
+}
+
+.eventItemProject p {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 5px;  /* Add space above description */
+  margin-bottom: 12px; /* Increase spacing between paragraphs */
+  line-height: 1.6; /* Improve readability */
+}
+
+.eventItemProject a {
+  display: inline-block;
+  margin-top: 10px; /* Adds space above the "View Event" link */
+}
+
+/* FORM EVENT CREATION */
+/* Modal Overlay & Content */
+.modalOverlayProject {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContentProject {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  width: 95%;
+  max-width: 500px;
+  max-height: 80vh;           /* Limit height to 80% of viewport height */
+  overflow-y: auto;           /* Enable vertical scrolling if content exceeds max-height */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+/* Close Button */
+.closeButtonProject {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Modal Title */
+.modalTitleProject {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #2d6a4f;
+}
+
+/* Form Groups */
+.formGroupProject {
+  margin-bottom: 15px;
+}
+
+.formGroupInlineProject {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.formLabelProject {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.formInputProject,
+.formTextareaProject {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.formTextareaProject {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Button Group */
+.buttonGroupProject {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Localize Button */
+.localizeButtonProject {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+/* Submit Button */
+.submitButtonProject {
+  background-color: #40916c;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+}
+
+/* Error Message */
+.errorMessageProject {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Localized Address Info */
+.localizedInfoProject {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+/* Fieldset for Circles */
+.fieldsetGroupProject {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 15px;
+}
+
+.fieldsetLegendProject {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Checkbox Container: checkbox at left of its label */
+.checkboxContainerProject {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.checkboxInputProject {
+  margin-right: 8px;
+}
+
+.checkboxLabelProject {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Add Project Button */
+.addEventButtonProject {
+  background-color: #40916c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: center;
+  height: 36px;
+  font-size: 14px;
+}
+
+.addEventButtonProject:hover {
+  background-color: #2d6a4f;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* Edit button - matched size with Add Project button */
+.manageButtonProject {
+  background-color: #e6f2ff;
+  color: #0066cc;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: center;
+  height: 36px;
+  font-size: 14px;
+}
+
+.manageButtonProject:hover {
+  background-color: #cce4ff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.manageButtonProject.activeProject {
+  background-color: #cce0ff;
+  color: #0055b3;
+  border: 1px solid #99c2ff;
+}
+
+.warningTextProject {
+  color: #ff9800;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.manageButtonContainerProject {
+  margin-top: 1px; /* Adjust to make sure it's visible */
+  display: flex;
+  justify-content: flex-end; /* Align the button to the right */
+  padding: 10px 20px; /* Add some padding for spacing */
+  background-color: #f8f8f8; /* Optional: Add a background color */
+  border-bottom: 1px solid #ddd; /* Optional: Add a border for separation */
+}
+
+.manageButtonProject {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Space between icon and text */
+}
+
+.manageButtonProject:hover {
+  color: #333; /* Darken the color on hover */
+}
+
+.manageButtonsGroupProject {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.editButtonProject {
+  background-color: transparent;
+  color: #0066cc; /* Match the blue of the Edit button */
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.editButtonProject:hover {
+  background-color: rgba(0, 102, 204, 0.1); /* Light blue background on hover */
+  transform: translateY(-2px);
+}
+
+/* Creation Form select all */
+.fieldsetGroupProject {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 5px;
+  position: relative; /* So we can position the select-all button more easily if needed */
+}
+
+.fieldsetLegendProject {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Container for the 'Select All' button and optional future elements */
+.selectAllContainerProject {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px; /* Spacing between button and checkboxes */
+}
+
+.selectAllButtonProject {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 8px; /* Some spacing from the checkboxes */
+}
+
+.selectAllButtonProject:hover {
+  background-color: #0056b3;
+}
+
+/* Container for each circle checkbox */
+.checkboxContainerProject {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.checkboxInputProject {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.checkboxLabelProject {
+  font-size: 14px;
+  color: #333;
+}
+
+/* Section Headers */
+.profilePageProject h2Project, 
+.profilePageProject h3Project,
+.profilePageProject .h2Project, /* Add this to target with class correctly */
+.profilePageProject .h3Project {
+  color: #333;
+  margin-top: 20px;
+  padding-bottom: 5px;
+  border-bottom: none;
+}
+
+/* Timeline Bar Container */
+.timelineContainerProject {
+  position: sticky;
+  top: 10px; /* Stick below header */
+  padding: 15px 0;
+  margin: 0 -25px; /* Counteract parent padding */
+  margin-left: 15px !important; /* Add left margin for mobile */
+  margin-right: 15px !important;
+  box-shadow: none; /* Removed box-shadow to eliminate border line */
+}
+/* Media query for mobile devices - specific to Project page */
+@media (max-width: 768px) {
+  /* Add padding at the top of the Project page to make room for timeline */
+  .profilePageProject {
+    padding-top: 80px !important; /* Reduced padding */
+  }
+  
+  /* Position timeline at the top of the page */
+  .timelineContainerProject {
+    position: absolute !important;
+    top: 0 !important; /* Position it directly below the header */
+    left: 0 !important;
+    right: 0 !important;
+    height: 90px !important; /* Reduced height for mobile */
+    margin-bottom: 0 !important;
+    margin-left: 15px !important; /* Add left margin for mobile */
+    margin-right: 15px !important; /* Add right margin for mobile */
+    z-index: 100 !important;
+  }
+  
+  /* Add space after the timeline for Projects heading */
+  .h2Project {
+    margin-top: 100px !important; /* Ensure adequate space after timeline on mobile */
+  }
+}
+
+/* Override the TimelineBar's fixed positioning to make it sticky at top instead */
+.timelineContainerProject :global(.timeline-container) {
+  position: sticky !important;
+  top: 0 !important;
+  bottom: auto !important;
+  z-index: 100 !important; /* Consistent z-index value */
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+/* Content area with padding for scrolling */
+.contentWithPaddingProject {
+  padding-bottom: 30px; /* Reduced from 100px */
+  padding-left: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Tag styling */
+.tagProject {
+  display: inline-block;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 16px;
+  padding: 4px 10px;
+  margin-right: 8px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.tagProject:hover {
+  background-color: #bbdefb;
+}
+
+/* Loading Spinner */
+.loadingContainerProject {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 40vh; /* Reduced from 60vh */
+  width: 100%;
+}
+
+.loadingSpinnerProject {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #4caf50;
+  margin-bottom: 16px;
+}
+
+.loadingContainerProject p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Event List Container */
+.eventsListProject {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Project Container */
+.projectContainerProject {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.projectTitleProject {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Events Grid */
+.eventsGridProject {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Reduced from 320px */
+  gap: 15px; /* Reduced from 25px */
+  width: 100%;
+}
+
+/* Event Card */
+.eventCardProject {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  padding: 15px; /* Reduced from 20px */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  margin-bottom: 15px; /* Reduced from 20px */
+}
+
+.eventCardProject:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Date Badge */
+.eventDateBadgeProject {
+  position: absolute;
+  top: 10px; /* Reduced from 16px */
+  right: 10px; /* Reduced from 16px */
+  background: #f8f9fa;
+  border-radius: 6px; /* Reduced from 8px */
+  padding: 5px 8px; /* Reduced from 8px 12px */
+  text-align: center;
+  border: 1px solid #e9ecef;
+  min-width: 80px; /* Reduced from 90px */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Reduced shadow */
+}
+
+.dayNameProject {
+  font-weight: 600;
+  color: #40916c;
+  font-size: 0.85rem; /* Reduced from 0.95rem */
+  text-transform: uppercase;
+}
+
+.dateTimeProject {
+  font-size: 0.75rem; /* Reduced from 0.8rem */
+  color: #6c757d;
+  white-space: nowrap;
+  margin-top: 1px; /* Reduced from 2px */
+}
+
+/* Main Event Info */
+.eventMainInfoProject {
+  margin-top: 5px;
+  margin-right: 110px; /* Increased from 90px to provide more space */
+}
+
+.eventTitleProject {
+  font-size: 1.1rem; /* Reduced from 1.25rem */
+  font-weight: 600;
+  margin-bottom: 8px; /* Reduced from 12px */
+  color: #333;
+  line-height: 1.2; /* Reduced from 1.3 */
+}
+
+.eventLocationProject {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.locationIconProject {
+  color: #40916c;
+  margin-right: 6px;
+  display: flex;
+  align-items: center;
+}
+
+/* Circles/Tags - Enhanced visibility */
+.circlesContainerProject {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.circleTagProject {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  border: 1px solid rgba(25, 118, 210, 0.1);
+}
+
+.circleTagProject:hover {
+  background-color: #bbdefb;
+  border-color: rgba(25, 118, 210, 0.2);
+}
+
+.moreCirclesProject {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  color: #666;
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  border: 1px solid #e0e0e0;
+}
+
+.moreCirclesProject:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+/* Expanding details section */
+.eventDescriptionProject {
+  margin-top: 10px; /* Reduced from 16px */
+  font-size: 0.9rem; /* Reduced from 0.95rem */
+  line-height: 1.4; /* Reduced from 1.5 */
+  padding-top: 10px; /* Reduced from 16px */
+}
+
+.detailsButtonProject {
+  background-color: #f5f5f5;
+  border: none;
+  color: #40916c;
+  cursor: pointer;
+  padding: 8px 12px;
+  margin: 12px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  width: 100%;
+  gap: 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.detailsButtonProject:hover {
+  color: #2d6a4f;
+  background-color: #e0e0e0;
+}
+
+.detailsButtonProject svg {
+  font-size: 0.8rem;
+}
+
+/* Expanded Details */
+.expandedDetailsProject {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
+  border: 1px solid #e9ecef;
+}
+
+.detailsHeaderProject {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.detailsHeaderProject h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.fullDescriptionProject {
+  margin-bottom: 20px;
+  display: block; /* Ensure description is displayed in details section */
+}
+
+.fullDescriptionProject strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.fullDescriptionProject p {
+  margin: 0;
+  line-height: 1.6;
+  color: #444;
+  white-space: pre-line;
+  font-size: 0.95rem;
+}
+
+/* Detail Items */
+.detailsGridProject {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+  padding: 16px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.detailItemProject {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.detailItemProject svg {
+  color: #40916c;
+  font-size: 1.1rem;
+  min-width: 20px;
+}
+
+.detailItemProject span, .detailItemProject a {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.detailItemProject a {
+  color: #1976d2;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.detailItemProject a:hover {
+  color: #0d47a1;
+  text-decoration: underline;
+}
+
+/* All Circles and Tags Sections */
+.allCirclesSectionProject {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.allCirclesProject h4, .allTagsProject h4 {
+  font-size: 1rem;
+  color: #555;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.circlesGridProject, .tagsGridProject {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Action buttons container - changed to allow spacing Edit to the right */
+.actionButtonsContainerProject {
+  display: flex;
+  align-items: center;
+  margin: 10px 0; /* Reduced from 20px */
+  width: 100%;
+}
+
+.spacerProject {
+  flex: 1;
+}
+
+/* Remove animations from section headers */
+.profilePageProject h2Project, 
+.profilePageProject h3Project,
+.profilePageProject .h2Project, /* Add this to target with class correctly */
+.profilePageProject .h3Project {
+  color: #333;
+  margin-top: 20px;
+  padding-bottom: 5px;
+  border-bottom: none;
+}
+
+/* Timeline Toggle Button */
+.timelineToggleButton {
+  display: none; /* Hide toggle button in Project view */
+}
+
+/* Add spacing for icons in both buttons */
+.addEventButtonProject svg,
+.manageButtonProject svg {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+/* Ensure Edit button styling is preserved */
+button.manageButtonProject {
+  background-color: #e6f2ff !important;
+  color: #0066cc !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 140px !important;
+  justify-content: center !important;
+  height: 36px !important;
+  font-size: 14px !important;
+}
+
+button.manageButtonProject:hover {
+  background-color: #cce4ff !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
+}
+
+button.manageButtonProject.activeProject {
+  background-color: #cce0ff !important;
+  color: #0055b3 !important;
+  border: 1px solid #99c2ff !important;
+}
+
+/* Circle Members Popup Styles - Enhanced version */
+.circleMembersPopupProject {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  width: 90%;
+  max-width: 450px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  animation: popupFadeIn 0.3s ease;
+  padding: 0;
+  border: 1px solid rgba(0,0,0,0.1);
+  z-index: 1100;
+}
+
+@keyframes popupFadeIn {
+  from { 
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popupHeaderProject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa;
+  border-radius: 15px 15px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.popupHeaderProject h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.closeButtonProject {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #777;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.closeButtonProject:hover {
+  color: #333;
+  transform: scale(1.1);
+}
+
+.popupContentProject {
+  padding: 24px;
+}
+
+.membersListProject {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.memberItemProject {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.memberItemProject:hover {
+  background-color: #f9f9f9;
+}
+
+.memberItemProject:last-child {
+  border-bottom: none;
+}
+
+.memberAvatarProject {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 18px;
+  overflow: hidden;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.memberAvatarProject img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.defaultAvatarProject {
+  font-size: 20px;
+  font-weight: bold;
+  color: #6c757d;
+}
+
+.memberNameProject {
+  font-size: 17px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Modal overlay for circle members popup */
+.modalOverlayProject {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.25s ease;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Loading spinner in members popup */
+.loadingContainerProject {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.loadingSpinnerProject {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error container in popup */
+.errorContainerProject {
+  text-align: center;
+  padding: 30px 20px;
+  color: #d32f2f;
+  background-color: #ffeeee;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.errorContainerProject p {
+  margin: 8px 0;
+}
+
+.errorContainerProject p:first-child {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Styles for the "View Participants" button */
+.showParticipantsButtonProject {
+  display: flex;
+  align-items: center;
+  background-color: #f0f8ff;
+  color: #0078d7;
+  border: 1px solid #cce5ff;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.showParticipantsButtonProject:hover {
+  background-color: #e0f0ff;
+  border-color: #99ccff;
+}
+
+.showParticipantsButtonProject svg {
+  margin-right: 6px;
+}
+
+/* Styles for circle tag buttons in the details section */
+.circlesGridProject {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.circleTagButtonProject {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.circleTagButtonProject:hover {
+  background-color: #e9f5ff;
+  border-color: #b3d7ff;
+}
+
+.circleNameProject {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.membersIconProject {
+  color: #0078d7;
+  margin-right: 5px;
+}
+
+.viewMembersTextProject {
+  font-size: 12px;
+  color: #0078d7;
+}
+
+/* Improved styles for the detailed circles section */
+.allCirclesSectionProject {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.allCirclesProject h4,
+.allTagsProject h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+/* Filter container for Friends Projects */
+.sectionHeaderProject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(64, 145, 108, 0.2);
+  padding-bottom: 8px;
+  position: relative;
+}
+
+.sectionHeaderProject::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, #2d6a4f, #40916c);
+  border-radius: 1px;
+}
+
+.sectionHeaderProject .h3Project {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.filterContainerProject {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(64, 145, 108, 0.08);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(64, 145, 108, 0.15);
+  transition: all 0.2s ease;
+}
+
+.filterContainerProject:hover {
+  background: rgba(64, 145, 108, 0.12);
+}
+
+.filterContainerProject svg {
+  color: #40916c;
+  font-size: 0.9rem;
+}
+
+.filterSelectProject {
+  background: none;
+  border: none;
+  color: #2d6a4f;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  padding: 4px;
+  font-weight: 500;
+}
+
+/* Members icon inside circle tags */
+.membersIconProject {
+  font-size: 0.7rem;
+  margin-left: 5px;
+  opacity: 0.7;
+}
+
+.circleTagProject {
+  cursor: pointer;
+}
+
+.circleTagProject:hover .membersIconProject {
+  opacity: 1;
+}
+
+/* Make event card icons perfectly aligned and sized */
+.eventActionsProject {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+  align-items: center;
+}
+
+.actionButtonsSpacerProject {
+  flex-grow: 1;
+}
+
+.actionButtonProject {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-size: 1rem;
+}
+
+.actionButtonProject:hover {
+  background-color: #e9ecef;
+  color: #40916c;
+}
+
+.actionButtonProject svg {
+  font-size: 1rem;
+}
+
+/* New Participants button style */
+.participantsButtonProject {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #e0f0ff;
+  color: #0078d7;
+  border: 1px solid #b3d7ff;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.participantsButtonProject:hover {
+  background-color: #cce5ff;
+  transform: translateY(-1px);
+}
+
+.participantsButtonProject svg {
+  font-size: 16px;
+}
+
+/* Fix padding on smaller screens */
+@media (max-width: 768px) {
+  :global(.project-isolated-menu-containerProject) {
+    width: 70% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :global(.project-isolated-menu-containerProject) {
+    width: 85% !important;
+  }
+}
+
+/* Hide description in main card view */
+.eventDescriptionProject p {
+  display: none; /* Hide description text in main view */
+}
+
+/* Enhanced Circle Members Popup Styles - No transition */
+.modalOverlayProjectInstant {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* Explicitly disable any animations or transitions */
+  transition: none !important;
+  animation: none !important;
+  backdrop-filter: blur(2px);
+}
+
+.circleMembersPopupProjectEnhanced {
+  background-color: white;
+  border-radius: 18px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 450px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 0;
+  border: 1px solid rgba(0,0,0,0.1);
+  z-index: 1100;
+  /* Explicitly disable any animations or transitions */
+  transition: none !important;
+  animation: none !important;
+}
+
+.popupHeaderProjectEnhanced {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eee;
+  background-color: #f0f8ff;
+  border-radius: 18px 18px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.popupTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.popupHeaderIcon {
+  color: #0078d7;
+  font-size: 22px;
+}
+
+.popupHeaderProjectEnhanced h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.closeButtonProjectEnhanced {
+  background: #f1f1f1;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.closeButtonProjectEnhanced:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* Member list enhanced */
+.membersListProjectEnhanced {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.memberItemProjectEnhanced {
+  display: flex;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.memberItemProjectEnhanced:hover {
+  background-color: #f9f9f9;
+}
+
+.memberItemProjectEnhanced:last-child {
+  border-bottom: none;
+}
+
+.memberAvatarProjectEnhanced {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin-right: 18px;
+  overflow: hidden;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.memberAvatarProjectEnhanced img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.defaultAvatarProjectEnhanced {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+.memberDetailsProject {
+  display: flex;
+  flex-direction: column;
+}
+
+.memberNameProjectEnhanced {
+  font-size: 17px;
+  color: #333;
+  font-weight: 500;
+}
+
+.memberUsernameProject {
+  font-size: 14px;
+  color: #777;
+  margin-top: 2px;
+}
+
+/* Loading spinner enhanced */
+.loadingContainerProjectEnhanced {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.loadingSpinnerProjectEnhanced {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #0078d7;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+/* Error container enhanced */
+.errorContainerProjectEnhanced {
+  text-align: center;
+  padding: 30px 20px;
+  color: #d32f2f;
+  background-color: #ffeeee;
+  border-radius: 12px;
+  margin: 20px;
+}
+
+.errorContainerProjectEnhanced p {
+  margin: 8px 0;
+}
+
+.errorContainerProjectEnhanced p:first-child {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* No members found styling */
+.noMembersContainerProject {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #777;
+}
+
+.noMembersIcon {
+  font-size: 40px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+/* Member count display */
+.memberCountProject {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #555;
+  gap: 4px;
+}
+
+.circleGroupLabel {
+  font-weight: normal;
+  color: #666;
+}
+
+.membersListProject {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.memberItemProject {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.memberItemProject:hover {
+  background-color: #f0f2f5;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.memberAvatarProject {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 12px;
+  flex-shrink: 0;
+  background-color: #e1e3e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #5a6270;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.memberAvatarProject img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.defaultAvatarProject {
+  font-size: 18px;
+  background: linear-gradient(135deg, #6e8efb, #4b6ffa);
+  color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memberDetailsProject {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.memberNameProject {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1a1d23;
+  margin-bottom: 2px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.memberUsernameProject {
+  font-size: 13px;
+  color: #6b7280;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Improve scrollbar for members list */
+.membersListProject::-webkit-scrollbar {
+  width: 6px;
+}
+
+.membersListProject::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.membersListProject::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 10px;
+}
+
+.membersListProject::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Enhanced Participants button style */
+.participantsButtonProjectEnhanced {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #0078d7;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.participantsButtonProjectEnhanced:hover {
+  background-color: #0063b1;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.participantsButtonProjectEnhanced svg {
+  font-size: 16px;
+}
+
+.participantCountBadge {
+  background-color: rgba(255,255,255,0.3);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+/* Absolutely no animation popup styles */
+.modalOverlayProjectNoAnimation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* Explicitly disable any animations or transitions */
+  transition: none !important;
+  animation: none !important;
+  backdrop-filter: blur(2px);
+}
+
+.circleMembersPopupProjectNoAnimation {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  width: 90%;
+  max-width: 450px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 0;
+  border: 1px solid rgba(0,0,0,0.1);
+  z-index: 1100;
+  /* Explicitly disable any animations or transitions */
+  transition: none !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Loading spinner with no animation */
+.loadingSpinnerProjectNoAnimation {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 20px;
+  /* No animation */
+  animation: none !important;
+}
+
+/* Address link styles */
+.eventLocationProject {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.locationLinkProject {
+  display: flex;
+  align-items: center;
+  color: #444;
+  text-decoration: none;
+  gap: 4px;
+  padding: 3px 0;
+  transition: all 0.2s ease;
+}
+
+.locationLinkProject:hover {
+  color: #4285F4;
+}
+
+.locationLinkProject:hover .locationIconProject {
+  color: #4285F4;
+}
+
+.locationIconProject {
+  margin-right: 5px;
+  color: #666;
+  font-size: 14px;
+}
+
+.locationTextProject {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Direction icon style */
+.directionsIconProject {
+  margin-left: 5px;
+  font-size: 12px;
+  color: #4285F4;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.locationLinkProject:hover .directionsIconProject {
+  opacity: 1;
+}
+
+/* Circles Dropdown Styles */
+.circlesDropdownHeaderProject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.circlesDropdownHeaderProject:hover {
+  background-color: #e9ecef;
+}
+
+.circlesHeaderTitleProject {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.circlesHeaderTitleProject h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.circlesCountProject {
+  font-size: 14px;
+  color: #6c757d;
+  background-color: rgba(108, 117, 125, 0.1);
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.circlesDropdownContentProject {
+  margin-left: 10px;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.circleDropdownItemProject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.circleDropdownItemProject:hover {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+}
+
+.circleDropdownItemLeftProject {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.circleNameProject {
+  font-weight: 500;
+  color: #212529;
+}
+
+.viewMembersTextProject {
+  font-size: 13px;
+  color: #0d6efd;
+  display: flex;
+  align-items: center;
+}
+
+.viewMembersTextProject:after {
+  content: '→';
+  margin-left: 5px;
+  transition: transform 0.2s ease;
+}
+
+.circleDropdownItemProject:hover .viewMembersTextProject:after {
+  transform: translateX(3px);
+}
+
+.membersIconProject {
+  color: #40916c;
+  font-size: 16px;
+}
+
+/* Adjust existing styles */
+.allCirclesProject {
+  margin-bottom: 20px;
+}
+
+/* Hide old styles but keep for compatibility */
+.circlesGridProject {
+  display: none;
+}
+
+/* Force tags to be displayed in a row */
+.tagsGridProject {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.simpleDetailsButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.simpleDetailsButtonProject {
+  background: none;
+  border: none;
+  color: #40916c;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 15px;
+  transition: background-color 0.2s ease;
+}
+
+.simpleDetailsButtonProject:hover {
+  background-color: rgba(64, 145, 108, 0.1);
+}
+
+.simpleDetailsButtonProject svg {
+  font-size: 0.85rem;
+}
+
+/* Add enhanced styling for participation elements */
+.participationInfoProject {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.participantsCountProject {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.participantsCountProject svg {
+  color: #40916c;
+  font-size: 0.9rem;
+}
+
+.minimalParticipationButtonProject {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #40916c;
+  font-size: 1rem;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.minimalParticipationButtonProject:hover {
+  background-color: rgba(64, 145, 108, 0.1);
+  transform: scale(1.1);
+}
+
+.participatingProject {
+  color: #1976d2;
+}
+
+.participatingProject:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}

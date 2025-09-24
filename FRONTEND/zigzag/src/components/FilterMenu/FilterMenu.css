@@ -1,0 +1,123 @@
+/* FilterMenu.css */
+
+/* Basic styling for the filter menu container */
+.filter-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 30%;
+  height: 100%;
+  background-color: #f0fdf4;
+  z-index: 1002;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-out;
+}
+
+/* Title for the filter menu */
+.filter-menu h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #2d6a4f;
+}
+
+/* Button styling for clustering */
+.clustering-button {
+  background-color: #40916c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-bottom: 10px;
+  width: 100%;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.clustering-button:hover {
+  background-color: #52b788;
+  transform: translateY(-2px);
+}
+
+/* Circle option styling */
+.filter-menu-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Styling for the checkboxes */
+.filter-menu input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+/* Close button styling */
+.close-button {
+  background-color: #d90429;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  font-size: 1em;
+  width: 100%;
+  margin-top: auto;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #e63946;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design - Mobile and Tablet */
+@media (max-width: 768px) {
+  .filter-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 66%;
+    height: 100%;
+    background-color: #f0fdf4;
+    z-index: 1002;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-out;
+  }
+
+  /* Adjust button sizes for mobile */
+  .clustering-button,
+  .close-button {
+    font-size: 1.2em;
+    padding: 10px;
+  }
+
+  /* Adjust title font size */
+  .filter-menu h2 {
+    font-size: 1.2em;
+  }
+
+  /* Modify label font size for better readability */
+  .filter-menu-label {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-menu h2 {
+    font-size: 1.1em; /* Smaller font size for smaller screens */
+  }
+
+  .filter-menu-label {
+    font-size: 14px; /* Smaller font size for very small screens */
+  }
+}
