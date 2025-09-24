@@ -1,0 +1,1226 @@
+/* ==================== */
+/*     Profile Styles   */
+/* ==================== */
+
+/* Overall page layout */
+.profilePage {
+  padding-top: 80px; /* Space for header */
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f0fdf4; /* Soft green background */
+  min-height: 100vh;
+}
+
+
+
+
+/* File: components/Circles/Circle.module.css */
+.profilePage {
+  position: relative;
+  min-height: 100vh;
+}
+
+.mainCirclesContainer {
+  display: flex;
+  margin-top: 60px;
+  height: calc(100vh - 60px);
+}
+
+/* Circles Sidebar */
+.circlesSidebarContainer {
+  width: 300px;
+  background: white;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  height: 100%;
+  transition: transform 0.3s ease;
+  position: fixed;
+  z-index: 100;
+}
+
+.circlesList {
+  list-style: none;
+  padding: 20px;
+  margin: 0;
+}
+
+.circleItem {
+  padding: 15px 20px;
+  margin: 8px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
+}
+
+.circleItem:hover {
+  background: #e9ecef;
+}
+
+.circleItem.selected {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+}
+
+.addCircleButton {
+  background-color: #1b4332; /* Dark forest green color */
+  color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0 auto;
+  font-weight: 500; /* Less bold */
+  font-size: 0.9rem; /* Smaller font */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(27, 67, 50, 0.2); /* Lighter shadow */
+  position: sticky; 
+  bottom: 20px; /* Put back to original value */
+  width: calc(100% - 30px); /* Slightly narrower */
+  z-index: 5; 
+  text-transform: none; /* Remove uppercase */
+  letter-spacing: normal;
+  opacity: 0.9; /* Slightly transparent */
+}
+
+.addCircleButton:hover {
+  background-color: #2d6a4f; /* Slightly lighter green on hover */
+  transform: translateY(-1px); /* Less movement */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+  opacity: 1;
+}
+
+.addCircleButton:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .circlesSidebarContainer {
+    position: fixed;
+    top: 60px;
+    left: -100%;
+    width: 80%;
+    height: calc(100vh - 60px);
+    z-index: 1000;
+    transition: left 0.3s ease;
+    background: white;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+  }
+
+
+  .circlesSidebarContainer.open {
+    left: 0;
+  }
+
+  .mobileMenuButton {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 1001;
+    padding: 8px 16px;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .detailsContainer {
+    width: 100%;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Mobile header in sidebar */
+  .circlesSidebar > .mobileHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    padding: 0;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 769px) {
+  .circlesSidebarContainer {
+    position: static;
+    transform: none !important;
+    box-shadow: none;
+  }
+
+  .mobileMenuButton {
+    display: none;
+  }
+
+  .detailsContainer {
+    margin-left: 300px;
+    padding: 30px;
+  }
+}
+
+/* Circle Details View */
+.emptyState {
+  text-align: center;
+  color: #6c757d;
+  padding: 40px;
+}
+
+.membersGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.memberCard {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+
+
+
+/* ==================== */
+/* Circles Details View */
+/* ==================== */
+
+
+/* Add to Circle.module.css */
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.emptyStateContent {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.emptyState h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.emptyState p {
+  font-size: 1rem;
+  color: #868e96;
+}
+
+@media (max-width: 768px) {
+  .emptyState {
+    padding-top: 60px;
+  }
+  
+  .emptyState h2 {
+    font-size: 1.2rem;
+  }
+}
+
+
+
+/* Details View Container */
+.detailsView {
+  flex: 1;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: calc(100vh - 60px);
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6c757d;
+}
+
+.emptyStateContent {
+  text-align: center;
+  max-width: 400px;
+}
+
+/* Circle Header */
+.circleHeader {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.circleTitle {
+  font-size: 2rem;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.memberCount {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Members Grid */
+.membersGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.memberCard {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.memberCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.memberAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #3498db;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.memberName {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.memberUsername {
+  margin: 0.25rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.memberEmail {
+  margin: 0;
+  color: #3498db;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Actions Bar */
+.actionsBar {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #dee2e6;
+  text-align: center;
+}
+
+.addFriendButton {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.addFriendButton:hover {
+  background: #2980b9;
+}
+
+
+
+
+
+
+
+
+
+
+/* Mobile Header */
+@media (max-width: 768px) {
+  .detailsView {
+    padding: 15px;
+  }
+  
+  .circleTitle {
+    font-size: 1.5rem;
+  }
+
+  .membersGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mobileHeader {
+    display: flex;
+    align-items: center;
+    margin: -15px -15px 15px -15px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .backButton {
+    background: none;
+    border: none;
+    color: #3498db;
+    font-size: 1rem;
+    padding: 0;
+    cursor: pointer;
+  }
+}
+
+
+/* ==================== */
+/* Scrollable Menu      */
+/* ==================== */
+
+/* Members Menu Container */
+.membersMenuContainer {
+  flex: 1;
+  overflow: hidden; /* Keep this hidden to contain the scroll */
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Scrollable Members Menu */
+.membersMenu {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 12px;
+  /* Calculate height based on viewport minus header/action bar heights */
+  max-height: calc(100vh - 260px); /* Adjust 200px based on your actual header/action bar heights */
+}
+
+/* Custom Scrollbar */
+.membersMenu::-webkit-scrollbar {
+  width: 12px;
+  background: #f8f9fa; /* Match your background color */
+}
+
+.membersMenu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+  margin: 4px 0;
+}
+
+.membersMenu::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+  border: 3px solid #f1f1f1; /* Creates padding effect */
+}
+
+.membersMenu::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Firefox scrollbar */
+@supports (scrollbar-width: thin) {
+  .membersMenu {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+  }
+}
+
+/* Parent container styles */
+.detailsView {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullHeightContainer {
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+
+/* ==================== */
+/* CircleSide bar create*/
+/* ==================== */
+
+/* Circle.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modalContent {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #666;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputLabel {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.inputIcon {
+  margin-right: 0.75rem;
+  color: #666;
+}
+
+.textInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  color: #444;
+}
+
+.checkboxInput {
+  opacity: 0;
+  position: absolute;
+}
+
+.checkboxCustom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 0.75rem;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.checkboxInput:checked + .checkboxCustom {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+.checkboxInput:checked + .checkboxCustom::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #666;
+}
+
+.tag:hover {
+  background: #e0e0e0;
+}
+
+.tagSelected {
+  background: #007bff;
+  color: white;
+}
+
+.tagCheck {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.errorMessage {
+  color: #dc3545;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modalActions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.createButton {
+  background-color: #1b4332; /* Dark forest green to match */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.createButton:hover:not(:disabled) {
+  background-color: #2d6a4f; /* Lighter green on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.createButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Add to Circle.module.css */
+/* Unified styles */
+.circlesSidebar {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px); /* Account for header height */
+  position: relative;
+}
+
+.circlesList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  margin: 0;
+  list-style: none;
+}
+
+.circleCategory {
+  padding: 16px 20px 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.circlesSubList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.circlesList {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+  padding-bottom: 40px; /* Keep this value that was working before */
+  margin-bottom: 20px;
+}
+
+/* ==================== */
+/*    Circles Sidebar   */
+/* ==================== */
+
+.circlesSidebar {
+  background-color: #f0fdf4;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(64, 145, 108, 0.15);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.circlesList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  padding-right: 5px;
+  padding-bottom: 30px; /* Reduced space for button */
+  margin: 0 0 20px 0;
+  list-style: none;
+}
+
+.circleCategory {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1b4332;
+  margin: 25px 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(64, 145, 108, 0.2);
+  position: relative;
+}
+
+.circleCategory::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, #2d6a4f, #40916c);
+  border-radius: 1px;
+}
+
+.circleCategory:first-child {
+  margin-top: 0;
+}
+
+.circlesSubList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.circleItem {
+  padding: 12px 15px;
+  margin: 8px 0;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid transparent;
+}
+
+.circleItem:hover {
+  background-color: rgba(64, 145, 108, 0.08);
+  transform: translateX(3px);
+}
+
+.circleItem.selected {
+  background-color: rgba(64, 145, 108, 0.12);
+  color: #2d6a4f;
+  font-weight: 600;
+  border-left: 3px solid #40916c;
+}
+
+.addCircleButton {
+  background-color: #1b4332; /* Dark forest green color */
+  color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0 auto;
+  font-weight: 500; /* Less bold */
+  font-size: 0.9rem; /* Smaller font */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(27, 67, 50, 0.2); /* Lighter shadow */
+  position: sticky; 
+  bottom: 20px; /* Put back to original value */
+  width: calc(100% - 30px); /* Slightly narrower */
+  z-index: 5; 
+  text-transform: none; /* Remove uppercase */
+  letter-spacing: normal;
+  opacity: 0.9; /* Slightly transparent */
+}
+
+.addCircleButton:hover {
+  background-color: #2d6a4f; /* Slightly lighter green on hover */
+  transform: translateY(-1px); /* Less movement */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+  opacity: 1;
+}
+
+.addCircleButton:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== */
+/*    Add Circle Modal  */
+/* ==================== */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background-color: #f0fdf4;
+  border-bottom: 1px solid rgba(64, 145, 108, 0.15);
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #1b4332;
+  font-weight: 600;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.5rem;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #1b4332;
+  transform: scale(1.1);
+}
+
+.formGroup {
+  margin-bottom: 20px;
+  padding: 0 24px;
+}
+
+.inputLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.inputIcon {
+  color: #40916c;
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d3e4cd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: #40916c;
+  box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.2);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxInput {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+.checkboxCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d3e4cd;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.checkboxInput:checked + .checkboxCustom {
+  background-color: #40916c;
+  border-color: #40916c;
+}
+
+.checkboxInput:checked + .checkboxCustom::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tag {
+  background-color: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  color: #333;
+  border-radius: 16px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag:hover {
+  background-color: #e8f5e9;
+  border-color: #c8e6c9;
+}
+
+.tagSelected {
+  background-color: rgba(64, 145, 108, 0.12);
+  border-color: #40916c;
+  color: #2d6a4f;
+}
+
+.tagCheck {
+  color: #40916c;
+  font-size: 1rem;
+}
+
+.errorMessage {
+  color: #d32f2f;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  padding: 0 24px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.createButton {
+  background-color: #1b4332; /* Dark forest green to match */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.createButton:hover:not(:disabled) {
+  background-color: #2d6a4f; /* Lighter green on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.createButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* ==================== */
+/* Circle Details View  */
+/* ==================== */
+
+/* These are custom style overrides for Material-UI components */
+
+:global(.MuiList-root.circleMembers) {
+  padding: 12px 8px !important;
+  background-color: #f0fdf4 !important;
+  border-radius: 12px !important;
+  margin-top: 20px !important;
+}
+
+:global(.MuiListItem-root.circleMemberItem) {
+  border-radius: 8px !important;
+  margin-bottom: 8px !important;
+  background-color: white !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.2s ease !important;
+}
+
+:global(.MuiListItem-root.circleMemberItem:hover) {
+  transform: translateX(4px) !important;
+  background-color: rgba(64, 145, 108, 0.08) !important;
+}
+
+:global(.MuiAvatar-root.circleMemberAvatar) {
+  background-color: #1976d2 !important; /* Keep blue color for avatars */
+}
+
+:global(.MuiButton-root.circleAddButton) {
+  background-color: #1976d2 !important; /* Match blue color */
+  color: white !important;
+  border-radius: 20px !important;
+  padding: 8px 20px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease !important;
+}
+
+:global(.MuiButton-root.circleAddButton:hover) {
+  background-color: #1565c0 !important; /* Darker blue on hover */
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+:global(.MuiIconButton-root.deleteIcon) {
+  color: #757575 !important; /* Grey color for delete icon */
+  transition: all 0.2s ease !important;
+}
+
+:global(.MuiIconButton-root.deleteIcon:hover) {
+  background-color: rgba(117, 117, 117, 0.08) !important; /* Grey hover effect */
+  transform: scale(1.1) !important;
+}
+
+:global(.MuiTypography-root.circleTitle) {
+  color: #1b4332 !important; /* Changed from blue to dark forest green */
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 5px !important;
+}
+
+:global(.MuiTypography-root.circleSubtitle) {
+  color: #2d6a4f !important; /* Changed from blue to a lighter forest green */
+  font-size: 0.95rem !important;
+}
+
+:global(.MuiMenuItem-root.deleteMenuItem) {
+  color: #d32f2f !important; /* Change from grey to red */
+  font-weight: 500 !important; /* Make it slightly bolder */
+}
+
+:global(.MuiMenuItem-root.deleteMenuItem:hover) {
+  background-color: rgba(211, 47, 47, 0.08) !important; /* Red hover effect */
+}
+
+:global(.MuiMenuItem-root.deleteMenuItem .MuiSvgIcon-root) {
+  color: #d32f2f !important; /* Make the delete icon red too */
+}
+
+:global(.MuiIconButton-root.moreOptions) {
+  color: #757575 !important; /* Grey for more options */
+}
+
+:global(.MuiIconButton-root.moreOptions:hover) {
+  background-color: rgba(25, 118, 210, 0.08) !important; /* Blue hover effect */
+}
+
+:global(.MuiDialog-paper.addFriendsDialog) {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+:global(.MuiDialogTitle-root.addFriendsTitle) {
+  background-color: #e3f2fd !important; /* Light blue background */
+  color: #1976d2 !important; /* Blue text */
+  padding: 16px 24px !important;
+  border-bottom: 1px solid rgba(25, 118, 210, 0.15) !important;
+}
+
+:global(.MuiButton-root.addFriendsConfirm) {
+  background-color: #1976d2 !important; /* Blue button */
+  color: white !important;
+}
+
+:global(.MuiButton-root.addFriendsConfirm:hover) {
+  background-color: #1565c0 !important; /* Darker blue on hover */
+}
+
+:global(.MuiCheckbox-root.memberCheckbox) {
+  color: #1976d2 !important; /* Blue checkbox */
+}
+
+:global(.MuiCheckbox-root.memberCheckbox.Mui-checked) {
+  color: #1976d2 !important; /* Blue when checked */
+}
+
+:global(.MuiListItem-button.friendItem) {
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Empty state styling */
+:global(.emptyStateContainer) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 40px 20px !important;
+  color: #666 !important;
+  text-align: center !important;
+}
+
+:global(.emptyStateTitle) {
+  color: #1976d2 !important; /* Blue for empty state title */
+  font-weight: 600 !important;
+  margin-bottom: 10px !important;
+}
+
+:global(.emptyStateText) {
+  color: #666 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+  }
+
+  .circlesSidebar {
+    padding: 15px;
+  }
+
+  .circleItem {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .addCircleButton {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    width: 100%;
+    border-radius: 0;
+    max-height: 100vh;
+    height: 100%;
+  }
+
+  .modalHeader h2 {
+    font-size: 1.2rem;
+  }
+
+  .circleItem {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+}

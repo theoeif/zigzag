@@ -1,0 +1,151 @@
+/* Login.module.css */
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0fdf4;
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+  }
+  
+  .formContainer {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 28rem;
+    width: 100%;
+  }
+  
+  .title {
+    font-size: 1.8em;
+    font-weight: bold;
+    text-align: center;
+    color: #2d6a4f;
+    margin-bottom: 2rem;
+  }
+  
+  .error {
+    color: #ef4444;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.5rem;
+  }
+  
+  .label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    outline: none;
+    font-size: 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .input:focus {
+    border-color: #40916c;
+    box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.2);
+  }
+  
+  .button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #40916c;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .button:hover {
+    background-color: #52b788;
+  }
+  
+  .socialLogin {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+  
+  .socialText {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin-bottom: 1rem;
+  }
+  
+  .socialButtons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .socialButtonGoogle,
+  .socialButtonFacebook {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .socialButtonGoogle {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+  
+  .socialButtonGoogle:hover {
+    background-color: #f7f7f7;
+  }
+  
+  .socialButtonFacebook {
+    background-color: #1877f2;
+    color: white;
+  }
+  
+  .socialButtonFacebook:hover {
+    background-color: #166fe5;
+  }
+  
+  .socialIcon {
+    font-size: 1.2rem;
+  }
+  
+  .signupText {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+  
+  .signupLink {
+    color: #40916c;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  
+  .signupLink:hover {
+    color: #2d6a4f;
+  }

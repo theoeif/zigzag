@@ -1,0 +1,1272 @@
+/* src/index.css */
+
+/* Include Tailwind's base, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* General App Styling */
+#root, .App {
+  font-family: Arial, sans-serif;
+}
+
+.leaflet-control-zoom {
+  top: 80px !important; /* Adjust this value to push it below the header */
+  left: 10px !important; /* Keep it near the left edge */
+}
+
+.map-container {
+  isolation: isolate; /* Creates new stacking context */
+  z-index: 1;
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Critical change - ensures full viewport height */
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3); /* Semi-transparent black overlay */
+  z-index: 999; /* Ensure it is on top of the map */
+}
+
+.custom-tooltip {
+  max-width: 200px !important; /* Increase width */
+  min-width: 200px;
+  min-height: 75px; /* Adjust height for square shape */
+  text-align: center;
+  background-color: white;
+  border: 1px solid #333;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.leaflet-tooltip.custom-tooltip {
+  white-space: normal; /* Allow text wrapping */
+}
+
+/* Enhanced tooltip styles */
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+}
+
+.tooltip-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 5px;
+  margin-bottom: 3px;
+}
+
+.tooltip-address {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tooltip-address svg {
+  flex-shrink: 0;
+}
+
+.tooltip-address i {
+  margin-right: 5px;
+  color: #2196F3;
+  font-size: 14px;
+}
+
+.tooltip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.tooltip-tag {
+  font-size: 10px;
+  color: #fff;
+  background-color: #2196F3;
+  padding: 2px 6px;
+  border-radius: 10px;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.tooltip-tag.public-tag {
+  background-color: #4CAF50; /* Green color matching the markers */
+  color: white;
+}
+
+.tooltip-description {
+  font-size: 11px;
+  color: #777;
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+/* ========== FilterMenu Styles ========== */
+/* Filter Menu Styles */
+.filter-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 30%;
+  height: 100%;
+  background-color: #f0fdf4;
+  z-index: 1700;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-shadow: -8px 0 15px -3px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Prevent zoom on mobile */
+.filter-menu * {
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Ensure the menu header stays fixed */
+.menu-header {
+  position: sticky;
+  top: 0;
+  background-color: #f0fdf4;
+  z-index: 1;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #d1fae5;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+}
+
+.menu-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #065f46;
+  margin: 0;
+}
+
+.menu-icon {
+  width: 24px;
+  height: 24px;
+  stroke: #065f46;
+}
+
+.filter-section {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-header h3 {
+  font-size: 1.1rem;
+  color: #065f46;
+  margin: 0;
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: #34d399;
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.toggle-label {
+  font-size: 0.95rem;
+  color: #064e3b;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.toggle-hint {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.tag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-item:hover {
+  background: #dcfce7;
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+input:checked + .custom-checkbox {
+  background: #34d399;
+  border-color: #34d399;
+}
+
+input:checked + .custom-checkbox::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.tag-label {
+  font-size: 0.9rem;
+  color: #064e3b;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e8f0;
+  transition: .3s;
+  border-radius: 12px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #34d399;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Disabled state styling */
+.switch.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.switch.disabled .slider {
+  cursor: not-allowed;
+  background-color: #cbd5e1;
+}
+
+.switch.disabled input:checked + .slider {
+  background-color: #94e2ca;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Consolidated GeoSearch styles */
+.geo-search-wrapper {
+  position: relative;
+  z-index: 9999 !important;
+  overflow: visible; /* Ensure not clipping */
+  isolation: isolate; /* Creates new stacking context */
+}
+
+/* Consolidated Autocomplete styles */
+.filter-menu .aa-Autocomplete {
+  position: static !important;
+  width: 100%;
+}
+
+.filter-menu .aa-Form {
+  margin: 0;
+}
+
+.filter-menu .aa-InputWrapper {
+  position: static !important;
+}
+
+.filter-menu .aa-Input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #a7f3d0 !important;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  background: white;
+  transition: all 0.3s ease;
+  outline: none !important; /* Remove default outline */
+  box-shadow: none !important; /* Remove any default shadow */
+}
+
+.filter-menu .aa-Input:focus {
+  outline: none;
+  border-color: #34d399 !important;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2) !important;
+}
+
+/* Additional style to override Algolia's default container styles */
+.filter-menu .aa-Autocomplete, 
+.filter-menu .aa-DetachedFormContainer, 
+.filter-menu .aa-InputWrapperPrefix,
+.filter-menu .aa-InputWrapperSuffix {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Override any border on the form container */
+.filter-menu .aa-Form {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.filter-menu .aa-Item {
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f0f4f8;
+}
+
+.filter-menu .aa-Item:last-child {
+  border-bottom: none;
+}
+
+.filter-menu .aa-Item:hover {
+  background: #f0fdf4;
+}
+
+.filter-menu .aa-Item[aria-selected="true"] {
+  background: #dcfce7;
+}
+
+.filter-menu .aa-Label {
+  display: none;
+}
+
+.aa-Panel {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Give location search section higher z-index */
+.filter-section:nth-child(2) {
+  position: relative;
+  z-index: 2000;
+}
+
+@media (max-width: 768px) {
+  .filter-menu {
+    width: 66%;
+    padding: 1rem;
+  }
+  
+  .section-header h3 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-menu {
+    width: 80%;
+  }
+}
+
+/* ========== Header Styles ========== */
+.header {
+  position: fixed; /* Ensures it sticks to the top */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #2d6a4f; /* Deep green */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1200;
+}
+
+.left-menu-icon, .filter-icon {
+  position: absolute;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: #fff;
+  z-index: 1001;
+}
+
+.left-menu-icon:hover, .filter-icon:hover {
+  color: #ffcc00;
+  transform: scale(1.1);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.left-menu-icon {
+  left: 10px;
+}
+
+.filter-icon {
+  right: 10px;
+}
+
+.app-title {
+  color: #fff;
+  font-size: 1.6em;
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-weight: bold;
+}
+
+/* ========== LeftMenu Styles ========== */
+/* index.css */
+.left-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  background-color: #f0fdf4;
+  z-index: 1500;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 8px 0 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+/* Menu header styles are shared with filter-menu, not duplicated */
+
+.menu-icon:hover {
+  transform: rotate(15deg) scale(1.1);
+  stroke: #047857;
+}
+
+.menu-btn {
+  background: transparent;
+  color: #064e3b;
+  border: 1px solid #a7f3d0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Updated active state styling with dark forest green theme matching header */
+.menu-btn-active {
+  background-color: #2d6a4f !important; /* Dark forest green matching header */
+  border-color: #1a4031 !important; /* Darker shade for border */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important; /* Subtle inset shadow */
+  color: #ffffff !important; /* White text for contrast */
+  transform: translateY(1px); /* Slight pressed effect */
+}
+
+/* Set animation variables for consistent timing */
+:root {
+  --animation-duration: 20ms;
+  --animation-easing: ease-in-out;
+}
+
+/* Updated click animation keyframes - using the dark forest green theme */
+@keyframes click-pulse {
+  0% {
+    background-color: #2d6a4f; /* Dark forest green */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+  }
+  50% {
+    background-color: #3a8a6a; /* Slightly lighter forest green */
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+  }
+  100% {
+    background-color: #2d6a4f; /* Back to dark forest green */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+  }
+}
+
+/* Class for click animation - ensure it works for all screen sizes */
+.menu-btn-clicking {
+  animation: click-pulse var(--animation-duration) var(--animation-easing);
+  background-color: #2d6a4f !important; /* Dark forest green */
+  border-color: #1a4031 !important; /* Darker shade for border */
+  color: #ffffff !important; /* White text for contrast */
+}
+
+/* Make sure the active styles apply consistently */
+.menu-btn.menu-btn-active {
+  background-color: #2d6a4f !important; /* Dark forest green */
+  border-color: #1a4031 !important; /* Darker shade */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  color: #ffffff !important;
+  transform: translateY(1px) !important;
+}
+
+.menu-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(45, 106, 79, 0.2); /* Forest green with opacity */
+  transition: left 0.4s ease;
+}
+
+.menu-btn:hover {
+  background-color: #34805f; /* Slightly lighter forest green */
+  transform: translateY(-2px);
+  border-color: #2d6a4f; /* Match header color */
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.15);
+  color: #ffffff; /* White text */
+}
+
+/* Ensure hover effect for active buttons is also consistent */
+.menu-btn.menu-btn-active:hover {
+  background-color: #34805f !important; /* Slightly lighter forest green */
+  transform: translateY(0) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+  border-color: #1a4031 !important;
+  color: #ffffff !important;
+}
+
+.menu-btn:hover::before {
+  left: 100%;
+}
+
+.menu-btn:active {
+  transform: scale(0.96);
+}
+
+.menu-btn.disconnect {
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.menu-btn.disconnect:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  transform: translateY(-2px);
+}
+
+.research-bar input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #a7f3d0;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.research-bar input:hover {
+  border-color: #34d399;
+}
+
+.research-bar input:focus {
+  outline: none;
+  border-color: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+}
+
+.search-results li {
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: #064e3b;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  left: 0;
+}
+
+.search-results li:hover {
+  background: #f0fdf4; /* Changed from #dcfce7 to #f0fdf4 */
+  left: 4px;
+  box-shadow: -4px 0 0 #34d399;
+}
+
+.search-results li:active {
+  transform: scale(0.98);
+}
+
+.search-results span {
+  font-size: 0.8rem;
+  color: #34d399;
+  float: right;
+  transition: color 0.3s ease;
+}
+
+/* LeftMenu Updates */
+.menu-section {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Section header styles are shared with filter-menu, not duplicated */
+
+.menu-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Update search results positioning */
+.research-bar {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.search-results {
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+}
+
+@media (max-width: 768px) {
+  .left-menu {
+    width: 66%;
+    padding: 1rem;
+  }
+  
+  .menu-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .menu-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.9rem;
+  }
+  
+  /* Ensure active state styling works on mobile too */
+  .menu-btn-active {
+    background-color: #f0fdf4; /* Changed from #dcfce7 to #f0fdf4 */
+    box-shadow: inset 0 1px 3px rgba(4, 120, 87, 0.15);
+  }
+}
+
+@media (max-width: 480px) {
+  .left-menu {
+    width: 80%;
+  }
+}
+
+.aa-SourceFooter {
+  display: none !important;
+}
+
+/* ========== Event Popup ========== */
+
+/* styles.css or a similar CSS file */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 1rem;
+  max-width: 600px;
+  width: 90%;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.26);
+}
+
+/* ========== MarkerCluster Styles ========== */
+/* Marker container */
+.custom-red-marker .marker_container {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+}
+
+/* Inner marker (red dot with white border) */
+.custom-red-marker .marker_icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width:16px;
+  height: 16px;
+  background-color: lightcoral;
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 2;
+  transition: transform 0.3s ease, background-color 0.3.s ease;
+}
+
+/* Pulse animation */
+.custom-red-marker .marker_pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border: 2px solid lightgrey;
+  background-color: transparent;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Animation for the pulse effect */
+@keyframes pulse-outward {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0.5;
+  }
+}
+
+/* Hover effect */
+.custom-red-marker .marker_container:hover .marker_icon {
+  transform: translate(-50%, -50%) scale(1.5);
+  background-color: #bb5b50;
+}
+
+.custom-red-marker .marker_container:hover .marker_pulse {
+  opacity: 1;
+  animation: pulse-outward 0.7s infinite ease-in-out; /* Faster animation */
+  border-color: rgba(146, 146, 146, 0.597); /* More visible */
+}
+
+/* Info icon styles */
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  cursor: help;
+  color: #6b7280;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.info-icon:hover {
+  color: #4b5563;
+}
+
+/* Remove margin from toggle hint when info icon is present */
+.info-icon + .toggle-hint {
+  margin-left: 4px;
+}
+
+/* Label with icon container for horizontal alignment */
+.label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Ensure the tooltip appears above other elements */
+.info-icon[title] {
+  position: relative;
+}
+
+/* Add some styling to the browser's native tooltip (limited support) */
+@supports selector(:has(svg)) {
+  .info-icon:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+  }
+}
+
+/* Base marker cluster styling */
+.marker-cluster {
+  background-clip: padding-box;
+  border-radius: 20px;
+}
+
+.marker-cluster div {
+  width: 30px;
+  height: 30px;
+  margin-left: 5px;
+  margin-top: 5px;
+  text-align: center;
+  border-radius: 15px;
+  font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-cluster span {
+  line-height: 30px;
+}
+
+/* Project marker cluster styles - using Leaflet default appearance with red color */
+.project-cluster-marker {
+  background-color: rgba(230, 90, 90, 0.6);
+  border-radius: 20px;
+}
+
+.close-project-cluster-marker {
+  background-color: rgba(230, 90, 90, 0.6);
+  border-radius: 20px;
+}
+
+/* Friend location marker cluster styles - using Leaflet default appearance with blue color */
+.friend-cluster-marker {
+  background-color: rgba(90, 150, 230, 0.6);
+  border-radius: 20px;
+}
+
+.close-friend-cluster-marker {
+  background-color: rgba(90, 150, 230, 0.6);
+  border-radius: 20px;
+}
+
+/* Default Leaflet style clusters for project markers */
+.marker-cluster.project-cluster {
+  background-color: transparent; /* Make outer container transparent */
+}
+
+.marker-cluster.project-cluster div {
+  background-color: rgba(230, 90, 90, 0.8); /* Increased opacity */
+  color: white;
+}
+
+/* Close project clusters - more discrete styling */
+.marker-cluster.close-project-cluster {
+  background-color: transparent; /* Make outer container transparent */
+  border: none; /* Remove border */
+}
+
+.marker-cluster.close-project-cluster div {
+  background-color: rgba(230, 90, 90, 0.7); /* Increased opacity */
+  color: white;
+  font-size: 10px;
+}
+
+/* Default Leaflet style clusters for friend markers */
+.marker-cluster.friend-cluster {
+  background-color: transparent; /* Make outer container transparent */
+}
+
+.marker-cluster.friend-cluster div {
+  background-color: rgba(90, 150, 230, 0.8); /* Increased opacity */
+  color: white;
+}
+
+/* Close friend clusters - more discrete styling */
+.marker-cluster.close-friend-cluster {
+  background-color: transparent; /* Make outer container transparent */
+  border: none; /* Remove border */
+}
+
+.marker-cluster.close-friend-cluster div {
+  background-color: rgba(90, 150, 230, 0.7); /* Increased opacity */
+  color: white;
+  font-size: 10px;
+}
+
+/* Green marker clusters for public events */
+.marker-cluster.green-cluster {
+  background-color: transparent; /* Make outer container transparent */
+}
+
+.marker-cluster.green-cluster div {
+  background-color: rgba(76, 175, 80, 0.8); /* Green color matching the markers */
+  color: white;
+}
+
+/* Additional styles for default markers */
+.default-marker {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+.default-marker.large {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  z-index: 1000 !important; /* Ensure larger markers appear on top */
+}
+
+/* White friend marker styles */
+.custom-white-marker .marker_container {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+}
+
+.custom-white-marker .marker_icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border: 2px solid #2196F3;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 2;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.custom-white-marker .marker_pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border: 2px solid lightgrey;
+  background-color: transparent;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.custom-white-marker .marker_container:hover .marker_icon {
+  transform: translate(-50%, -50%) scale(1.5);
+  background-color: #f0f0f0;
+}
+
+.custom-white-marker .marker_container:hover .marker_pulse {
+  opacity: 1;
+  animation: pulse-outward 0.7s infinite ease-in-out;
+  border-color: rgba(33, 150, 243, 0.4);
+}
+
+/* Info icon styles */
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  cursor: help;
+  color: #6b7280;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.info-icon:hover {
+  color: #4b5563;
+}
+
+/* Remove margin from toggle hint when info icon is present */
+.info-icon + .toggle-hint {
+  margin-left: 4px;
+}
+
+/* Label with icon container for horizontal alignment */
+.label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Ensure the tooltip appears above other elements */
+.info-icon[title] {
+  position: relative;
+}
+
+/* Add some styling to the browser's native tooltip (limited support) */
+@supports selector(:has(svg)) {
+  .info-icon:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+  }
+}
+
+/* Base marker cluster styling */
+.marker-cluster {
+  background-clip: padding-box;
+  border-radius: 20px;
+}
+
+.marker-cluster div {
+  width: 30px;
+  height: 30px;
+  margin-left: 5px;
+  margin-top: 5px;
+  text-align: center;
+  border-radius: 15px;
+  font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-cluster span {
+  line-height: 30px;
+}
+
+/* Project marker cluster styles - using Leaflet default appearance with red color */
+.project-cluster-marker {
+  background-color: rgba(230, 90, 90, 0.6);
+  border-radius: 20px;
+}
+
+.close-project-cluster-marker {
+  background-color: rgba(230, 90, 90, 0.6);
+  border-radius: 20px;
+}
+
+/* Friend location marker cluster styles - using Leaflet default appearance with blue color */
+.friend-cluster-marker {
+  background-color: rgba(90, 150, 230, 0.6);
+  border-radius: 20px;
+}
+
+.close-friend-cluster-marker {
+  background-color: rgba(90, 150, 230, 0.6);
+  border-radius: 20px;
+}
+
+/* Default Leaflet style clusters for project markers */
+.marker-cluster.project-cluster {
+  background-color: transparent; /* Make outer container transparent */
+}
+
+.marker-cluster.project-cluster div {
+  background-color: rgba(230, 90, 90, 0.8); /* Increased opacity */
+  color: white;
+}
+
+/* Close project clusters - more discrete styling */
+.marker-cluster.close-project-cluster {
+  background-color: transparent; /* Make outer container transparent */
+  border: none; /* Remove border */
+}
+
+.marker-cluster.close-project-cluster div {
+  background-color: rgba(230, 90, 90, 0.7); /* Increased opacity */
+  color: white;
+  font-size: 10px;
+}
+
+/* Default Leaflet style clusters for friend markers */
+.marker-cluster.friend-cluster {
+  background-color: transparent; /* Make outer container transparent */
+}
+
+.marker-cluster.friend-cluster div {
+  background-color:rgba(90, 150, 230, 0.8); /* Increased opacity  */
+  color: white;
+}
+
+/* Close friend clusters - more discrete styling */
+.marker-cluster.close-friend-cluster {
+  background-color: transparent; /* Make outer container transparent */
+  border: none; /* Remove border */
+}
+
+.marker-cluster.close-friend-cluster div {
+  background-color: rgba(90, 150, 230, 0.7); /* Increased opacity */
+  color: white;
+  font-size: 10px;
+}
+
+/* Green marker clusters for public events */
+.marker-cluster.green-cluster {
+  background-color: transparent; /* Make outer container transparent */
+}
+
+.marker-cluster.green-cluster div {
+  background-color: rgba(76, 175, 80, 0.8); /* Green color matching the markers */
+  color: white;
+}
+
+/* Additional styles for default markers */
+.default-marker {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+.default-marker.large {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  z-index: 1000 !important; /* Ensure larger markers appear on top */
+}
+
+/* Green Marker Styles for Public Events */
+.custom-green-marker .marker_container {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+}
+
+.custom-green-marker .marker_icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background-color: #4CAF50; /* Green color */
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 2;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.custom-green-marker .marker_pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border: 2px solid lightgrey;
+  background-color: transparent;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.custom-green-marker .marker_container:hover .marker_icon {
+  transform: translate(-50%, -50%) scale(1.5);
+  background-color: #2E7D32; /* Darker green on hover */
+}
+
+.custom-green-marker .marker_container:hover .marker_pulse {
+  opacity: 1;
+  animation: pulse-outward 0.7s infinite ease-in-out; /* Same animation as red markers */
+  border-color: rgba(146, 146, 146, 0.597); /* Same as red markers */
+}
+
