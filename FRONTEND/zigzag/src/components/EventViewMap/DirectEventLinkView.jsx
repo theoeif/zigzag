@@ -43,8 +43,14 @@ const DirectEventLinkView = () => {
   }, [id, isConnected, isLoading]);
   
   const handleClose = () => {
-    // Use history.back() to avoid refresh and maintain previous state
-    if (window.history.length > 1) {
+    // Check if we came from a marker click (will have mapState in location.state)
+    const mapState = location.state?.mapState;
+
+    if (mapState) {
+      // If we have map state, navigate back to home with preserved state
+      navigate("/", { state: { mapState } });
+    } else if (window.history.length > 1) {
+      // Use history.back() to avoid refresh and maintain previous state
       window.history.back();
     } else {
       // Fallback to home if no history

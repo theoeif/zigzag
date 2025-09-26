@@ -728,7 +728,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         marker.on("click", () => {
           navigate(`/event/${markerData.id}`, {
             state: {
-              background: location,
               mapState: {
                 center: { lat: markerData.lat, lng: markerData.lng },
                 zoom: 15
@@ -781,7 +780,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         marker.on("click", () => {
           navigate(`/event/${markerData.id}`, {
             state: {
-              background: location,
               mapState: {
                 center: { lat: markerData.lat, lng: markerData.lng },
                 zoom: 15

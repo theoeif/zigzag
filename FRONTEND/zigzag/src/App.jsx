@@ -6,7 +6,6 @@ import Login from "./components/Login/Login.jsx";
 import Profile from "./components/Profile/Profile";
 import ProfilePage from "./components/ProfilePage";
 import Project from "./components/Project/Project";
-import EventPopup from './components/EventViewMap/EventPopup.jsx';
 import DirectEventLinkView from './components/EventViewMap/DirectEventLinkView.jsx';
 import MainCircles from "./components/Circles/MainCircles";
 import Callback from './components/Callback';
@@ -32,13 +31,6 @@ const App = () => {
         <Route path="/event/:id" element={<DirectEventLinkView />} />
       </Routes>
       
-      {/* Keep this modal route for backwards compatibility 
-       ++ : to copy paste it and be abale to send it to someone */}
-      {state.background && (
-        <Routes>
-          <Route path="/event/:id" element={<EventPopup />} />
-        </Routes>
-      )}
     </>
   );
 };
