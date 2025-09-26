@@ -15,7 +15,8 @@ from .models import (
     Address,
     UserAddress,
     EventInvitation,
-    Tag
+    Tag,
+    Profile,
 )
 from .serializers import (
     EventSerializer,
@@ -24,6 +25,8 @@ from .serializers import (
     EventInvitationSerializer,
     RegisterSerializer,
     TagSerializer,
+    ProfileSerializer,
+    UserProfileSerializer,
 )
 
 
@@ -140,6 +143,52 @@ class EventViewSet(viewsets.ModelViewSet):
         ]
     
         return Response({"private_markers": markers}, status=status.HTTP_200_OK)
+
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing user profiles.
+    Provides CRUD operations for Profile model.
+    """
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        """Return only the authenticated user's profile."""
+        return Profile.objects.filter(user=self.request.user)
+
+    def get_object(self):
+        """Get the user's profile, creating it if it doesn't exist."""
+        profile, created = Profile.objects.get_or_create(user=self.request.user)
+        return profile
+
+    def perform_update(self, serializer):
+        """Ensure the profile is associated with the current user."""
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['get', 'patch'])
+    def me(self, request):
+        """
+        Special endpoint to get or update the current user's profile
+        This allows for /api/events/profile/me/ endpoint
+        """
+        profile = self.get_object()
+        
+        if request.method == 'GET':
+            serializer = UserProfileSerializer(request.user)
+            return Response(serializer.data)
+        
+        elif request.method == 'PATCH':
+            profile_data = request.data.get('profile', {})
+            serializer = self.get_serializer(profile, data=profile_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            
+            # Return the full user profile after update
+            user_serializer = UserProfileSerializer(request.user)
+            return Response(user_serializer.data)
+
 
 class CircleViewSet(viewsets.ModelViewSet):
     """
@@ -362,4 +411,34 @@ class TagListView(generics.ListAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [AllowAny]
+
+
+class MyLocationsView(APIView):
+    """
+    Return the authenticated user's saved locations (UserAddress) as a flat list
+    of simple objects for map consumption.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_addresses = UserAddress.objects.filter(user=user).select_related("address")
+
+        results = []
+        for ua in user_addresses:
+            addr = ua.address
+            if not addr:
+                continue
+            results.append({
+                "user_id_str": str(user.id),
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "label": ua.label or "",
+                "address_line": addr.address_line,
+                "lat": addr.latitude,
+                "lng": addr.longitude,
+            })
+
+        return Response(results, status=status.HTTP_200_OK)
 

@@ -5,7 +5,7 @@ import Header from '../Header/Header';
 import { AuthContext } from '../../contexts/AuthProvider';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import styles from './Project.module.css';
-import { fetchEvents, fetchUserProfile, fetchCircles, deleteEvent, fetchCircleMembers, fetchFriendsOfFriendsEvents } from '../../api/api';
+import { fetchEvents, fetchUserProfile, fetchCircles, deleteEvent, fetchCircleMembers } from '../../api/api';
 import CreateEventForm from './CreateEventForm'; 
 import EditEventForm from './EditEventForm';
 import TimelineBar from '../TimelineBar/TimelineBar';
@@ -51,9 +51,7 @@ const Project = ({ projectId }) => {
   // Add state for filtered friends' events
   const [filteredFriendsEvents, setFilteredFriendsEvents] = useState([]);
   
-  // Add state for friends of friends events
-  const [fofEvents, setFofEvents] = useState([]);
-  const [filteredFofEvents, setFilteredFofEvents] = useState([]);
+  
 
   useEffect(() => {
     const getCircles = async () => {
@@ -65,6 +63,7 @@ const Project = ({ projectId }) => {
 
   // State for showing the event creation form modal
   const [showEventForm, setShowEventForm] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   // Fetch and categorize events
   useEffect(() => {
@@ -73,21 +72,21 @@ const Project = ({ projectId }) => {
       if (isConnected) {
         try {
           const events = await fetchEvents();
-          const fofEventsList = await fetchFriendsOfFriendsEvents();
-          
+          const user = await fetchUserProfile();
+          if (user && typeof user.id === 'number') {
+            setCurrentUserId(user.id);
+          }
           if (events) {
-            const user = await fetchUserProfile();
-            const username = user.username;
-            const createdProjects = events.filter(event => event.creator === username);
+            const username = user && user.username ? user.username : null;
+  
+            const createdProjects = username
+              ? events.filter(event => event.creator === username)
+              : [];
             
-            // Extract event IDs from friends-of-friends events to filter them out from otherProjects
-            const fofEventIds = fofEventsList ? fofEventsList.map(event => event.id) : [];
-            
-            // Filter otherProjects to exclude friends-of-friends events
+            // Filter otherProjects to exclude user's own events
             const otherProjectsList = events
               .filter(event => 
-                event.creator !== username && 
-                !fofEventIds.includes(event.id)
+                (username ? event.creator !== username : true)
               )
               .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
             
@@ -97,18 +96,9 @@ const Project = ({ projectId }) => {
             setFilteredFriendsEvents(otherProjectsList);
             
             // Set events directly here to avoid an extra useEffect
-            if (createdProjects.length > 0) {
-              const sortedEvents = [...createdProjects].sort((a, b) => {
-                return new Date(b.start_time) - new Date(a.start_time);
-              });
-              setEvents(sortedEvents);
-            }
-          }
-          
-          // Set friends of friends events
-          if (fofEventsList) {
-            setFofEvents(fofEventsList);
-            setFilteredFofEvents(fofEventsList);
+            const baseEvents = createdProjects.length > 0 ? createdProjects : events;
+            const sortedEvents = [...baseEvents].sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+            setEvents(sortedEvents);
           }
         } catch (error) {
           console.error("Error fetching events:", error);
@@ -173,13 +163,7 @@ const Project = ({ projectId }) => {
       const filteredFriends = otherProjects.filter(filterEventByTimeframe);
       setFilteredFriendsEvents(filteredFriends);
     }
-    
-    // Filter friends of friends events
-    if (fofEvents && fofEvents.length > 0) {
-      const filteredFof = fofEvents.filter(filterEventByTimeframe);
-      setFilteredFofEvents(filteredFof);
-    }
-  }, [events, otherProjects, fofEvents, timeRange.start, timeRange.end]);
+  }, [events, otherProjects, timeRange.start, timeRange.end]);
 
   // Update the handleTimeChange function to mark when the user has modified the range
   const handleTimeChange = ({ start, end }) => {
@@ -307,26 +291,13 @@ const Project = ({ projectId }) => {
     switch(filterType) {
       case 'old':
         return [...filteredFriendsEvents].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
-      case 'public':
-        return filteredFriendsEvents.filter(event => event.is_public);
       case 'recent':
       default:
         return filteredFriendsEvents;
     }
   };
   
-  // Filter friends of friends events based on selected filter
-  const getFilteredFofEvents = () => {
-    switch(filterType) {
-      case 'old':
-        return [...filteredFofEvents].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
-      case 'public':
-        return filteredFofEvents.filter(event => event.is_public);
-      case 'recent':
-      default:
-        return filteredFofEvents;
-    }
-  };
+  
   
   const handleViewCircleMembers = (circleIdsOrId, circleName) => {
     // Check if we received a single ID or an array
@@ -432,6 +403,7 @@ const Project = ({ projectId }) => {
             setProjects(prev => [newEvent, ...prev]);
           }}
           circles={circles}
+          userId={currentUserId}
         />
       )}
 
@@ -439,7 +411,7 @@ const Project = ({ projectId }) => {
       <div className={styles.contentWithPaddingProject}>
         {/* Render Your Projects */}
         <div>
-          <h3 className={styles.h3Project}>Your Created Projects</h3>
+          <h3 className={styles.h3Project}>My Projects</h3>
           {filteredEvents.length === 0 ? (
             <p>You have not created any projects yet.</p>
           ) : (
@@ -463,7 +435,7 @@ const Project = ({ projectId }) => {
         {/* Friends Events with Filter */}
         <div>
           <div className={styles.sectionHeaderProject}>
-            <h3 className={styles.h3Project}>Friends' Projects</h3>
+            <h3 className={styles.h3Project}>Invited Projects</h3>
             <div className={styles.filterContainerProject}>
               <FaFilter />
               <select 
@@ -473,7 +445,6 @@ const Project = ({ projectId }) => {
               >
                 <option value="recent">Most Recent</option>
                 <option value="old">Oldest First</option>
-                <option value="public">Public Events</option>
               </select>
             </div>
           </div>
@@ -500,41 +471,7 @@ const Project = ({ projectId }) => {
           )}
         </div>
         
-        <div className={styles.dividerProject}></div>
         
-        {/* Friends of Friends Events with Filter */}
-        <div>
-          <div className={styles.sectionHeaderProject}>
-            <h3 className={styles.h3Project}>Friends of Friends' Projects</h3>
-            <div className={styles.filterContainerProject}>
-              <FaFilter />
-              <select 
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className={styles.filterSelectProject}
-              >
-                <option value="recent">Most Recent</option>
-                <option value="old">Oldest First</option>
-                <option value="public">Public Events</option>
-              </select>
-            </div>
-          </div>
-          
-          {filteredFofEvents.length === 0 ? (
-            <p>No friends of friends events available.</p>
-          ) : (
-            <div className={styles.eventsGridProject}>
-              {getFilteredFofEvents().map((event) => (
-                <EventCard 
-                  key={event.id} 
-                  event={event}
-                  isManageMode={false} // Don't allow editing of FoF events
-                  onViewCircleMembers={handleViewCircleMembers}
-                />
-              ))}
-            </div>
-          )}
-        </div>
       </div>
       
       {/* Edit Form Modal */}

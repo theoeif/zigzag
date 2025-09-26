@@ -2,7 +2,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-from .models import Event, Address, Circle, UserAddress, EventInvitation, User, Tag
+from .models import Event, Address, Circle, UserAddress, EventInvitation, User, Tag, Profile
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
@@ -105,3 +105,45 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ["id", "name"]
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = [
+            "id",
+            "timetable",
+            "remote_days_count",
+            "remote_days",
+            "vacation_days_remaining",
+            "vacation_start",
+            "vacation_end",
+            "looking_for",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "profile"]
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', None)
+
+        # Update User fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # Update Profile fields
+        if profile_data:
+            profile = instance.profile
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
+
+        instance.save()
+        return instance

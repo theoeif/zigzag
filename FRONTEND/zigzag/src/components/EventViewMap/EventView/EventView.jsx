@@ -1,23 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import { AuthContext } from "../contexts/AuthProvider";
+import { AuthContext } from "../../../contexts/AuthProvider";
 import { 
   fetchPublicEvent, 
-  verifyInvitation, 
   acceptInvitation, 
-  toggleEventParticipation,
-  createEventInvitation,
-  generateEventShareToken,
-  patchEvent
-} from "../api/api";
-import MarkersMap from "./MarkersMap";
-import CircleMembersPopup from "./Project/CircleMembersPopup";
+  createEventInvitation
+} from "../../../api/api";
+import MarkersMap from "../../MarkersMap";
+import CircleMembersPopup from "../../Project/CircleMembersPopup";
 import { 
-  FaMapMarkerAlt, FaClock, FaWhatsapp, 
-  FaGlobe, FaUser, FaCalendarPlus, 
-  FaLink, FaUsers, FaUserFriends, FaCalendarAlt, FaDirections,
-  FaUserPlus, FaCheck, FaPlusCircle, FaChevronDown, FaChevronUp, FaShare,
-  FaNetworkWired, FaShareAlt, FaBan
+  FaMapMarkerAlt,
+  FaUser,
+  FaLink,
+  FaUsers,
+  FaUserFriends
 } from "react-icons/fa";
 
 // Styles for the event view
@@ -336,10 +332,6 @@ const EventView = ({
   const [event, setEvent] = useState(initialData || null);
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState(null);
-  const [invitationValid, setInvitationValid] = useState(false);
-  const [isUpdatingParticipation, setIsUpdatingParticipation] = useState(false);
-  const [participantsCount, setParticipantsCount] = useState(0);
-  const [isParticipating, setIsParticipating] = useState(false);
   const [showEndTime, setShowEndTime] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [urlCopied, setUrlCopied] = useState(false);
@@ -357,22 +349,7 @@ const EventView = ({
   const [inviteSent, setInviteSent] = useState(false);
   const [inviteError, setInviteError] = useState(null);
   
-  // Check invitation token if provided
-  useEffect(() => {
-    const checkInvitation = async () => {
-      if (inviteToken) {
-        try {
-          const result = await verifyInvitation(inviteToken);
-          setInvitationValid(result.valid);
-        } catch (err) {
-          console.error("Failed to verify invitation:", err);
-          setInvitationValid(false);
-        }
-      }
-    };
-    
-    checkInvitation();
-  }, [inviteToken]);
+  // Invitation verification removed as public/private distinction is no longer used
   
   // Fetch event data
   useEffect(() => {
@@ -383,9 +360,6 @@ const EventView = ({
           const eventData = await fetchPublicEvent(eventId, inviteToken);
           setEvent(eventData);
           
-          // Set other state variables based on the event data
-          setParticipantsCount(eventData.participants_count || 0);
-          setIsParticipating(eventData.is_participating || false);
           
           // Check if current user is the creator
           const currentUsername = localStorage.getItem("username");
@@ -396,7 +370,7 @@ const EventView = ({
           setError(null);
         } catch (err) {
           console.error("Error loading event:", err);
-          setError("Could not load this event. It may be private or no longer exist.");
+          setError("Could not load this event.");
         } finally {
           setLoading(false);
         }
@@ -405,8 +379,6 @@ const EventView = ({
       loadEvent();
     } else {
       // Initialize with provided data
-      setParticipantsCount(initialData.participants_count || 0);
-      setIsParticipating(initialData.is_participating || false);
       const currentUsername = localStorage.getItem("username");
       setIsCreator(initialData.creator === currentUsername);
       setShareUrl(`http://localhost:5173/event/${eventId}`);
@@ -496,8 +468,6 @@ const EventView = ({
         // Reload the event data
         const eventData = await fetchPublicEvent(eventId, inviteToken);
         setEvent(eventData);
-        setIsParticipating(true);
-        setParticipantsCount(eventData.participants_count || 0);
       }
     } catch (err) {
       console.error("Error accepting invitation:", err);
@@ -505,27 +475,6 @@ const EventView = ({
     }
   };
   
-  const handleToggleParticipation = async () => {
-    if (!isConnected) {
-      handleLogin();
-      return;
-    }
-    
-    if (isUpdatingParticipation) return; // Prevent multiple clicks
-    
-    try {
-      setIsUpdatingParticipation(true);
-      const response = await toggleEventParticipation(eventId);
-      
-      setIsParticipating(response.participating);
-      setParticipantsCount(response.count);
-    } catch (err) {
-      console.error("Error toggling participation:", err);
-      setError("Failed to join event. Please try again.");
-    } finally {
-      setIsUpdatingParticipation(false);
-    }
-  };
   
   const handleViewOnMap = () => {
     // Pass the event location as state to maintain zoom and center when navigating to map
@@ -565,64 +514,24 @@ const EventView = ({
 
   const handleShareEvent = async () => {
     try {
-      // Reset previous states
       setUrlCopied(false);
       setShareError(null);
-      
-      // Check if event links are shareable
-      if (event.shareable_link === false) {
+      // Respect host setting to disable link sharing
+      if (event && event.shareable_link === false) {
         setShareError("The host has disabled link sharing for this event");
-        // Auto-clear the error after 3 seconds
         setTimeout(() => setShareError(null), 3000);
         return;
       }
-      
-      // If a public link already exists, use it, otherwise generate a new token
-      let finalShareUrl = shareUrl;
-      
-      // Check if we need to add a token for private events
-      if (!event.is_public) {
-        try {
-          // Generate a share token for this event
-          const tokenResponse = await generateEventShareToken(eventId);
-          if (tokenResponse && tokenResponse.token) {
-            // Add the token as a query parameter
-            finalShareUrl = `${shareUrl}?invite=${tokenResponse.token}`;
-          } else {
-            throw new Error("Failed to generate token");
-          }
-        } catch (err) {
-          console.error("Error generating share token:", err);
-          setShareError("Failed to generate share link");
-          // Auto-clear the error after 3 seconds
-          setTimeout(() => setShareError(null), 3000);
-          return;
-        }
-      }
-      
-      // Copy the URL to clipboard
-      await navigator.clipboard.writeText(finalShareUrl);
+      await navigator.clipboard.writeText(shareUrl);
       setUrlCopied(true);
-      setTimeout(() => setUrlCopied(false), 2000); // Clear copied message after 2 seconds
+      setTimeout(() => setUrlCopied(false), 2000);
     } catch (error) {
-      console.error("Error generating share link:", error);
+      console.error("Error copying share link:", error);
       setShareError("Failed to copy link");
       setTimeout(() => setShareError(null), 3000);
     }
   };
   
-  const togglePublicStatus = async () => {
-    if (!isCreator) return;
-    
-    try {
-      const updatedData = await patchEvent(eventId, { is_public: !event.is_public });
-      setEvent({...event, is_public: updatedData.is_public});
-    } catch (err) {
-      console.error("Error updating event public status:", err);
-      setError("Failed to update event status");
-    }
-  };
-
   const openGoogleMaps = () => {
     // Get latitude and longitude values
     let latitude = null;
@@ -722,8 +631,7 @@ const EventView = ({
     );
   }
   
-  // Determine if this is a restricted view
-  const isRestrictedView = event && !event.is_public && !event.user_has_access && !event.has_invitation;
+  // Restricted view removed; always show full event details
   
   // Render the EventView based on displayMode
   if (displayMode === 'fullpage') {
@@ -740,8 +648,7 @@ const EventView = ({
             {/* Date display in right corner with click interaction */}
             <div 
               style={{
-                ...styles.eventDateBadge,
-                ...(event.friends_of_friends_allowed ? { backgroundColor: '#4285F4' } : {})
+                ...styles.eventDateBadge
               }}
               onClick={toggleEndTimeDisplay}
               title={event.end_time ? "Click to toggle date" : ""}
@@ -768,31 +675,7 @@ const EventView = ({
               </div>
             )}
             
-            {isRestrictedView ? (
-              // Restricted view for private events
-              <div>
-                <p style={styles.errorMessage}>
-                  {event.error || "This is a private event. You need to be invited to view all details."}
-                </p>
-                
-                <div style={styles.buttons}>
-                  {!isConnected && (
-                    <button 
-                      style={{...styles.button, ...styles.primaryButton}} 
-                      onClick={handleLogin}
-                    >
-                      Log In
-                    </button>
-                  )}
-                  <button 
-                    style={{...styles.button, ...styles.secondaryButton}} 
-                    onClick={handleViewOnMap}
-                  >
-                    View on Map
-                  </button>
-                </div>
-              </div>
-            ) : (
+            {
               // Full event view
               <>
                 <div style={styles.details}>
@@ -821,29 +704,7 @@ const EventView = ({
                     </div>
                   )}
                   
-                  {event.is_public && (
-                    <div style={styles.detailItem}>
-                      <FaGlobe style={styles.detailIcon} />
-                      <span>This event is public</span>
-                    </div>
-                  )}
-                  
-                  {/* Friends-of-friends indicator */}
-                  {event.friends_of_friends_allowed !== undefined && (
-                    <div style={styles.detailItem}>
-                      {event.friends_of_friends_allowed ? (
-                        <>
-                          <FaShareAlt style={{...styles.detailIcon, color: "#2196F3"}} />
-                          <span>Friends of friends are welcome</span>
-                        </>
-                      ) : event.shareable_link === false ? (
-                        <>
-                          <FaBan style={{...styles.detailIcon, color: "#f44336"}} />
-                          <span>Only direct invitees</span>
-                        </>
-                      ) : null}
-                    </div>
-                  )}
+                  {/* Public/private and friends-of-friends indicators removed */}
                   
                   {/* Circles */}
                   {event.circles && event.circles.length > 0 && (
@@ -877,13 +738,6 @@ const EventView = ({
                     </div>
                   )}
                   
-                  {/* Participation info */}
-                  <div style={styles.participationInfo}>
-                    <div style={styles.participantsCount}>
-                      <FaUsers /> 
-                      <span>{participantsCount} participant{participantsCount !== 1 ? 's' : ''}</span>
-                    </div>
-                  </div>
                 </div>
                 
                 {/* Add description in its own container */}
@@ -909,47 +763,25 @@ const EventView = ({
                   </div>
                 )}
                 
-                {/* WhatsApp button (if available) */}
-                {event.whatsapp_group_link && (
-                  <div style={{marginBottom: "15px"}}>
-                    <button 
-                      style={{
-                        display: "flex", 
-                        alignItems: "center", 
-                        gap: "5px", 
-                        padding: "8px 12px",
-                        background: "#25D366",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer"
-                      }}
-                      onClick={() => window.open(event.whatsapp_group_link, '_blank')}
-                    >
-                      <FaWhatsapp /> WhatsApp Group
-                    </button>
-                  </div>
-                )}
+                {/* WhatsApp link removed */}
                 
                 {/* Bottom buttons - share link on left, participate on right */}
                 <div style={styles.bottomButtons}>
-                  {/* Share link button on left - only if sharing is allowed */}
-                  {(event.shareable_link === undefined || event.shareable_link === true) && (
-                    <div style={{ position: "relative" }}>
-                      <button 
-                        onClick={handleShareEvent} 
-                        style={styles.shareButton}
-                        title="Copy event link"
-                      >
-                        <FaLink />
-                      </button>
-                      {urlCopied && (
-                        <div style={styles.copiedTooltip}>
-                          Link copied!
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Share link button */}
+                  <div style={{ position: "relative" }}>
+                    <button 
+                      onClick={handleShareEvent} 
+                      style={styles.shareButton}
+                      title="Copy event link"
+                    >
+                      <FaLink />
+                    </button>
+                    {urlCopied && (
+                      <div style={styles.copiedTooltip}>
+                        Link copied!
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Show share error as popup if present */}
                   {shareError && (
@@ -958,47 +790,22 @@ const EventView = ({
                     </div>
                   )}
                   
-                  {/* Participate button on right */}
-                  {isConnected ? (
-                    inviteToken && !isParticipating ? (
-                      <button 
-                        style={{...styles.button, ...styles.primaryButton}} 
-                        onClick={handleAcceptInvitation}
-                      >
-                        Accept Invitation
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleToggleParticipation}
-                        style={{
-                          ...styles.button,
-                          ...(isParticipating ? 
-                            {...styles.primaryButton} : 
-                            {...styles.primaryButton, backgroundColor: "white", color: "#4CAF50", border: "1px solid #4CAF50"})
-                        }}
-                        disabled={isUpdatingParticipation}
-                      >
-                        {isUpdatingParticipation ? "..." : isParticipating ? (
-                          <>
-                            <FaCheck style={{marginRight: '5px'}} /> 
-                            Participating
-                          </>
-                        ) : (
-                          <>
-                            <FaPlusCircle style={{marginRight: '5px'}} /> 
-                            Participate
-                          </>
-                        )}
-                      </button>
-                    )
-                  ) : (
+                  {/* Accept invitation button */}
+                  {isConnected && inviteToken ? (
+                    <button 
+                      style={{...styles.button, ...styles.primaryButton}} 
+                      onClick={handleAcceptInvitation}
+                    >
+                      Accept Invitation
+                    </button>
+                  ) : !isConnected ? (
                     <button 
                       style={{...styles.button, ...styles.primaryButton}} 
                       onClick={handleLogin}
                     >
                       Log in to participate
                     </button>
-                  )}
+                  ) : null}
                 </div>
                 
                 {/* View on map button */}
@@ -1011,7 +818,7 @@ const EventView = ({
                   </button>
                 </div>
               </>
-            )}
+            }
           </div>
         </div>
         
@@ -1033,8 +840,7 @@ const EventView = ({
           {/* Date display in right corner with click interaction */}
           <div 
             style={{
-              ...styles.eventDateBadge,
-              ...(event.friends_of_friends_allowed ? { backgroundColor: '#4285F4' } : {})
+              ...styles.eventDateBadge
             }}
             onClick={toggleEndTimeDisplay}
             title={event.end_time ? "Click to toggle date" : ""}
@@ -1054,30 +860,8 @@ const EventView = ({
           
           <h2 style={styles.title}>{event.title}</h2>
           
-          {isRestrictedView ? (
-            // Restricted view for unauthorized access
-            <>
-              <p style={styles.errorMessage}>{error || "This event is private. You need to be invited to see the full details."}</p>
-              
-              <div style={styles.buttons}>
-                {!isConnected && (
-                  <button 
-                    style={{...styles.button, ...styles.primaryButton}} 
-                    onClick={handleLogin}
-                  >
-                    Log In
-                  </button>
-                )}
-                <button 
-                  style={{...styles.button, ...styles.secondaryButton}} 
-                  onClick={onClose || handleViewOnMap}
-                >
-                  Close
-                </button>
-              </div>
-            </>
-          ) : (
-            // Full event view for authorized access
+          {
+            // Full event view
             <>
               <div style={styles.details}>
                 {event.address?.address_line && (
@@ -1105,29 +889,7 @@ const EventView = ({
                   </div>
                 )}
                 
-                {event.is_public && (
-                  <div style={styles.detailItem}>
-                    <FaGlobe style={styles.detailIcon} />
-                    <span>This event is public</span>
-                  </div>
-                )}
-                
-                {/* Friends-of-friends indicator */}
-                {event.friends_of_friends_allowed !== undefined && (
-                  <div style={styles.detailItem}>
-                    {event.friends_of_friends_allowed ? (
-                      <>
-                        <FaShareAlt style={{...styles.detailIcon, color: "#2196F3"}} />
-                        <span>Friends of friends are welcome</span>
-                      </>
-                    ) : event.shareable_link === false ? (
-                      <>
-                        <FaBan style={{...styles.detailIcon, color: "#f44336"}} />
-                        <span>Only direct invitees</span>
-                      </>
-                    ) : null}
-                  </div>
-                )}
+                {/* Public/private and friends-of-friends indicators removed */}
                 
                 {/* Circles */}
                 {event.circles && event.circles.length > 0 && (
@@ -1161,13 +923,6 @@ const EventView = ({
                   </div>
                 )}
                 
-                {/* Participation info */}
-                <div style={styles.participationInfo}>
-                  <div style={styles.participantsCount}>
-                    <FaUsers /> 
-                    <span>{participantsCount} participant{participantsCount !== 1 ? 's' : ''}</span>
-                  </div>
-                </div>
               </div>
               
               {/* Add description in its own container */}
@@ -1193,47 +948,25 @@ const EventView = ({
                 </div>
               )}
               
-              {/* WhatsApp button (if available) */}
-              {event.whatsapp_group_link && (
-                <div style={{marginBottom: "15px"}}>
-                  <button 
-                    style={{
-                      display: "flex", 
-                      alignItems: "center", 
-                      gap: "5px", 
-                      padding: "8px 12px",
-                      background: "#25D366",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
-                    onClick={() => window.open(event.whatsapp_group_link, '_blank')}
-                  >
-                    <FaWhatsapp /> WhatsApp Group
-                  </button>
-                </div>
-              )}
+              {/* WhatsApp link removed */}
               
               {/* Bottom buttons - share link on left, participate on right */}
               <div style={styles.bottomButtons}>
-                {/* Share link button on left - only if sharing is allowed */}
-                {(event.shareable_link === undefined || event.shareable_link === true) && (
-                  <div style={{ position: "relative" }}>
-                    <button 
-                      onClick={handleShareEvent} 
-                      style={styles.shareButton}
-                      title="Copy event link"
-                    >
-                      <FaLink />
-                    </button>
-                    {urlCopied && (
-                      <div style={styles.copiedTooltip}>
-                        Link copied!
-                      </div>
-                    )}
+              {/* Share link button */}
+              <div style={{ position: "relative" }}>
+                <button 
+                  onClick={handleShareEvent} 
+                  style={styles.shareButton}
+                  title="Copy event link"
+                >
+                  <FaLink />
+                </button>
+                {urlCopied && (
+                  <div style={styles.copiedTooltip}>
+                    Link copied!
                   </div>
                 )}
+              </div>
                 
                 {/* Show share error as popup if present */}
                 {shareError && (
@@ -1242,29 +975,13 @@ const EventView = ({
                   </div>
                 )}
                 
-                {/* Participate button on right */}
-                {isConnected && (
+                {/* Accept invitation button */}
+                {isConnected && inviteToken && (
                   <button
-                    onClick={handleToggleParticipation}
-                    style={{
-                      ...styles.button,
-                      ...(isParticipating ? 
-                        {...styles.primaryButton} : 
-                        {...styles.primaryButton, backgroundColor: "white", color: "#4CAF50", border: "1px solid #4CAF50"})
-                    }}
-                    disabled={isUpdatingParticipation}
+                    onClick={handleAcceptInvitation}
+                    style={{...styles.button, ...styles.primaryButton}}
                   >
-                    {isUpdatingParticipation ? "..." : isParticipating ? (
-                      <>
-                        <FaCheck style={{marginRight: '5px'}} /> 
-                        Participating
-                      </>
-                    ) : (
-                      <>
-                        <FaPlusCircle style={{marginRight: '5px'}} /> 
-                        Participate
-                      </>
-                    )}
+                    Accept Invitation
                   </button>
                 )}
               </div>
@@ -1280,7 +997,7 @@ const EventView = ({
                 </button>
               </div>
             </>
-          )}
+          }
         </div>
         
         {/* Circle Members Popup */}

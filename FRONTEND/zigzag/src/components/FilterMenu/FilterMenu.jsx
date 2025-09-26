@@ -3,8 +3,8 @@ import { OpenCageGeoSearchPlugin } from "@opencage/geosearch-core";
 import GeoSearch from "./GeoSearch";
 import "@algolia/autocomplete-theme-classic";
 import "../../index.css";
+import { OPENCAGE_SEARCH_TOKEN } from "../../config";
 
-const OPENCAGE_SEARCH_TOKEN = 'oc_gs_62210cb3acf44f10af69314623f221d5';
 
 const predefinedLocations = [
   { label: "France", lat: 46.603354, lng: 1.888334, zoom: 6 },

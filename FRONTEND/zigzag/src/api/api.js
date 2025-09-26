@@ -1,8 +1,20 @@
 import axios from "axios";
 
+// Single in-flight refresh promise to throttle concurrent refreshes
+let refreshPromise = null;
+
+// Centralized logout handler to keep React state consistent
+let logoutHandler = null;
+export const setLogoutHandler = (handler) => {
+  logoutHandler = typeof handler === 'function' ? handler : null;
+};
+
 // Auth helpers
 export const login = async ({ username, password }) => {
   const response = await axios.post("http://127.0.0.1:8000/api/token/", { username, password });
+  const { access, refresh } = response.data || {};
+  if (access) localStorage.setItem("access_token", access);
+  if (refresh) localStorage.setItem("refresh_token", refresh);
   return response.data; // { access, refresh }
 };
 
@@ -36,12 +48,12 @@ export const refreshAccessToken = async () => {
       return newAccessToken;
   } catch (error) {
       if (error.response?.status === 401) {
-          console.error("Refresh token invalid or expired. Logging out.");
+          console.error("Refresh token invalid or expired. Forcing logout.");
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
-          // Redirect to home and refresh the page
-          window.location.href = "/";
-          window.location.reload();
+          if (logoutHandler) {
+            try { logoutHandler(); } catch (_) {}
+          }
       }
       return null;
   }
@@ -53,9 +65,10 @@ axios.interceptors.response.use(
   (response) => response, // Pass through successful responses
   async (error) => {
     const { config, response } = error;
+    const url = config?.url || "";
 
-      // Prevent retries for token/verify
-      if (config.url.includes("/token/verify/")) {
+      // Prevent retries for token/verify and token/refresh endpoints
+      if (url.includes("/token/verify/") || url.includes("/token/refresh/")) {
         console.warn("Validation request failed. Skipping retry.");
         return Promise.reject(error);
       }
@@ -63,46 +76,23 @@ axios.interceptors.response.use(
     // Handle non-401 errors
     if (!response || response.status !== 401) return Promise.reject(error); 
 
-    // Prevent multiple retries
-    const requestId = `${config.method}:${config.url}`;
-    if (retryingRequests.has(requestId)) return Promise.reject(error); 
-
-    retryingRequests.add(requestId);
-
-    const newAccessToken = await refreshAccessToken();
+    // Throttle refresh to a single in-flight promise
+    if (!refreshPromise) {
+      refreshPromise = refreshAccessToken().finally(() => {
+        refreshPromise = null;
+      });
+    }
+    const newAccessToken = await refreshPromise;
     // Retry original request
     if (newAccessToken) {
       config.headers["Authorization"] = `Bearer ${newAccessToken}`;
-      retryingRequests.delete(requestId);
       return axios(config); 
     }
-    retryingRequests.delete(requestId); // unnecessary maybe
     return Promise.reject(error); // Exit if token refresh fails
   }
 );
 
-// TODO : chnage this 
-// export const validateAccessToken = async () => {
-//   try {
-//     const token = localStorage.getItem("access_token");
-//     if (!token) return false; // Return false if no token is found
-
-//     // Validate the token with the backend
-//     await axios.post("http://127.0.0.1:8000/api/token/verify/", { token });
-//     console.log("Access token is valid.");
-
-//     // If the request is successful, return true
-//     return true;
-//   } catch (error) {
-//     if (error.response && error.response.status === 401) {
-//       console.warn("Access token is invalid or expired.");
-//     } else {
-//       console.error("Error validating access token:", error);
-//     }
-//     return false; // Return false on error or 401
-//   }
-// };
-
+// TODO : understand why its here 
 export const validateAccessToken = async () => {
   const token = localStorage.getItem("access_token");
   if (!token) return false;
@@ -130,17 +120,17 @@ export const validateAccessToken = async () => {
   }
 };
 
-// Function to fetch public markers (available without authentication)
-export const fetchPublicMarkers = async () => {
-  try {
-    const response = await axios.get("http://127.0.0.1:8000/api/accounts/markers/public/");
-    console.log("Public markers response:", response.data);
-    return response.data.public_markers || [];
-  } catch (error) {
-    console.error("Error fetching public markers:", error);
-    return [];
-  }
-};
+// // Function to fetch public markers (available without authentication)
+// export const fetchPublicMarkers = async () => {
+//   try {
+//     const response = await axios.get("http://127.0.0.1:8000/api/events/markers/public/");
+//     console.log("Public markers response:", response.data);
+//     return response.data.public_markers || [];
+//   } catch (error) {
+//     console.error("Error fetching public markers:", error);
+//     return [];
+//   }
+// };
 
 // Function to fetch markers data
 export const fetchMarkers = async (selectedTags) => {
@@ -156,7 +146,7 @@ export const fetchMarkers = async (selectedTags) => {
       tags: selectedTags
     };
 
-    const response = await axios.post(`http://127.0.0.1:8000/api/accounts/markers/`,requestBody, {
+    const response = await axios.post(`http://127.0.0.1:8000/api/events/markers/`,requestBody, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -182,7 +172,7 @@ export const fetchCircles = async () => {
       if (!token) return null;
     }
 
-    const response = await axios.get("http://127.0.0.1:8000/api/accounts/circles/", {
+    const response = await axios.get("http://127.0.0.1:8000/api/events/circles/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -198,7 +188,7 @@ export const fetchCircles = async () => {
 // Function to fetch tags data (public endpoint)
 export const fetchMyTags = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:8000/api/accounts/tags/");
+    const response = await axios.get("http://127.0.0.1:8000/api/events/tags/");
     console.log("Tags data received:", response.data); // Debug log
     return response.data; // Return tags data
   } catch (error) {
@@ -222,7 +212,7 @@ export const fetchAddresses = async () => {
       token = await refreshAccessToken(); // Refresh token if missing
       if (!token) return null;
     }
-    const response = await axios.get("http://127.0.0.1:8000/api/accounts/user/addresses/", {
+    const response = await axios.get("http://127.0.0.1:8000/api/events/user/addresses/", {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data; // Expected format: [{ address: "123 Street" }, ...]
@@ -241,7 +231,7 @@ export const addAddress = async (address) => {
       if (!token) return false;
     }
     const response = await axios.post(
-      "http://127.0.0.1:8000/api/accounts/user/addresses/",
+      "http://127.0.0.1:8000/api/events/user/addresses/",
       { 
       "address_line": address.address_line,
       "city": address.city,
@@ -270,7 +260,7 @@ export const deleteAddress = async (addressId) => {
     }
 
     const response = await axios.delete(
-      `http://127.0.0.1:8000/api/accounts/user/addresses/${addressId}/`,
+      `http://127.0.0.1:8000/api/events/user/addresses/${addressId}/`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -283,7 +273,7 @@ export const deleteAddress = async (addressId) => {
   }
 };
 
-
+// TODO : Reomve releated Code
 // fetch Friends profile
 export const fetchProfile = async (id) => {
   try {
@@ -293,7 +283,7 @@ export const fetchProfile = async (id) => {
       if (!token) return null;
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/accounts/profile/${id}/`, {
+    const response = await axios.get(`http://127.0.0.1:8000/api/events/profile/${id}/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -315,7 +305,7 @@ export const fetchProfiles = async (query) => {
       if (!token) return [];
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/accounts/friends/`, {
+    const response = await axios.get(`http://127.0.0.1:8000/api/events/friends/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -337,7 +327,7 @@ export const fetchEvents = async (query) => {
       if (!token) return [];
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/accounts/event/`, {
+    const response = await axios.get(`http://127.0.0.1:8000/api/events/event/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -359,7 +349,7 @@ export const fetchEventInfo = async (id) => {
       if (!token) return [];
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/accounts/event/${id}/`, {
+    const response = await axios.get(`http://127.0.0.1:8000/api/events/event/${id}/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -390,7 +380,7 @@ export const createEvent = async (eventData) => {
 
     // Post the new event
     const response = await axios.post(
-      "http://127.0.0.1:8000/api/accounts/event/",
+      "http://127.0.0.1:8000/api/events/event/",
       eventData,
       {
         headers: {
@@ -416,7 +406,7 @@ export const deleteEvent = async (id) => {
       if (!token) return [];
     }
 
-    const response = await axios.delete(`http://127.0.0.1:8000/api/accounts/event/${id}/`, {
+    const response = await axios.delete(`http://127.0.0.1:8000/api/events/event/${id}/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -442,7 +432,7 @@ export const patchEvent = async (eventId, patchData) => {
     }
 
     const response = await axios.patch(
-      `http://127.0.0.1:8000/api/accounts/event/${eventId}/`,
+      `http://127.0.0.1:8000/api/events/event/${eventId}/`,
       patchData,
       {
         headers: {
@@ -473,7 +463,7 @@ export const fetchCircleMembers = async (circleIdOrIds) => {
     
     // Use the circles/members endpoint for all requests
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/accounts/circles/members/`, 
+      `http://127.0.0.1:8000/api/events/circles/members/`, 
       { circle_ids: circleIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -496,7 +486,7 @@ export const fetchAddCircle = async (payload) => {
     }
 
     // You can adjust the endpoint URL as needed.
-    const response = await axios.post(`http://127.0.0.1:8000/api/accounts/circles/`, payload, {
+    const response = await axios.post(`http://127.0.0.1:8000/api/events/circles/`, payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -537,7 +527,7 @@ export const updateProfile = async (profileData) => {
     }
 
     const response = await axios.patch(
-      "http://127.0.0.1:8000/api/accounts/profile/me/",
+      "http://127.0.0.1:8000/api/events/profile/me/",
       profileData,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -560,7 +550,7 @@ export const fetchUserProfile = async () => {
       if (!token) return null;
     }
 
-    const response = await axios.get("http://127.0.0.1:8000/api/accounts/profile/me/", {
+    const response = await axios.get("http://127.0.0.1:8000/api/events/profile/me/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -584,7 +574,7 @@ export const addFriendsToCircle = async (circleId, friends) => {
     const friendIds = friends.map(friend => friend.id).filter(id => id);
     
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/accounts/circles/${circleId}/add_friends/`,
+      `http://127.0.0.1:8000/api/events/circles/${circleId}/add_friends/`,
       { friend_ids: friendIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -609,7 +599,7 @@ export const removeFriendsFromCircle = async (circleId, friendIds) => {
     const ids = Array.isArray(friendIds) ? friendIds : [friendIds];
 
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/accounts/circles/${circleId}/remove_friends/`,
+      `http://127.0.0.1:8000/api/events/circles/${circleId}/remove_friends/`,
       { friend_ids: ids },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -631,7 +621,7 @@ export const deleteCircle = async (circleId) => {
     }
 
     const response = await axios.delete(
-      `http://127.0.0.1:8000/api/accounts/circles/${circleId}/`,
+      `http://127.0.0.1:8000/api/events/circles/${circleId}/`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return response.status === 204;
@@ -651,7 +641,7 @@ export const updateCircle = async (circleId, updatedData) => {
     }
 
     const response = await axios.patch(
-      `http://127.0.0.1:8000/api/accounts/circles/${circleId}/`,
+      `http://127.0.0.1:8000/api/events/circles/${circleId}/`,
       updatedData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -663,7 +653,7 @@ export const updateCircle = async (circleId, updatedData) => {
   }
 };
 
-export const fetchFriendsLocations = async () => {
+export const fetchMyLocations = async () => {
   try {
     let token = localStorage.getItem("access_token");
     if (!token) {
@@ -671,39 +661,18 @@ export const fetchFriendsLocations = async () => {
       if (!token) return null;
     }
 
-    const response = await axios.get("http://127.0.0.1:8000/api/accounts/friends/locations/", {
+    const response = await axios.get("http://127.0.0.1:8000/api/events/my/locations/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log("Friend locations API response:", response.data);
+    console.log("My locations API response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching friends locations:", error);
+    console.error("Error fetching my locations:", error);
     return null;
   }
 };
 
-// Toggle participation status for an event
-export const toggleEventParticipation = async (eventId) => {
-  try {
-    let token = localStorage.getItem("access_token");
-    if (!token) {
-      token = await refreshAccessToken();
-      if (!token) throw new Error("No access token available");
-    }
-    
-    const response = await axios.post(
-      `http://127.0.0.1:8000/api/accounts/event/${eventId}/toggle_participation/`,
-      {},  // Empty body, all we need is the event ID
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error toggling event participation:', error);
-    throw error;
-  }
-};
 
 // Fetch participants of an event
 export const fetchEventParticipants = async (eventId) => {
@@ -715,7 +684,7 @@ export const fetchEventParticipants = async (eventId) => {
     }
     
     const response = await axios.get(
-      `http://127.0.0.1:8000/api/accounts/event/${eventId}/participants/`,
+      `http://127.0.0.1:8000/api/events/event/${eventId}/participants/`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     
@@ -726,36 +695,17 @@ export const fetchEventParticipants = async (eventId) => {
   }
 };
 
-// Fetch events from friends of friends
-export const fetchFriendsOfFriendsEvents = async () => {
-  try {
-    let token = localStorage.getItem("access_token");
-    if (!token) {
-      token = await refreshAccessToken();
-      if (!token) return [];
-    }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/accounts/friends_of_friends/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
 
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching friends of friends events:", error);
-    return [];
-  }
-};
 
 // New function to fetch public event data even without authentication
 export const fetchPublicEvent = async (eventId, inviteToken = null) => {
   try {
     // Build the URL - first try the regular event endpoint which now supports public access
-    let url = `http://127.0.0.1:8000/api/accounts/event/${eventId}/`;
+    let url = `http://127.0.0.1:8000/api/events/event/${eventId}/`;
     if (inviteToken) {
       // If we have an invite token, use the public-event endpoint which supports invitation tokens
-      url = `http://127.0.0.1:8000/api/accounts/public-event/${eventId}/?invite=${inviteToken}`;
+      url = `http://127.0.0.1:8000/api/events/public-event/${eventId}/?invite=${inviteToken}`;
     }
     
     // Get auth headers if available, but don't require them
@@ -775,7 +725,7 @@ export const fetchPublicEvent = async (eventId, inviteToken = null) => {
         if (!inviteToken) {
           try {
             const publicResponse = await axios.get(
-              `http://127.0.0.1:8000/api/accounts/public-event/${eventId}/`, 
+              `http://127.0.0.1:8000/api/events/public-event/${eventId}/`, 
               { headers }
             );
             return publicResponse.data;
@@ -806,7 +756,7 @@ export const fetchPublicEvent = async (eventId, inviteToken = null) => {
 // Verify an invitation token
 export const verifyInvitation = async (token) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/accounts/verify-invitation/?token=${token}`);
+    const response = await axios.get(`http://127.0.0.1:8000/api/events/verify-invitation/?token=${token}`);
     return response.data;
   } catch (error) {
     console.error('Error verifying invitation:', error);
@@ -824,7 +774,7 @@ export const createEventInvitation = async (eventId, email) => {
     }
     
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/accounts/invitations/`,
+      `http://127.0.0.1:8000/api/events/invitations/`,
       { event: eventId, email },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -846,7 +796,7 @@ export const acceptInvitation = async (token) => {
     }
     
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/accounts/accept-invitation/`,
+      `http://127.0.0.1:8000/api/events/accept-invitation/`,
       { token },
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
@@ -868,7 +818,7 @@ export const generateEventShareToken = async (eventId) => {
     }
     
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/accounts/event-share-token/`,
+      `http://127.0.0.1:8000/api/events/event-share-token/`,
       { event: eventId },
       { headers: { Authorization: `Bearer ${token || newToken}` } }
     );

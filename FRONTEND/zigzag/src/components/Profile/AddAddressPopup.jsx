@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { OPEN_CAGE_API_KEY } from '../../config';
 import { Box, Typography, TextField, Button, IconButton, Tooltip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import styles from './Profile.module.css';
 
-const OPEN_CAGE_API_KEY = "a51c63b182214f16ba4d28f56b0f191f";
 const labelSuggestions = ["Home", "Work", "Secondary Residence"];
 
 const AddAddressPopup = ({ onClose, onAddAddress }) => {

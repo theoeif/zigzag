@@ -1,4 +1,3 @@
-const OPEN_CAGE_API_KEY = "a51c63b182214f16ba4d28f56b0f191f";
 
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchAddresses, addAddress, deleteAddress, fetchUserProfile, updateProfile } from "../../api/api";
@@ -212,7 +211,7 @@ const Profile = () => {
       <div className={styles.sectionsContainer}>
         {/* Address Section */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>My locations</h2>
+          <h2 className={styles.sectionTitle}>My locations (where I have friends) </h2>
           <div className={styles.addressList}>
             {addresses.map(addr => (
               <AddressItem
