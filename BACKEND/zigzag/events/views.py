@@ -39,19 +39,33 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     lookup_field = "id"
     lookup_url_kwarg = "id"
-
+    
     def get_queryset(self):
+        """
+        Return a standard queryset for CRUD operations.
+        Grouping for the project view is handled in list().
+        """
         user = self.request.user
-        # Circles where the user is a member
         user_circles = Circle.objects.filter(members=user)
-        # Events:
-        # - Created by the user
-        # - Or tagged with circles the user belongs to
+        return Event.objects.filter(Q(creator=user) | Q(circles__in=user_circles)).distinct()
 
-        get_events = Event.objects.filter(
-            Q(creator=user) | Q(circles__in=user_circles)
-        ).distinct()
-        return get_events
+    def list(self, request, *args, **kwargs):
+        """
+        Return events grouped into two arrays: events_user and events_invited.
+        This preserves a standard queryset for other actions (retrieve, create, update, delete).
+        """
+        user = request.user
+        user_circles = Circle.objects.filter(members=user)
+
+        events_user = Event.objects.filter(creator=user)
+        events_invited = Event.objects.filter(circles__in=user_circles).exclude(creator=user).distinct()
+
+        serializer_user = self.get_serializer(events_user, many=True)
+        serializer_invited = self.get_serializer(events_invited, many=True)
+        return Response({
+            "events_user": serializer_user.data,
+            "events_invited": serializer_invited.data,
+        })
 
     def create(self, request, *args, **kwargs):
         # Create address first if address data is provided

@@ -70,15 +70,19 @@ const Project = ({ projectId }) => {
       setIsLoading(true);
       if (isConnected) {
         try {
-          const events = await fetchEvents();
-          if (events) {
-            // Backend handles authentication and permissions - show all events
-            const sortedEvents = [...events].sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
-            setProjects(sortedEvents);
-            setCreatedProjects(sortedEvents);
-            setOtherProjects([]);
-            setFilteredFriendsEvents(sortedEvents);
-            setEvents(sortedEvents);
+          const data = await fetchEvents();
+          if (data) {
+            // Expecting shape: { events_user: [...], events_invited: [...] }
+            const userEvents = Array.isArray(data.events_user) ? data.events_user : [];
+            const invitedEvents = Array.isArray(data.events_invited) ? data.events_invited : [];
+
+            const sortedUser = [...userEvents].sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+            const sortedInvited = [...invitedEvents].sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+
+            setProjects(sortedUser);
+            setOtherProjects(sortedInvited);
+            setFilteredFriendsEvents(sortedInvited);
+            setEvents(sortedUser);
           }
         } catch (error) {
           console.error("Error fetching events:", error);
@@ -406,7 +410,7 @@ const Project = ({ projectId }) => {
           </div>
           
           {otherProjects.length === 0 ? (
-            <p>You are not part of any events yet.</p>
+            <p>You are not part of any projects yet.</p>
           ) : (
             <div className={styles.eventsGridProject}>
               {filteredFriendsEvents.length === 0 ? (
