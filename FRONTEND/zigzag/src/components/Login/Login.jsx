@@ -31,14 +31,13 @@ const Login = () => {
     e.preventDefault();
     try {
       await login(formData);
-      console.log("Logged in successfully");
 
       setIsConnected(true);
-      
+
       // Navigate to the redirect path if set, otherwise go to home
       navigate(redirectPath);
     } catch (err) {
-      console.error(err);
+      console.error("Login: Error during login:", err);
       setError(err.response?.data || "Invalid credentials");
     }
   };

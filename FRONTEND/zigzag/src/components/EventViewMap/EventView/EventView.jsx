@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
 import { 
-  fetchPublicEvent, 
+  fetchDirectEvent, 
   acceptInvitation, 
   createEventInvitation
 } from "../../../api/api";
@@ -320,7 +320,8 @@ const EventView = ({
   eventId, 
   displayMode = 'fullpage', 
   onClose,
-  initialData = null
+  initialData = null,
+  originalMapState = null
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -357,7 +358,7 @@ const EventView = ({
       const loadEvent = async () => {
         try {
           setLoading(true);
-          const eventData = await fetchPublicEvent(eventId, inviteToken);
+          const eventData = await fetchDirectEvent(eventId, inviteToken);
           setEvent(eventData);
           
           
@@ -379,6 +380,7 @@ const EventView = ({
       loadEvent();
     } else {
       // Initialize with provided data
+      setEvent(initialData);
       const currentUsername = localStorage.getItem("username");
       setIsCreator(initialData.creator === currentUsername);
       setShareUrl(`http://localhost:5173/event/${eventId}`);
@@ -466,7 +468,7 @@ const EventView = ({
       const result = await acceptInvitation(inviteToken);
       if (result.success) {
         // Reload the event data
-        const eventData = await fetchPublicEvent(eventId, inviteToken);
+        const eventData = await fetchDirectEvent(eventId, inviteToken);
         setEvent(eventData);
       }
     } catch (err) {
@@ -479,16 +481,24 @@ const EventView = ({
   const handleViewOnMap = () => {
     // Pass the event location as state to maintain zoom and center when navigating to map
     if (event && (
-      (event.lat && event.lng) || 
+      (event.lat && event.lng) ||
       (event.address && event.address.latitude && event.address.longitude)
     )) {
       const lat = event.lat || (event.address && event.address.latitude);
       const lng = event.lng || (event.address && event.address.longitude);
-      
+
+      // If we have an original map state, use it as the base and update with event coordinates
+      const mapState = originalMapState ? {
+        ...originalMapState,
+        center: { lat, lng },
+        zoom: 15
+      } : {
+        center: { lat, lng },
+        zoom: 15
+      };
+
       navigate('/', {
-        state: {
-          mapState: { lat, lng, zoom: 15 }
-        }
+        state: { mapState }
       });
     } else {
       navigate('/');
@@ -565,7 +575,7 @@ const EventView = ({
       return;
     }
     
-    console.log("EventView: Viewing circle members for circle:", circle);
+    // console.log("EventView: Viewing circle members for circle:", circle);
     
     // Make sure we have valid data
     const circleId = circle.id;
@@ -639,7 +649,12 @@ const EventView = ({
       <div style={styles.fullpage.container}>
         {/* Map as background */}
         <div style={styles.fullpage.mapContainer}>
-          <MarkersMap publicEventId={eventId} />
+          <MarkersMap
+            eventCoordinates={event ? {
+              lat: event.lat || (event.address && event.address.latitude),
+              lng: event.lng || (event.address && event.address.longitude)
+            } : null}
+          />
         </div>
         
         {/* Event info overlay */}
