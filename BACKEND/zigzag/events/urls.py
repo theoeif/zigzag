@@ -11,6 +11,7 @@ from .views import (
     TagListView,
     MyLocationsView,
     ProfileViewSet,
+    FriendsListView,
 )
 
 # ViewSet mappings
@@ -49,6 +50,7 @@ urlpatterns = [
     path('circles/members/', MultiCircleMembersView.as_view(), name='multi_circle_members'),
     path('tags/', TagListView.as_view(), name='tag-list'),
     path('my/locations/', MyLocationsView.as_view(), name='my-locations'),
+    path('users/', FriendsListView.as_view(), name='users-list'),
 
    
     # Invitation endpoints

@@ -29,67 +29,67 @@ import LabelIcon from '@mui/icons-material/Label';
 import EditIcon from '@mui/icons-material/Edit';
 import { 
   fetchCircleMembers, 
-  fetchProfiles, 
+  fetchUsers, 
   fetchUserProfile,
-  addFriendsToCircle,
-  removeFriendsFromCircle,
+  addUsersToCircle,
+  removeUsersFromCircle,
   deleteCircle,
   updateCircle,
   fetchMyTags
 } from '../../api/api';
 
-const AddFriendsModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
+const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [friends, setFriends] = useState([]);
-  const [selectedFriends, setSelectedFriends] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const loadFriends = async () => {
+    const loadUsers = async () => {
       setLoading(true);
       try {
-        const data = await fetchProfiles();
+        const data = await fetchUsers();
         // Filter out existing members using username
         const existingMemberUsernames = existingMembers.map(member => member.username);
-        const availableFriends = data.filter(friend => 
-          !existingMemberUsernames.includes(friend.username)
+        const availableUsers = data.filter(user => 
+          !existingMemberUsernames.includes(user.username)
         );
-        setFriends(availableFriends);
+        setUsers(availableUsers);
       } catch (error) {
-        console.error('Error loading friends:', error);
+        console.error('Error loading users:', error);
       }
       setLoading(false);
     };
 
     if (open) {
-      loadFriends();
-      setSelectedFriends([]); // Reset selections when modal opens
+      loadUsers();
+      setSelectedUsers([]); // Reset selections when modal opens
     }
   }, [open, existingMembers]);
 
-  const filteredFriends = friends.filter(friend =>
-    `${friend.first_name} ${friend.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    friend.username.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(user =>
+    `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleFriendSelection = (friend) => {
-    setSelectedFriends(prev => {
-      const isSelected = prev.some(f => f.username === friend.username);
+  const toggleUserSelection = (user) => {
+    setSelectedUsers(prev => {
+      const isSelected = prev.some(u => u.username === user.username);
       if (isSelected) {
-        return prev.filter(f => f.username !== friend.username);
+        return prev.filter(u => u.username !== user.username);
       } else {
-        return [...prev, friend];
+        return [...prev, user];
       }
     });
   };
 
   const handleAdd = async () => {
     try {
-      await addFriendsToCircle(circle.id, selectedFriends);
+      await addUsersToCircle(circle.id, selectedUsers);
       onAdd();
       onClose();
     } catch (error) {
-      console.error('Error adding friends:', error);
+      console.error('Error adding users:', error);
     }
   };
 
@@ -99,14 +99,14 @@ const AddFriendsModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
       onClose={onClose} 
       maxWidth="sm" 
       fullWidth
-      classes={{ paper: 'addFriendsDialog' }}
+      classes={{ paper: 'addUsersDialog' }}
     >
-      <DialogTitle className="addFriendsTitle">Add Friends to Circle</DialogTitle>
+      <DialogTitle className="addUsersTitle">Add Users to Circle</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
-          label="Search friends"
+          label="Search users"
           type="text"
           fullWidth
           value={searchTerm}
@@ -114,20 +114,20 @@ const AddFriendsModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
           sx={{ mb: 2 }}
         />
         {loading ? (
-          <Typography>Loading friends...</Typography>
-        ) : filteredFriends.length === 0 ? (
-          <Typography>No available friends to add</Typography>
+          <Typography>Loading users...</Typography>
+        ) : filteredUsers.length === 0 ? (
+          <Typography>No available users to add</Typography>
         ) : (
           <List sx={{ maxHeight: 400, overflow: 'auto' }}>
-            {filteredFriends.map((friend) => {
-              const isSelected = selectedFriends.some(f => f.username === friend.username);
+            {filteredUsers.map((user) => {
+              const isSelected = selectedUsers.some(u => u.username === user.username);
               return (
                 <ListItem 
-                  key={friend.username} 
+                  key={user.username} 
                   dense 
                   button
-                  onClick={() => toggleFriendSelection(friend)}
-                  className="friendItem"
+                  onClick={() => toggleUserSelection(user)}
+                  className="userItem"
                   sx={{ 
                     width: '100%', 
                     bgcolor: isSelected ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
@@ -144,12 +144,12 @@ const AddFriendsModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
                     className="memberCheckbox"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFriendSelection(friend);
+                      toggleUserSelection(user);
                     }}
                   />
                   <ListItemText
-                    primary={`${friend.first_name} ${friend.last_name}`}
-                    secondary={`@${friend.username}`}
+                    primary={`${user.first_name} ${user.last_name}`}
+                    secondary={`@${user.username}`}
                   />
                 </ListItem>
               );
@@ -161,11 +161,11 @@ const AddFriendsModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
         <Button onClick={onClose}>Cancel</Button>
         <Button 
           onClick={handleAdd}
-          disabled={selectedFriends.length === 0}
+          disabled={selectedUsers.length === 0}
           variant="contained"
-          className="addFriendsConfirm"
+          className="addUsersConfirm"
         >
-          Add Selected Friends ({selectedFriends.length})
+          Add Selected Users ({selectedUsers.length})
         </Button>
       </DialogActions>
     </Dialog>
@@ -306,7 +306,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [members, setMembers] = useState([]);
-  const [isAddFriendsModalOpen, setIsAddFriendsModalOpen] = useState(false);
+  const [isAddUsersModalOpen, setIsAddUsersModalOpen] = useState(false);
   const [isEditTagsModalOpen, setIsEditTagsModalOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -361,7 +361,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   const handleRemoveMember = async (memberId) => {
     try {
       if (memberId) {
-        await removeFriendsFromCircle(circle.id, [memberId]);
+        await removeUsersFromCircle(circle.id, [memberId]);
         loadMembers();
       } else {
         console.error('Cannot remove member: ID is undefined');
@@ -406,7 +406,8 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
     }
   };
 
-  const canManageMembers = isCreator || circle?.is_shared;
+  // Since all circles are shared, only creators can manage members
+  const canManageMembers = isCreator;
 
   return (
     <Box sx={{ p: 2 }}>
@@ -435,9 +436,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                 {localCircle.name}
               </Typography>
               <Typography variant="subtitle1" className="circleSubtitle" color="text.secondary">
-                Created by {localCircle.creator} 
-                <br />
-                {members.length} members • {localCircle.is_shared ? 'Shared' : 'Private'} Circle
+                {members.length} members
               </Typography>
               {/* Display tags */}
               {localCircle.tags && localCircle.tags.length > 0 && (
@@ -497,7 +496,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                 key={member.username}
                 className="circleMemberItem"
                 secondaryAction={
-                  (isCreator || (circle.is_shared && member.username === currentUser?.username)) && (
+                  (isCreator || member.username === currentUser?.username) && (
                     <IconButton 
                       edge="end" 
                       aria-label="delete"
@@ -540,16 +539,16 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                 startIcon={<AddIcon />}
                 className="circleAddButton"
                 sx={{ borderRadius: 20 }}
-                onClick={() => setIsAddFriendsModalOpen(true)}
+                onClick={() => setIsAddUsersModalOpen(true)}
               >
-                Add Friend to Circle
+                Add User to Circle
               </Button>
             </Box>
           )}
 
-          <AddFriendsModal
-            open={isAddFriendsModalOpen}
-            onClose={() => setIsAddFriendsModalOpen(false)}
+          <AddUsersModal
+            open={isAddUsersModalOpen}
+            onClose={() => setIsAddUsersModalOpen(false)}
             onAdd={loadMembers}
             circle={circle}
             existingMembers={members}
