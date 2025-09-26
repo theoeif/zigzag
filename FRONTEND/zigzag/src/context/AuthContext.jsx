@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { validateAccessToken } from '../api/api';
+import { validateAccessToken, setLogoutHandler } from '../api/api';
 
 const AuthContext = createContext(null);
 
@@ -24,6 +24,16 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     };
     checkAuth();
+
+    // Exception with return :Register a central logout handler so API layer can force logout without reloading
+    setLogoutHandler(() => () => {
+      setIsAuthenticated(false);
+    });
+
+    return () => {
+      // Cleanup the handler on unmount
+      setLogoutHandler(null);
+    };
   }, []);
 
   const login = () => {

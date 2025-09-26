@@ -11,7 +11,7 @@ const ANIMATION_DURATION = 500; // in milliseconds
 const LeftMenu = ({ closeMenu }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isConnected, setIsConnected } = useContext(AuthContext);
+  const { isConnected, setIsConnected, logout } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
@@ -65,9 +65,7 @@ const LeftMenu = ({ closeMenu }) => {
         }
       } else if (clickingButton === "disconnect") {
         // Handle disconnect animation end
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        setIsConnected(false);
+        logout();
         setClickingButton(null);
         navigate("/");
       }
@@ -156,9 +154,7 @@ const LeftMenu = ({ closeMenu }) => {
     // Fallback timeout in case animation events don't fire
     setTimeout(() => {
       if (clickingButton === "disconnect") {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        setIsConnected(false);
+        logout();
         setClickingButton(null);
         navigate("/");
       }

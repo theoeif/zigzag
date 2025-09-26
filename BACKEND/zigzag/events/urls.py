@@ -9,6 +9,8 @@ from .views import (
     AcceptInvitationView,
     EventShareTokenView,
     TagListView,
+    MyLocationsView,
+    ProfileViewSet,
 )
 
 # ViewSet mappings
@@ -30,6 +32,11 @@ urlpatterns = [
     path('event/<uuid:id>/participants/', EventViewSet.as_view({'get': 'participants'}), name='event-participants'),
     path('markers/', EventViewSet.as_view({'post': 'markers'}), name='user-markers'),
 
+    # Profile endpoints
+    path('profile/', ProfileViewSet.as_view({'get': 'list', 'post': 'create'}), name='profile-list'),
+    path('profile/<int:pk>/', ProfileViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='profile-detail'),
+    path('profile/me/', ProfileViewSet.as_view({'get': 'me', 'patch': 'me'}), name='profile-me'),
+
     # User Address endpoints
     path('user/addresses/', UserAddressViewSet.as_view({'get': 'list', 'post': 'create'}), name='user-address-list'),
     path('user/addresses/<int:pk>/', UserAddressViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update', 'delete': 'destroy'}), name='user-address-detail'),
@@ -41,6 +48,7 @@ urlpatterns = [
     path('circles/<int:id>/remove_members/', CircleViewSet.as_view({'post': 'remove_members'}), name='circle-remove-members'),
     path('circles/members/', MultiCircleMembersView.as_view(), name='multi_circle_members'),
     path('tags/', TagListView.as_view(), name='tag-list'),
+    path('my/locations/', MyLocationsView.as_view(), name='my-locations'),
 
    
     # Invitation endpoints

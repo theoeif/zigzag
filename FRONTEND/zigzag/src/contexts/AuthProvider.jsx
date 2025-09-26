@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { validateAccessToken, refreshAccessToken } from "../api/api";
+import { validateAccessToken, refreshAccessToken, setLogoutHandler } from "../api/api";
 
 export const AuthContext = createContext();
 
@@ -32,6 +32,14 @@ export const AuthProvider = ({ children }) => {
   // Initialize authentication on component mount
   useEffect(() => {
     initializeAuth();
+    // Register central logout handler so API layer can force logout consistently
+    setLogoutHandler(() => () => {
+      setIsConnected(false);
+    });
+
+    return () => {
+      setLogoutHandler(null);
+    };
   }, []);
 
   const logout = () => {

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { createEvent, fetchCircles } from '../../api/api';
+import { OPEN_CAGE_API_KEY } from '../../config';
+import { createEvent, fetchCircles, fetchUserProfile } from '../../api/api';
 import styles from './Project.module.css';
 
-const OPEN_CAGE_API_KEY = "a51c63b182214f16ba4d28f56b0f191f";
 
-const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
+const CreateEventForm = ({ projectId, onEventCreated, onClose, userId }) => {
   // Get current date and time in local timezone, formatted for datetime-local input
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -57,16 +57,13 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     address_line: '',
     start_time: initialDateTime,
     end_time: initialEndDateTime,
-    whatsapp_group_link: '',
-    is_public: false,
     shareable_link: true,  // Default to true - link is shareable
   });
 
   // State for tracking if the form should be shown
   const [showForm, setShowForm] = useState(true);
   
-  // State for friends-of-friends flag
-  const [friendsOfFriendsAllowed, setFriendsOfFriendsAllowed] = useState(false);
+  // Removed public/friends-of-friends settings
 
   // State for address validation
   const [addressError, setAddressError] = useState("");
@@ -136,22 +133,9 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     }
   };
 
-  // Update friends-of-friends when is_public changes
-  useEffect(() => {
-    // If event is public, automatically enable friends of friends
-    if (formData.is_public === true) {
-      setFriendsOfFriendsAllowed(true);
-    }
-  }, [formData.is_public]);
-
   // Handle change for all text/select/checkbox inputs except circles
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    // If public checkbox is checked, automatically enable friends of friends
-    if (name === 'is_public' && checked === true) {
-      setFriendsOfFriendsAllowed(true);
-    }
     
     // Special case for start_time to make hour optional
     if (name === 'start_time' && value) {
@@ -207,7 +191,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
 
   // Handle change for friends-of-friends flag
   const handleFriendsOfFriendsChange = (e) => {
-    setFriendsOfFriendsAllowed(e.target.checked);
+    // This function is no longer needed as friends-of-friends is removed
   };
 
   // Handle tickbar for circles selection
@@ -299,18 +283,22 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       return; // Don't submit if dates are invalid
     }
     
+    // Use userId passed from parent if available (avoid extra API call)
+    if (userId) {
+      console.log('CreateEventForm: current user id =', userId);
+    }
+
     const eventData = {
       title: formData.title,
       description: formData.description,
       address: localizedAddress,
       start_time: formData.start_time,
       end_time: formData.end_time || null,
-      whatsapp_group_link: formData.whatsapp_group_link || null,
-      is_public: formData.is_public,
-      friends_of_friends_allowed: friendsOfFriendsAllowed,
       shareable_link: formData.shareable_link,
       project: projectId,
       circle_ids: selectedCircles,
+      // Pass through creator id for traceability (backend still sets from JWT)
+      creator: userId,
     };
     
     try {
@@ -543,43 +531,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             )}
           </div>
           
-          <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Whatsapp Group Link (Optional):</label>
-            <input
-              type="url"
-              name="whatsapp_group_link"
-              value={formData.whatsapp_group_link}
-              onChange={handleInputChange}
-              className={styles.formInputProject}
-              placeholder="https://chat.whatsapp.com/..."
-            />
-          </div>
+          {/* WhatsApp link removed */}
           
-          <div className={styles.checkboxContainerProject} style={{ marginBottom: '15px' }}>
-            <input
-              type="checkbox"
-              id="is_public"
-              name="is_public"
-              checked={formData.is_public}
-              onChange={handleInputChange}
-              className={styles.checkboxInputProject}
-            />
-            <label htmlFor="is_public" className={styles.checkboxLabelProject}>Public</label>
-          </div>
+          {/* Public checkbox removed */}
           
-          <div className={styles.checkboxContainerProject} style={{ marginBottom: '20px' }}>
-            <input
-              type="checkbox"
-              id="friends_of_friends_allowed"
-              name="friends_of_friends_allowed"
-              checked={friendsOfFriendsAllowed}
-              onChange={handleFriendsOfFriendsChange}
-              className={styles.checkboxInputProject}
-            />
-            <label htmlFor="friends_of_friends_allowed" className={styles.checkboxLabelProject}>
-              Allow Friends of Friends
-            </label>
-          </div>
+          {/* Friends of friends checkbox removed */}
           
           <div className={styles.checkboxContainerProject} style={{ marginBottom: '20px' }}>
             <input

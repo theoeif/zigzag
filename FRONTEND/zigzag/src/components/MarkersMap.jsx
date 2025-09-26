@@ -6,7 +6,7 @@ import "leaflet.markercluster/dist/leaflet.markercluster.js";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-leaflet";
 
-import { fetchMarkers, fetchMyTags, persistSelectedTags, fetchFriendsLocations, fetchFriendsOfFriendsEvents } from "../api/api";
+import { fetchMarkers, fetchMyTags, persistSelectedTags, fetchMyLocations } from "../api/api";
 import { 
   redMarkerIcon, 
   whiteFriendsEventlocationMarkerIcon
@@ -28,7 +28,7 @@ const MarkersMap = () => {
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [isClustered, setIsClustered] = useState(false);
   
-  // Toggle state for projects and friend locations
+  // Toggle state for projects and my locations
   const [showProjects, setShowProjects] = useState(true);
   const [showFriendLocations, setShowFriendLocations] = useState(true);
   
@@ -326,7 +326,7 @@ const MarkersMap = () => {
     end.setHours(23, 59, 59, 999);  // Set to 23:59:59.999
 
     const filterFunc = (event) => {
-      // Always include friend locations regardless of date - they don't have real start/end dates
+      // Always include my locations regardless of date - they don't have real start/end dates
       if (event.isFriendLocation) return true;
       
       // Skip filtering if marker doesn't have date information
@@ -356,7 +356,7 @@ const MarkersMap = () => {
       ? markersData.red_markers.filter(filterFunc)
       : [];
     
-    // Use stored friend location data for blue markers (only when showing friend locations)
+    // Use stored my location data for blue markers (only when showing my locations)
     const filteredBlue = showFriendLocations ? friendLocationData : [];
     
     setFilteredMarkers({ red_markers: filteredRed });
@@ -376,47 +376,26 @@ const MarkersMap = () => {
     // If user is connected, fetch their markers
     if (isConnected) {
       const markers = await fetchMarkers(selectedTags);
-      
-      // Also fetch friends of friends events
-      const fofEvents = await fetchFriendsOfFriendsEvents();
-      
+
       if (markers) {
-        if (fofEvents && fofEvents.length > 0) {
-          // Transform friends of friends events to marker format
-          const fofMarkers = fofEvents.map(event => ({
-            id: event.id,
-            title: event.title,
-            lat: event.lat,
-            lng: event.lng,
-            description: event.description,
-            start_date: event.start_time,
-            end_date: event.end_time,
-            address_line: event.address?.address_line,
-            tags: event.tags
-          }));
-          
-          // Add friends of friends events to red markers
-          markers.red_markers = [...markers.red_markers, ...fofMarkers];
-        }
-        
         setMarkersData(markers);
       }
     }
   };
 
   /**
-   * Fetch friend locations separately
+  * Fetch my saved locations separately
    */
   const loadFriendLocations = async () => {
     try {
-      const friendLocations = await fetchFriendsLocations();
+      const friendLocations = await fetchMyLocations();
       
       if (!friendLocations || !Array.isArray(friendLocations) || friendLocations.length === 0) {
-        console.warn("No friend locations data returned");
+        console.warn("No my locations data returned");
         return;
       }
       
-      // Transform friend locations into the proper format for markers
+      // Transform my locations into the proper format for markers
       const friendMarkers = friendLocations
         .filter(location => {
           // Filter out locations with invalid coordinates
@@ -431,7 +410,7 @@ const MarkersMap = () => {
             name = `${location.first_name || ''} ${location.last_name || ''}`.trim();
           } else {
             // Use address as name if no proper name is available
-            name = location.label || location.address_line || 'Friend Location';
+            name = location.label || location.address_line || 'My Location';
           }
           
           // Create a TRULY unique ID by combining user_id, coordinates, and index
@@ -562,7 +541,7 @@ const MarkersMap = () => {
   };
 
   /**
-   * Calculate if a friend marker is too close to any project marker
+  * Calculate if a my location marker is too close to any project marker
    * @param {Object} friendMarker - Friend marker data
    * @param {Array} projectMarkers - Array of project marker data
    * @returns {boolean} True if markers are too close
@@ -586,7 +565,7 @@ const MarkersMap = () => {
   };
 
   /**
-   * Apply small offset to friend markers that are too close to project markers
+  * Apply small offset to my location markers that are too close to project markers
    * @param {Array} friendMarkers - Array of friend marker data
    * @param {Array} projectMarkers - Array of project marker data
    * @returns {Array} New array of friend markers with offset applied where needed
@@ -643,7 +622,7 @@ const MarkersMap = () => {
    */
   const renderMarkers = useCallback(() => {
     // Skip if map or data not ready
-    if (!mapRef.current || (!filteredMarkers.red_markers?.length && !filteredPublicMarkers?.length && !friendLocationData?.length)) {
+    if (!mapRef.current || (!filteredMarkers.red_markers?.length && !friendLocationData?.length)) {
       return;
     }
     
@@ -730,6 +709,7 @@ const MarkersMap = () => {
             state: {
               background: location.pathname,
               mapState: { lat: markerData.lat, lng: markerData.lng, zoom: 15 },
+              eventCoordinates: { lat: markerData.lat, lng: markerData.lng }
             },
           });
         });

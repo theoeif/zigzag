@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
 import { 
-  FaTrashAlt, FaEdit, FaMapMarkerAlt, FaClock, FaWhatsapp, 
-  FaGlobe, FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus, 
+  FaTrashAlt, FaEdit, FaMapMarkerAlt, FaClock,
+  FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus, 
   FaLink, FaUsers, FaUserFriends, FaCalendarAlt, FaDirections,
-  FaCaretDown, FaCaretRight, FaCheck, FaPlusCircle, FaInfoCircle,
-  FaUserPlus
+  FaCaretDown, FaCaretRight, FaInfoCircle
 } from "react-icons/fa";
 import styles from './Project.module.css';
-import { toggleEventParticipation, generateEventShareToken } from '../../api/api';
 
-const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onParticipationToggled }) => {
+const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
   const [showCirclesDropdown, setShowCirclesDropdown] = useState(false);
-  const [isParticipating, setIsParticipating] = useState(event.is_participating || false);
-  const [participantsCount, setParticipantsCount] = useState(event.participants_count || 0);
-  const [isUpdatingParticipation, setIsUpdatingParticipation] = useState(false);
   
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
@@ -115,33 +110,16 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   // Copy event link to clipboard
   const shareEventLink = async () => {
     try {
-      // Check if event links are shareable
       if (event.shareable_link === false) {
         alert("The host has disabled link sharing for this event");
         return;
       }
-      
-      // If a public link already exists, use it, otherwise generate a new token
-      if (event.public_link) {
-        let shareUrl = event.public_link;
-        
-        // Check if we need to add a token for private events
-        if (!event.is_public) {
-          // Generate a share token for this event
-          const tokenResponse = await generateEventShareToken(event.id);
-          if (tokenResponse && tokenResponse.token) {
-            // Add the token as a query parameter
-            shareUrl = `${event.public_link}?invite=${tokenResponse.token}`;
-          }
-        }
-        
-        // Copy the URL to clipboard
-        navigator.clipboard.writeText(shareUrl);
-        alert("Event link copied to clipboard!");
-      }
+      const shareUrl = event.public_link || `http://localhost:5173/event/${event.id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      alert("Event link copied to clipboard!");
     } catch (error) {
-      console.error("Error generating share link:", error);
-      alert("Failed to generate share link. Please try again.");
+      console.error("Error copying share link:", error);
+      alert("Failed to copy link. Please try again.");
     }
   };
 
@@ -332,30 +310,6 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     setShowCirclesDropdown(!showCirclesDropdown);
   };
 
-  // Handle toggling participation
-  const handleToggleParticipation = async (e) => {
-    e.stopPropagation(); // Prevent event bubbling
-    
-    if (isUpdatingParticipation) return; // Prevent multiple clicks
-    
-    try {
-      setIsUpdatingParticipation(true);
-      const response = await toggleEventParticipation(event.id);
-      
-      setIsParticipating(response.participating);
-      setParticipantsCount(response.count);
-      
-      // Call parent handler if provided
-      if (onParticipationToggled) {
-        onParticipationToggled(event.id, response.participating, response.count);
-      }
-    } catch (error) {
-      console.error("Error toggling participation:", error);
-      // Display error message if needed
-    } finally {
-      setIsUpdatingParticipation(false);
-    }
-  };
 
   // Add console log to debug details toggle
   const toggleDetails = () => {
@@ -383,9 +337,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             formatDateOnly(event.start_time)
           )}
         </div>
-        <div className={styles.timeCompactProject}>
-          {formatTimeOnly(showEndDate && event.end_time ? event.end_time : event.start_time)}
-        </div>
+        {/* Time display removed - only showing day and date */}
       </div>
       
       {/* Content section */}
@@ -405,37 +357,23 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             </div>
           )}
           
-          {/* Render only tags in main view, not circles */}
+          {/* Show description preview in main view */}
+          {event.description && (
+            <div className={styles.descriptionPreviewProject}>
+              <p>{getDescriptionExcerpt(event.description)}</p>
+            </div>
+          )}
+          
+          {/* Render tags in main view */}
           <div className={styles.tagsSectionProject}>
             {renderTags()}
           </div>
           
-          {/* Display participation count and toggle button together in a minimalist design */}
-          <div className={styles.participationInfoProject}>
-            <span className={styles.participantsCountProject} title="Number of participants">
-              <FaUsers /> {participantsCount}
-            </span>
-            
-            {/* Minimalist participation toggle button */}
-            <button
-              onClick={handleToggleParticipation}
-              className={`${styles.minimalParticipationButtonProject} ${isParticipating ? styles.participatingProject : ''}`}
-              disabled={isUpdatingParticipation}
-              aria-label={isParticipating ? "Cancel participation" : "Participate"}
-              title={isParticipating ? "Cancel participation" : "Participate (+1)"}
-            >
-              {isUpdatingParticipation ? (
-                "..."
-              ) : isParticipating ? (
-                <FaCheck />
-              ) : (
-                <FaPlusCircle />
-              )}
-            </button>
-          </div>
+          {/* Removed Invited Circles section */}
+          
         </div>
         
-        {/* Manage mode buttons */}
+        {/* Manage mode buttons - positioned at bottom left */}
         {isManageMode && (
           <div className={styles.manageButtonsGroupProject}>
             <button 
@@ -499,20 +437,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
           >
             <FaCalendarPlus />
           </button>
-          <button 
-            className={styles.actionButtonProject} 
-            aria-label="WhatsApp group" 
-            title="WhatsApp group"
-            onClick={() => {
-              if (event.whatsapp_group_link) {
-                window.open(event.whatsapp_group_link, '_blank');
-              } else {
-                alert("No WhatsApp group available for this event");
-              }
-            }}
-          >
-            <FaWhatsapp />
-          </button>
+          {/* Removed WhatsApp group button */}
         </div>
         
         {/* Simple details button moved to bottom of card */}
@@ -627,35 +552,18 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                 </div>
               )}
               
-              {event.whatsapp_group_link && (
-                <div className={styles.detailItemProject}>
-                  <FaWhatsapp />
-                  <a href={event.whatsapp_group_link} target="_blank" rel="noopener noreferrer">
-                    Join WhatsApp Group
-                  </a>
-                </div>
-              )}
+              {/* Removed WhatsApp group link */}
               
               {event.is_public && (
                 <div className={styles.detailItemProject}>
-                  <FaGlobe />
+                  {/* Removed FaGlobe */}
                   <span>This is public</span>
                 </div>
               )}
               
-              {event.friends_of_friends_allowed && (
-                <div className={styles.detailItemProject}>
-                  <FaUserPlus />
-                  <span>Friends of friends allowed</span>
-                </div>
-              )}
+              {/* Removed Friends of friends allowed */}
               
-              {event.creator && (
-                <div className={styles.detailItemProject}>
-                  <FaUser />
-                  <span><strong>Organizer:</strong> {typeof event.creator === 'string' ? event.creator : event.creator.username}</span>
-                </div>
-              )}
+              {/* Removed Organizer information */}
             </div>
             
             {/* Show all circles/tags when expanded - NOW WITH IMPROVED CIRCLES DISPLAY */}

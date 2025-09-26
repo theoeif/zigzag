@@ -30,8 +30,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Attempting to log in with", formData);
-      await authenticate(formData);
+      await login(formData);
       console.log("Logged in successfully");
 
       setIsConnected(true);
