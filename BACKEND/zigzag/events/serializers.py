@@ -10,9 +10,12 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'address_line', 'city', 'state', 'country', 'postal_code', 'latitude', 'longitude']
 
 class CircleSerializer(serializers.ModelSerializer):
+    creator = serializers.StringRelatedField(read_only=True)
+    tags = serializers.StringRelatedField(source='categories', many=True, read_only=True)
+    
     class Meta:
         model = Circle
-        fields = ['id', 'name', 'categories']
+        fields = ['id', 'name', 'creator', 'categories', 'tags']
 
 class EventSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=False, read_only=True)

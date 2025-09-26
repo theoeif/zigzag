@@ -515,3 +515,32 @@ class MyLocationsView(APIView):
 
         return Response(results, status=status.HTTP_200_OK)
 
+
+class FriendsListView(APIView):
+    """
+    Return a list of all users that can be added to circles.
+    This provides a searchable list of users for the frontend.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from .models import User  # local import to avoid circular imports
+        
+        # Get all users except the current user
+        users = User.objects.exclude(id=request.user.id).values(
+            'id', 'username', 'first_name', 'last_name'
+        ).order_by('username')
+        
+        # Convert to list of dictionaries
+        friends_data = [
+            {
+                "id": user['id'],
+                "username": user['username'],
+                "first_name": user['first_name'] or '',
+                "last_name": user['last_name'] or '',
+            }
+            for user in users
+        ]
+        
+        return Response(friends_data, status=status.HTTP_200_OK)

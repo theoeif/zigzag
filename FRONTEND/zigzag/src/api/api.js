@@ -296,8 +296,8 @@ export const fetchProfile = async (id) => {
   }
 };
 
-// get Profiles for a user
-export const fetchProfiles = async (query) => {
+// get Users for adding to circles
+export const fetchUsers = async (query) => {
   try {
     let token = localStorage.getItem("access_token");
     if (!token) {
@@ -305,7 +305,7 @@ export const fetchProfiles = async (query) => {
       if (!token) return [];
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/events/friends/`, {
+    const response = await axios.get(`http://127.0.0.1:8000/api/events/users/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -313,7 +313,7 @@ export const fetchProfiles = async (query) => {
 
     return response.data
   } catch (error) {
-    console.error("Error fetching profiles:", error);
+    console.error("Error fetching users:", error);
     return [];
   }
 };
@@ -561,8 +561,8 @@ export const fetchUserProfile = async () => {
   }
 };
 
-// Add friends to a circle
-export const addFriendsToCircle = async (circleId, friends) => {
+// Add users to a circle
+export const addUsersToCircle = async (circleId, users) => {
   try {
     let token = localStorage.getItem('access_token');
     if (!token) {
@@ -570,24 +570,24 @@ export const addFriendsToCircle = async (circleId, friends) => {
       if (!token) return null;
     }
 
-    // Extract IDs from friend objects
-    const friendIds = friends.map(friend => friend.id).filter(id => id);
+    // Extract IDs from user objects
+    const memberIds = users.map(user => user.id).filter(id => id);
     
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/circles/${circleId}/add_friends/`,
-      { friend_ids: friendIds },
+      `http://127.0.0.1:8000/api/events/circles/${circleId}/add_members/`,
+      { member_ids: memberIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
     
     return response.data;
   } catch (error) {
-    console.error('Error adding friends to circle:', error);
+    console.error('Error adding users to circle:', error);
     throw error;
   }
 };
 
-// Remove friends from a circle
-export const removeFriendsFromCircle = async (circleId, friendIds) => {
+// Remove users from a circle
+export const removeUsersFromCircle = async (circleId, memberIds) => {
   try {
     let token = localStorage.getItem('access_token');
     if (!token) {
@@ -595,18 +595,18 @@ export const removeFriendsFromCircle = async (circleId, friendIds) => {
       if (!token) return null;
     }
 
-    // Ensure friendIds is an array
-    const ids = Array.isArray(friendIds) ? friendIds : [friendIds];
+    // Ensure memberIds is an array
+    const ids = Array.isArray(memberIds) ? memberIds : [memberIds];
 
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/circles/${circleId}/remove_friends/`,
-      { friend_ids: ids },
+      `http://127.0.0.1:8000/api/events/circles/${circleId}/remove_members/`,
+      { member_ids: ids },
       { headers: { Authorization: `Bearer ${token}` } }
     );
     
     return response.data;
   } catch (error) {
-    console.error('Error removing friends from circle:', error);
+    console.error('Error removing users from circle:', error);
     throw error;
   }
 };

@@ -3,7 +3,7 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
 import "../../index.css";
-import { fetchEvents, fetchProfiles, fetchEventInfo } from "../../api/api";
+import { fetchEvents, fetchUsers, fetchEventInfo } from "../../api/api";
 
 // Define animation duration in one place for easy adjustment
 const ANIMATION_DURATION = 500; // in milliseconds
@@ -173,7 +173,7 @@ const LeftMenu = ({ closeMenu }) => {
     if (query.length > 1) {
       // Fetch profiles and events in parallel
       const [rawProfiles, rawEvents] = await Promise.all([
-        fetchProfiles(),
+        fetchUsers(),
         fetchEvents(),
       ]);
     
