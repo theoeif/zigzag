@@ -187,16 +187,16 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
         setAllTags(tagsData);
         
         // Initialize selected tags from circle
-        if (circle && circle.categories) {
+        if (circle && circle.tags) {
           setSelectedTags(
-            tagsData.filter(tag => 
-              circle.categories.includes(tag.name)
+            tagsData.filter(tag =>
+              circle.tags.includes(tag.name)
             )
           );
         }
       } catch (err) {
         console.error('Error loading tags:', err);
-        setError('Failed to load categories');
+        setError('Failed to load tags');
       }
       setLoading(false);
     };
@@ -219,20 +219,20 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
 
   const handleUpdate = async () => {
     if (selectedTags.length === 0) {
-      setError('At least one category is required');
+      setError('At least one tag is required');
       return;
     }
     
     try {
       const updatedData = {
-        categories: selectedTags.map(tag => tag.name)
+        tags: selectedTags.map(tag => tag.name)
       };
       
       await onUpdate(updatedData);
       onClose();
     } catch (err) {
       console.error('Error updating tags:', err);
-      setError('Failed to update categories');
+      setError('Failed to update tags');
     }
   };
 
@@ -246,14 +246,14 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
       <DialogTitle>Edit Tags</DialogTitle>
       <DialogContent>
         {loading ? (
-          <Typography>Loading categories...</Typography>
+          <Typography>Loading tags...</Typography>
         ) : (
           <>
             {error && (
               <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>
             )}
             <Typography variant="body2" sx={{ mb: 2 }}>
-              Select categories for this circle. At least one category is required.
+              Select tags for this circle. At least one tag is required.
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
               {allTags.map(tag => {
@@ -313,7 +313,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   const [isCreator, setIsCreator] = useState(false);
   const [localCircle, setLocalCircle] = useState(null);
 
-  // Log circle data to ensure categories are accessible
+  // Log circle data to ensure tags are accessible
   useEffect(() => {
     if (circle) {
       console.log('Circle data in CircleDetailsView:', circle);
@@ -392,7 +392,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
       // Update local state immediately for better UX
       setLocalCircle({
         ...circle,
-        categories: updatedData.categories
+        tags: updatedData.tags
       });
       
       // Create a custom event to force CirclesSidebar to refresh
@@ -439,14 +439,14 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                 <br />
                 {members.length} members • {localCircle.is_shared ? 'Shared' : 'Private'} Circle
               </Typography>
-              {/* Display categories as tags */}
-              {localCircle.categories && localCircle.categories.length > 0 && (
+              {/* Display tags */}
+              {localCircle.tags && localCircle.tags.length > 0 && (
                 <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {localCircle.categories.map((category, index) => (
+                  {localCircle.tags.map((tag, index) => (
                     <Chip
                       key={index}
                       icon={<LabelIcon />}
-                      label={category}
+                      label={tag}
                       size="small"
                       color="primary"
                       variant="outlined"

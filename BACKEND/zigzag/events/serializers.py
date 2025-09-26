@@ -15,13 +15,13 @@ class CircleSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'categories']
 
 class EventSerializer(serializers.ModelSerializer):
-    address = AddressSerializer(read_only=True)
+    address = AddressSerializer(required=False, read_only=True)
     circles = CircleSerializer(many=True, read_only=True)
     participants_count = serializers.IntegerField(read_only=True)
 
     circle_ids = serializers.PrimaryKeyRelatedField(
         source='circles',
-        many=True, 
+        many=True,
         queryset=Circle.objects.all(),
         write_only=True
     )
@@ -29,7 +29,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'title', 'description', 'address', 'start_time', 'end_time',
-                  'creator', 'circles','circle_ids', 'shareable_link', 'participants_count']
+                  'circles','circle_ids', 'shareable_link', 'participants_count']
 
 # TODO replace functionnality of circle_ids in the front as well 
 # TODO change name categories to tags everywhere.

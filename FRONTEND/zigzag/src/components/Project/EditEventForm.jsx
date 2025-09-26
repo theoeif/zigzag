@@ -1,65 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { OPEN_CAGE_API_KEY } from '../../config';
-import { patchEvent, fetchCircles } from '../../api/api';
+import { patchEvent } from '../../api/api';
 import styles from './Project.module.css';
 
 
 const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsManageMode }) => {
-  // Format datetime string for input datetime-local if it exists
-  const formatDatetimeForInput = (datetimeStr) => {
-    if (!datetimeStr) return "";
-    // ISO string format: YYYY-MM-DDTHH:MM:SS.sssZ
-    // Input datetime-local expects: YYYY-MM-DDTHH:MM
-    try {
-      const date = new Date(datetimeStr);
-      return date.toISOString().slice(0, 16);
-    } catch (err) {
-      console.error("Error formatting date:", err);
-      return "";
-    }
-  };
-
   // Pre-fill form state with current event values
   const [formData, setFormData] = useState({
-    title: eventData.title || "",
     description: eventData.description || "",
     address_line: eventData.address?.address_line || "",
-    start_time: formatDatetimeForInput(eventData.start_time) || "",
-    end_time: formatDatetimeForInput(eventData.end_time) || "",
-    shareable_link: eventData.shareable_link !== undefined ? eventData.shareable_link : true,
   });
-
-  // Removed friends-of-friends and public/private settings
-
-  // Add state for date validation errors
-  const [dateError, setDateError] = useState("");
-
-  // Prepare circles data
-  const extractCircleIds = (circlesData) => {
-    if (!circlesData) return [];
-    
-    if (Array.isArray(circlesData)) {
-      return circlesData.map(circle => {
-        if (typeof circle === 'object' && circle !== null) {
-          return circle.id;
-        } else {
-          return parseInt(circle, 10);
-        }
-      }).filter(id => !isNaN(id));
-    }
-    
-    return [];
-  };
-
-  // New state for circles (tickbar) and selected circles.
-  const [allCircles, setAllCircles] = useState([]); // full list of circles from API
-  // Instead of ticking all circles by default, tick only the ones previously assigned
-  const [selectedCircles, setSelectedCircles] = useState(extractCircleIds(eventData.circles) || []);
 
   const [localizedAddress, setLocalizedAddress] = useState(null);
   const [localizeError, setLocalizeError] = useState("");
-  
+
   // Add a new state to track if address has been changed
   const [addressModified, setAddressModified] = useState(false);
   // Add a state to track if the address should be removed
@@ -73,113 +28,12 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     };
   }, [setEditMode, setIsManageMode]);
 
-  // Fetch all circles on mount
-  useEffect(() => {
-    const loadCircles = async () => {
-      try {
-        const circlesData = await fetchCircles();
-        if (circlesData) {
-          // Keep all circle IDs that were already selected, even hidden ones
-          const existingCircleIds = extractCircleIds(eventData.circles);
-          
-          // Filter circles for display, but keep track of any hidden circles that are already selected
-          const visibleCircles = circlesData.filter(circle => !circle.is_hidden_from_sidebar);
-          
-          // Find hidden circles that were already selected
-          const hiddenSelectedCircles = circlesData.filter(
-            circle => circle.is_hidden_from_sidebar && existingCircleIds.includes(circle.id)
-          );
-          
-          // If there are hidden selected circles, add them to visibleCircles for this form
-          if (hiddenSelectedCircles.length > 0) {
-            // Mark hidden circles specially so they can be rendered differently
-            hiddenSelectedCircles.forEach(circle => {
-              circle.is_previously_selected = true;
-            });
-            
-            setAllCircles([...visibleCircles, ...hiddenSelectedCircles]);
-          } else {
-            setAllCircles(visibleCircles);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching circles:", err);
-      }
-    };
-    loadCircles();
-  }, [eventData.circles]);
-
-  // Validate end date whenever start date or end date changes
-  useEffect(() => {
-    if (formData.start_time && formData.end_time) {
-      validateDates(formData.start_time, formData.end_time);
-    }
-  }, [formData.start_time, formData.end_time]);
-
-  // Validate that end date is not earlier than start date
-  const validateDates = (startDate, endDate) => {
-    if (!startDate || !endDate) return true;
-    
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    
-    if (end < start) {
-      setDateError("End date cannot be earlier than start date");
-      return false;
-    } else {
-      setDateError("");
-      return true;
-    }
-  };
-
-  // Removed public/friends-of-friends logic
-
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
-    // Removed public/friends-of-friends logic
-    
-    // Special case for start_time to make hour optional
-    if (name === 'start_time' && value) {
-      // If user only enters a date without time (YYYY-MM-DD),
-      // automatically add T00:00 to make it valid
-      if (value.length === 10 || !value.includes('T')) {
-        const dateWithDefaultTime = `${value.split('T')[0]}T00:00`;
-        setFormData(prev => ({
-          ...prev,
-          [name]: dateWithDefaultTime
-        }));
-        return;
-      }
-    }
-    
-    // Special handling for end_time
-    if (name === 'end_time') {
-      // If user only enters a date (YYYY-MM-DD) without time
-      if (value.length === 10 || !value.includes('T')) {
-        const dateWithDefaultTime = `${value.split('T')[0]}T00:00`;
-        
-        // Validate against start date
-        if (formData.start_time) {
-          validateDates(formData.start_time, dateWithDefaultTime);
-        }
-        
-        setFormData(prev => ({
-          ...prev,
-          [name]: dateWithDefaultTime
-        }));
-        return;
-      }
-      
-      // For full date-time values, also validate
-      if (formData.start_time) {
-        validateDates(formData.start_time, value);
-      }
-    }
-    
+    const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }));
 
     if (name === 'address_line') {
@@ -205,29 +59,6 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     setAddressModified(true);
     setLocalizedAddress(null);
     setLocalizeError("");
-  };
-
-  // Removed public/friends-of-friends logic
-
-  // Handle tickbar for circles selection
-  const handleCircleSelection = (e) => {
-    const circleId = parseInt(e.target.value, 10);
-    if (e.target.checked) {
-      if (!selectedCircles.includes(circleId)) {
-        setSelectedCircles(prev => [...prev, circleId]);
-      }
-    } else {
-      setSelectedCircles(prev => prev.filter(id => id !== circleId));
-    }
-  };
-  
-  // Select all or none circles
-  const handleSelectAllCircles = () => {
-    if (selectedCircles.length === allCircles.length) {
-      setSelectedCircles([]);
-    } else {
-      setSelectedCircles(allCircles.map(circle => circle.id));
-    }
   };
 
   const handleLocalizeAddress = async () => {
@@ -278,23 +109,11 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate dates
-    if (formData.end_time && !validateDates(formData.start_time, formData.end_time)) {
-      return; // Don't submit if dates are invalid
-    }
-
     let updatedFields = {};
-    
-    // Add basic form fields that have changed
-    Object.keys(formData).forEach((key) => {
-      if (formData[key] !== "" && formData[key] !== eventData[key]) {
-        updatedFields[key] = formData[key];
-      }
-    });
 
-    // Handle special case for end time - if it's empty, set to null
-    if (formData.end_time === "") {
-      updatedFields.end_time = null;
+    // Handle description field
+    if (formData.description !== eventData.description) {
+      updatedFields.description = formData.description;
     }
 
     // Handle address based on modified state
@@ -306,36 +125,34 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
       updatedFields.address = { ...localizedAddress };
     }
 
-    // Removed public/friends-of-friends logic
-    
-    // Always include shareable_link flag
-    updatedFields.shareable_link = formData.shareable_link;
-    
-    // Format circles data properly for Django many-to-many relationship
-    updatedFields.circle_ids = selectedCircles;
+    // Only submit if there are changes
+    if (Object.keys(updatedFields).length === 0) {
+      alert("No changes to save");
+      return;
+    }
 
     try {
       const updatedData = await patchEvent(eventData.id, updatedFields);
-      
+
       // Reset both edit states before updating
       if (setIsManageMode) setIsManageMode(false);
       if (setEditMode) setEditMode(null);
-      
+
       // Create merged event data with updates
       const updatedEvent = { ...eventData, ...updatedData };
-      
+
       if (onEventUpdated) {
         onEventUpdated(updatedEvent);
       }
-      
+
       onClose();
     } catch (error) {
       console.error("Error updating event:", error);
-      
+
       // Still reset edit states on error
       if (setIsManageMode) setIsManageMode(false);
       if (setEditMode) setEditMode(null);
-      
+
       alert("Error updating event: " + (error.response?.data?.detail || error.message || "Unknown error"));
       onClose();
     }
@@ -378,15 +195,15 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
           }}
         >
           <div className={styles.popupTitleWrapper}>
-            <h3 className={styles.modalTitleProject}>Edit Project</h3>
+            <h3 className={styles.modalTitleProject}>Edit</h3>
           </div>
           <button onClick={handleCloseForm} className={styles.closeButtonProjectEnhanced}>
             ✕
           </button>
         </div>
         
-        <form 
-          onSubmit={handleSubmit} 
+        <form
+          onSubmit={handleSubmit}
           className={styles.eventFormProject}
           style={{
             padding: '20px',
@@ -395,18 +212,6 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
           }}
         >
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Title:</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              className={styles.formInputProject}
-              required
-            />
-          </div>
-          
-          <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Description:</label>
             <textarea
               name="description"
@@ -414,22 +219,23 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
               onChange={handleInputChange}
               className={styles.formTextareaProject}
               rows="4"
+              placeholder="Enter event description"
             />
           </div>
-          
+
           <div className={styles.formGroupProject}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label className={styles.formLabelProject}>Address:</label>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleClearAddress}
                 className={styles.clearButtonProject}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: '#666', 
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#666',
                   fontSize: '0.9rem',
-                  cursor: 'pointer' 
+                  cursor: 'pointer'
                 }}
               >
                 Clear
@@ -445,13 +251,13 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                 style={{ flexGrow: 1 }}
                 placeholder="Enter address or leave empty to remove"
               />
-              <button 
-                type="button" 
-                onClick={handleLocalizeAddress} 
+              <button
+                type="button"
+                onClick={handleLocalizeAddress}
                 className={styles.localizeButtonProject}
                 disabled={!formData.address_line || removeAddress}
-                style={{ 
-                  minWidth: '100px', 
+                style={{
+                  minWidth: '100px',
                   backgroundColor: '#40916c',
                   color: 'white',
                   borderRadius: '6px',
@@ -464,7 +270,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                 Localize
               </button>
             </div>
-            
+
             {formData.address_line && addressModified && !localizedAddress && !removeAddress && (
               <p className={styles.warningTextProject}>Address changed - needs localization</p>
             )}
@@ -476,9 +282,9 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
           </div>
 
           {localizeError && <p className={styles.errorMessageProject}>{localizeError}</p>}
-          
+
           {localizedAddress && !removeAddress && (
-            <div 
+            <div
               className={styles.localizedInfoProject}
               style={{
                 maxHeight: '150px',
@@ -495,10 +301,10 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                 gap: '6px'
               }}
             >
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                marginBottom: '4px', 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '4px',
                 borderBottom: '1px solid #e0e0e0',
                 paddingBottom: '6px'
               }}>
@@ -520,145 +326,10 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
               </p>
             </div>
           )}
-          
-          <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Start Date:</label>
-            <input
-              type="datetime-local"
-              name="start_time"
-              value={formData.start_time}
-              onChange={handleInputChange}
-              className={styles.formInputProject}
-              required
-            />
-            <small style={{ color: '#666', fontStyle: 'italic' }}>Add time if needed</small>
-          </div>
-          
-          <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>End Date:</label>
-            <input
-              type="datetime-local"
-              name="end_time"
-              value={formData.end_time}
-              onChange={handleInputChange}
-              className={`${styles.formInputProject} ${dateError ? styles.inputErrorProject : ''}`}
-            />
-            {dateError && (
-              <p style={{ color: '#d32f2f', fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                {dateError}
-              </p>
-            )}
-            <small style={{ color: '#666', fontStyle: 'italic' }}>Add time if needed</small>
-          </div>
-          
-          {/* WhatsApp link removed */}
-          
-          {/* Public checkbox removed */}
-          
-          {/* Friends of friends checkbox removed */}
-          
-          <div className={styles.checkboxContainerProject} style={{ marginBottom: '20px' }}>
-            <input
-              type="checkbox"
-              id="shareable_link"
-              name="shareable_link"
-              checked={formData.shareable_link}
-              onChange={handleInputChange}
-              className={styles.checkboxInputProject}
-            />
-            <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
-              Shareable Link
-            </label>
-          </div>
-          
-          <fieldset 
-            className={styles.fieldsetGroupProject}
+
+          <div
+            className={styles.buttonGroupProject}
             style={{
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '15px',
-              marginBottom: '20px'
-            }}
-          >
-            <legend className={styles.fieldsetLegendProject}>Select Circles:</legend>
-            
-            {/* Container for the 'Select All' button */}
-            <div className={styles.selectAllContainerProject}>
-              <button 
-                type="button" 
-                onClick={handleSelectAllCircles} 
-                className={styles.selectAllButtonProject}
-                style={{
-                  backgroundColor: '#40916c',
-                  color: 'white',
-                  border: 'none',
-                  padding: '6px 12px',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
-                }}
-              >
-                {selectedCircles.length === allCircles.length ? "Deselect All" : "Select All"}
-              </button>
-            </div>
-            
-            <div 
-              className={styles.checkboxGroupProject} 
-              style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
-                gap: '8px',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                WebkitOverflowScrolling: 'touch',
-                scrollBehavior: 'smooth',
-                padding: '5px',
-                margin: '10px 0'
-              }}
-            >
-              {allCircles.map((circle) => (
-                <div key={circle.id} className={styles.checkboxContainerProject}>
-                  <input
-                    type="checkbox"
-                    id={`circle-${circle.id}`}
-                    name="circles"
-                    value={circle.id}
-                    checked={selectedCircles.includes(circle.id)}
-                    onChange={handleCircleSelection}
-                    className={styles.checkboxInputProject}
-                  />
-                  <label 
-                    htmlFor={`circle-${circle.id}`} 
-                    className={styles.checkboxLabelProject}
-                    style={circle.is_previously_selected ? {
-                      color: '#666',
-                      fontStyle: 'italic',
-                      display: 'flex',
-                      alignItems: 'center'
-                    } : {}}
-                  >
-                    {circle.name}
-                    {circle.is_previously_selected && (
-                      <span style={{ 
-                        marginLeft: '5px', 
-                        fontSize: '0.7rem', 
-                        backgroundColor: '#f0f0f0',
-                        padding: '2px 5px',
-                        borderRadius: '4px',
-                        color: '#666'
-                      }}>
-                        invited
-                      </span>
-                    )}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </fieldset>
-          
-          <div 
-            className={styles.buttonGroupProject} 
-            style={{ 
               marginTop: '25px',
               marginBottom: '15px',
               position: 'sticky',
@@ -671,8 +342,8 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
               borderBottomRightRadius: '12px'
             }}
           >
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className={styles.submitButtonProject}
               style={{
                 backgroundColor: '#40916c',

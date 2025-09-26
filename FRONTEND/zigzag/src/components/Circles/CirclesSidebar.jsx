@@ -40,7 +40,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
       const newCircle = {
         name: name.trim(),
         is_shared: isShared,
-        categories: selectedTags.map(tag => tag.name)
+        tags: selectedTags.map(tag => tag.name)
       };
       const createdCircle = await fetchAddCircle(newCircle);
       if (createdCircle) {
@@ -95,7 +95,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
         <div className={styles.formGroup}>
           <label className={styles.inputLabel}>
             <FiTag className={styles.inputIcon} />
-            Categories (Required)
+            Tags (Required)
           </label>
           <div className={styles.tagsContainer}>
             {tags.map(tag => (
@@ -172,14 +172,12 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
   };
 
   // Separate circles into private and shared
-  const privateCircles = circles.filter(circle => 
-    !circle.is_shared && 
-    circle.creator === currentUser?.username &&
-    !circle.is_hidden_from_sidebar // Filter out hidden circles
+  const privateCircles = circles.filter(circle =>
+    !circle.is_shared &&
+    circle.creator === currentUser?.username
   );
-  const sharedCircles = circles.filter(circle => 
-    (circle.is_shared || (circle.creator !== currentUser?.username)) &&
-    !circle.is_hidden_from_sidebar // Filter out hidden circles
+  const sharedCircles = circles.filter(circle =>
+    (circle.is_shared || (circle.creator !== currentUser?.username))
   );
 
   return (

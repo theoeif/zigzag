@@ -53,6 +53,30 @@ class EventViewSet(viewsets.ModelViewSet):
         ).distinct()
         return get_events
 
+    def create(self, request, *args, **kwargs):
+        # Create address first if address data is provided
+        address_data = request.data.get("address")
+        created_address = None
+
+        if address_data:
+            address_serializer = AddressSerializer(data=address_data)
+            address_serializer.is_valid(raise_exception=True)
+            created_address = address_serializer.save()
+
+        # Create the event
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Save with the created address if one was made
+        if created_address:
+            event = serializer.save(creator=self.request.user, address=created_address)
+        else:
+            event = serializer.save(creator=self.request.user)
+
+        # Return the created event with full address details
+        response_serializer = self.get_serializer(event)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
 
@@ -61,8 +85,42 @@ class EventViewSet(viewsets.ModelViewSet):
             self.permission_denied(request, message="You cannot modify this event.")
 
     def update(self, request, *args, **kwargs):
-        self.check_object_permissions(request, self.get_object())
-        return super().update(request, *args, **kwargs)
+        event = self.get_object()
+        self.check_object_permissions(request, event)
+
+        address_data = request.data.get("address")
+        event_data = {k: v for k, v in request.data.items() if k != "address"}  # Exclude address from event update
+
+        if address_data:
+            # If address data is provided, create or update the address
+            addr_id = address_data.get("id")
+            if addr_id:
+                # Update existing address
+                try:
+                    address = Address.objects.get(id=addr_id)
+                    address_serializer = AddressSerializer(address, data=address_data, partial=True)
+                    address_serializer.is_valid(raise_exception=True)
+                    address_serializer.save()
+                    # Update event to use the updated address
+                    event.address = address
+                except Address.DoesNotExist:
+                    return Response({"detail": f"Address with id {addr_id} not found."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Create new address
+                address_serializer = AddressSerializer(data=address_data)
+                address_serializer.is_valid(raise_exception=True)
+                address = address_serializer.save()
+                # Update event to use the new address
+                event.address = address
+
+        # Update the event (excluding address data since we handle it manually)
+        serializer = self.get_serializer(event, data=event_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Return the updated event
+        response_serializer = self.get_serializer(event)
+        return Response(response_serializer.data)
 
     # patch only address of the event
     def partial_update(self, request, *args, **kwargs):
@@ -70,36 +128,37 @@ class EventViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, event)
 
         address_data = request.data.get("address", None)
+        event_data = {k: v for k, v in request.data.items() if k != "address"}  # Exclude address from event update
 
         if address_data and isinstance(address_data, dict):
             addr_id = address_data.get("id")
-            if addr_id is None:
-                return Response({"detail": "Address id is required in partial update."}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                address = Address.objects.get(id=addr_id)
-            except Address.DoesNotExist:
-                return Response({"detail": f"Address with id {addr_id} not found."}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Update only provided address fields
-            address_serializer = AddressSerializer(address, data=address_data, partial=True)
-            address_serializer.is_valid(raise_exception=True)
-            address_serializer.save()
-
-            # Attach the updated address to the event instance
-            if event.address_id != address.id:
+            if addr_id:
+                # Update existing address
+                try:
+                    address = Address.objects.get(id=addr_id)
+                    address_serializer = AddressSerializer(address, data=address_data, partial=True)
+                    address_serializer.is_valid(raise_exception=True)
+                    address_serializer.save()
+                    # Update event to use the updated address
+                    event.address = address
+                except Address.DoesNotExist:
+                    return Response({"detail": f"Address with id {addr_id} not found."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Create new address for partial update
+                address_serializer = AddressSerializer(data=address_data)
+                address_serializer.is_valid(raise_exception=True)
+                address = address_serializer.save()
+                # Update event to use the new address
                 event.address = address
-                event.save(update_fields=["address"])
 
-            # Remove address from request data so DRF doesn’t try to re-validate nested
-            mutable_data = request.data.copy()
-            mutable_data.pop("address", None)
-            serializer = self.get_serializer(event, data=mutable_data, partial=True)
-        else:
-            serializer = self.get_serializer(event, data=request.data, partial=True)
-
+        # Update the event (excluding address data since we handle it manually)
+        serializer = self.get_serializer(event, data=event_data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return Response(serializer.data)
+
+        # Return the updated event with full address details
+        response_serializer = self.get_serializer(event)
+        return Response(response_serializer.data)
 
 
     def destroy(self, request, *args, **kwargs):
