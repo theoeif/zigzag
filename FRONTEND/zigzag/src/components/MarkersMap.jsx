@@ -21,7 +21,7 @@ import TimelineToggle from "./TimelineBar/TimelineToggle";
 import { AuthContext } from "../contexts/AuthProvider";
 import { MapContext } from "../contexts/MapContext.jsx";
 
-const MarkersMap = () => {
+const MarkersMap = ({ eventCoordinates = null }) => {
   // Authentication and header state
   const { isConnected } = useContext(AuthContext);
   const [isFilterOpen, setisFilterOpen] = useState(false);
@@ -142,10 +142,26 @@ const MarkersMap = () => {
   const individualMarkersRef = useRef([]);
   const mapRef = useRef(null);
   
-  // Get mapState from context
-  const { mapState } = useContext(MapContext);
+  // Get mapState from context and navigation state
+  const { mapState: contextMapState } = useContext(MapContext);
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Get mapState from navigation state (for direct navigation from events)
+  const navigationMapState = location.state?.mapState;
+  
+  // Use navigation state if available, otherwise use context state
+  const mapState = navigationMapState || contextMapState;
+  
+  // Debug logging
+  // console.log("MarkersMap: mapState sources:", {
+  //   navigationMapState,
+  //   contextMapState,
+  //   finalMapState: mapState,
+  //   locationState: location.state,
+  //   locationPathname: location.pathname,
+  //   historyLength: window.history.length
+  // });
 
   /**
    * Handle zoom level changes to determine when to show/hide close markers
@@ -288,7 +304,12 @@ const MarkersMap = () => {
     map.on('zoomend', handleZoomChange);
 
     if (mapState) {
-      map.setView([mapState.lat, mapState.lng], mapState.zoom);
+      const lat = mapState.lat || mapState.center?.lat;
+      const lng = mapState.lng || mapState.center?.lng;
+      const zoom = mapState.zoom || 15;
+      if (lat && lng) {
+        map.setView([lat, lng], zoom);
+      }
     } else if (selectedLocation) {
       map.setView(
         [selectedLocation.lat, selectedLocation.lng],
@@ -707,8 +728,11 @@ const MarkersMap = () => {
         marker.on("click", () => {
           navigate(`/event/${markerData.id}`, {
             state: {
-              background: location.pathname,
-              mapState: { lat: markerData.lat, lng: markerData.lng, zoom: 15 },
+              background: location,
+              mapState: {
+                center: { lat: markerData.lat, lng: markerData.lng },
+                zoom: 15
+              },
               eventCoordinates: { lat: markerData.lat, lng: markerData.lng }
             },
           });
@@ -757,8 +781,11 @@ const MarkersMap = () => {
         marker.on("click", () => {
           navigate(`/event/${markerData.id}`, {
             state: {
-              background: location.pathname,
-              mapState: { lat: markerData.lat, lng: markerData.lng, zoom: 15 },
+              background: location,
+              mapState: {
+                center: { lat: markerData.lat, lng: markerData.lng },
+                zoom: 15
+              },
             },
           });
         });
@@ -817,8 +844,11 @@ const MarkersMap = () => {
           if (markerData.user_id) {
             navigate(`/friend/${markerData.user_id}`, {
               state: {
-                background: location.pathname,
-                mapState: { lat: markerData.lat, lng: markerData.lng, zoom: 15 },
+                background: location,
+                mapState: {
+                  center: { lat: markerData.lat, lng: markerData.lng },
+                  zoom: 15
+                },
               },
             });
           }
@@ -876,8 +906,11 @@ const MarkersMap = () => {
           if (markerData.user_id) {
             navigate(`/friend/${markerData.user_id}`, {
               state: {
-                background: location.pathname,
-                mapState: { lat: markerData.lat, lng: markerData.lng, zoom: 15 },
+                background: location,
+                mapState: {
+                  center: { lat: markerData.lat, lng: markerData.lng },
+                  zoom: 15
+                },
               },
             });
           }
@@ -1033,10 +1066,15 @@ const MarkersMap = () => {
   // Update map view when mapState changes.
   useEffect(() => {
     if (mapRef.current && mapState) {
-      const { lat, lng, zoom } = mapState;
-      mapRef.current.setView([lat, lng], zoom);
+      const lat = mapState.lat || mapState.center?.lat;
+      const lng = mapState.lng || mapState.center?.lng;
+      const zoom = mapState.zoom || 15;
+      if (lat && lng) {
+        // console.log("MarkersMap: Updating map view from mapState:", { lat, lng, zoom });
+        mapRef.current.setView([lat, lng], zoom);
+      }
     }
-  }, [mapState]);
+  }, [mapState, navigationMapState]);
 
   // Update map view when selectedLocation changes.
   useEffect(() => {
@@ -1068,6 +1106,13 @@ const MarkersMap = () => {
   useEffect(() => {
     refreshMarkersForSelectedTags();
   }, [isConnected]);
+
+  // Center map on event coordinates when provided
+  useEffect(() => {
+    if (eventCoordinates && mapRef.current && eventCoordinates.lat && eventCoordinates.lng) {
+      mapRef.current.setView([eventCoordinates.lat, eventCoordinates.lng], 15);
+    }
+  }, [eventCoordinates]);
 
   return (
     <>

@@ -1,3 +1,4 @@
+// TODO : USELESS A PRIORI
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { validateAccessToken, setLogoutHandler } from '../api/api';
 

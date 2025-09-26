@@ -699,14 +699,14 @@ export const fetchEventParticipants = async (eventId) => {
 
 
 // New function to fetch public event data even without authentication
-export const fetchPublicEvent = async (eventId, inviteToken = null) => {
+export const fetchDirectEvent = async (eventId, inviteToken = null) => {
   try {
     // Build the URL - first try the regular event endpoint which now supports public access
     let url = `http://127.0.0.1:8000/api/events/event/${eventId}/`;
     if (inviteToken) {
       // If we have an invite token, use the public-event endpoint which supports invitation tokens
       url = `http://127.0.0.1:8000/api/events/public-event/${eventId}/?invite=${inviteToken}`;
-    }
+    } // in a V2
     
     // Get auth headers if available, but don't require them
     const headers = {};
@@ -724,17 +724,17 @@ export const fetchPublicEvent = async (eventId, inviteToken = null) => {
         // If we don't have an invite token, try the public endpoint
         if (!inviteToken) {
           try {
-            const publicResponse = await axios.get(
-              `http://127.0.0.1:8000/api/events/public-event/${eventId}/`, 
+            const directEventResponse = await axios.get(
+              `http://127.0.0.1:8000/api/events/event/${eventId}/`, 
               { headers }
             );
-            return publicResponse.data;
-          } catch (publicError) {
+            return directEventResponse.data;
+          } catch (directEventError) {
             // If the public endpoint also returns a 403, return that limited data
-            if (publicError.response && publicError.response.status === 403) {
-              return publicError.response.data;
+            if (directEventError.response && directEventError.response.status === 403) {
+              return directEventError.response.data;
             }
-            throw publicError;
+            throw directEventError;
           }
         }
         
@@ -744,7 +744,7 @@ export const fetchPublicEvent = async (eventId, inviteToken = null) => {
       throw error;
     }
   } catch (error) {
-    console.error('Error fetching public event:', error);
+    console.error('Error fetching direct event:', error);
     // If we have response data with an error message, return it instead of throwing
     if (error.response && error.response.data) {
       return error.response.data;
