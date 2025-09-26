@@ -5,7 +5,7 @@ import Header from '../Header/Header';
 import { AuthContext } from '../../contexts/AuthProvider';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import styles from './Project.module.css';
-import { fetchEvents, fetchUserProfile, fetchCircles, deleteEvent, fetchCircleMembers } from '../../api/api';
+import { fetchEvents, fetchCircles, deleteEvent, fetchCircleMembers } from '../../api/api';
 import CreateEventForm from './CreateEventForm'; 
 import EditEventForm from './EditEventForm';
 import TimelineBar from '../TimelineBar/TimelineBar';
@@ -63,7 +63,6 @@ const Project = ({ projectId }) => {
 
   // State for showing the event creation form modal
   const [showEventForm, setShowEventForm] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(null);
 
   // Fetch and categorize events
   useEffect(() => {
@@ -72,32 +71,13 @@ const Project = ({ projectId }) => {
       if (isConnected) {
         try {
           const events = await fetchEvents();
-          const user = await fetchUserProfile();
-          if (user && typeof user.id === 'number') {
-            setCurrentUserId(user.id);
-          }
           if (events) {
-            const username = user && user.username ? user.username : null;
-  
-            const createdProjects = username
-              ? events.filter(event => event.creator === username)
-              : [];
-            
-            // Filter otherProjects to exclude user's own events
-            const otherProjectsList = events
-              .filter(event => 
-                (username ? event.creator !== username : true)
-              )
-              .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
-            
-            setProjects(createdProjects);
-            setOtherProjects(otherProjectsList);
-            // Also initialize filteredFriendsEvents
-            setFilteredFriendsEvents(otherProjectsList);
-            
-            // Set events directly here to avoid an extra useEffect
-            const baseEvents = createdProjects.length > 0 ? createdProjects : events;
-            const sortedEvents = [...baseEvents].sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+            // Backend handles authentication and permissions - show all events
+            const sortedEvents = [...events].sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+            setProjects(sortedEvents);
+            setCreatedProjects(sortedEvents);
+            setOtherProjects([]);
+            setFilteredFriendsEvents(sortedEvents);
             setEvents(sortedEvents);
           }
         } catch (error) {
@@ -234,22 +214,13 @@ const Project = ({ projectId }) => {
     try {
       // Get the event details
       const event = projects.find(e => e.id === eventId);
-      
+
       if (!event) {
         console.error("Event not found for deletion");
         return;
       }
-      
-      // Get current user profile
-      const userProfile = await fetchUserProfile();
-      
-      // Check if user is the creator
-      if (event.creator !== userProfile.username) {
-        console.error("Cannot delete an event that you did not create");
-        alert("You can only delete projects that you have created.");
-        return;
-      }
-      
+
+      // Backend enforces permissions automatically - only creators can delete
       const response = await deleteEvent(eventId);
       if (response) {
         setProjects(prev => prev.filter(event => event.id !== eventId));
@@ -260,24 +231,10 @@ const Project = ({ projectId }) => {
     }
   };
 
-  const handleEditEvent = async (event) => {
-    // Security check - get user profile to check ownership
-    try {
-      const userProfile = await fetchUserProfile();
-      
-      // Only allow editing if the user is the creator of the event
-      if (event.creator !== userProfile.username) {
-        console.error("Cannot edit an event that you did not create");
-        alert("You can only edit projects that you have created.");
-        return;
-      }
-      
-      setEditingEvent(event);  // Open Edit Modal with event data
-      setShowTimelineBar(false); // Hide timeline when editing
-    } catch (error) {
-      console.error("Error checking event ownership:", error);
-      alert("Unable to edit the project at this time.");
-    }
+  const handleEditEvent = (event) => {
+    // Backend enforces permissions automatically - only creators can edit
+    setEditingEvent(event);  // Open Edit Modal with event data
+    setShowTimelineBar(false); // Hide timeline when editing
   };
 
   const handleEventUpdated = (updatedEvent) => {
@@ -403,7 +360,6 @@ const Project = ({ projectId }) => {
             setProjects(prev => [newEvent, ...prev]);
           }}
           circles={circles}
-          userId={currentUserId}
         />
       )}
 

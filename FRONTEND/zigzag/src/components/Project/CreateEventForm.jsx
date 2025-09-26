@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { OPEN_CAGE_API_KEY } from '../../config';
-import { createEvent, fetchCircles, fetchUserProfile } from '../../api/api';
+import { createEvent, fetchCircles } from '../../api/api';
 import styles from './Project.module.css';
 
 
-const CreateEventForm = ({ projectId, onEventCreated, onClose, userId }) => {
+const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // Get current date and time in local timezone, formatted for datetime-local input
   const getCurrentDateTime = () => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
     const day = String(now.getDate()).padStart(2, '0');
-    
-    // Set time to 00:00 (midnight) for date-only value
-    return `${year}-${month}-${day}T00:00`;
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    // Set time to current time
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   // Get three months later from a given date, maintaining the hour
@@ -86,9 +88,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose, userId }) => {
       try {
         const circlesData = await fetchCircles();
         if (circlesData) {
-          // Filter out circles that are hidden from sidebar
-          const visibleCircles = circlesData.filter(circle => !circle.is_hidden_from_sidebar);
-          setAllCircles(visibleCircles);
+          setAllCircles(circlesData);
         }
       } catch (err) {
         console.error("Error fetching circles:", err);
@@ -283,10 +283,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose, userId }) => {
       return; // Don't submit if dates are invalid
     }
     
-    // Use userId passed from parent if available (avoid extra API call)
-    if (userId) {
-      console.log('CreateEventForm: current user id =', userId);
-    }
+    // Backend handles authentication automatically
 
     const eventData = {
       title: formData.title,
@@ -297,8 +294,6 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose, userId }) => {
       shareable_link: formData.shareable_link,
       project: projectId,
       circle_ids: selectedCircles,
-      // Pass through creator id for traceability (backend still sets from JWT)
-      creator: userId,
     };
     
     try {
