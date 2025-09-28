@@ -172,7 +172,7 @@ const LeftMenu = ({ closeMenu }) => {
 
     if (query.length > 1) {
       // Fetch profiles and events in parallel
-      const [rawProfiles, rawEvents] = await Promise.all([
+      const [rawProfiles, rawEventsResponse] = await Promise.all([
         fetchUsers(),
         fetchEvents(),
       ]);
@@ -183,7 +183,13 @@ const LeftMenu = ({ closeMenu }) => {
         type: "profile",
       }));
     
-      const events = rawEvents.map((event) => ({
+      // Handle new events format - concatenate events_user and events_invited
+      const allEvents = [
+        ...(rawEventsResponse.events_user || []),
+        ...(rawEventsResponse.events_invited || [])
+      ];
+      
+      const events = allEvents.map((event) => ({
         id: event.id,
         name: event.title, // Map 'title' to 'name'
         type: "project",
@@ -207,17 +213,8 @@ const LeftMenu = ({ closeMenu }) => {
       localStorage.setItem('activeMenuButton', "profile");
       navigate(`/profile/${result.id}`);
     } else if (result.type === "project") {
-      try {
-        const eventInfo = await fetchEventInfo(result.id);
-        
-        navigate({
-          pathname: '/',
-          search: `?lat=${eventInfo.lat}&lng=${eventInfo.lng}`
-        });
-        
-      } catch (error) {
-        console.error("Error fetching event:", error);
-      }
+      // Navigate to DirectEventLinkView for project details
+      navigate(`/event/${result.id}`);
     }
   };
 
