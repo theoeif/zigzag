@@ -59,7 +59,7 @@ npm run dev
 
 [Doc github markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
-https://github.com/cruip/open-react-template/
+[Build doc landing page] (https://github.com/cruip/open-react-template/) or (https://github.com/GrapesJS/grapesjs)
 
 
 
