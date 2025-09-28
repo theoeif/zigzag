@@ -1,5 +1,5 @@
 // LeftMenu.jsx
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
 import "../../index.css";
@@ -17,6 +17,8 @@ const LeftMenu = ({ closeMenu }) => {
   const [showResults, setShowResults] = useState(false);
   const [clickingButton, setClickingButton] = useState(null);
   const [pendingNavigation, setPendingNavigation] = useState(null);
+  const [allData, setAllData] = useState({ profiles: [], events: [] });
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   
   // Refs for buttons to attach animation listeners
   const buttonRefs = useRef({
@@ -31,6 +33,69 @@ const LeftMenu = ({ closeMenu }) => {
   // Get active button from localStorage - moved outside of useState to ensure it's always current
   const savedActiveButton = localStorage.getItem('activeMenuButton') || "";
   const [activeButton, setActiveButton] = useState(savedActiveButton);
+
+  // Load all data once when component mounts (only if connected)
+  useEffect(() => {
+    if (!isConnected) return;
+    
+    const loadAllData = async () => {
+      try {
+        const [rawProfiles, rawEventsResponse] = await Promise.all([
+          fetchUsers(),
+          fetchEvents(),
+        ]);
+      
+        const profiles = rawProfiles.map((profile) => ({
+          id: profile.id,
+          name: profile.username,
+          type: "profile",
+        }));
+      
+        // Handle new events format - concatenate events_user and events_invited
+        const allEvents = [
+          ...(rawEventsResponse.events_user || []),
+          ...(rawEventsResponse.events_invited || [])
+        ];
+        
+        const events = allEvents.map((event) => ({
+          id: event.id,
+          name: event.title,
+          type: "project",
+        }));
+
+        setAllData({ profiles, events });
+        setIsDataLoaded(true);
+      } catch (error) {
+        console.error("Error loading search data:", error);
+      }
+    };
+    
+    loadAllData();
+  }, [isConnected]);
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId;
+      return (query) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          if (query.length > 1 && isDataLoaded) {
+            const allResults = [...allData.profiles, ...allData.events];
+            const filteredResults = allResults.filter(result => 
+              result.name.toLowerCase().includes(query.toLowerCase())
+            );
+            setSearchResults(filteredResults);
+            setShowResults(true);
+          } else {
+            setSearchResults([]);
+            setShowResults(false);
+          }
+        }, 300); // 300ms debounce delay
+      };
+    })(),
+    [allData, isDataLoaded]
+  );
 
   // Force refresh active button on component mount
   useEffect(() => {
@@ -166,42 +231,12 @@ const LeftMenu = ({ closeMenu }) => {
     return `menu-btn ${activeButton === buttonKey ? "menu-btn-active" : ""} ${clickingButton === buttonKey ? "menu-btn-clicking" : ""}`;
   };
 
-  const handleSearch = async (e) => {
-    const query = e.target.value;
+  const handleSearch = (e) => {
+    const query = e.target.value.trim();
     setSearchTerm(query);
-
-    if (query.length > 1) {
-      // Fetch profiles and events in parallel
-      const [rawProfiles, rawEventsResponse] = await Promise.all([
-        fetchUsers(),
-        fetchEvents(),
-      ]);
     
-      const profiles = rawProfiles.map((profile) => ({
-        id: profile.id,
-        name: profile.username, // Map 'username' to 'name'
-        type: "profile",
-      }));
-    
-      // Handle new events format - concatenate events_user and events_invited
-      const allEvents = [
-        ...(rawEventsResponse.events_user || []),
-        ...(rawEventsResponse.events_invited || [])
-      ];
-      
-      const events = allEvents.map((event) => ({
-        id: event.id,
-        name: event.title, // Map 'title' to 'name'
-        type: "project",
-      }));
-
-      // Combine and set results
-      setSearchResults([...profiles, ...events]);
-      setShowResults(true);
-    } else {
-      setSearchResults([]);
-      setShowResults(false);
-    }
+    // Use debounced search for better performance
+    debouncedSearch(query);
   };
 
   const handleSelectResult = async (result) => {
@@ -243,16 +278,22 @@ const LeftMenu = ({ closeMenu }) => {
             onFocus={() => setShowResults(true)}
             onBlur={() => setTimeout(() => setShowResults(false), 200)}
           />
-          {showResults && searchResults.length > 0 && (
+          {showResults && (
             <ul className="search-results">
-              {searchResults.map((result, index) => (
-                <li
-                  key={`${result.id}-${result.type}-${index}`}
-                  onClick={() => handleSelectResult(result)}
-                >
-                  {result.name} <span>({result.type})</span>
-                </li>
-              ))}
+              {!isDataLoaded ? (
+                <li>Loading search data...</li>
+              ) : searchResults.length > 0 ? (
+                searchResults.map((result, index) => (
+                  <li
+                    key={`${result.id}-${result.type}-${index}`}
+                    onClick={() => handleSelectResult(result)}
+                  >
+                    {result.name} <span>({result.type})</span>
+                  </li>
+                ))
+              ) : (
+                <li>No results found</li>
+              )}
             </ul>
           )}
         </div>
