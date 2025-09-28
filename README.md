@@ -1,5 +1,7 @@
 # zigzag
 ---
+TODO : take that template
+https://github.com/cfpb/open-source-project-template/
 
 # 🔧 Project Setup
 
@@ -51,8 +53,16 @@ Run:
 npm run dev
 ```
 
+[Issue Link Creation](https://github.com/theoeif/zigzag/issues/new?body=%23%23%20Actual%20Behavior%0D%0D%0D%23%23%20Expected%20Behavior%0D%0D%0D%23%23%20Steps%20to%20Reproduce%0D%0D%0D%23%23%20Screenshot&labels=bug)
+
 [App Link](https://duckduckgo.com)
 
 [Doc github markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+
+https://github.com/cruip/open-react-template/
+
+
+
+
 
 ---
