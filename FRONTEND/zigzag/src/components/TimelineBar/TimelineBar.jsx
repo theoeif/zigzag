@@ -78,6 +78,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
 
   // For dragging the overlay
   const [isDragging, setIsDragging] = useState(false);
+  const [dragMode, setDragMode] = useState(null); // 'left', 'right', or 'center' for moving entire range
+  const [lastDragMode, setLastDragMode] = useState(null); // Track the last drag mode for slider onChange
+  const [isSliderDragging, setIsSliderDragging] = useState(false); // Track if slider is being dragged
   const dragStartXRef = useRef(null);
   const dragStartRangeRef = useRef(null);
   const sliderRef = useRef();
@@ -204,9 +207,96 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     setTimeRange([0, daysDifference]);
   };
 
+  // Store the original range when dragging starts
+  const [dragStartRange, setDragStartRange] = useState(null);
+  const [draggedThumb, setDraggedThumb] = useState(null);
+
+  // Handle slider mouse down to detect which thumb is being clicked
+  const handleSliderMouseDown = (e) => {
+    if (!sliderRef.current) return;
+    
+    const sliderRect = sliderRef.current.getBoundingClientRect();
+    const sliderWidth = sliderRect.width;
+    const clickX = e.clientX - sliderRect.left;
+    
+    // Calculate the positions of the thumbs
+    const leftThumbX = (timeRange[0] / maxRange) * sliderWidth;
+    const rightThumbX = (timeRange[1] / maxRange) * sliderWidth;
+    
+    // Determine which thumb is closer to the click
+    const distanceToLeft = Math.abs(clickX - leftThumbX);
+    const distanceToRight = Math.abs(clickX - rightThumbX);
+    
+    console.log('Slider mouse down:', {
+      clickX,
+      leftThumbX,
+      rightThumbX,
+      distanceToLeft,
+      distanceToRight,
+      timeRange
+    });
+    
+    // Store the original range and which thumb is being dragged
+    setDragStartRange([...timeRange]);
+    
+    if (distanceToLeft < distanceToRight) {
+      setDraggedThumb('left');
+      setLastDragMode('left');
+      console.log('Detected LEFT thumb click');
+    } else {
+      setDraggedThumb('right');
+      setLastDragMode('right');
+      console.log('Detected RIGHT thumb click');
+    }
+    
+    setIsSliderDragging(true);
+  };
+
+  // Handle slider mouse up
+  const handleSliderMouseUp = () => {
+    console.log('Slider mouse up - resetting drag mode from:', lastDragMode);
+    setIsSliderDragging(false);
+    setLastDragMode(null);
+    setDraggedThumb(null);
+    setDragStartRange(null);
+  };
+
+  // Custom slider onChange handler that respects the detected drag mode
+  const handleSliderChange = (_, newValue) => {
+    console.log('Slider change debug:', {
+      newValue,
+      currentRange: timeRange,
+      lastDragMode,
+      isSliderDragging,
+      draggedThumb,
+      dragStartRange
+    });
+    
+    if (isSliderDragging && draggedThumb === 'left') {
+      // Only modify the left edge (start), keep right edge fixed
+      const newStart = Math.max(0, Math.min(newValue[0], dragStartRange[1] - 1));
+      console.log('LEFT EDGE DRAG - newStart:', newStart, 'keeping end:', dragStartRange[1]);
+      setTimeRange([newStart, dragStartRange[1]]);
+    } else if (isSliderDragging && draggedThumb === 'right') {
+      // Only modify the right edge (end), keep left edge fixed
+      const newEnd = Math.min(maxRange, Math.max(newValue[1], dragStartRange[0] + 1));
+      console.log('RIGHT EDGE DRAG - newEnd:', newEnd, 'keeping start:', dragStartRange[0]);
+      setTimeRange([dragStartRange[0], newEnd]);
+    } else if (isSliderDragging) {
+      // If we're dragging but don't have a specific mode, use the newValue as-is
+      console.log('SLIDER DRAG - using newValue:', newValue);
+      setTimeRange(newValue);
+    } else {
+      // Default behavior - move both extremities (for programmatic changes)
+      console.log('PROGRAMMATIC CHANGE - using newValue:', newValue);
+      setTimeRange(newValue);
+    }
+  };
+
   // Update parent on range change, with debounce to reduce excessive updates
   const [lastUpdateTime, setLastUpdateTime] = useState(0);
   useEffect(() => {
+    console.log('TimeRange state changed:', timeRange);
     const now = Date.now();
     // Limit updates to once every 50ms to avoid excessive callbacks
     if (now - lastUpdateTime > 50) {
@@ -231,18 +321,32 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     const sliderWidth = sliderRect.width;
     const diffX = clientX - dragStartXRef.current;
     const diffDays = Math.round((diffX / sliderWidth) * maxRange);
-    let newStart = dragStartRangeRef.current[0] + diffDays;
-    let newEnd = dragStartRangeRef.current[1] + diffDays;
+    
+    let newStart = dragStartRangeRef.current[0];
+    let newEnd = dragStartRangeRef.current[1];
 
-    if (newStart < 0) {
-      newEnd -= newStart;
-      newStart = 0;
+    if (dragMode === 'left') {
+      // Only modify the left edge (start)
+      newStart = Math.max(0, Math.min(dragStartRangeRef.current[0] + diffDays, newEnd - 1));
+    } else if (dragMode === 'right') {
+      // Only modify the right edge (end)
+      newEnd = Math.min(maxRange, Math.max(dragStartRangeRef.current[1] + diffDays, newStart + 1));
+    } else if (dragMode === 'center') {
+      // Move the entire range (original behavior)
+      newStart = dragStartRangeRef.current[0] + diffDays;
+      newEnd = dragStartRangeRef.current[1] + diffDays;
+
+      if (newStart < 0) {
+        newEnd -= newStart;
+        newStart = 0;
+      }
+      if (newEnd > maxRange) {
+        const overshoot = newEnd - maxRange;
+        newStart -= overshoot;
+        newEnd = maxRange;
+      }
     }
-    if (newEnd > maxRange) {
-      const overshoot = newEnd - maxRange;
-      newStart -= overshoot;
-      newEnd = maxRange;
-    }
+
     setTimeRange([newStart, newEnd]);
   };
 
@@ -253,6 +357,53 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       return; // Don't start dragging if clicking on a button or tooltip
     }
     e.preventDefault();
+    
+    // Determine which part of the overlay was clicked
+    if (!sliderRef.current) return;
+    const sliderRect = sliderRef.current.getBoundingClientRect();
+    const sliderWidth = sliderRect.width;
+    const clickX = e.clientX - sliderRect.left;
+    
+    // Calculate the positions of the left and right edges of the current range
+    const leftEdgeX = (timeRange[0] / maxRange) * sliderWidth;
+    const rightEdgeX = (timeRange[1] / maxRange) * sliderWidth;
+    
+    // Account for the overlay positioning (thumbMargin offset)
+    const thumbMargin = 10;
+    const overlayLeft = Math.min(leftEdgeX + thumbMargin, sliderWidth);
+    const overlayRight = Math.max(rightEdgeX - thumbMargin, 0);
+    
+    // Define edge detection zones (20px from each edge of the overlay)
+    const edgeZone = 20;
+    const isNearLeftEdge = Math.abs(clickX - overlayLeft) <= edgeZone;
+    const isNearRightEdge = Math.abs(clickX - overlayRight) <= edgeZone;
+    
+    // Determine drag mode
+    console.log('Edge detection:', {
+      clickX,
+      leftEdgeX,
+      rightEdgeX,
+      overlayLeft,
+      overlayRight,
+      isNearLeftEdge,
+      isNearRightEdge,
+      edgeZone: 20
+    });
+    
+    if (isNearLeftEdge && !isNearRightEdge) {
+      setDragMode('left');
+      setLastDragMode('left');
+      console.log('Setting drag mode to LEFT');
+    } else if (isNearRightEdge && !isNearLeftEdge) {
+      setDragMode('right');
+      setLastDragMode('right');
+      console.log('Setting drag mode to RIGHT');
+    } else {
+      setDragMode('center'); // Click in the middle area moves the entire range
+      setLastDragMode('center');
+      console.log('Setting drag mode to CENTER');
+    }
+    
     setIsDragging(true);
     dragStartXRef.current = e.clientX;
     dragStartRangeRef.current = [...timeRange];
@@ -264,7 +415,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   };
 
   const handleOverlayMouseUp = () => {
+    console.log('Mouse up - resetting drag mode from:', lastDragMode);
     setIsDragging(false);
+    setDragMode(null);
+    setLastDragMode(null);
     dragStartXRef.current = null;
     dragStartRangeRef.current = null;
   };
@@ -277,6 +431,39 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     }
     if (e.touches.length === 1) {
       e.preventDefault();
+      
+      // Determine which part of the overlay was touched
+      if (!sliderRef.current) return;
+      const sliderRect = sliderRef.current.getBoundingClientRect();
+      const sliderWidth = sliderRect.width;
+      const touchX = e.touches[0].clientX - sliderRect.left;
+      
+      // Calculate the positions of the left and right edges of the current range
+      const leftEdgeX = (timeRange[0] / maxRange) * sliderWidth;
+      const rightEdgeX = (timeRange[1] / maxRange) * sliderWidth;
+      
+      // Account for the overlay positioning (thumbMargin offset)
+      const thumbMargin = 10;
+      const overlayLeft = Math.min(leftEdgeX + thumbMargin, sliderWidth);
+      const overlayRight = Math.max(rightEdgeX - thumbMargin, 0);
+      
+      // Define edge detection zones (20px from each edge of the overlay)
+      const edgeZone = 20;
+      const isNearLeftEdge = Math.abs(touchX - overlayLeft) <= edgeZone;
+      const isNearRightEdge = Math.abs(touchX - overlayRight) <= edgeZone;
+      
+      // Determine drag mode
+      if (isNearLeftEdge && !isNearRightEdge) {
+        setDragMode('left');
+        setLastDragMode('left');
+      } else if (isNearRightEdge && !isNearLeftEdge) {
+        setDragMode('right');
+        setLastDragMode('right');
+      } else {
+        setDragMode('center'); // Touch in the middle area moves the entire range
+        setLastDragMode('center');
+      }
+      
       setIsDragging(true);
       dragStartXRef.current = e.touches[0].clientX;
       dragStartRangeRef.current = [...timeRange];
@@ -290,6 +477,8 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
 
   const handleOverlayTouchEnd = () => {
     setIsDragging(false);
+    setDragMode(null);
+    setLastDragMode(null);
     dragStartXRef.current = null;
     dragStartRangeRef.current = null;
   };
@@ -309,6 +498,18 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     };
   }, [isDragging]);
 
+  // Attach global mouse up listener for slider dragging
+  useEffect(() => {
+    if (isSliderDragging) {
+      window.addEventListener('mouseup', handleSliderMouseUp);
+    } else {
+      window.removeEventListener('mouseup', handleSliderMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mouseup', handleSliderMouseUp);
+    };
+  }, [isSliderDragging]);
+
   // Calculate overlay position & width based on current timeRange
   const sliderOverlayStyle = () => {
     if (!sliderRef.current) return {};
@@ -327,7 +528,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       width: Math.max(overlayRight - overlayLeft, 0),
       top: isSmallScreen ? -10 : 0,
       bottom: isSmallScreen ? -10 : 0,
-      cursor: isDragging ? 'grabbing' : 'grab',
+      cursor: isDragging ? 
+        (dragMode === 'left' ? 'w-resize' : 
+         dragMode === 'right' ? 'e-resize' : 'grabbing') : 'grab',
       zIndex: 2, // Lower z-index than weekend markers (10) and buttons (20)
       backgroundColor: 'transparent', // Completely transparent for simplicity
       // Only show the overlay on desktop
@@ -471,7 +674,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
 
           <Slider
             value={timeRange}
-            onChange={(_, newValue) => setTimeRange(newValue)}
+            onChange={handleSliderChange}
+            onMouseDown={handleSliderMouseDown}
+            onMouseUp={handleSliderMouseUp}
             min={0}
             max={maxRange}
             valueLabelDisplay="auto"
