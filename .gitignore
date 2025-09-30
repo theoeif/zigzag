@@ -19,7 +19,9 @@ __pycache__/
 ingest_venv/
 **/.DS_Store
 
-
 # db 
 migrations/
 db.sqlite3
+
+# Tempo
+Tempo/

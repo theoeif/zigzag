@@ -23,9 +23,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     if (initialRange && initialRange.end) {
       return new Date(initialRange.end);
     }
-    // Default: current date + 3 months
+    // Default: current date + 1 month
     const endDate = new Date(currentDate);
-    endDate.setMonth(currentDate.getMonth() + 3);
+    endDate.setMonth(currentDate.getMonth() + 1);
     return endDate;
   };
   
@@ -72,7 +72,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     }
   }, [initialRange?.start?.getTime(), initialRange?.end?.getTime()]);
 
-  const [maxRange, setMaxRange] = useState(Math.max(initialDaysDifference, 90)); // Ensure a minimum range
+  const [maxRange, setMaxRange] = useState(Math.max(initialDaysDifference, 30)); // Ensure a minimum range of ~1 month
   const [selectedDate, setSelectedDate] = useState('');
   const [isOpen, setIsOpen] = useState(true);
 
@@ -102,52 +102,103 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     }
   };
 
+  const formatDateWithTime = (date) => {
+    try {
+      const d = new Date(date);
+      const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+      const dayName = dayNames[dayOfWeek];
+      
+      const dayPart = d.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        year: isSmallScreen ? undefined : 'numeric',
+      });
+      
+      return `${dayName} ${dayPart}`;
+    } catch {
+      return 'Date invalide';
+    }
+  };
+
   const handleAllTime = () => {
     const endDays = 365 * 10;
     setMaxRange(endDays);
     setTimeRange([0, endDays]);
   };
 
-  const handleWeekend = (weekend) => {
-    setTimeRange([weekend.daysFromNow, weekend.daysFromNow + 1]);
+  const handleWeek = (week) => {
+    setTimeRange([week.daysFromNow, week.daysFromNow + 7]);
   };
 
-  const getWeekends = () => {
-    const weekends = [];
+  const getWeeks = () => {
+    const weeks = [];
     const today = new Date();
+    
+    // Find the start of the current week (Monday)
+    const currentMonday = new Date(today);
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday (0) to get previous Monday
+    currentMonday.setDate(today.getDate() + daysToMonday);
+    
     let found = 0;
-    for (let i = 0; i < maxRange && found < 4; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      if (date.getDay() === 6) {
-        weekends.push({
-          start: new Date(date),
-          end: new Date(date.getTime() + 86400000),
-          daysFromNow: i
+    // Start from -7 days to include the current week even if it started before today
+    for (let i = -7; i < maxRange && found < 4; i += 7) {
+      const weekStart = new Date(currentMonday);
+      weekStart.setDate(currentMonday.getDate() + i);
+      
+      // Set week start at Monday 00:01
+      weekStart.setHours(0, 1, 0, 0);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6); // Sunday (6 days after Monday)
+      // Set week end at Sunday 23:59
+      weekEnd.setHours(23, 59, 0, 0);
+      
+      // Calculate days from today to this Monday
+      const daysFromNow = Math.ceil((weekStart - today) / 86400000);
+      
+      // Include weeks that are within our range (including current week even if it started before today)
+      if (daysFromNow >= -7 && daysFromNow < maxRange) {
+        weeks.push({
+          start: new Date(weekStart),
+          end: new Date(weekEnd),
+          daysFromNow: daysFromNow,
+          // Position button at the END of the week (Sunday 23:59)
+          buttonPosition: daysFromNow + 6 // 6 days after Monday = Sunday
         });
         found++;
       }
     }
-    return weekends;
+    return weeks;
   };
 
-  // Modified: This Week now always lasts 7 days starting today
+  // Modified: This Week now shows Monday to Sunday
   const handleThisWeek = () => {
     const tenYearsDays = 365 * 10;
-    // If currently in "All Time" mode (10 years), reset to three-month reference.
+    // If currently in "All Time" mode (10 years), reset to one-month reference.
     if (maxRange === tenYearsDays) {
       const endDate = new Date(currentDate);
       endDate.setMonth(currentDate.getMonth() + 1);
       const daysDifference = Math.ceil((endDate - currentDate) / 86400000);
       setMaxRange(daysDifference);
     }
-    // Then set the range to this week (7 days starting today)
-    setTimeRange([0, 7]);
+    
+    // Calculate Monday of current week
+    const currentMonday = new Date(currentDate);
+    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday (0) to get previous Monday
+    currentMonday.setDate(currentDate.getDate() + daysToMonday);
+    
+    // Calculate days from today to this Monday
+    const daysToCurrentMonday = Math.ceil((currentMonday - currentDate) / 86400000);
+    
+    // Set range from Monday to Sunday (7 days)
+    setTimeRange([daysToCurrentMonday, daysToCurrentMonday + 7]);
   };
   
   const handleAllPeriod = () => {
     const endDate = new Date(currentDate);
-    endDate.setMonth(currentDate.getMonth() + 3);
+    endDate.setMonth(currentDate.getMonth() + 1);
     const daysDifference = Math.ceil((endDate - currentDate) / 86400000);
     setMaxRange(daysDifference);
     setTimeRange([0, daysDifference]);
@@ -159,12 +210,14 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     const now = Date.now();
     // Limit updates to once every 50ms to avoid excessive callbacks
     if (now - lastUpdateTime > 50) {
-      // Fix the date calculation to avoid drifting by one day
+      // Compute start at 00:01 and end inclusive at 23:59 of the last day
       const start = new Date(currentDate);
+      start.setHours(0, 1, 0, 0);
       start.setDate(currentDate.getDate() + timeRange[0]);
       
       const end = new Date(currentDate);
-      end.setDate(currentDate.getDate() + timeRange[1]);
+      end.setHours(23, 59, 0, 0);
+      end.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
       
       onTimeChange({ start, end });
       setLastUpdateTime(now);
@@ -295,10 +348,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   
   // Handle clicks on the full slider area
   const handleFullAreaClick = (e) => {
-    // Don't handle if clicking on weekends, buttons or tooltips
+    // Don't handle if clicking on weeks, buttons or tooltips
     if (e.target.closest('.MuiButtonBase-root') || 
         e.target.closest('[role="tooltip"]') ||
-        e.target.closest('.weekend-marker')) {
+        e.target.closest('.week-marker')) {
       return;
     }
     
@@ -338,10 +391,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     // Only process on mobile
     if (!isSmallScreen) return;
     
-    // Don't handle if touching on weekends, buttons or tooltips
+    // Don't handle if touching on weeks, buttons or tooltips
     if (e.target.closest('.MuiButtonBase-root') || 
         e.target.closest('[role="tooltip"]') ||
-        e.target.closest('.weekend-marker')) {
+        e.target.closest('.week-marker')) {
       return;
     }
     
@@ -422,10 +475,11 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             min={0}
             max={maxRange}
             valueLabelDisplay="auto"
-            valueLabelFormat={(value) => {
-              // Fix date calculation for display too
+            valueLabelFormat={(value, index) => {
+              // Show inclusive end date on the right thumb (index 1)
               const date = new Date(currentDate);
-              date.setDate(currentDate.getDate() + value);
+              const offset = index === 1 ? Math.max(value - 1, 0) : value;
+              date.setDate(currentDate.getDate() + offset);
               return formatDate(date);
             }}
             sx={{
@@ -466,14 +520,14 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             />
           )}
 
-          {/* Weekends markers */}
-          {!isSmallScreen && getWeekends().map((weekend, index) => (
+          {/* Week markers */}
+          {!isSmallScreen && getWeeks().map((week, index) => (
             <Box
               key={index}
-              className="weekend-marker"
+              className="week-marker"
               sx={{
                 position: 'absolute',
-                left: `${(weekend.daysFromNow / maxRange) * 100}%`,
+                left: `${(week.buttonPosition / maxRange) * 100}%`,
                 top: '50%',
                 transform: 'translate(-50%, -50%)',
                 height: '24px',
@@ -488,7 +542,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                   bgcolor: 'rgba(63, 81, 181, 0.8)',
                   width: '4px',
                   '&:after': {
-                    content: `"${formatDate(weekend.start)}"`,
+                    content: `"${formatDateWithTime(week.start)} - ${formatDateWithTime(week.end)}"`,
                     position: 'absolute',
                     bottom: '100%',
                     left: '50%',
@@ -503,10 +557,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                   }
                 }
               }}
-              onClick={() => setTimeRange([weekend.daysFromNow, weekend.daysFromNow + 1])}
+              onClick={() => setTimeRange([week.daysFromNow, week.daysFromNow + 7])}
             >
               <Box sx={{ width: '100%', height: '100%', bgcolor: 'inherit' }} />
-              <Tooltip title="View weekend details">
+              <Tooltip title="View week">
                 <IconButton
                   sx={{
                     position: 'absolute',
@@ -525,7 +579,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault(); // Add this to prevent any click bubbling
-                    handleWeekend(weekend);
+                    handleWeek(week);
                   }}
                 >
                   <CircleIcon sx={{ fontSize: '14px' }} />
@@ -594,7 +648,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                 {isSmallScreen ? 'Week' : 'This Week'}
               </Button>
               <Button onClick={handleAllPeriod} sx={{ fontWeight: 500 }}>
-                {isSmallScreen ? '3M' : '3 Month'}
+                {isSmallScreen ? '1M' : '1 Month'}
               </Button>
             </ButtonGroup>
 
@@ -621,7 +675,8 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               onChange={(e) => {
                 const date = new Date(e.target.value);
                 const diffDays = Math.ceil((date - currentDate) / 86400000);
-                setTimeRange([diffDays, diffDays]);
+                // Select a full single day (inclusive end)
+                setTimeRange([diffDays, diffDays + 1]);
               }}
               min={new Date().toISOString().split('T')[0]}
               id="timeline-date-picker"
@@ -676,14 +731,16 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             }}
           >
             {(() => {
-              // Fix date calculation for the footer display
+              // Footer shows start at 00:01 and end at 23:59
               const startDate = new Date(currentDate);
               startDate.setDate(currentDate.getDate() + timeRange[0]);
+              startDate.setHours(0, 1, 0, 0);
               
               const endDate = new Date(currentDate);
-              endDate.setDate(currentDate.getDate() + timeRange[1]);
+              endDate.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
+              endDate.setHours(23, 59, 0, 0);
               
-              return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+              return `${formatDateWithTime(startDate)} - ${formatDateWithTime(endDate)}`;
             })()}
           </Box>
         </Box>

@@ -41,7 +41,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     // Default: current date to current date + 3 months
     const start = new Date();
     const end = new Date();
-    end.setMonth(end.getMonth() + 3);
+    end.setMonth(end.getMonth() + 1);
     return { start, end };
   });
 
