@@ -797,7 +797,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               onClick={() => handleWeek(week)}
             >
               <Box sx={{ width: '100%', height: '100%', bgcolor: 'inherit' }} />
-              <Tooltip title="View Week">
+              <Tooltip title={`Semaine ${index + 1}`}>
                 <IconButton
                   sx={{
                     position: 'absolute',
