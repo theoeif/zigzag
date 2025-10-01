@@ -48,17 +48,6 @@ export const OPEN_CAGE_API_KEY = "geocoding api OpenCage" (gratuit);
 export const OPENCAGE_SEARCH_TOKEN = "Location autosuggest OpenCage" (payant);
 export const MAPTILER_API_KEY = "https://cloud.maptiler.com/ vector style" (gratuit);
 ```
-cd FRONTEND/zigzag && cp src/config.example.js src/config.js
-#then edit src/config.js and fill your API keys
-Optional automation (auto-copy if missing on install). In FRONTEND/zigzag/package.json:
-{
-  "scripts": {
-    "postinstall": "node -e \"const fs=require('fs');const s='src/config.example.js', d='src/config.js'; if(!fs.existsSync(d)) fs.copyFileSync(s,d);\""
-  }
-}
-Then in README: “Run npm install” will create src/config.js if it doesn’t exist.
-
-
 
 Setup:
 
