@@ -28,6 +28,7 @@ const Project = ({ projectId }) => {
   const [selectedCircleIDs, setSelectedCircleIDs] = useState([]);
   const [selectedCircleName, setSelectedCircleName] = useState('');
   const [filterType, setFilterType] = useState('recent'); // 'recent', 'old', 'public'
+  const [anyDetailsExpanded, setAnyDetailsExpanded] = useState(false);
   const menuRef = useRef(null);
   const { isConnected } = useContext(AuthContext);
   const { mapState } = useContext(MapContext);
@@ -64,9 +65,9 @@ const Project = ({ projectId }) => {
   // State for showing the event creation form modal
   const [showEventForm, setShowEventForm] = useState(false);
 
-  // Effect to disable body scroll when modal is open
+  // Effect to disable body scroll when modal is open or details are expanded
   useEffect(() => {
-    if (showEventForm || editingEvent || showCircleMembers) {
+    if (showEventForm || editingEvent || showCircleMembers || anyDetailsExpanded) {
       // Disable body scroll
       document.body.style.overflow = 'hidden';
     } else {
@@ -78,7 +79,7 @@ const Project = ({ projectId }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showEventForm, editingEvent, showCircleMembers]);
+  }, [showEventForm, editingEvent, showCircleMembers, anyDetailsExpanded]);
 
   // Fetch and categorize events
   useEffect(() => {
@@ -300,6 +301,16 @@ const Project = ({ projectId }) => {
   const toggleTimelineVisibility = () => {
     setShowTimelineBar(prev => !prev);
   };
+
+  // Function to handle details expansion in event cards
+  const handleDetailsToggle = (isExpanded) => {
+    setAnyDetailsExpanded(isExpanded);
+  };
+
+  // Reset details expansion state when events change
+  useEffect(() => {
+    setAnyDetailsExpanded(false);
+  }, [filteredEvents, filteredFriendsEvents]);
   
   // Loading state UI
   if (isLoading) {
@@ -400,6 +411,7 @@ const Project = ({ projectId }) => {
                   onDelete={handleDeleteEvent}
                   onEdit={handleEditEvent}
                   onViewCircleMembers={handleViewCircleMembers}
+                  onDetailsToggle={handleDetailsToggle}
                 />
               ))}
             </div>
@@ -440,6 +452,7 @@ const Project = ({ projectId }) => {
                     onDelete={handleDeleteEvent}
                     onEdit={handleEditEvent}
                     onViewCircleMembers={handleViewCircleMembers}
+                    onDetailsToggle={handleDetailsToggle}
                   />
                 ))
               )}

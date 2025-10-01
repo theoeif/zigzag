@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import styles from './Project.module.css';
 
-const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers }) => {
+const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
   const [showCirclesDropdown, setShowCirclesDropdown] = useState(false);
@@ -313,7 +313,12 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers 
 
   // Add console log to debug details toggle
   const toggleDetails = () => {
-    setShowDetails(!showDetails);
+    const newShowDetails = !showDetails;
+    setShowDetails(newShowDetails);
+    // Notify parent component about details expansion state
+    if (onDetailsToggle) {
+      onDetailsToggle(newShowDetails);
+    }
   };
 
   return (
