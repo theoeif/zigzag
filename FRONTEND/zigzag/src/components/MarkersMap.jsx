@@ -438,8 +438,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           if (location.first_name || location.last_name) {
             name = `${location.first_name || ''} ${location.last_name || ''}`.trim();
           } else {
-            // Use address as name if no proper name is available
-            name = location.label || location.address_line || 'My Location';
+            // Use address as name if no proper name is available (but not the label)
+            name = location.address_line || 'My Location';
           }
           
           // Create a TRULY unique ID by combining user_id, coordinates, and index
@@ -847,7 +847,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               </svg>
               ${markerData.address_line}
             </div>` : ''}
-            ${markerData.label && markerData.label !== markerData.address_line ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;"><span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${markerData.label}</span></div>` : ''}
+            <div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
+              <span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">
+                ${markerData.label && markerData.label !== markerData.address_line ? markerData.label : 'No Label'}
+              </span>
+            </div>
           </div>
         `, {
           direction: "top",
@@ -909,7 +913,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               </svg>
               ${markerData.address_line}
             </div>` : ''}
-            ${markerData.label && markerData.label !== markerData.address_line ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;"><span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${markerData.label}</span></div>` : ''}
+            <div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
+              <span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">
+                ${markerData.label && markerData.label !== markerData.address_line ? markerData.label : 'No Label'}
+              </span>
+            </div>
           </div>
         `, {
           direction: "top",

@@ -28,6 +28,8 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
   const handleMenuClose = (suggestion) => {
     if (suggestion) {
       setLabel(suggestion);
+      // Automatically save when a suggestion is selected
+      onLabelUpdate(address.id, suggestion);
     }
     setAnchorEl(null);
   };
