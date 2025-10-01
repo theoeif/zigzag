@@ -717,14 +717,13 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         marker.bindTooltip(`
           <div class="tooltip-content">
             <div class="tooltip-title">${markerData.title}</div>
-            ${markerData.address_line ? `<div class="tooltip-address">
+            ${(markerData.address_line || (markerData.address && markerData.address.address_line)) ? `<div class="tooltip-address">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 384 512" fill="#2196F3">
                 <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
               </svg>
-              ${markerData.address_line}
+              ${(markerData.address_line || (markerData.address && markerData.address.address_line))}
             </div>` : ''}
             ${markerData.tags && markerData.tags.length ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">${markerData.tags.map(tag => `<span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${tag}</span>`).join('')}</div>` : ''}
-            ${markerData.description ? `<div class="tooltip-description">${markerData.description.substring(0, 50)}${markerData.description.length > 50 ? '...' : ''}</div>` : ''}
           </div>
         `, {
           direction: "top",
@@ -774,14 +773,13 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         marker.bindTooltip(`
           <div class="tooltip-content">
             <div class="tooltip-title">${markerData.title}</div>
-            ${markerData.address_line ? `<div class="tooltip-address">
+            ${(markerData.address_line || (markerData.address && markerData.address.address_line)) ? `<div class="tooltip-address">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 384 512" fill="#2196F3">
                 <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
               </svg>
-              ${markerData.address_line}
+              ${(markerData.address_line || (markerData.address && markerData.address.address_line))}
             </div>` : ''}
             ${markerData.tags && markerData.tags.length ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">${markerData.tags.map(tag => `<span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${tag}</span>`).join('')}</div>` : ''}
-            ${markerData.description ? `<div class="tooltip-description">${markerData.description.substring(0, 50)}${markerData.description.length > 50 ? '...' : ''}</div>` : ''}
           </div>
         `, {
           direction: "top",
