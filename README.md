@@ -49,7 +49,7 @@ export const OPENCAGE_SEARCH_TOKEN = "Location autosuggest OpenCage";
 export const MAPTILER_API_KEY = "https://cloud.maptiler.com/ vector style";
 ```
 cd FRONTEND/zigzag && cp src/config.example.js src/config.js
-# then edit src/config.js and fill your API keys
+#then edit src/config.js and fill your API keys
 Optional automation (auto-copy if missing on install). In FRONTEND/zigzag/package.json:
 {
   "scripts": {
