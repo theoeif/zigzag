@@ -267,12 +267,12 @@ const LeftMenu = ({ closeMenu }) => {
           <svg xmlns="http://www.w3.org/2000/svg" className="section-icon" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
           </svg>
-          <h3>Search</h3>
+          <h3>Recherche</h3>
         </div>
         <div className="research-bar">
           <input
             type="text"
-            placeholder="Profiles or projects..."
+            placeholder="Profils ou projets..."
             value={searchTerm}
             onChange={handleSearch}
             onFocus={() => setShowResults(true)}
@@ -281,7 +281,7 @@ const LeftMenu = ({ closeMenu }) => {
           {showResults && (
             <ul className="search-results">
               {!isDataLoaded ? (
-                <li>Loading search data...</li>
+                <li>Chargement des données de recherche...</li>
               ) : searchResults.length > 0 ? (
                 searchResults.map((result, index) => (
                   <li
@@ -292,7 +292,7 @@ const LeftMenu = ({ closeMenu }) => {
                   </li>
                 ))
               ) : (
-                <li>No results found</li>
+                <li>Aucun résultat trouvé</li>
               )}
             </ul>
           )}
@@ -314,21 +314,21 @@ const LeftMenu = ({ closeMenu }) => {
               onClick={() => handleNavigation("/profile", "profile")}
               ref={el => buttonRefs.current.profile = el}
             >
-              Profile
+              Profil
             </button>
             <button 
               className={getButtonClass("events")}
               onClick={() => handleNavigation("/events", "events")}
               ref={el => buttonRefs.current.events = el}
             >
-              Projects
+              Projets
             </button>
             <button 
               className={getButtonClass("circles")}
               onClick={() => handleNavigation("/circles", "circles")}
               ref={el => buttonRefs.current.circles = el}
             >
-              Circles
+              Cercles
             </button>
           </div>
         </div>
@@ -340,7 +340,7 @@ const LeftMenu = ({ closeMenu }) => {
           <svg xmlns="http://www.w3.org/2000/svg" className="section-icon" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
           </svg>
-          <h3>Account</h3>
+          <h3>Compte</h3>
         </div>
         {!isConnected ? (
           <div className="menu-btn-group">
@@ -349,14 +349,14 @@ const LeftMenu = ({ closeMenu }) => {
               onClick={() => handleNavigation("/create-account", "create-account")}
               ref={el => buttonRefs.current["create-account"] = el}
             >
-              Create Account
+              Créer un compte
             </button>
             <button 
               className={getButtonClass("login")}
               onClick={() => handleNavigation("/login", "login")}
               ref={el => buttonRefs.current.login = el}
             >
-              Login
+              Connexion
             </button>
           </div>
         ) : (
@@ -366,7 +366,7 @@ const LeftMenu = ({ closeMenu }) => {
               onClick={handleDisconnect}
               ref={el => buttonRefs.current.disconnect = el}
             >
-              Disconnect
+              Déconnexion
             </button>
           </div>
         )}
