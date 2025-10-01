@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchAddresses, addAddress, deleteAddress, fetchUserProfile, updateProfile } from "../../api/api";
+import { fetchAddresses, addAddress, deleteAddress, updateAddressLabel, fetchUserProfile, updateProfile } from "../../api/api";
 import Header from '../Header/Header';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import { FaTrashAlt, FaCog, FaPlus, FaSave, FaCheck } from "react-icons/fa";
@@ -8,7 +8,7 @@ import AddressItem from './AddressItem';
 import AddAddressPopup from './AddAddressPopup';
 import styles from './Profile.module.css';
 
-const labelSuggestions = ["Home", "Work", "Secondary Residence"];
+const labelSuggestions = ["Localisation d'Amis", "Travail", "Résidence Secondaire"];
 
 const Profile = () => {
   // Profile data state
@@ -43,13 +43,6 @@ const Profile = () => {
     Saturday: false,
     Sunday: false
   });
-  const today = new Date().toISOString().split("T")[0];
-  const sixMonthsLater = new Date();
-  sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-  const futureDate = sixMonthsLater.toISOString().split("T")[0];
-  const [vacationDays, setVacationDays] = useState(0);
-  const [vacationStart, setVacationStart] = useState(today);
-  const [vacationEnd, setVacationEnd] = useState(futureDate);
   const [selectedDay, setSelectedDay] = useState(null);
   const [startTime, setStartTime] = useState("19:00");
   const [endTime, setEndTime] = useState("23:00");
@@ -73,9 +66,6 @@ const Profile = () => {
           setTimetable(profileResponse.profile.timetable || timetable);
           setRemoteDaysCount(profileResponse.profile.remote_days_count || 2);
           setRemoteDays(profileResponse.profile.remote_days || remoteDays);
-          setVacationDays(profileResponse.profile.vacation_days_remaining || 0);
-          setVacationStart(profileResponse.profile.vacation_start || today);
-          setVacationEnd(profileResponse.profile.vacation_end || futureDate);
           setLookingFor(profileResponse.profile.looking_for || "");
         }
 
@@ -84,7 +74,7 @@ const Profile = () => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        setErrorMessage("Failed to load profile data");
+        setErrorMessage("Échec du chargement des données du profil");
       }
       setIsLoading(false);
     };
@@ -101,9 +91,6 @@ const Profile = () => {
           timetable,
           remote_days_count: remoteDaysCount,
           remote_days: remoteDays,
-          vacation_days_remaining: vacationDays,
-          vacation_start: vacationStart,
-          vacation_end: vacationEnd,
           looking_for: lookingFor
         }
       };
@@ -116,7 +103,7 @@ const Profile = () => {
     } catch (error) {
       console.error("Error saving profile:", error);
       setSaveStatus('error');
-      setErrorMessage("Failed to save profile changes");
+      setErrorMessage("Échec de la sauvegarde des modifications du profil");
       setTimeout(() => setSaveStatus(''), 2000);
     }
   };
@@ -142,7 +129,7 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("Error adding address:", error);
-      setErrorMessage("Failed to add address");
+      setErrorMessage("Échec de l'ajout de l'adresse");
     }
   };
 
@@ -182,7 +169,7 @@ const Profile = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Chargement...</div>;
   }
 
   return (
@@ -191,7 +178,7 @@ const Profile = () => {
 
       <div className={styles.manageButtonContainer}>
         <button onClick={() => setIsManageMode(!isManageMode)} className={styles.manageButton}>
-          <FaCog /> Manage
+          <FaCog /> Gérer
         </button>
       </div>
 
@@ -211,7 +198,7 @@ const Profile = () => {
       <div className={styles.sectionsContainer}>
         {/* Address Section */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>My locations (where I have friends) </h2>
+          <h2 className={styles.sectionTitle}>Mes localisations</h2>
           <div className={styles.addressList}>
             {addresses.map(addr => (
               <AddressItem
@@ -245,15 +232,15 @@ const Profile = () => {
 
         {/* Availability Section */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Availability</h2>
+          <h2 className={styles.sectionTitle}>Disponibilité</h2>
           
           <div className={styles.subSection}>
-            <h3 className={styles.subTitle}>Timetable</h3>
+            <h3 className={styles.subTitle}>Emploi du temps</h3>
             <div className={styles.timetable}>
               {Object.keys(timetable).map(day => (
                 <div key={day} className={styles.timetableDay} onClick={() => setSelectedDay(day)}>
                   <h4>{day}</h4>
-                  <p>{timetable[day].start ? `${timetable[day].start} - ${timetable[day].end}` : "Set time range"}</p>
+                  <p>{timetable[day].start ? `${timetable[day].start} - ${timetable[day].end}` : "Définir les heures"}</p>
                 </div>
               ))}
             </div>
@@ -262,12 +249,12 @@ const Profile = () => {
           {selectedDay && (
             <div className={styles.timeRangePickerModal}>
               <div className={styles.timeRangePicker}>
-                <h4>Set Time for {selectedDay}</h4>
+                <h4>Définir les heures pour {selectedDay}</h4>
                 <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
                 <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
                 <div className={styles.buttonContainer}>
-                  <button onClick={handleTimeRangeSave}>Save</button>
-                  <button onClick={() => setSelectedDay(null)}>Cancel</button>
+                  <button onClick={handleTimeRangeSave}>Sauvegarder</button>
+                  <button onClick={() => setSelectedDay(null)}>Annuler</button>
                 </div>
               </div>
             </div>
@@ -275,10 +262,10 @@ const Profile = () => {
 
           {/* Remote Work Section */}
           <div className={styles.subSection}>
-            <h3 className={styles.subTitle}>Remote Work</h3>
+            <h3 className={styles.subTitle}>Télétravail</h3>
             <div className={styles.remoteWorkSection}>
               <label className={styles.remoteDaysLabel}>
-                <span>Remote Days / Week:</span>
+                <span>Jours de télétravail / Semaine :</span>
                 <input
                   type="number"
                   value={remoteDaysCount}
@@ -302,45 +289,16 @@ const Profile = () => {
               </div>
             </div>
           </div>
-
-          {/* Vacation Section */}
-          <div className={styles.subSection}>
-            <h3 className={styles.subTitle}>Vacation</h3>
-            <div className={styles.vacationContainer}>
-              <label>From:</label>
-              <input 
-                type="date" 
-                value={vacationStart} 
-                onChange={(e) => setVacationStart(e.target.value)} 
-                className={styles.dateInput} 
-              />
-              <label>To:</label>
-              <input 
-                type="date" 
-                value={vacationEnd} 
-                onChange={(e) => setVacationEnd(e.target.value)} 
-                className={styles.dateInput} 
-              />
-              <input 
-                type="number" 
-                value={vacationDays} 
-                onChange={(e) => setVacationDays(Math.max(0, parseInt(e.target.value, 10)))} 
-                min="0" 
-                className={styles.vacationInput} 
-              />
-              <span>Days Remaining</span>
-            </div>
-          </div>
         </section>
 
         {/* "What Are You Looking For?" Section */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>What Are You Looking For?</h2>
+          <h2 className={styles.sectionTitle}>Que recherchez-vous ?</h2>
           <textarea
             value={lookingFor}
             onChange={(e) => setLookingFor(e.target.value)}
             className={styles.lookingForInput}
-            placeholder="Describe what you're looking for..."
+            placeholder="Décrivez ce que vous recherchez..."
             rows={4}
           />
         </section>
@@ -353,11 +311,11 @@ const Profile = () => {
         disabled={saveStatus === 'saving' || saveStatus === 'saved'}
       >
         {saveStatus === 'saving' ? (
-          <>Saving...</>
+          <>Sauvegarde...</>
         ) : saveStatus === 'saved' ? (
-          <><FaCheck className={styles.checkmark} /> Saved!</>
+          <><FaCheck className={styles.checkmark} /> Sauvegardé !</>
         ) : (
-          <><FaSave /> Save Changes</>
+          <><FaSave /> Sauvegarder</>
         )}
       </button>
     </div>

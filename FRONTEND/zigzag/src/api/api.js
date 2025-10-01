@@ -240,6 +240,7 @@ export const addAddress = async (address) => {
       "postal_code": address.postal_code,
       "latitude": address.latitude,
       "longitude": address.longitude,
+      "label": address.label || "", // Include label if provided
       }, // Send fields directly with address no ?
       { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json",} }
     );
@@ -269,6 +270,30 @@ export const deleteAddress = async (addressId) => {
     return response.status === 204; // Return true if address is deleted successfully
   } catch (error) {
     console.error("Error deleting address:", error);
+    return false;
+  }
+};
+
+// Update address label
+export const updateAddressLabel = async (addressId, newLabel) => {
+  try {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      token = await refreshAccessToken(); // Refresh token if missing
+      if (!token) return false;
+    }
+
+    const response = await axios.patch(
+      `http://127.0.0.1:8000/api/events/user/addresses/${addressId}/`,
+      { label: newLabel },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return response.data; // Return the updated address data
+  } catch (error) {
+    console.error("Error updating address label:", error);
     return false;
   }
 };
