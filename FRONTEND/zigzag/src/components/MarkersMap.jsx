@@ -396,6 +396,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const refreshMarkersForSelectedTags = async () => {
     // If user is connected, fetch their markers
     if (isConnected) {
+      // Pass selectedTags (can be empty array for all markers)
       const markers = await fetchMarkers(selectedTags);
 
       if (markers) {
@@ -1027,7 +1028,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Refresh markers when selectedTags change.
   useEffect(() => {
-    if (isConnected && selectedTags.length > 0) {
+    if (isConnected) {
       refreshMarkersForSelectedTags();
     }
   }, [selectedTags, isConnected]);
