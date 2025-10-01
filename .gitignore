@@ -1,10 +1,13 @@
-# external libraries
 
+
+# required token to make the app works
+/FRONTEND/zigzag/src/config.js
+config.*
+
+# external libraries
 # External NODE libraries
 node_modules/*
 node_modules/
-
-
 # External PYTHON libraries
 venv/
 .venv/
