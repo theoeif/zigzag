@@ -7,16 +7,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import styles from './Profile.module.css';
 
-const labelSuggestions = ["Home", "Work", "Secondary Residence"];
+const labelSuggestions = ["Domicile", "Travail", "Résidence Secondaire"];
 
 const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [label, setLabel] = useState(address.label || 'No Label');
+  const [label, setLabel] = useState(address.label || 'Aucun libellé');
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleEditClick = () => setIsEditing(true);
   const handleCancel = () => {
-    setLabel(address.label || 'No Label');
+    setLabel(address.label || 'Aucun libellé');
     setIsEditing(false);
   };
   const handleSave = () => {
@@ -83,7 +83,7 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
       }
     } else {
       // If coordinates are not available, try to search by address
-      const addressText = addressData?.address_line || "Location not available";
+      const addressText = addressData?.address_line || "Localisation non disponible";
       const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}`;
       window.open(googleMapsSearchUrl, '_blank');
     }
@@ -124,12 +124,12 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
               onChange={(e) => setLabel(e.target.value)}
               sx={{ width: 150, mr: 1, transition: 'width 0.3s ease' }}
             />
-            <Tooltip title="Save">
+            <Tooltip title="Sauvegarder">
               <IconButton onClick={handleSave} size="small">
                 <CheckIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Cancel">
+            <Tooltip title="Annuler">
               <IconButton onClick={handleCancel} size="small">
                 <CancelIcon fontSize="small" />
               </IconButton>
@@ -157,7 +157,7 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
               </Menu>
             )}
             {isManageMode && (
-              <Tooltip title="Edit Label">
+              <Tooltip title="Modifier le libellé">
                 <IconButton onClick={handleEditClick} size="small">
                   <EditIcon fontSize="small" />
                 </IconButton>
@@ -166,7 +166,7 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
           </>
         )}
         {isManageMode && (
-          <Tooltip title="Delete Address">
+          <Tooltip title="Supprimer l'adresse">
             <IconButton onClick={() => onDelete(address.id)} size="small" sx={{ color: 'red' }}>
               <DeleteIcon fontSize="small" />
             </IconButton>

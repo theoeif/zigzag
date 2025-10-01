@@ -6,18 +6,18 @@ import CloseIcon from '@mui/icons-material/Close';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import styles from './Profile.module.css';
 
-const labelSuggestions = ["Home", "Work", "Secondary Residence"];
+const labelSuggestions = ["Localisation d'Amis", "Travail", "Résidence Secondaire"];
 
 const AddAddressPopup = ({ onClose, onAddAddress }) => {
   const [newAddress, setNewAddress] = useState("");
-  const [newAddressLabel, setNewAddressLabel] = useState("Home"); // Default label
+  const [newAddressLabel, setNewAddressLabel] = useState("Localisation d'Amis"); // Default label
   const [errorMessage, setErrorMessage] = useState("");
   const [localizedAddress, setLocalizedAddress] = useState(null);
   const [isLocalizing, setIsLocalizing] = useState(false);
 
   const handleLocalizeAddress = async () => {
     if (!newAddress.trim()) {
-      setErrorMessage("Please enter an address to localize.");
+      setErrorMessage("Veuillez saisir une adresse à localiser.");
       return;
     }
     
@@ -48,11 +48,11 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
         // Update the address field with the formatted address
         setNewAddress(formatted);
       } else {
-        setErrorMessage("Address could not be localized. Please check if it's correct.");
+        setErrorMessage("L'adresse n'a pas pu être localisée. Veuillez vérifier qu'elle est correcte.");
       }
     } catch (error) {
       console.error("Localization error:", error);
-      setErrorMessage("An error occurred during localization. Please try again.");
+      setErrorMessage("Une erreur s'est produite lors de la localisation. Veuillez réessayer.");
     } finally {
       setIsLocalizing(false);
     }
@@ -60,23 +60,19 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
 
   const handleSubmit = () => {
     if (!newAddress.trim()) {
-      setErrorMessage("Please enter an address");
+      setErrorMessage("Veuillez saisir une adresse");
       return;
     }
     
-    if (!newAddressLabel.trim()) {
-      setErrorMessage("Please enter a label for this address");
-      return;
-    }
     
     if (!localizedAddress) {
-      setErrorMessage("Please localize the address before adding it");
+      setErrorMessage("Veuillez localiser l'adresse avant de l'ajouter");
       return;
     }
     
     const fullAddress = {
       ...localizedAddress,
-      label: newAddressLabel
+      label: newAddressLabel.trim() || "Aucun libellé"
     };
     
     onAddAddress(fullAddress);
@@ -109,7 +105,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Add New Address
+            Ajouter une nouvelle adresse
           </Typography>
           <IconButton
             aria-label="close"
@@ -128,12 +124,12 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           {/* Address Input */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
-              Address: <span style={{ color: '#d32f2f' }}>*</span>
+              Adresse : <span style={{ color: '#d32f2f' }}>*</span>
             </Typography>
             <Box sx={{ display: 'flex', gap: '10px' }}>
               <TextField
                 fullWidth
-                placeholder="Enter address"
+                placeholder="Saisir l'adresse"
                 value={newAddress}
                 onChange={(e) => setNewAddress(e.target.value)}
                 sx={{ flex: 1 }}
@@ -151,7 +147,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
                   }
                 }}
               >
-                {isLocalizing ? "Localizing..." : "Localize"}
+                {isLocalizing ? "Localisation..." : "Localiser"}
               </Button>
             </Box>
           </Box>
@@ -159,22 +155,19 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           {/* Label Input */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
-              Label: <span style={{ color: '#d32f2f' }}>*</span>
+              Libellé :
             </Typography>
             <TextField
               fullWidth
-              placeholder="e.g., Home, Work"
+              placeholder="ex. Localisation d'Amis, Travail"
               value={newAddressLabel}
               onChange={(e) => setNewAddressLabel(e.target.value)}
-              required
-              error={!newAddressLabel.trim()}
-              helperText={!newAddressLabel.trim() ? "Label is required" : ""}
             />
             
             {/* Label Suggestions */}
             <Box className={styles.labelSuggestions} sx={{ mt: 1 }}>
               <Typography variant="caption" sx={{ color: '#666', mr: 1 }}>
-                Suggestions:
+                Suggestions :
               </Typography>
               {labelSuggestions.map((label, index) => (
                 <Box
@@ -225,7 +218,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
               }}>
                 <LocationOnIcon sx={{ color: '#4285F4', mr: 1, fontSize: 20 }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                  Localized Address
+                  Adresse localisée
                 </Typography>
               </Box>
               
@@ -247,7 +240,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
             variant="caption" 
             sx={{ display: 'block', mb: 2, color: '#666', fontStyle: 'italic' }}
           >
-            Fields marked with <span style={{ color: '#d32f2f' }}>*</span> are required
+            Le champ marqué d'un <span style={{ color: '#d32f2f' }}>*</span> est obligatoire
           </Typography>
 
           {/* Action Buttons */}
@@ -257,12 +250,12 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
               onClick={onClose}
               sx={{ borderColor: '#999', color: '#666' }}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               variant="contained"
               onClick={handleSubmit}
-              disabled={!localizedAddress || !newAddressLabel.trim()}
+              disabled={!localizedAddress}
               sx={{
                 bgcolor: '#40916c',
                 '&:hover': {
@@ -274,7 +267,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
                 }
               }}
             >
-              Add Address
+              Ajouter l'adresse
             </Button>
           </Box>
         </Box>
