@@ -240,7 +240,7 @@ const Profile = () => {
               {Object.keys(timetable).map(day => (
                 <div key={day} className={styles.timetableDay} onClick={() => setSelectedDay(day)}>
                   <h4>{day}</h4>
-                  <p>{timetable[day].start ? `${timetable[day].start} - ${timetable[day].end}` : "Définir les heures"}</p>
+                  <p>{timetable[day].start ? `${timetable[day].start} - ${timetable[day].end}` : "XX:XX"}</p>
                 </div>
               ))}
             </div>
