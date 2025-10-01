@@ -1047,9 +1047,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               borderRadius: '6px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               zIndex: 3,
-              // Position more to the right - adjusted further
+              // Position more to the left to give space for date bar
               position: 'absolute',
-              left: { xs: '10px', sm: '0px' }, // Moved more left on mobile
+              left: { xs: '5px', sm: '0px' }, // Moved further left on mobile
               top: { xs: -85, sm: -40 }, // Reverted back to original values
               '& .MuiButton-root': {
                 fontSize: '0.8rem',
@@ -1076,14 +1076,14 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
           >
             <ButtonGroup variant="text" size="small">
               <Button onClick={handleThisWeek}>
-                {isSmallScreen ? 'Week' : 'This Week'}
+                {isSmallScreen ? 'Sem' : 'Cette Semaine'}
               </Button>
               <Button onClick={handleAllPeriod} sx={{ fontWeight: 500 }}>
-                {isSmallScreen ? '1M' : '1 Month'}
+                {isSmallScreen ? '1M' : '1 Mois'}
               </Button>
             </ButtonGroup>
 
-            <Tooltip title="All time (10 years)">
+            <Tooltip title="Sur la période (10 ans)">
               <IconButton 
                 size="small" 
                 onClick={handleAllTime}
@@ -1118,7 +1118,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                 display: 'none' // Hide the actual input
               }}
             />
-            <Tooltip title="Select date">
+            <Tooltip title="Sélectionner une date">
               <IconButton
                 onClick={() => document.getElementById('timeline-date-picker').showPicker()}
                 size={isSmallScreen ? "small" : "medium"}
@@ -1154,10 +1154,11 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               position: 'absolute',
               top: { xs: -85, sm: -40 }, // Reverted back to original values
               left: { xs: 'auto', sm: 'auto' }, // Remove centering
-              right: { xs: '10px', sm: '40px' }, // Positioned more right on mobile
+              right: { xs: '5px', sm: '40px' }, // Positioned more right on mobile to give more space
               transform: { xs: 'none', sm: 'none' }, // Remove transform
-              // Handle overflow on small screens
-              maxWidth: { xs: '120px', sm: '200px', md: '90%' },
+              // Handle overflow on small screens - make bar longer on mobile
+              maxWidth: { xs: '150px', sm: '200px', md: '90%' },
+              minWidth: { xs: '180px', sm: '150px' },
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               // Adjust zIndex to ensure it appears above other elements
