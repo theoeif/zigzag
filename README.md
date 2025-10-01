@@ -44,9 +44,9 @@ Prerequsites:
 
 Replace FRONTEND/zigzag/src/config.example.js by FRONTEND/zigzag/src/config.js with proper Api key : 
 ```bash
-export const OPEN_CAGE_API_KEY = "geocoding api OpenCage";
-export const OPENCAGE_SEARCH_TOKEN = "Location autosuggest OpenCage";
-export const MAPTILER_API_KEY = "https://cloud.maptiler.com/ vector style";
+export const OPEN_CAGE_API_KEY = "geocoding api OpenCage" (gratuit);
+export const OPENCAGE_SEARCH_TOKEN = "Location autosuggest OpenCage" (payant);
+export const MAPTILER_API_KEY = "https://cloud.maptiler.com/ vector style" (gratuit);
 ```
 cd FRONTEND/zigzag && cp src/config.example.js src/config.js
 #then edit src/config.js and fill your API keys
