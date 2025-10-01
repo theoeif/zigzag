@@ -104,7 +104,7 @@ const styles = {
   },
   detailIcon: {
     marginRight: "8px",
-    color: "#4CAF50",
+    color: "#40916c", // LeftMenu green color
     minWidth: "20px",
   },
   // Date badge styles like in EventCard
@@ -112,12 +112,12 @@ const styles = {
     position: "absolute",
     top: "0",
     right: "0",
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#40916c", // LeftMenu green color
     color: "white",
-    padding: "8px",
+    padding: "12px 16px", // Increased padding for wider rectangle
     borderRadius: "0 0 0 8px",
     textAlign: "center",
-    width: "70px",
+    width: "90px", // Increased width for better rectangle
     cursor: "pointer",
     userSelect: "none",
   },
@@ -147,7 +147,7 @@ const styles = {
     margin: "0 5px",
   },
   primaryButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#40916c", // LeftMenu green color
     color: "white",
   },
   secondaryButton: {
@@ -246,13 +246,29 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer",
     position: "relative",
+    transition: "all 0.3s ease",
+  },
+  shareButtonClicked: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "36px",
+    height: "36px",
+    backgroundColor: "#40916c",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    position: "relative",
+    transition: "all 0.3s ease",
+    transform: "scale(1.1)",
+    boxShadow: "0 0 10px rgba(64, 145, 108, 0.5)",
   },
   copiedTooltip: {
     position: "absolute",
     bottom: "40px",
     left: "50%",
     transform: "translateX(-50%)",
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#40916c", // LeftMenu green color
     color: "white",
     padding: "5px 10px",
     borderRadius: "4px",
@@ -336,6 +352,7 @@ const EventView = ({
   const [showEndTime, setShowEndTime] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [urlCopied, setUrlCopied] = useState(false);
+  const [shareButtonClicked, setShareButtonClicked] = useState(false);
   const [shareError, setShareError] = useState(null);
   const [addressHovered, setAddressHovered] = useState(false);
   
@@ -526,6 +543,11 @@ const EventView = ({
     try {
       setUrlCopied(false);
       setShareError(null);
+      
+      // Add click animation effect
+      setShareButtonClicked(true);
+      setTimeout(() => setShareButtonClicked(false), 300);
+      
       // Respect host setting to disable link sharing
       if (event && event.shareable_link === false) {
         setShareError("The host has disabled link sharing for this event");
@@ -676,9 +698,7 @@ const EventView = ({
                   formatDateOnly(event.start_time)
                 )}
               </div>
-              <div style={styles.timeCompact}>
-                {formatTimeOnly(showEndTime && event.end_time ? event.end_time : event.start_time)}
-              </div>
+              {/* Time display removed - only showing day and date */}
             </div>
             
             <h2 style={styles.title}>{event.title}</h2>
@@ -706,7 +726,7 @@ const EventView = ({
                     >
                       <FaMapMarkerAlt style={{
                         ...styles.detailIcon,
-                        color: addressHovered ? "#2196F3" : "#4CAF50"
+                        color: addressHovered ? "#2196F3" : "#40916c"
                       }} />
                       <span><strong>Where:</strong> {event.address.address_line}</span>
                     </div>
@@ -721,10 +741,10 @@ const EventView = ({
                   
                   {/* Public/private and friends-of-friends indicators removed */}
                   
-                  {/* Circles */}
+                  {/* Participants */}
                   {event.circles && event.circles.length > 0 && (
                     <div>
-                      <strong>Circles:</strong>
+                      <strong>Participants:</strong>
                       <div style={styles.circlesContainer}>
                         {event.circles.map((circle, index) => (
                           <div 
@@ -736,19 +756,6 @@ const EventView = ({
                             <span>{circle.name}</span>
                           </div>
                         ))}
-                        {event.circles.length > 1 && (
-                          <div 
-                            style={{
-                              ...styles.circle, 
-                              backgroundColor: '#e3f2fd', 
-                              border: '1px dashed #2196F3'
-                            }}
-                            onClick={handleViewAllCircleMembers}
-                          >
-                            <FaUsers style={{...styles.circleIcon, color: '#2196F3'}} />
-                            <span>View All</span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
@@ -780,21 +787,39 @@ const EventView = ({
                 
                 {/* WhatsApp link removed */}
                 
-                {/* Bottom buttons - share link on left, participate on right */}
+                {/* Bottom buttons - share link and view members on left, participate on right */}
                 <div style={styles.bottomButtons}>
-                  {/* Share link button */}
-                  <div style={{ position: "relative" }}>
+                  {/* Left side buttons - share link and view members */}
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    {/* Share link button */}
+                    <div style={{ position: "relative" }}>
                     <button 
                       onClick={handleShareEvent} 
-                      style={styles.shareButton}
+                      style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
                       title="Copy event link"
                     >
-                      <FaLink />
+                      <FaLink style={{ color: shareButtonClicked ? "white" : "inherit" }} />
                     </button>
-                    {urlCopied && (
-                      <div style={styles.copiedTooltip}>
-                        Link copied!
-                      </div>
+                {urlCopied && (
+                  <div style={styles.copiedTooltip}>
+                    Lien copié !
+                  </div>
+                )}
+                    </div>
+                    
+                    {/* View members button - blue like in EventCard */}
+                    {event.circles && event.circles.length > 0 && (
+                      <button 
+                        onClick={handleViewAllCircleMembers}
+                        style={{
+                          ...styles.shareButton,
+                          backgroundColor: "#e3f2fd",
+                          color: "#2196F3"
+                        }}
+                        title="View participants"
+                      >
+                        <FaUsers />
+                      </button>
                     )}
                   </div>
                   
@@ -868,9 +893,7 @@ const EventView = ({
                 formatDateOnly(event.start_time)
               )}
             </div>
-            <div style={styles.timeCompact}>
-              {formatTimeOnly(showEndTime && event.end_time ? event.end_time : event.start_time)}
-            </div>
+            {/* Time display removed - only showing day and date */}
           </div>
           
           <h2 style={styles.title}>{event.title}</h2>
@@ -891,9 +914,9 @@ const EventView = ({
                   >
                     <FaMapMarkerAlt style={{
                       ...styles.detailIcon,
-                      color: addressHovered ? "#2196F3" : "#4CAF50"
+                      color: addressHovered ? "#2196F3" : "#40916c"
                     }} />
-                    <span><strong>Where:</strong> {event.address.address_line}</span>
+                    <span>{event.address.address_line}</span>
                   </div>
                 )}
                 
@@ -906,10 +929,10 @@ const EventView = ({
                 
                 {/* Public/private and friends-of-friends indicators removed */}
                 
-                {/* Circles */}
+                {/* Participants */}
                 {event.circles && event.circles.length > 0 && (
                   <div>
-                    <strong>Circles:</strong>
+                    <strong>Participants:</strong>
                     <div style={styles.circlesContainer}>
                       {event.circles.map((circle, index) => (
                         <div 
@@ -921,19 +944,6 @@ const EventView = ({
                           <span>{circle.name}</span>
                         </div>
                       ))}
-                      {event.circles.length > 1 && (
-                        <div 
-                          style={{
-                            ...styles.circle, 
-                            backgroundColor: '#e3f2fd', 
-                            border: '1px dashed #2196F3'
-                          }}
-                          onClick={handleViewAllCircleMembers}
-                        >
-                          <FaUsers style={{...styles.circleIcon, color: '#2196F3'}} />
-                          <span>View All</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
@@ -965,23 +975,41 @@ const EventView = ({
               
               {/* WhatsApp link removed */}
               
-              {/* Bottom buttons - share link on left, participate on right */}
+              {/* Bottom buttons - share link and view members on left, participate on right */}
               <div style={styles.bottomButtons}>
-              {/* Share link button */}
-              <div style={{ position: "relative" }}>
-                <button 
-                  onClick={handleShareEvent} 
-                  style={styles.shareButton}
-                  title="Copy event link"
-                >
-                  <FaLink />
-                </button>
-                {urlCopied && (
-                  <div style={styles.copiedTooltip}>
-                    Link copied!
+                {/* Left side buttons - share link and view members */}
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  {/* Share link button */}
+                  <div style={{ position: "relative" }}>
+                    <button 
+                      onClick={handleShareEvent} 
+                      style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
+                      title="Copy event link"
+                    >
+                      <FaLink style={{ color: shareButtonClicked ? "white" : "inherit" }} />
+                    </button>
+                    {urlCopied && (
+                      <div style={styles.copiedTooltip}>
+                        Lien copié !
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                  
+                  {/* View members button - blue like in EventCard */}
+                  {event.circles && event.circles.length > 0 && (
+                    <button 
+                      onClick={handleViewAllCircleMembers}
+                      style={{
+                        ...styles.shareButton,
+                        backgroundColor: "#e3f2fd",
+                        color: "#2196F3"
+                      }}
+                      title="View participants"
+                    >
+                      <FaUsers />
+                    </button>
+                  )}
+                </div>
                 
                 {/* Show share error as popup if present */}
                 {shareError && (
