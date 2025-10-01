@@ -64,6 +64,22 @@ const Project = ({ projectId }) => {
   // State for showing the event creation form modal
   const [showEventForm, setShowEventForm] = useState(false);
 
+  // Effect to disable body scroll when modal is open
+  useEffect(() => {
+    if (showEventForm || editingEvent || showCircleMembers) {
+      // Disable body scroll
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable body scroll
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup function to ensure scroll is re-enabled when component unmounts
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showEventForm, editingEvent, showCircleMembers]);
+
   // Fetch and categorize events
   useEffect(() => {
     const getEvents = async () => {

@@ -162,22 +162,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     <div className={styles.modalOverlayProjectNoAnimation || styles.modalOverlayProject}
          style={{ zIndex: 1500 }}>
       <div 
-        className={styles.modalContentProject}
-        style={{
-          maxHeight: '85vh',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          WebkitOverflowScrolling: 'touch', /* Enable smooth scrolling on iOS */
-          scrollBehavior: 'smooth',
-          padding: '0',
-          display: 'flex',
-          flexDirection: 'column',
-          /* Ensure immediate rendering without animations */
-          animation: 'none',
-          transition: 'none',
-          borderRadius: '12px', /* Add rounded borders */
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)' /* Enhanced shadow for better depth */
-        }}
+        className={styles.modalContentProjectRounded}
       >
         <div 
           className={styles.popupHeaderProjectEnhanced}
@@ -187,10 +172,9 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             zIndex: 10,
             backgroundColor: 'white',
             borderBottom: '1px solid #eee',
-            /* Ensure immediate rendering without animations */
             animation: 'none',
             transition: 'none',
-            borderTopLeftRadius: '12px', /* Match top corners */
+            borderTopLeftRadius: '12px',
             borderTopRightRadius: '12px'
           }}
         >
@@ -202,15 +186,16 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
           </button>
         </div>
         
-        <form
-          onSubmit={handleSubmit}
-          className={styles.eventFormProject}
-          style={{
-            padding: '20px',
-            overflow: 'visible',
-            flex: 1
-          }}
-        >
+        <div className={styles.modalContentProjectRoundedInner}>
+          <form
+            onSubmit={handleSubmit}
+            className={styles.eventFormProject}
+            style={{
+              padding: '20px',
+              overflow: 'visible',
+              flex: 1
+            }}
+          >
           <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Description:</label>
             <textarea
@@ -338,7 +323,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
               padding: '15px 0 5px',
               borderTop: '1px solid #f0f0f0',
               zIndex: 5,
-              borderBottomLeftRadius: '12px', /* Match bottom corners */
+              borderBottomLeftRadius: '12px',
               borderBottomRightRadius: '12px'
             }}
           >
@@ -361,7 +346,8 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
               Update Project
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

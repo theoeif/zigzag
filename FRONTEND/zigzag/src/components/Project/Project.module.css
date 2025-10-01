@@ -388,6 +388,54 @@ ulProject li a:hover {
   position: relative;
 }
 
+/* Enhanced modal content with rounded corners - OUTER CONTAINER */
+.modalContentProjectRounded {
+  background: #fff;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow: hidden; /* This hides the scrollbar corners */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: none;
+  transition: none;
+}
+
+/* INNER SCROLLABLE CONTENT */
+.modalContentProjectRoundedInner {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Custom scrollbar for inner content */
+.modalContentProjectRoundedInner::-webkit-scrollbar {
+  width: 14px;
+}
+
+.modalContentProjectRoundedInner::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+
+.modalContentProjectRoundedInner::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  border: 1px solid #f1f1f1;
+}
+
+.modalContentProjectRoundedInner::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 /* Close Button */
 .closeButtonProject {
   position: absolute;
