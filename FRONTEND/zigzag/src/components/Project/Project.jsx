@@ -319,7 +319,7 @@ const Project = ({ projectId }) => {
         <Header toggleLeftMenu={toggleLeftMenu} />
         <div className={styles.loadingContainerProject}>
           <div className={styles.loadingSpinnerProject}></div>
-          <p>Loading projects...</p>
+          <p>Chargement des projets...</p>
         </div>
       </div>
     );
@@ -354,7 +354,7 @@ const Project = ({ projectId }) => {
         </div>
       )}
 
-      <h2 className={styles.h2Project}>Projects</h2>
+      <h2 className={styles.h2Project}>Projets</h2>
 
       {/* Action buttons - realigned with Edit on right */}
       <div className={styles.actionButtonsContainerProject}>
@@ -366,7 +366,7 @@ const Project = ({ projectId }) => {
           className={styles.addEventButtonProject}
           data-button-type="project-add"
         >
-          <FaPlus /> Add Project
+          <FaPlus /> Ajouter un projet
         </button>
         <div className={styles.spacerProject}></div>
         <button 
@@ -374,7 +374,7 @@ const Project = ({ projectId }) => {
           className={`${styles.manageButtonProject} ${isManageMode ? styles.activeProject : ''}`}
           data-button-type="project-edit"
         >
-          <FaEdit /> Edit
+          <FaEdit /> Modifier
         </button>
       </div>
 
@@ -398,9 +398,9 @@ const Project = ({ projectId }) => {
       <div className={styles.contentWithPaddingProject}>
         {/* Render Your Projects */}
         <div>
-          <h3 className={styles.h3Project}>My Projects</h3>
+          <h3 className={styles.h3Project}>Mes projets</h3>
           {filteredEvents.length === 0 ? (
-            <p>You have not created any projects yet.</p>
+            <p>Vous n'avez pas encore créé de projets.</p>
           ) : (
             <div className={styles.eventsGridProject}>
               {filteredEvents.map((event) => (
@@ -423,7 +423,7 @@ const Project = ({ projectId }) => {
         {/* Friends Events with Filter */}
         <div>
           <div className={styles.sectionHeaderProject}>
-            <h3 className={styles.h3Project}>Invited Projects</h3>
+            <h3 className={styles.h3Project}>Projets invités</h3>
             <div className={styles.filterContainerProject}>
               <FaFilter />
               <select 
@@ -431,18 +431,18 @@ const Project = ({ projectId }) => {
                 onChange={(e) => setFilterType(e.target.value)}
                 className={styles.filterSelectProject}
               >
-                <option value="recent">Most Recent</option>
-                <option value="old">Oldest First</option>
+                <option value="recent">Plus récents</option>
+                <option value="old">Plus anciens</option>
               </select>
             </div>
           </div>
           
           {otherProjects.length === 0 ? (
-            <p>You are not part of any projects yet.</p>
+            <p>Vous ne faites partie d'aucun projet pour le moment.</p>
           ) : (
             <div className={styles.eventsGridProject}>
               {filteredFriendsEvents.length === 0 ? (
-                <p>No friend events match the selected time period.</p>
+                <p>Aucun événement d'ami ne correspond à la période sélectionnée.</p>
               ) : (
                 getFilteredFriendsEvents().map((event) => (
                   <EventCard 

@@ -125,7 +125,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     const end = new Date(endDate);
     
     if (end < start) {
-      setDateError("End date cannot be earlier than start date");
+      setDateError("La date de fin ne peut pas être antérieure à la date de début");
       return false;
     } else {
       setDateError("");
@@ -219,7 +219,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // Localize address using OpenCage Geocoding API
   const handleLocalizeAddress = async () => {
     if (!formData.address_line) {
-      setLocalizeError("Please enter an address to localize.");
+      setLocalizeError("Veuillez saisir une adresse à localiser.");
       return;
     }
     
@@ -254,11 +254,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           address_line: formatted
         }));
       } else {
-        setLocalizeError("Address could not be localized. Is it correct?");
+        setLocalizeError("L'adresse n'a pas pu être localisée. Est-elle correcte ?");
       }
     } catch (error) {
       console.error("Localization error:", error);
-      setLocalizeError("An error occurred during localization.");
+      setLocalizeError("Une erreur s'est produite lors de la localisation.");
     }
   };
 
@@ -268,13 +268,13 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     
     // Validate address is not empty
     if (!formData.address_line.trim()) {
-      setAddressError("Address is required");
+      setAddressError("L'adresse est requise");
       return;
     }
     
     // Validate that address is localized
     if (!localizedAddress) {
-      setAddressError("Please localize the address first");
+      setAddressError("Veuillez d'abord localiser l'adresse");
       return;
     }
     
@@ -312,7 +312,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     } catch (error) {
       console.error("Error creating event:", error);
       
-      let errorMessage = "Error creating event";
+      let errorMessage = "Erreur lors de la création de l'événement";
       
       if (error.response && error.response.data) {
         if (typeof error.response.data === 'string') {
@@ -357,7 +357,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           }}
         >
           <div className={styles.popupTitleWrapper}>
-            <h3 className={styles.modalTitleProject}>Create New Project</h3>
+            <h3 className={styles.modalTitleProject}>Créer un nouveau projet</h3>
           </div>
           <button onClick={onClose} className={styles.closeButtonProjectEnhanced}>
             ✕
@@ -375,7 +375,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             }}
           >
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Title:</label>
+            <label className={styles.formLabelProject}>Titre :</label>
             <input
               type="text"
               name="title"
@@ -387,7 +387,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           </div>
           
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Description:</label>
+            <label className={styles.formLabelProject}>Description :</label>
             <textarea
               name="description"
               value={formData.description}
@@ -398,7 +398,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           </div>
           
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Address:</label>
+            <label className={styles.formLabelProject}>Adresse :</label>
             <div style={{ display: 'flex', gap: '10px' }}>
               <input
                 type="text"
@@ -407,7 +407,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 onChange={handleInputChange}
                 className={`${styles.formInputProject} ${addressError ? styles.inputErrorProject : ''}`}
                 style={{ flexGrow: 1 }}
-                placeholder="Enter the event location"
+                placeholder="Saisir l'emplacement de l'événement"
                 required
               />
               <button 
@@ -426,7 +426,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                   opacity: formData.address_line ? 1 : 0.7
                 }}
               >
-                Localize
+                Localiser
               </button>
             </div>
             {addressError && <p className={styles.errorMessageProject}>{addressError}</p>}
@@ -466,7 +466,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
                   </span>
-                  <strong style={{ fontSize: '0.95rem' }}>Localized Address</strong>
+                  <strong style={{ fontSize: '0.95rem' }}>Adresse localisée</strong>
                 </div>
               </div>
               <p style={{ margin: '2px 0' }}>{localizedAddress.address_line}</p>
@@ -479,7 +479,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           )}
           
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Start Date:</label>
+            <label className={styles.formLabelProject}>Date de début :</label>
             <input
               type="datetime-local"
               name="start_time"
@@ -488,11 +488,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               className={styles.formInputProject}
               required
             />
-            <small style={{ color: '#666', fontStyle: 'italic' }}>Add time if needed</small>
+            <small style={{ color: '#666', fontStyle: 'italic' }}>Ajouter l'heure si nécessaire</small>
           </div>
           
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>End Date:</label>
+            <label className={styles.formLabelProject}>Date de fin :</label>
             <input
               type="datetime-local"
               name="end_time"
@@ -506,7 +506,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               </p>
             ) : (
               <small style={{ color: '#40916c', fontStyle: 'italic' }}>
-                {!endDateManuallyChanged && "3 months after by default"}
+                {!endDateManuallyChanged && "3 mois après par défaut"}
               </small>
             )}
           </div>
@@ -527,7 +527,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               className={styles.checkboxInputProject}
             />
             <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
-              Shareable Link
+              Lien directe
             </label>
           </div>
           
@@ -540,7 +540,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               marginBottom: '20px'
             }}
           >
-            <legend className={styles.fieldsetLegendProject}>Select Circles:</legend>
+            <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
             
             {/* Container for the 'Select All' button */}
             <div className={styles.selectAllContainerProject}>
@@ -558,7 +558,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                   fontSize: '0.9rem'
                 }}
               >
-                {selectedCircles.length === allCircles.length ? "Deselect All" : "Select All"}
+                {selectedCircles.length === allCircles.length ? "Tout désélectionner" : "Tout sélectionner"}
               </button>
             </div>
             
@@ -623,7 +623,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
             >
-              Create Event
+              Créer l'événement
             </button>
           </div>
           </form>

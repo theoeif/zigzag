@@ -91,7 +91,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   // Get day name
   const getDayName = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { weekday: 'short' });
+    return date.toLocaleDateString('fr-FR', { weekday: 'short' });
   };
 
   // Toggle between showing start date and end date
@@ -111,15 +111,15 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   const shareEventLink = async () => {
     try {
       if (event.shareable_link === false) {
-        alert("The host has disabled link sharing for this event");
+        alert("L'hôte a désactivé le partage de lien pour cet événement");
         return;
       }
       const shareUrl = event.public_link || `http://localhost:5173/event/${event.id}`;
       await navigator.clipboard.writeText(shareUrl);
-      alert("Event link copied to clipboard!");
+      alert("Lien de l'événement copié dans le presse-papiers !");
     } catch (error) {
       console.error("Error copying share link:", error);
-      alert("Failed to copy link. Please try again.");
+      alert("Échec de la copie du lien. Veuillez réessayer.");
     }
   };
 
@@ -172,7 +172,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     }
         
     // Pass all circle IDs to the parent handler
-    onViewCircleMembers(allCircleIds, "Project Attendees");
+    onViewCircleMembers(allCircleIds, "Participants du projet");
   };
 
   // Helper to safely render circles
@@ -244,7 +244,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   // Get time display text, accounting for empty time
   const getTimeDisplay = (dateString) => {
     const timeText = formatTimeOnly(dateString);
-    return timeText ? timeText : "All day";
+    return timeText ? timeText : "Toute la journée";
   };
 
   // Function to open Google Maps directly, preferably in the native app if installed
@@ -265,7 +265,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     
     // Verify that we have valid coordinates
     if (latitude && longitude && !isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
-      const addressText = event.address?.address_line || "Event location";
+      const addressText = event.address?.address_line || "Emplacement de l'événement";
       
       // Check if we're on a mobile device
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -299,7 +299,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       }
     } else {
       // If coordinates are not available, try to search by address
-      const address = event.address?.address_line || "Location not available";
+      const address = event.address?.address_line || "Emplacement non disponible";
       const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
       window.open(googleMapsSearchUrl, '_blank');
     }
@@ -452,7 +452,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             onClick={toggleDetails}
             aria-label={showDetails ? "Hide details" : "Show details"}
           >
-            <FaInfoCircle /> Details {showDetails ? <FaChevronUp /> : <FaChevronDown />}
+            <FaInfoCircle /> Détails {showDetails ? <FaChevronUp /> : <FaChevronDown />}
           </button>
         </div>
       </div>
@@ -493,7 +493,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             }}
           >
             <div className={styles.popupTitleWrapper}>
-              <h3 className={styles.modalTitleProject}>Project Details: {event.title}</h3>
+              <h3 className={styles.modalTitleProject}>Détails du projet : {event.title}</h3>
             </div>
             <button onClick={toggleDetails} className={styles.closeButtonProjectEnhanced}>
               ✕
@@ -530,7 +530,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                         {event.address.address_line}
                       </div>
                       <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                        Click to open in Maps
+                        Cliquer pour ouvrir dans Maps
                       </div>
                     </div>
                   </div>
@@ -540,20 +540,20 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             
             <div className={styles.fullDescriptionProject}>
               <strong>Description</strong>
-              <p>{event.description || "No description provided for this event."}</p>
+              <p>{event.description || "Aucune description fournie pour cet événement."}</p>
             </div>
             
             {/* Additional details with icons */}
             <div className={styles.detailsGridProject}>
               <div className={styles.detailItemProject}>
                 <FaCalendarAlt />
-                <span><strong>Start:</strong> {formatFullDate(event.start_time)}</span>
+                <span><strong>Début :</strong> {formatFullDate(event.start_time)}</span>
               </div>
               
               {event.end_time && (
                 <div className={styles.detailItemProject}>
                   <FaClock />
-                  <span><strong>End:</strong> {formatFullDate(event.end_time)}</span>
+                  <span><strong>Fin :</strong> {formatFullDate(event.end_time)}</span>
                 </div>
               )}
               
@@ -562,7 +562,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
               {event.is_public && (
                 <div className={styles.detailItemProject}>
                   {/* Removed FaGlobe */}
-                  <span>This is public</span>
+                  <span>Ceci est public</span>
                 </div>
               )}
               
@@ -583,7 +583,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                     borderBottom: '1px solid #eee',
                     paddingBottom: '5px'
                   }}>
-                    <h4 style={{ margin: '5px 0', fontSize: '1rem' }}>Circles and Invited:</h4>
+                    <h4 style={{ margin: '5px 0', fontSize: '1rem' }}>Cercles et invités :</h4>
                     <span style={{ 
                       color: '#666', 
                       fontSize: '0.9rem',
@@ -591,7 +591,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                       padding: '2px 8px',
                       borderRadius: '12px'
                     }}>
-                      {circleData.length} {circleData.length === 1 ? 'circle' : 'circles'}
+                      {circleData.length} {circleData.length === 1 ? 'cercle' : 'cercles'}
                     </span>
                   </div>
                   
@@ -637,7 +637,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                         }}
                         onClick={() => setShowCirclesDropdown(true)}
                       >
-                        +{circleData.length - 3} more
+                        +{circleData.length - 3} de plus
                       </div>
                     )}
                     
@@ -655,7 +655,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                         }}
                         onClick={() => setShowCirclesDropdown(false)}
                       >
-                        Show less
+                        Afficher moins
                       </div>
                     )}
                   </div>
@@ -664,7 +664,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
               
               {event.categories && event.categories.length > 0 && (
                 <div className={styles.allTagsProject}>
-                  <h4>Tags:</h4>
+                  <h4>Étiquettes :</h4>
                   <div className={styles.tagsGridProject}>
                     {renderTags()}
                   </div>

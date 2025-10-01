@@ -63,7 +63,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
 
   const handleLocalizeAddress = async () => {
     if (!formData.address_line) {
-      setLocalizeError("Please enter an address to localize.");
+      setLocalizeError("Veuillez saisir une adresse à localiser.");
       return;
     }
     const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(formData.address_line)}&key=${OPEN_CAGE_API_KEY}`;
@@ -90,11 +90,11 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
           address_line: formatted
         }));
       } else {
-        setLocalizeError("Address could not be localized. Is it correct?");
+        setLocalizeError("L'adresse n'a pas pu être localisée. Est-elle correcte ?");
       }
     } catch (error) {
       console.error("Localization error:", error);
-      setLocalizeError("An error occurred during localization.");
+      setLocalizeError("Une erreur s'est produite lors de la localisation.");
     }
   };
 
@@ -127,7 +127,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
 
     // Only submit if there are changes
     if (Object.keys(updatedFields).length === 0) {
-      alert("No changes to save");
+      alert("Aucune modification à sauvegarder");
       return;
     }
 
@@ -153,7 +153,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
       if (setIsManageMode) setIsManageMode(false);
       if (setEditMode) setEditMode(null);
 
-      alert("Error updating event: " + (error.response?.data?.detail || error.message || "Unknown error"));
+      alert("Erreur lors de la mise à jour de l'événement : " + (error.response?.data?.detail || error.message || "Erreur inconnue"));
       onClose();
     }
   };
@@ -179,7 +179,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
           }}
         >
           <div className={styles.popupTitleWrapper}>
-            <h3 className={styles.modalTitleProject}>Edit</h3>
+            <h3 className={styles.modalTitleProject}>Modifier</h3>
           </div>
           <button onClick={handleCloseForm} className={styles.closeButtonProjectEnhanced}>
             ✕
@@ -197,20 +197,20 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             }}
           >
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Description:</label>
+            <label className={styles.formLabelProject}>Description :</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               className={styles.formTextareaProject}
               rows="4"
-              placeholder="Enter event description"
+              placeholder="Saisir la description de l'événement"
             />
           </div>
 
           <div className={styles.formGroupProject}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label className={styles.formLabelProject}>Address:</label>
+              <label className={styles.formLabelProject}>Adresse :</label>
               <button
                 type="button"
                 onClick={handleClearAddress}
@@ -223,7 +223,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                   cursor: 'pointer'
                 }}
               >
-                Clear
+                Effacer
               </button>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -234,7 +234,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                 onChange={handleInputChange}
                 className={styles.formInputProject}
                 style={{ flexGrow: 1 }}
-                placeholder="Enter address or leave empty to remove"
+                placeholder="Saisir l'adresse ou laisser vide pour supprimer"
               />
               <button
                 type="button"
@@ -252,16 +252,16 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                   opacity: formData.address_line && !removeAddress ? 1 : 0.7
                 }}
               >
-                Localize
+                Localiser
               </button>
             </div>
 
             {formData.address_line && addressModified && !localizedAddress && !removeAddress && (
-              <p className={styles.warningTextProject}>Address changed - needs localization</p>
+              <p className={styles.warningTextProject}>Adresse modifiée - nécessite une localisation</p>
             )}
             {removeAddress && (
               <p style={{ fontSize: '0.9rem', color: '#2d6a4f', marginTop: '5px' }}>
-                Address will be removed when you update the event
+                L'adresse sera supprimée lors de la mise à jour de l'événement
               </p>
             )}
           </div>
@@ -300,7 +300,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
                   </span>
-                  <strong style={{ fontSize: '0.95rem' }}>Localized Address</strong>
+                  <strong style={{ fontSize: '0.95rem' }}>Adresse localisée</strong>
                 </div>
               </div>
               <p style={{ margin: '2px 0' }}>{localizedAddress.address_line}</p>
@@ -343,7 +343,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
             >
-              Update Project
+              Mettre à jour le projet
             </button>
           </div>
           </form>
