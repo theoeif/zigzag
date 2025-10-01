@@ -82,7 +82,7 @@ const FilterMenu = ({
             />
           </svg>
         </button>
-        <h2>Filters</h2>
+        <h2>Filtres</h2>
       </div>
 
       {/* Location Search Section - Moved to top */}
@@ -91,7 +91,7 @@ const FilterMenu = ({
           <svg xmlns="http://www.w3.org/2000/svg" className="section-icon" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
           </svg>
-          <h3>Location Search</h3>
+          <h3>localisation</h3>
         </div>
         <div className="geo-search-wrapper">
           <GeoSearch
@@ -128,14 +128,14 @@ const FilterMenu = ({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
-          <h3>Visibility</h3>
+          <h3>Visibilité</h3>
         </div>
         
         <div className="toggle-group">
           <div className="toggle-label">
             <div className="label-with-icon">
-              Show Projects
-              <div className="info-icon" title="Toggle visibility of project markers on the map">
+              Projets
+              <div className="info-icon" title="Visibilité des marqueurs de projets sur la carte">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -157,8 +157,8 @@ const FilterMenu = ({
         <div className="toggle-group">
           <div className="toggle-label">
             <div className="label-with-icon">
-              Show Friends locations
-              <div className="info-icon" title="Toggle visibility of friend locations on the map">
+              Autres lieux
+              <div className="info-icon" title="Visibilité de lieux sur la carte">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -182,8 +182,8 @@ const FilterMenu = ({
         <div className="toggle-group">
           <div className="toggle-label">
             <div className="label-with-icon">
-              Cluster Markers
-              <div className="info-icon" title="Toggle clustering of nearby markers">
+              Regroupement
+              <div className="info-icon" title="Regroupement des marqueurs proches entre eux">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -211,7 +211,7 @@ const FilterMenu = ({
             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
             <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
           </svg>
-          <h3>My Tags</h3>
+          <h3>Tags</h3>
         </div>
         <div className="tag-grid">
           {tags.map((tag) => (
