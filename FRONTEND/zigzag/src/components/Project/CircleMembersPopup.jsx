@@ -68,8 +68,8 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
             <FaUserFriends className={styles.popupHeaderIcon} />
             <h3>
               {isMultiCircle 
-                ? `${circleIds.length} Circles` 
-                : `${circleName || 'Circle'}`}
+                ? `${circleIds.length} Cercles` 
+                : `${circleName || 'Cercle'}`}
             </h3>
           </div>
           <button onClick={onClose} className={styles.closeButtonProject}>
@@ -80,25 +80,25 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           {loading ? (
             <div className={styles.loadingContainerProject}>
               <div className={styles.loadingSpinnerProjectNoAnimation}></div>
-              <p>Loading guests...</p>
+              <p>Chargement des invités...</p>
             </div>
           ) : error ? (
             <div className={styles.errorContainerProject}>
-              <p>Error: {error}</p>
-              <p>Please try again later.</p>
+              <p>Erreur : {error}</p>
+              <p>Veuillez réessayer plus tard.</p>
             </div>
           ) : members.length === 0 ? (
             <div className={styles.noMembersContainerProject}>
               <FaUserAlt className={styles.noMembersIcon} />
-              <p>No guests found in {isMultiCircle ? 'these circles' : 'this circle'}</p>
+              <p>Aucun invité trouvé dans {isMultiCircle ? 'ces cercles' : 'ce cercle'}</p>
             </div>
           ) : (
             <>
               <div className={styles.memberCountProject}>
-                <span>{members.length} guest{members.length !== 1 ? 's' : ''}</span>
+                <span>{members.length} invité{members.length !== 1 ? 's' : ''}</span>
                 {isMultiCircle && (
                   <span className={styles.circleGroupLabel}> 
-                    from {circleIds.length} circles
+                    de {circleIds.length} cercles
                   </span>
                 )}
               </div>
