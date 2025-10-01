@@ -131,43 +131,69 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   };
 
   const handleWeek = (week) => {
-    setTimeRange([week.daysFromNow, week.daysFromNow + 7]);
+    // Calculate the duration of this specific week
+    const weekDuration = Math.ceil((week.end - week.start) / 86400000) + 1; // +1 for inclusive end
+    setTimeRange([week.daysFromNow, week.daysFromNow + weekDuration]);
   };
 
   const getWeeks = () => {
     const weeks = [];
     const today = new Date();
     
-    // Find the start of the current week (Monday)
-    const currentMonday = new Date(today);
-    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday (0) to get previous Monday
-    currentMonday.setDate(today.getDate() + daysToMonday);
+    // Special initialization for the first week: current day to Sunday
+    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek; // Days until next Sunday
     
-    let found = 0;
-    // Start from -7 days to include the current week even if it started before today
-    for (let i = -7; i < maxRange && found < 4; i += 7) {
-      const weekStart = new Date(currentMonday);
-      weekStart.setDate(currentMonday.getDate() + i);
+    // First week: from today to Sunday
+    const firstWeekStart = new Date(today);
+    firstWeekStart.setHours(0, 1, 0, 0);
+    const firstWeekEnd = new Date(today);
+    firstWeekEnd.setDate(today.getDate() + daysToSunday);
+    firstWeekEnd.setHours(23, 59, 0, 0);
+    
+    // Calculate days from today to first week start (today)
+    const firstWeekDaysFromNow = 0;
+    
+    // Calculate the actual position of the Sunday button for the first week
+    const firstWeekSundayPosition = Math.ceil((firstWeekEnd - today) / 86400000);
+    
+    weeks.push({
+      start: new Date(firstWeekStart),
+      end: new Date(firstWeekEnd),
+      daysFromNow: firstWeekDaysFromNow,
+      // Position button at the END of the week (Sunday)
+      buttonPosition: firstWeekSundayPosition
+    });
+    
+    // Subsequent weeks: Monday to Sunday
+    let found = 1; // We already have the first week
+    const maxWeeks = Math.ceil(maxRange / 7); // Calculate max weeks based on range
+    
+    for (let weekIndex = 1; weekIndex < maxWeeks && found < 8; weekIndex++) {
+      // Calculate the Monday of this week
+      const weekMonday = new Date(today);
+      const daysToNextMonday = daysToSunday + 1 + (weekIndex - 1) * 7; // Monday after the first week's Sunday
+      weekMonday.setDate(today.getDate() + daysToNextMonday);
+      weekMonday.setHours(0, 1, 0, 0);
       
-      // Set week start at Monday 00:01
-      weekStart.setHours(0, 1, 0, 0);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6); // Sunday (6 days after Monday)
-      // Set week end at Sunday 23:59
-      weekEnd.setHours(23, 59, 0, 0);
+      const weekSunday = new Date(weekMonday);
+      weekSunday.setDate(weekMonday.getDate() + 6); // Sunday (6 days after Monday)
+      weekSunday.setHours(23, 59, 0, 0);
       
       // Calculate days from today to this Monday
-      const daysFromNow = Math.ceil((weekStart - today) / 86400000);
+      const daysFromNow = Math.ceil((weekMonday - today) / 86400000);
       
-      // Include weeks that are within our range (including current week even if it started before today)
-      if (daysFromNow >= -7 && daysFromNow < maxRange) {
+      // Only include weeks that are within our range
+      if (daysFromNow >= 0 && daysFromNow < maxRange) {
+        // Calculate the actual position of the Sunday button
+        const sundayPosition = Math.ceil((weekSunday - today) / 86400000);
+        
         weeks.push({
-          start: new Date(weekStart),
-          end: new Date(weekEnd),
+          start: new Date(weekMonday),
+          end: new Date(weekSunday),
           daysFromNow: daysFromNow,
-          // Position button at the END of the week (Sunday 23:59)
-          buttonPosition: daysFromNow + 6 // 6 days after Monday = Sunday
+          // Position button at the END of the week (Sunday) - use actual Sunday position
+          buttonPosition: sundayPosition
         });
         found++;
       }
@@ -762,10 +788,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                   }
                 }
               }}
-              onClick={() => setTimeRange([week.daysFromNow, week.daysFromNow + 7])}
+              onClick={() => handleWeek(week)}
             >
               <Box sx={{ width: '100%', height: '100%', bgcolor: 'inherit' }} />
-              <Tooltip title="View week">
+              <Tooltip title="View Week">
                 <IconButton
                   sx={{
                     position: 'absolute',
