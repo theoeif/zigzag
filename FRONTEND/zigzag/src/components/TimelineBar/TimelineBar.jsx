@@ -23,7 +23,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     if (initialRange && initialRange.end) {
       return new Date(initialRange.end);
     }
-    // Default: current date + 1 month
+    // Default: current date + 1 month (one month range)
     const endDate = new Date(currentDate);
     endDate.setMonth(currentDate.getMonth() + 1);
     return endDate;
@@ -39,7 +39,16 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       // Use exact date diffing to avoid rounding issues
       return Math.round((end - start) / 86400000);
     }
-    return Math.ceil((initialEndDate - currentDate) / 86400000);
+    // For default range, calculate days from current date to end of next month
+    const diffMs = initialEndDate.getTime() - currentDate.getTime();
+    const daysDiff = Math.round(diffMs / 86400000);
+    console.log('TimelineBar: Calculating days difference:', {
+      currentDate: currentDate.toLocaleDateString(),
+      initialEndDate: initialEndDate.toLocaleDateString(),
+      diffMs,
+      daysDiff
+    });
+    return daysDiff;
   };
   
   // Calculate initial start day offset from current date
@@ -64,13 +73,146 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   ]);
 
   // Update timeRange when initialRange changes to ensure we sync with parent state
+  // But only if the user hasn't explicitly moved the timeline
+  const [userHasMovedTimeline, setUserHasMovedTimeline] = useState(() => {
+    // Check if user has moved timeline in a previous session
+    const hasMoved = localStorage.getItem('timelineUserMoved') === 'true';
+    const hasTimelineState = localStorage.getItem('timelineState') !== null;
+    const shouldPreserveState = hasMoved || hasTimelineState;
+    console.log('TimelineBar: Initializing userHasMovedTimeline from localStorage:', {
+      hasMoved,
+      hasTimelineState,
+      shouldPreserveState
+    });
+    return shouldPreserveState;
+  });
+  
+  // Use localStorage to persist whether we've processed the initial range
+  const hasProcessedInitialRange = useRef(() => {
+    return localStorage.getItem('timelineProcessedInitial') === 'true';
+  });
+  
   useEffect(() => {
-    if (initialRange && initialRange.start && initialRange.end) {
+    // Only update timeline from initialRange if:
+    // 1. User has never moved the timeline (userHasMovedTimeline is false)
+    // 2. We haven't processed the initial range yet
+    // 3. This is the first time the component mounts (not a re-mount from marker click)
+    if (initialRange && initialRange.start && initialRange.end && !userHasMovedTimeline && !hasProcessedInitialRange.current()) {
       const startDay = getInitialStartDay();
       const daysDifference = getInitialDaysDifference();
+      console.log('TimelineBar: Updating timeRange from initialRange:', {
+        initialRange,
+        startDay,
+        daysDifference,
+        userHasMovedTimeline,
+        newTimeRange: [startDay, startDay + daysDifference]
+      });
       setTimeRange([startDay, startDay + daysDifference]);
+      localStorage.setItem('timelineProcessedInitial', 'true');
+    } else if (userHasMovedTimeline) {
+      console.log('TimelineBar: Skipping initialRange update - user has moved timeline');
+    } else if (hasProcessedInitialRange.current()) {
+      console.log('TimelineBar: Skipping initialRange update - already processed');
     }
-  }, [initialRange?.start?.getTime(), initialRange?.end?.getTime()]);
+  }, [initialRange?.start?.getTime(), initialRange?.end?.getTime(), userHasMovedTimeline]);
+
+  // Function to save timeline state to localStorage
+  const saveTimelineState = (timeRangeValue) => {
+    const now = Date.now();
+    
+    // Calculate the actual dates for debugging
+    const start = new Date(currentDate);
+    start.setHours(0, 1, 0, 0);
+    start.setDate(currentDate.getDate() + timeRangeValue[0]);
+    
+    const end = new Date(currentDate);
+    end.setHours(23, 59, 0, 0);
+    end.setDate(currentDate.getDate() + Math.max(timeRangeValue[1] - 1, timeRangeValue[0]));
+    
+    const state = {
+      timeRange: timeRangeValue,
+      timestamp: now,
+      actualDates: {
+        start: start.toISOString(),
+        end: end.toISOString(),
+        startFormatted: start.toLocaleDateString(),
+        endFormatted: end.toLocaleDateString()
+      }
+    };
+    localStorage.setItem('timelineState', JSON.stringify(state));
+    console.log('TimelineBar: Saved timeline state:', state);
+  };
+
+  // Function to reset timeline state (useful for debugging)
+  const resetTimelineState = () => {
+    localStorage.removeItem('timelineUserMoved');
+    localStorage.removeItem('timelineProcessedInitial');
+    localStorage.removeItem('timelineState');
+    setUserHasMovedTimeline(false);
+    setHasRestoredState(false);
+    console.log('TimelineBar: Reset timeline state');
+  };
+
+  // Restore timeline state from localStorage on mount (only once)
+  const [hasRestoredState, setHasRestoredState] = useState(false);
+  
+  useEffect(() => {
+    if (hasRestoredState) return; // Only restore once
+    
+    const savedState = localStorage.getItem('timelineState');
+    if (savedState && userHasMovedTimeline) {
+      try {
+        const parsedState = JSON.parse(savedState);
+        console.log('TimelineBar: Restoring timeline state from localStorage:', parsedState);
+        
+        // Only restore if the saved state is recent (within last 5 minutes)
+        const now = Date.now();
+        const stateAge = now - parsedState.timestamp;
+        const maxAge = 5 * 60 * 1000; // 5 minutes
+        
+        if (stateAge < maxAge && parsedState.timeRange && Array.isArray(parsedState.timeRange)) {
+          console.log('TimelineBar: Restoring recent timeline state:', {
+            timeRange: parsedState.timeRange,
+            stateAge: Math.round(stateAge / 1000) + 's ago',
+            currentTimeRange: timeRange,
+            savedActualDates: parsedState.actualDates
+          });
+          
+          setTimeRange(parsedState.timeRange);
+          setHasRestoredState(true);
+          console.log('TimelineBar: Applied restored timeline state');
+        } else {
+          console.log('TimelineBar: Ignoring old timeline state:', {
+            stateAge: Math.round(stateAge / 1000) + 's ago',
+            maxAge: Math.round(maxAge / 1000) + 's'
+          });
+          setHasRestoredState(true);
+        }
+      } catch (error) {
+        console.error('TimelineBar: Error parsing saved timeline state:', error);
+        setHasRestoredState(true);
+      }
+    } else {
+      setHasRestoredState(true);
+    }
+  }, [userHasMovedTimeline, hasRestoredState]);
+
+  // Expose reset function globally for debugging
+  useEffect(() => {
+    window.resetTimelineState = resetTimelineState;
+    return () => {
+      delete window.resetTimelineState;
+    };
+  }, []);
+
+  // Clear localStorage when component unmounts to allow fresh start
+  useEffect(() => {
+    return () => {
+      // Don't clear on unmount, let it persist across sessions
+      // localStorage.removeItem('timelineUserMoved');
+      // localStorage.removeItem('timelineProcessedInitial');
+    };
+  }, []);
 
   const [maxRange, setMaxRange] = useState(Math.max(initialDaysDifference, 35)); // Ensure a minimum range of ~5 weeks to accommodate all week buttons
   const [selectedDate, setSelectedDate] = useState('');
@@ -125,12 +267,21 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   };
 
   const handleAllTime = () => {
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
     const endDays = 365 * 10;
     setMaxRange(endDays);
     setTimeRange([0, endDays]);
+    
+    // Save timeline state immediately
+    saveTimelineState([0, endDays]);
   };
 
   const handleWeek = (week) => {
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
     // Use the actual button position as the end of the week (Sunday)
     setTimeRange([week.daysFromNow, week.buttonPosition]);
   };
@@ -209,6 +360,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
 
   // Modified: This Week now shows Monday to Sunday
   const handleThisWeek = () => {
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
     const tenYearsDays = 365 * 10;
     // If currently in "All Time" mode (10 years), reset to one-month reference.
     if (maxRange === tenYearsDays) {
@@ -232,6 +386,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   };
   
   const handleAllPeriod = () => {
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
     const endDate = new Date(currentDate);
     endDate.setMonth(currentDate.getMonth() + 1);
     const daysDifference = Math.ceil((endDate - currentDate) / 86400000);
@@ -303,6 +460,14 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       draggedThumb,
       dragStartRange
     });
+
+    // Mark that user has moved the timeline and reset the processed flag
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
+    
+    // Save timeline state immediately
+    saveTimelineState(newValue);
     
     if (isSliderDragging && draggedThumb === 'left') {
       // Only modify the left edge (start), keep right edge fixed
@@ -324,6 +489,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   // Update parent on range change, with debounce to reduce excessive updates
   const [lastUpdateTime, setLastUpdateTime] = useState(0);
   useEffect(() => {
+    // Don't send updates while we're restoring state
+    if (!hasRestoredState) return;
+    
     const now = Date.now();
     // Limit updates to once every 50ms to avoid excessive callbacks
     if (now - lastUpdateTime > 50) {
@@ -336,10 +504,32 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       end.setHours(23, 59, 0, 0);
       end.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
       
+      console.log('TimelineBar: Sending time change to parent:', {
+        timeRange,
+        start: start.toLocaleDateString(),
+        end: end.toLocaleDateString(),
+        userHasMovedTimeline,
+        hasRestoredState,
+        calculation: {
+          startDay: timeRange[0],
+          endDay: timeRange[1],
+          startDate: start.toISOString(),
+          endDate: end.toISOString()
+        }
+      });
+      
+      // Save timeline state to localStorage for persistence
+      localStorage.setItem('timelineState', JSON.stringify({
+        timeRange,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        timestamp: now
+      }));
+      
       onTimeChange({ start, end });
       setLastUpdateTime(now);
     }
-  }, [timeRange, currentDate, onTimeChange, lastUpdateTime]);
+  }, [timeRange, currentDate, onTimeChange, lastUpdateTime, userHasMovedTimeline, hasRestoredState]);
 
   // Unified handler to compute day offset based on pointer clientX
   const updateRangeFromClientX = (clientX) => {
@@ -374,6 +564,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       }
     }
 
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
     setTimeRange([newStart, newEnd]);
   };
 
@@ -613,6 +806,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     newStart = Math.max(0, newStart);
     newEnd = Math.min(maxRange, newEnd);
     
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
     setTimeRange([newStart, newEnd]);
   };
 
@@ -657,6 +853,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     newStart = Math.max(0, newStart);
     newEnd = Math.min(maxRange, newEnd);
     
+    setUserHasMovedTimeline(true);
+    localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
     setTimeRange([newStart, newEnd]);
   };
 
@@ -905,6 +1104,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               type="date"
               value={selectedDate}
               onChange={(e) => {
+                setUserHasMovedTimeline(true);
+                localStorage.setItem('timelineUserMoved', 'true');
+    localStorage.setItem('timelineProcessedInitial', 'false');
                 const date = new Date(e.target.value);
                 const diffDays = Math.ceil((date - currentDate) / 86400000);
                 // Select a full single day (inclusive end)
