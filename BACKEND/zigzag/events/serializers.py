@@ -16,6 +16,19 @@ class CircleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Circle
         fields = ['id', 'name', 'creator', 'categories', 'tags']
+    
+    def update(self, instance, validated_data):
+        # Handle categories (tags) update
+        if 'categories' in validated_data:
+            categories_data = validated_data.pop('categories')
+            instance.categories.set(categories_data)
+        
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance
 
 class EventSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=False, read_only=True)

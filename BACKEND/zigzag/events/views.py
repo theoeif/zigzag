@@ -199,11 +199,22 @@ class EventViewSet(viewsets.ModelViewSet):
         user_circles = Circle.objects.filter(members=user)
 
         events = Event.objects.filter(Q(creator=user) | Q(circles__in=user_circles)).distinct()
-        if tags_param:
+        
+        # If tags are provided, filter by circle categories
+        if tags_param and len(tags_param) > 0:
             events = events.filter(circles__categories__id__in=tags_param).distinct()
 
-        markers = [
-            {
+        markers = []
+        for e in events.select_related("address").prefetch_related("circles__categories"):
+            # Get all tags from all circles associated with this event
+            event_tags = []
+            for circle in e.circles.all():
+                event_tags.extend([tag.name for tag in circle.categories.all()])
+            
+            # Remove duplicates
+            event_tags = list(set(event_tags))
+            
+            markers.append({
                 "id": e.id,
                 "title": e.title,
                 "lat": e.address.latitude if e.address else None,
@@ -211,9 +222,8 @@ class EventViewSet(viewsets.ModelViewSet):
                 "description": e.description,
                 "start_date": e.start_time,
                 "end_date": e.end_time,
-            }
-            for e in events.select_related("address")
-        ]
+                "tags": event_tags,
+            })
     
         return Response({"private_markers": markers}, status=status.HTTP_200_OK)
 

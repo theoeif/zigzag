@@ -20,8 +20,6 @@ const FilterMenu = ({
   handleTagSelection,
   closeMenu,
   setSelectedLocation,
-  showAddresses,
-  setShowAddresses,
   showProjects,
   setShowProjects,
   showFriendLocations,

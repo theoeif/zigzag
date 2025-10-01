@@ -270,12 +270,16 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
                     sx={{ 
                       m: 0.5,
                       borderRadius: '16px',
-                      backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.2)' : undefined,
-                      fontWeight: isSelected ? 'bold' : 'normal',
-                      transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                      backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.15)' : undefined,
+                      color: isSelected ? '#1976d2' : 'inherit',
+                      fontWeight: isSelected ? '600' : 'normal',
+                      transform: isSelected ? 'scale(1.02)' : 'scale(1)',
                       transition: 'all 0.2s ease',
+                      border: isSelected ? '2px solid #1976d2' : '1px solid #e0e0e0',
+                      boxShadow: isSelected ? '0 1px 4px rgba(25, 118, 210, 0.2)' : 'none',
                       '&:hover': {
-                        backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.08)',
+                        backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.2)' : 'rgba(0, 0, 0, 0.08)',
+                        transform: isSelected ? 'scale(1.03)' : 'scale(1.02)',
                       }
                     }}
                   />
@@ -387,7 +391,22 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
 
   const handleUpdateTags = async (updatedData) => {
     try {
-      const updatedCircle = await updateCircle(circle.id, updatedData);
+      // updatedData contains the tags array with tag names
+      // We need to convert tag names to tag IDs for the backend
+      const tagNames = updatedData.tags;
+      
+      // Get all available tags to find their IDs
+      const allTags = await fetchMyTags();
+      const tagIds = tagNames.map(tagName => {
+        const tag = allTags.find(t => t.name === tagName);
+        return tag ? tag.id : null;
+      }).filter(id => id !== null);
+      
+      const updatePayload = {
+        categories: tagIds
+      };
+      
+      const updatedCircle = await updateCircle(circle.id, updatePayload);
       
       // Update local state immediately for better UX
       setLocalCircle({
@@ -451,9 +470,13 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                       variant="outlined"
                       sx={{ 
                         borderRadius: '16px',
-                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                        backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                        color: '#1976d2',
+                        fontWeight: '600',
+                        border: '1px solid #1976d2',
+                        boxShadow: '0 1px 2px rgba(25, 118, 210, 0.15)',
                         '& .MuiChip-icon': {
-                          color: 'primary.main',
+                          color: '#1976d2',
                         }
                       }}
                     />
