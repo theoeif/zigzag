@@ -36,12 +36,19 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Timeline visibility state - default to visible
   const [showTimelineBar, setShowTimelineBar] = useState(true);
   
+  // Track if timeline has been initialized to prevent resets
+  const [timelineInitialized, setTimelineInitialized] = useState(false);
+  
   // Single source of truth for timeframe
   const [timeframe, setTimeframe] = useState(() => {
-    // Default: current date to current date + 3 months
+    // Default: current date to current date + 1 month (one month range)
     const start = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 1);
+    console.log('MarkersMap: Initial timeframe set:', {
+      start: start.toLocaleDateString(),
+      end: end.toLocaleDateString()
+    });
     return { start, end };
   });
 
@@ -716,7 +723,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               </svg>
               ${markerData.address_line}
             </div>` : ''}
-            ${markerData.tags && markerData.tags.length ? `<div class="tooltip-tags">${markerData.tags.map(tag => `<span class="tooltip-tag">${tag}</span>`).join('')}</div>` : ''}
+            ${markerData.tags && markerData.tags.length ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">${markerData.tags.map(tag => `<span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${tag}</span>`).join('')}</div>` : ''}
             ${markerData.description ? `<div class="tooltip-description">${markerData.description.substring(0, 50)}${markerData.description.length > 50 ? '...' : ''}</div>` : ''}
           </div>
         `, {
@@ -727,6 +734,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
         
         marker.on("click", () => {
+          console.log('MarkersMap: Close project marker clicked:', {
+            id: markerData.id,
+            title: markerData.title,
+            coordinates: { lat: markerData.lat, lng: markerData.lng }
+          });
           navigate(`/event/${markerData.id}`, {
             state: {
               mapState: {
@@ -768,7 +780,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               </svg>
               ${markerData.address_line}
             </div>` : ''}
-            ${markerData.tags && markerData.tags.length ? `<div class="tooltip-tags">${markerData.tags.map(tag => `<span class="tooltip-tag">${tag}</span>`).join('')}</div>` : ''}
+            ${markerData.tags && markerData.tags.length ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">${markerData.tags.map(tag => `<span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${tag}</span>`).join('')}</div>` : ''}
             ${markerData.description ? `<div class="tooltip-description">${markerData.description.substring(0, 50)}${markerData.description.length > 50 ? '...' : ''}</div>` : ''}
           </div>
         `, {
@@ -779,6 +791,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
         
         marker.on("click", () => {
+          console.log('MarkersMap: Normal project marker clicked:', {
+            id: markerData.id,
+            title: markerData.title,
+            coordinates: { lat: markerData.lat, lng: markerData.lng }
+          });
           navigate(`/event/${markerData.id}`, {
             state: {
               mapState: {
@@ -830,7 +847,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               </svg>
               ${markerData.address_line}
             </div>` : ''}
-            ${markerData.label && markerData.label !== markerData.address_line ? `<div class="tooltip-tags"><span class="tooltip-tag">${markerData.label}</span></div>` : ''}
+            ${markerData.label && markerData.label !== markerData.address_line ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;"><span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${markerData.label}</span></div>` : ''}
           </div>
         `, {
           direction: "top",
@@ -892,7 +909,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               </svg>
               ${markerData.address_line}
             </div>` : ''}
-            ${markerData.label && markerData.label !== markerData.address_line ? `<div class="tooltip-tags"><span class="tooltip-tag">${markerData.label}</span></div>` : ''}
+            ${markerData.label && markerData.label !== markerData.address_line ? `<div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;"><span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">${markerData.label}</span></div>` : ''}
           </div>
         `, {
           direction: "top",
@@ -1069,7 +1086,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       const lng = mapState.lng || mapState.center?.lng;
       const zoom = mapState.zoom || 15;
       if (lat && lng) {
-        // console.log("MarkersMap: Updating map view from mapState:", { lat, lng, zoom });
+        console.log("MarkersMap: Updating map view from mapState:", { lat, lng, zoom });
         mapRef.current.setView([lat, lng], zoom);
       }
     }
@@ -1088,11 +1105,32 @@ const MarkersMap = ({ eventCoordinates = null }) => {
    * Expects an object with { start: Date, end: Date }.
    */
   const handleTimelineTimeChange = useCallback((range) => {
+    console.log('MarkersMap: Timeline time change received:', {
+      start: range.start,
+      end: range.end,
+      startString: range.start.toLocaleDateString(),
+      endString: range.end.toLocaleDateString(),
+      timelineInitialized
+    });
+    
+    // Mark timeline as initialized when user interacts with it
+    if (!timelineInitialized) {
+      setTimelineInitialized(true);
+    }
+    
     setTimeframe({
       start: new Date(range.start),
       end: new Date(range.end)
     });
-  }, []);
+  }, [timelineInitialized]);
+
+  // Initialize timeline on mount
+  useEffect(() => {
+    if (!timelineInitialized) {
+      console.log('MarkersMap: Initializing timeline with default timeframe');
+      setTimelineInitialized(true);
+    }
+  }, [timelineInitialized]);
 
   // Fetch friend locations when component mounts
   useEffect(() => {
@@ -1106,9 +1144,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     refreshMarkersForSelectedTags();
   }, [isConnected]);
 
-  // Center map on event coordinates when provided
+  // Center map on event coordinates when provided (but don't affect timeline)
   useEffect(() => {
     if (eventCoordinates && mapRef.current && eventCoordinates.lat && eventCoordinates.lng) {
+      console.log('MarkersMap: Centering map on event coordinates:', eventCoordinates);
+      // Only center the map view, don't trigger any timeline updates
       mapRef.current.setView([eventCoordinates.lat, eventCoordinates.lng], 15);
     }
   }, [eventCoordinates]);
