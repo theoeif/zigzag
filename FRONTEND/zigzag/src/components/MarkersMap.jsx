@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/leaflet.markercluster.js";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-leaflet";
+import { MAPTILER_API_KEY } from "../config";
 
 import { fetchMarkers, fetchMyTags, persistSelectedTags, fetchMyLocations } from "../api/api";
 import { 
@@ -271,7 +272,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
     L.maplibreGL({
       style:
-        "https://api.maptiler.com/maps/bfa91191-2835-4a0f-bd76-4648f1cb605d/style.json?key=hVSqRZHg5xYCcDG9cAPg",
+        `https://api.maptiler.com/maps/bfa91191-2835-4a0f-bd76-4648f1cb605d/style.json?key=${MAPTILER_API_KEY}`,
     }).addTo(map);
 
     // Prevent world wrapping - set max bounds to the world
