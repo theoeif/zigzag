@@ -358,7 +358,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     return weeks;
   };
 
-  // Modified: This Week now shows Monday to Sunday
+  // Modified: This Week now behaves like Semaine 1 button (today to Sunday)
   const handleThisWeek = () => {
     setUserHasMovedTimeline(true);
     localStorage.setItem('timelineUserMoved', 'true');
@@ -372,17 +372,16 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       setMaxRange(daysDifference);
     }
     
-    // Calculate Monday of current week
-    const currentMonday = new Date(currentDate);
-    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday (0) to get previous Monday
-    currentMonday.setDate(currentDate.getDate() + daysToMonday);
+    // Use the same logic as the first week in getWeeks(): today to Sunday
+    const currentDayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek; // Days until next Sunday
     
-    // Calculate days from today to this Monday
-    const daysToCurrentMonday = Math.ceil((currentMonday - currentDate) / 86400000);
+    // First week: from today to Sunday (same as Semaine 1)
+    const firstWeekDaysFromNow = 0;
+    const firstWeekSundayPosition = firstWeekDaysFromNow + daysToSunday;
     
-    // Set range from Monday to Sunday (7 days)
-    setTimeRange([daysToCurrentMonday, daysToCurrentMonday + 7]);
+    // Set range from today to Sunday (same as clicking Semaine 1 button)
+    setTimeRange([firstWeekDaysFromNow, firstWeekSundayPosition]);
   };
   
   const handleAllPeriod = () => {
