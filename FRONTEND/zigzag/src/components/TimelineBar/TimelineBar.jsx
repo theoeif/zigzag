@@ -307,20 +307,16 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     if (isSliderDragging && draggedThumb === 'left') {
       // Only modify the left edge (start), keep right edge fixed
       const newStart = Math.max(0, Math.min(newValue[0], dragStartRange[1] - 1));
-      console.log('LEFT EDGE DRAG - newStart:', newStart, 'keeping end:', dragStartRange[1]);
       setTimeRange([newStart, dragStartRange[1]]);
     } else if (isSliderDragging && draggedThumb === 'right') {
       // Only modify the right edge (end), keep left edge fixed
       const newEnd = Math.min(maxRange, Math.max(newValue[1], dragStartRange[0] + 1));
-      console.log('RIGHT EDGE DRAG - newEnd:', newEnd, 'keeping start:', dragStartRange[0]);
       setTimeRange([dragStartRange[0], newEnd]);
     } else if (isSliderDragging) {
       // If we're dragging but don't have a specific mode, use the newValue as-is
-      console.log('SLIDER DRAG - using newValue:', newValue);
       setTimeRange(newValue);
     } else {
       // Default behavior - move both extremities (for programmatic changes)
-      console.log('PROGRAMMATIC CHANGE - using newValue:', newValue);
       setTimeRange(newValue);
     }
   };
@@ -328,7 +324,6 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   // Update parent on range change, with debounce to reduce excessive updates
   const [lastUpdateTime, setLastUpdateTime] = useState(0);
   useEffect(() => {
-    console.log('TimeRange state changed:', timeRange);
     const now = Date.now();
     // Limit updates to once every 50ms to avoid excessive callbacks
     if (now - lastUpdateTime > 50) {
