@@ -1,8 +1,7 @@
 
 
 # required token to make the app works
-/FRONTEND/zigzag/src/config.js
-config.*
+config.js
 
 # external libraries
 # External NODE libraries
