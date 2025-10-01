@@ -219,6 +219,7 @@ class EventViewSet(viewsets.ModelViewSet):
                 "title": e.title,
                 "lat": e.address.latitude if e.address else None,
                 "lng": e.address.longitude if e.address else None,
+                "address_line": e.address.address_line if e.address else None,
                 "description": e.description,
                 "start_date": e.start_time,
                 "end_date": e.end_time,
