@@ -10,7 +10,6 @@ Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
 
 - The project is almost live and close to production readines : [App Link](https://duckduckgo.com)
   
-Un zigzag est une ligne brisée formant des angles alternativement saillants et rentrants.
 
 # 🔧 Project Setup
 
