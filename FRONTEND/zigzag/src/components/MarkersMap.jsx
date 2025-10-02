@@ -272,7 +272,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
     L.maplibreGL({
       style:
-        `https://api.maptiler.com/maps/bfa91191-2835-4a0f-bd76-4648f1cb605d/style.json?key=${MAPTILER_API_KEY}`,
+        `https://api.maptiler.com/maps/0199a425-b17a-78e9-9d91-e1123d890474/style.json?key=${MAPTILER_API_KEY}`,
     }).addTo(map);
 
     // Prevent world wrapping - set max bounds to the world
