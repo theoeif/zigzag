@@ -5,8 +5,11 @@
 The Zig Zag project is a web application that lets users explore markers on an interactive map. 
 - The backend is built with Django 4.2, while the frontend uses the React framework Vite.
 - The base maps are vector tiles served by MapTiler. To render those tiles in Leaflet, we use MapLibre GL Leaflet (@maplibre/maplibre-gl-leaflet), a binding that connects MapLibre GL JS to the familiar Leaflet API. This binding was originally developed for Mapbox (mapbox-gl-leaflet) and later migrated to MapLibre after Mapbox changed its license. Finally, leaflet.markercluster is used to group markers efficiently and keep the map readable at different zoom levels.
+  
 Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
+
 - The project is almost live and close to production readines : [App Link](https://duckduckgo.com)
+  
 Un zigzag est une ligne brisée formant des angles alternativement saillants et rentrants.
 
 # 🔧 Project Setup
@@ -79,13 +82,12 @@ Clicking on Profile of people doesn't work
 - View Profile of others.
 - Add a calendar views
 - Make invitation links for people (1 solution : Create "invited Circle" and Hidden from Sidebar)
--  > 300 : 
+-  >300 : 
     - Add Friends relationships :
          - see friends of friends events when Number > 300 : marker and project.
-         - Retrouve list of user on the plateforme instead of friends for now.
+         - Found list of friends insatead of user on the plateform.
     - People could add their circle into a project.
-    - Ok while < 300 : retrouve list of user on the plateforme instead of friends for now.
-    - Introduce some event public when Number > 1000 
+    - Introduce some public event when Number > 1000 
 
 
 # Credits and references
