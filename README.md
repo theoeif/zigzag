@@ -80,7 +80,7 @@ Clicking on Profile of people doesn't work
 - View Profile of others.
 - Add a calendar views
 - Make invitation links for people (1 solution : Create "invited Circle" and Hidden from Sidebar)
--  >300 : 
+-  \>300 : 
     - Add Friends relationships :
          - see friends of friends events when Number > 300 : marker and project.
          - Found list of friends insatead of user on the plateform.
