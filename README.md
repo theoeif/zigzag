@@ -75,9 +75,8 @@ Clicking on Profile of people doesn't work
 
 [Issue Link Creation](https://github.com/theoeif/zigzag/issues/new?body=%23%23%20Actual%20Behavior%0D%0D%0D%23%23%20Expected%20Behavior%0D%0D%0D%23%23%20Steps%20to%20Reproduce%0D%0D%0D%23%23%20Screenshot&labels=bug)
 
-# The Plan
+# Long term
 
-## LONG TERM :
 - View Profile of others.
 - Add a calendar views
 - Make invitation links for people (1 solution : Create "invited Circle" and Hidden from Sidebar)
@@ -92,9 +91,6 @@ Clicking on Profile of people doesn't work
 # Credits and references
 Related projects : La carte des collocs, Leaflet
 
-
-TODO : follow that template
-https://github.com/cfpb/open-source-project-template/
 
 [Doc github markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
