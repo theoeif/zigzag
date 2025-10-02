@@ -40,6 +40,15 @@ source .venv/bin/activate && cd myproject && python3 manage.py runserver --skip-
 
 ## Frontend
 
+Prerequsites: 
+
+Replace FRONTEND/zigzag/src/config.example.js by FRONTEND/zigzag/src/config.js with proper Api key : 
+```bash
+export const OPEN_CAGE_API_KEY = "geocoding api OpenCage" (gratuit);
+export const OPENCAGE_SEARCH_TOKEN = "Location autosuggest OpenCage" (payant);
+export const MAPTILER_API_KEY = "https://cloud.maptiler.com/ vector style" (gratuit);
+```
+
 Setup:
 
 ```bash
