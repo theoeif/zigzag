@@ -85,7 +85,8 @@ Clicking on Profile of people doesn't work
          - see friends of friends events when Number > 300 : marker and project.
          - Found list of friends insatead of user on the plateform.
     - People could add their circle into a project.
-    - Introduce some public event when Number > 1000 
+    - Introduce some public event when Number > 1000
+- Implementing a dapp for financing project through the blockchain.
 
 
 # Credits and references
