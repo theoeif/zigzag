@@ -182,6 +182,17 @@ const AccountCreation = () => {
             Create Account
           </button>
         </form>
+
+        <p className={styles.signupText}>
+          Already have an account?{" "}
+          <button 
+            type="button"
+            onClick={() => navigate('/login')} 
+            className={styles.signupLink}
+          >
+            Sign In
+          </button>
+        </p>
       </div>
     </div>
   );
