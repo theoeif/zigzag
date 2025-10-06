@@ -7,6 +7,7 @@ import styles from "./Login.module.css"; // Import the CSS Module
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
   const { setIsConnected } = useContext(AuthContext);
@@ -25,10 +26,15 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear field-specific errors when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors({ ...fieldErrors, [e.target.name]: null });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
     try {
       await login(formData);
 
@@ -38,7 +44,19 @@ const Login = () => {
       navigate(redirectPath);
     } catch (err) {
       console.error("Login: Error during login:", err);
-      setError(err.response?.data || "Invalid credentials");
+      
+      // Handle different types of errors
+      if (err.response?.status === 401) {
+        setError("Invalid username or password. Please check your credentials and try again.");
+      } else if (err.response?.status === 400) {
+        setError("Please fill in all required fields.");
+      } else if (err.response?.data?.detail) {
+        setError(err.response.data.detail);
+      } else if (err.response?.data) {
+        setError(typeof err.response.data === 'string' ? err.response.data : "Login failed. Please try again.");
+      } else {
+        setError("Unable to connect to the server. Please check your internet connection and try again.");
+      }
     }
   };
 
@@ -50,7 +68,12 @@ const Login = () => {
       <div className={styles.formContainer}>
         <h2 className={styles.title}>Login</h2>
 
-        {error && <p className={styles.error}>{JSON.stringify(error)}</p>}
+        {error && (
+          <div className={styles.errorContainer}>
+            <div className={styles.errorIcon}>⚠️</div>
+            <p className={styles.error}>{error}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -63,7 +86,7 @@ const Login = () => {
               value={formData.username}
               onChange={handleChange}
               required
-              className={styles.input}
+              className={`${styles.input} ${fieldErrors.username ? styles.inputError : ''}`}
               placeholder="Enter your username"
             />
           </div>
@@ -78,7 +101,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              className={styles.input}
+              className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`}
               placeholder="Enter your password"
             />
           </div>
