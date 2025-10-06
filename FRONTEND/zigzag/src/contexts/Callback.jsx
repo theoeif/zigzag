@@ -1,7 +1,7 @@
 // src/components/Callback.jsx
 import { useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AuthContext } from "../contexts/AuthProvider";
+import { AuthContext } from "./AuthProvider";
 
 const Callback = () => {
 
