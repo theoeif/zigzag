@@ -21,6 +21,10 @@ export const login = async ({ username, password }) => {
 // Registration helper
 export const register = async (payload) => {
   const response = await axios.post("http://127.0.0.1:8000/api/register/", payload);
+  const { access, refresh, username } = response.data || {};
+  if (access) localStorage.setItem("access_token", access);
+  if (refresh) localStorage.setItem("refresh_token", refresh);
+  if (username) localStorage.setItem("username", username);
   return response.data;
 };
 
@@ -33,8 +37,12 @@ export const refreshAccessToken = async () => {
           return null;
       }
 
+      // Use a direct axios call without interceptors to avoid circular dependency
       const response = await axios.post("http://127.0.0.1:8000/api/token/refresh/", {
           refresh: refreshToken,
+      }, {
+        // Skip the response interceptor for this specific request
+        skipAuthRefresh: true
       });
 
       const newAccessToken = response.data.access;
@@ -80,11 +88,16 @@ axios.interceptors.response.use(
     const { config, response } = error;
     const url = config?.url || "";
 
-      // Prevent retries for token/verify and token/refresh endpoints
-      if (url.includes("/token/verify/") || url.includes("/token/refresh/")) {
-        console.warn("Validation request failed. Skipping retry.");
-        return Promise.reject(error);
-      }
+    // Skip refresh logic for requests that explicitly opt out
+    if (config?.skipAuthRefresh) {
+      return Promise.reject(error);
+    }
+
+    // Prevent retries for token/verify and token/refresh endpoints
+    if (url.includes("/token/verify/") || url.includes("/token/refresh/")) {
+      console.warn("Validation request failed. Skipping retry.");
+      return Promise.reject(error);
+    }
 
     // Handle non-401 errors
     if (!response || response.status !== 401) return Promise.reject(error); 

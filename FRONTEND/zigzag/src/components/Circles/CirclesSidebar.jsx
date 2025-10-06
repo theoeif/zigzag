@@ -6,7 +6,6 @@ import { FiX, FiCheck, FiTag, FiUsers, FiPlus } from 'react-icons/fi';
 
 const AddCircleModal = ({ onClose, onCreate }) => {
   const [name, setName] = useState('');
-  const [isShared, setIsShared] = useState(true);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState('');
@@ -17,15 +16,15 @@ const AddCircleModal = ({ onClose, onCreate }) => {
         const tagsData = await fetchMyTags();
         setTags(tagsData);
       } catch (err) {
-        setError('Failed to load tags');
+        setError('Échec du chargement des tags');
       }
     }
     loadTags();
   }, []);
 
   const validateForm = () => {
-    if (!name.trim()) return 'Circle name is required';
-    if (selectedTags.length === 0) return 'At least one category must be selected';
+    if (!name.trim()) return 'Le nom du cercle est obligatoire';
+    if (selectedTags.length === 0) return 'Au moins une catégorie doit être sélectionnée';
     return null;
   };
 
@@ -39,7 +38,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
     try {
       const newCircle = {
         name: name.trim(),
-        is_shared: isShared,
+        is_shared: true, // All circles are now shared
         tags: selectedTags.map(tag => tag.name)
       };
       const createdCircle = await fetchAddCircle(newCircle);
@@ -47,16 +46,16 @@ const AddCircleModal = ({ onClose, onCreate }) => {
         onCreate(createdCircle);
         onClose();
       }
-    } catch (err) {
-      setError('Failed to create circle. Please try again.');
-    }
+      } catch (err) {
+        setError('Échec de la création du cercle. Veuillez réessayer.');
+      }
   };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Create New Circle</h2>
+          <h2>Nouveau Cercle</h2>
           <button className={styles.closeButton} onClick={onClose}>
             <FiX size={24} />
           </button>
@@ -65,7 +64,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
         <div className={styles.formGroup}>
           <label className={styles.inputLabel}>
             <FiUsers className={styles.inputIcon} />
-            Circle Name
+            Nom du Cercle
           </label>
           <input 
             type="text" 
@@ -74,28 +73,16 @@ const AddCircleModal = ({ onClose, onCreate }) => {
               setName(e.target.value);
               setError('');
             }}
-            placeholder="Enter circle name"
+            placeholder="Entrez le nom du cercle"
             className={styles.textInput}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={isShared}
-              onChange={(e) => setIsShared(e.target.checked)}
-              className={styles.checkboxInput}
-            />
-            <span className={styles.checkboxCustom}></span>
-            Shared with members
-          </label>
-        </div>
 
         <div className={styles.formGroup}>
           <label className={styles.inputLabel}>
             <FiTag className={styles.inputIcon} />
-            Tags (Required)
+            Tags (Obligatoire)
           </label>
           <div className={styles.tagsContainer}>
             {tags.map(tag => (
@@ -131,7 +118,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
             onClick={handleSubmit}
             disabled={!name.trim() || selectedTags.length === 0}
           >
-            Create Circle
+            Créer le Cercle
           </button>
         </div>
       </div>
@@ -171,23 +158,22 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
     onSelectCircle(newCircle);
   };
 
-  // Separate circles into private and shared
-  const privateCircles = circles.filter(circle =>
-    !circle.is_shared &&
+  // Separate circles into created by user and others
+  const createdCircles = circles.filter(circle =>
     circle.creator === currentUser?.username
   );
-  const sharedCircles = circles.filter(circle =>
-    (circle.is_shared || (circle.creator !== currentUser?.username))
+  const otherCircles = circles.filter(circle =>
+    circle.creator !== currentUser?.username
   );
 
   return (
     <div className={styles.circlesSidebar}>
       <div className={styles.circlesList}>
-        {privateCircles.length > 0 && (
+        {createdCircles.length > 0 && (
           <>
-            <div className={styles.circleCategory}>Private Circles</div>
+            <div className={styles.circleCategory}>Cercles Crées</div>
             <ul className={styles.circlesSubList}>
-              {privateCircles.map(circle => (
+              {createdCircles.map(circle => (
                 <li 
                   key={circle.id}
                   className={`${styles.circleItem} ${circle.id === selectedCircleId ? styles.selected : ''}`}
@@ -200,11 +186,11 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
           </>
         )}
 
-        {sharedCircles.length > 0 && (
+        {otherCircles.length > 0 && (
           <>
-            <div className={styles.circleCategory}>Shared Circles</div>
+            <div className={styles.circleCategory}></div>
             <ul className={styles.circlesSubList}>
-              {sharedCircles.map(circle => (
+              {otherCircles.map(circle => (
                 <li 
                   key={circle.id}
                   className={`${styles.circleItem} ${circle.id === selectedCircleId ? styles.selected : ''}`}
@@ -221,8 +207,17 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
         <button 
           className={styles.addCircleButton}
           onClick={() => setShowModal(true)}
+          style={{ 
+            width: '40px', 
+            height: '40px', 
+            borderRadius: '50%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            padding: 0
+          }}
         >
-          <FiPlus size={16} style={{ marginRight: '6px' }} /> Add Circle
+          <FiPlus size={20} />
         </button>
       </div>
 

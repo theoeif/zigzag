@@ -125,7 +125,7 @@ const MainCircles = () => {
               sx={{ mb: 2 }}
               data-circles-toggle="true"
             >
-              Circles
+              Cercles
             </Button>
           )}
           

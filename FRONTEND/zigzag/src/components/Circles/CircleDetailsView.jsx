@@ -101,12 +101,12 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
       fullWidth
       classes={{ paper: 'addUsersDialog' }}
     >
-      <DialogTitle className="addUsersTitle">Add Users to Circle</DialogTitle>
+      <DialogTitle className="addUsersTitle">Ajouter des Utilisateurs au Cercle</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
-          label="Search users"
+          label="Rechercher des utilisateurs"
           type="text"
           fullWidth
           value={searchTerm}
@@ -114,9 +114,9 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
           sx={{ mb: 2 }}
         />
         {loading ? (
-          <Typography>Loading users...</Typography>
+          <Typography>Chargement des utilisateurs...</Typography>
         ) : filteredUsers.length === 0 ? (
-          <Typography>No available users to add</Typography>
+          <Typography>Aucun utilisateur disponible à ajouter</Typography>
         ) : (
           <List sx={{ maxHeight: 400, overflow: 'auto' }}>
             {filteredUsers.map((user) => {
@@ -158,14 +158,14 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>Annuler</Button>
         <Button 
           onClick={handleAdd}
           disabled={selectedUsers.length === 0}
           variant="contained"
           className="addUsersConfirm"
         >
-          Add Selected Users ({selectedUsers.length})
+          Ajouter les Utilisateurs Sélectionnés ({selectedUsers.length})
         </Button>
       </DialogActions>
     </Dialog>
@@ -196,7 +196,7 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
         }
       } catch (err) {
         console.error('Error loading tags:', err);
-        setError('Failed to load tags');
+        setError('Échec du chargement des tags');
       }
       setLoading(false);
     };
@@ -219,7 +219,7 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
 
   const handleUpdate = async () => {
     if (selectedTags.length === 0) {
-      setError('At least one tag is required');
+      setError('Au moins un tag est requis');
       return;
     }
     
@@ -230,10 +230,10 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
       
       await onUpdate(updatedData);
       onClose();
-    } catch (err) {
-      console.error('Error updating tags:', err);
-      setError('Failed to update tags');
-    }
+      } catch (err) {
+        console.error('Error updating tags:', err);
+        setError('Échec de la mise à jour des tags');
+      }
   };
 
   return (
@@ -243,17 +243,17 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
       maxWidth="sm" 
       fullWidth
     >
-      <DialogTitle>Edit Tags</DialogTitle>
+      <DialogTitle>Modifier les Tags</DialogTitle>
       <DialogContent>
         {loading ? (
-          <Typography>Loading tags...</Typography>
+          <Typography>Chargement des tags...</Typography>
         ) : (
           <>
             {error && (
               <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>
             )}
             <Typography variant="body2" sx={{ mb: 2 }}>
-              Select tags for this circle. At least one tag is required.
+              Sélectionnez les tags pour ce cercle. Au moins un tag est requis.
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
               {allTags.map(tag => {
@@ -287,19 +287,19 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
               })}
             </Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-              Selected: {selectedTags.length}
+              Sélectionnées : {selectedTags.length}
             </Typography>
           </>
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>Annuler</Button>
         <Button 
           onClick={handleUpdate}
           disabled={selectedTags.length === 0 || loading}
           variant="contained"
         >
-          Update
+          Mettre à jour
         </Button>
       </DialogActions>
     </Dialog>
@@ -320,7 +320,6 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   // Log circle data to ensure tags are accessible
   useEffect(() => {
     if (circle) {
-      console.log('Circle data in CircleDetailsView:', circle);
       setLocalCircle(circle);
     }
   }, [circle]);
@@ -439,10 +438,10 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
           minHeight: '60vh'
         }}>
           <Typography variant="h6" className="emptyStateTitle" gutterBottom>
-            {isMobile ? 'Tap "Circles" above' : 'Select a Circle'}
+            {isMobile ? 'Appuyez sur "Cercles" ci-dessus' : 'Sélectionnez un Cercle'}
           </Typography>
           <Typography variant="body1" className="emptyStateText" color="text.secondary">
-            {isMobile ? 'Choose a circle from the menu' : 'Select a circle from the sidebar'}
+            {isMobile ? 'Choisissez un cercle dans le menu' : 'Sélectionnez un cercle dans la barre latérale'}
           </Typography>
         </Box>
       )}
@@ -455,7 +454,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                 {localCircle.name}
               </Typography>
               <Typography variant="subtitle1" className="circleSubtitle" color="text.secondary">
-                {members.length} members
+                {members.length} membres
               </Typography>
               {/* Display tags */}
               {localCircle.tags && localCircle.tags.length > 0 && (
@@ -505,11 +504,11 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
               className="editTagsMenuItem"
             >
               <EditIcon sx={{ mr: 1 }} />
-              Edit Tags
+              Modifier les Tags
             </MenuItem>
             <MenuItem onClick={handleDeleteCircle} className="deleteMenuItem">
               <DeleteIcon sx={{ mr: 1 }} />
-              Delete Circle
+              Supprimer le Cercle
             </MenuItem>
           </Menu>
 
@@ -534,10 +533,8 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': { 
-                    bgcolor: 'action.hover',
-                    transform: 'translateX(4px)'
-                  },
-                  transition: 'transform 0.2s ease'
+                    bgcolor: 'action.hover'
+                  }
                 }}
               >
                 <ListItemAvatar>
@@ -547,7 +544,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                 </ListItemAvatar>
                 <ListItemText
                   primary={`${member.first_name} ${member.last_name}`}
-                  secondary={`@${member.username}${member.username === currentUser?.username ? ' (You)' : ''}`}
+                  secondary={`@${member.username}${member.username === currentUser?.username ? ' (Vous)' : ''}`}
                   onClick={() => onSelectUser(member)}
                   sx={{ cursor: 'pointer' }}
                 />
@@ -559,12 +556,17 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
               <Button 
                 variant="contained" 
-                startIcon={<AddIcon />}
                 className="circleAddButton"
-                sx={{ borderRadius: 20 }}
                 onClick={() => setIsAddUsersModalOpen(true)}
+                sx={{ 
+                  width: '50px', 
+                  height: '50px', 
+                  borderRadius: '50%', 
+                  minWidth: '50px',
+                  padding: 0
+                }}
               >
-                Add User to Circle
+                <AddIcon />
               </Button>
             </Box>
           )}
