@@ -469,7 +469,7 @@ class EventShareTokenView(APIView):
         invitation = EventInvitation.objects.create(event=event, email=f"share_{request.user.username}@example.com")
         return Response({"token": str(invitation.token), "invitation_link": invitation.invitation_link})
 
-from django_ratelimit.decorators import ratelimit
+# from django_ratelimit.decorators import ratelimit
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterView(generics.CreateAPIView):
