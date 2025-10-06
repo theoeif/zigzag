@@ -17,6 +17,14 @@ class CircleSerializer(serializers.ModelSerializer):
         model = Circle
         fields = ['id', 'name', 'creator', 'categories', 'tags']
     
+    def create(self, validated_data):
+        # Handle categories (tags) during creation
+        categories_data = validated_data.pop('categories', [])
+        circle = Circle.objects.create(**validated_data)
+        if categories_data:
+            circle.categories.set(categories_data)
+        return circle
+    
     def update(self, instance, validated_data):
         # Handle categories (tags) update
         if 'categories' in validated_data:

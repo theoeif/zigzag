@@ -38,8 +38,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
     try {
       const newCircle = {
         name: name.trim(),
-        is_shared: true, // All circles are now shared
-        tags: selectedTags.map(tag => tag.name)
+        categories: selectedTags.map(tag => tag.id) // Send tag IDs instead of names
       };
       const createdCircle = await fetchAddCircle(newCircle);
       if (createdCircle) {
