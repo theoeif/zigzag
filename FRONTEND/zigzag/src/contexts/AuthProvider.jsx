@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { validateAccessToken, refreshAccessToken, setLogoutHandler } from "../api/api";
+import { validateAccessToken, refreshAccessToken, setLogoutHandler, blacklistRefreshToken } from "../api/api";
 
 export const AuthContext = createContext();
 
@@ -42,8 +42,9 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
     console.log("Logging out...");
+    await blacklistRefreshToken(); // Blacklist the refresh token server-side
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     setIsConnected(false);

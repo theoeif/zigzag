@@ -1,6 +1,6 @@
 // TODO : USELESS A PRIORI
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { validateAccessToken, setLogoutHandler } from '../api/api';
+import { validateAccessToken, setLogoutHandler, blacklistRefreshToken } from '../api/api';
 
 const AuthContext = createContext(null);
 
@@ -41,7 +41,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await blacklistRefreshToken(); // Blacklist the refresh token server-side
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setIsAuthenticated(false);

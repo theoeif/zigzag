@@ -42,8 +42,18 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'django_ratelimit', # TODO : Redis for django ratelimit in production to enable Cache for Ip across severs
+    # 'django_ratelimit', # TODO : Redis for django ratelimit in production to enable Cache for Ip across severs
 ]
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+#         'LOCATION': BASE_DIR / 'cache',
+#     }
+# }
+# RATELIMIT_USE_CACHE = 'default'
+
+RATELIMIT_ENABLE = False
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -96,12 +106,27 @@ WSGI_APPLICATION = 'zigzag.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+import os
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
 }
+
+DATABASES['postgres'] ={
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'zigzag'),
+        'USER': os.getenv('POSTGRES_USER', 'zigzag'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    }
+
+DEFAULT_DB = os.getenv('DB_DEFAULT', 'default')  # 'postgres' in production
+if DEFAULT_DB == 'postgres':
+    DATABASES['default'] = DATABASES['postgres']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server

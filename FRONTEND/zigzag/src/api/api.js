@@ -59,6 +59,19 @@ export const refreshAccessToken = async () => {
   }
 };
 
+// Blacklist the current refresh token server-side (JWT revoke)
+export const blacklistRefreshToken = async () => {
+  try {
+    const refresh = localStorage.getItem("refresh_token");
+    if (!refresh) return false;
+    await axios.post("http://127.0.0.1:8000/api/token/blacklist/", { refresh });
+    return true;
+  } catch (error) {
+    console.warn("Failed to blacklist refresh token:", error?.response?.data || error?.message);
+    return false;
+  }
+};
+
 const retryingRequests = new Set(); // Track retried requests globally
 
 axios.interceptors.response.use(

@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { fetchAddresses, addAddress, deleteAddress, updateAddressLabel, fetchUserProfile, updateProfile } from "../../api/api";
 import Header from '../Header/Header';
 import LeftMenu from '../LeftMenu/LeftMenu';
@@ -7,10 +6,14 @@ import { FaTrashAlt, FaCog, FaPlus, FaSave, FaCheck } from "react-icons/fa";
 import AddressItem from './AddressItem';
 import AddAddressPopup from './AddAddressPopup';
 import styles from './Profile.module.css';
+import { AuthContext } from '../../contexts/AuthProvider';
 
 const labelSuggestions = ["Localisation d'Amis", "Travail", "Résidence Secondaire"];
 
 const Profile = () => {
+  // Get logout function from auth context
+  const { logout } = useContext(AuthContext);
+  
   // Profile data state
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -179,6 +182,9 @@ const Profile = () => {
       <div className={styles.manageButtonContainer}>
         <button onClick={() => setIsManageMode(!isManageMode)} className={styles.manageButton}>
           <FaCog /> Gérer
+        </button>
+        <button onClick={logout} className={styles.manageButton} style={{ marginLeft: 12 }}>
+          Se déconnecter
         </button>
       </div>
 

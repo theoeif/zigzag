@@ -23,7 +23,6 @@ ingest_venv/
 
 # db 
 migrations/
-db.sqlite3
 
 # Tempo
 Tempo/
