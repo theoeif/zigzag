@@ -25,16 +25,9 @@ const AccountCreation = () => {
       const data = await register({ username, password, password2 });
       console.log("Account created:", data);
 
-      // Mimic login.jsx behavior: store tokens and connect
-      // if (data?.access && data?.refresh) {
-      //   localStorage.setItem("access_token", data.access);
-      //   localStorage.setItem("refresh_token", data.refresh);
-      //   if (data.username || formData.username) {
-      //     localStorage.setItem("username", data.username || formData.username);
-      //   }
-        setIsConnected(true);
-        navigate("/");
-        return;
+      // Tokens are automatically stored by the register function in api.js
+      setIsConnected(true);
+      navigate("/");
     } catch (err) {
       console.error(err);
       setError(err.response?.data || "An error occurred");

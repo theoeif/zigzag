@@ -7,8 +7,16 @@ import {
   FormControlLabel,
   Divider
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const UserProfileView = ({ userId, onBack }) => {
+  // Placeholder data - in a real app, this would be fetched based on userId
+  const profile = {
+    name: "Utilisateur",
+    email: "user@example.com",
+    circles: []
+  };
+
   return (
     <Stack spacing={3}>
       <Button 
@@ -17,15 +25,15 @@ const UserProfileView = ({ userId, onBack }) => {
         startIcon={<ArrowBackIcon />}
         sx={{ alignSelf: 'flex-start' }}
       >
-        Back to Circle
+        Retour au Cercle
       </Button>
 
       <Typography variant="h4">{profile.name}</Typography>
-      <Typography variant="body1">Email: {profile.email}</Typography>
+      <Typography variant="body1">Email : {profile.email}</Typography>
       
       <Divider />
 
-      <Typography variant="h6">Circles Membership</Typography>
+      <Typography variant="h6">Appartenance aux Cercles</Typography>
       <Stack spacing={1}>
         {profile.circles.map(circle => (
           <FormControlLabel
@@ -38,10 +46,10 @@ const UserProfileView = ({ userId, onBack }) => {
 
       <Button 
         variant="contained" 
-        onClick={() => alert('Save changes')}
+        onClick={() => alert('Sauvegarder les modifications')}
         sx={{ mt: 2 }}
       >
-        Save Changes
+        Sauvegarder les Modifications
       </Button>
     </Stack>
   );

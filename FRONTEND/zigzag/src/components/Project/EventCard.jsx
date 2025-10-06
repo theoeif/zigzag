@@ -664,7 +664,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
               
               {event.categories && event.categories.length > 0 && (
                 <div className={styles.allTagsProject}>
-                  <h4>Étiquettes :</h4>
+                  <h4>Tags :</h4>
                   <div className={styles.tagsGridProject}>
                     {renderTags()}
                   </div>

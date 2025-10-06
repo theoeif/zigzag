@@ -87,10 +87,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        # Create user as inactive
+        # Create user as active (no email confirmation required for now)
         user = User.objects.create(
             username=validated_data["username"],
-            is_active=False  # Require email confirmation
+            is_active=True  # User is immediately active
         )
         user.set_password(validated_data["password"])
         user.save()
