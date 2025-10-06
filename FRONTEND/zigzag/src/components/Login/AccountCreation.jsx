@@ -4,6 +4,21 @@ import { register } from "../api/api";
 import styles from "./Login/Login.module.css";
 import { AuthContext } from "../contexts/AuthProvider";
 
+// SVG Eye Icons
+const EyeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeSlashIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
+
 const AccountCreation = () => {
   const [formData, setFormData] = useState({
     username: "",
@@ -12,6 +27,8 @@ const AccountCreation = () => {
   });
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
   const navigate = useNavigate();
   const { setIsConnected } = useContext(AuthContext);
 
@@ -21,6 +38,14 @@ const AccountCreation = () => {
     if (fieldErrors[e.target.name]) {
       setFieldErrors({ ...fieldErrors, [e.target.name]: null });
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const togglePassword2Visibility = () => {
+    setShowPassword2(!showPassword2);
   };
 
   const handleSubmit = async (e) => {
@@ -36,7 +61,7 @@ const AccountCreation = () => {
     
     // Client-side validation for password length
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError("Password must be at least 8 characters long, not entirely numeric, and should not be a commonly used password.");
       setFieldErrors({ password: "Password must be at least 8 characters long" });
       return;
     }
@@ -58,7 +83,7 @@ const AccountCreation = () => {
           setError("Username already exists. Please choose a different username.");
           setFieldErrors({ username: "Username already exists" });
         } else if (err.response.data?.password) {
-          setError("Password requirements not met. Please ensure your password is strong enough.");
+          setError("Password must be at least 8 characters long, not entirely numeric, and should not be a commonly used password.");
           setFieldErrors({ password: "Password requirements not met" });
         } else if (err.response.data?.password2) {
           setError("Password confirmation does not match.");
@@ -105,30 +130,52 @@ const AccountCreation = () => {
 
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}></label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`}
-              placeholder="Enter your password"
-            />
+            <div className={styles.passwordInputContainer}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`}
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className={styles.passwordToggle}
+                tabIndex="-1"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+              </button>
+            </div>
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="password2" className={styles.label}></label>
-            <input
-              type="password"
-              name="password2"
-              id="password2"
-              value={formData.password2}
-              onChange={handleChange}
-              required
-              className={`${styles.input} ${fieldErrors.password2 ? styles.inputError : ''}`}
-              placeholder="Confirm your password"
-            />
+            <div className={styles.passwordInputContainer}>
+              <input
+                type={showPassword2 ? "text" : "password"}
+                name="password2"
+                id="password2"
+                value={formData.password2}
+                onChange={handleChange}
+                required
+                className={`${styles.input} ${fieldErrors.password2 ? styles.inputError : ''}`}
+                placeholder="Confirm your password"
+              />
+              <button
+                type="button"
+                onClick={togglePassword2Visibility}
+                className={styles.passwordToggle}
+                tabIndex="-1"
+                aria-label={showPassword2 ? "Hide password" : "Show password"}
+              >
+                {showPassword2 ? <EyeSlashIcon /> : <EyeIcon />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className={styles.button}>

@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, useLocation, Route, Routes } from "react-router-dom";
 import MarkersMap from "./components/MarkersMap";
-import AccountCreation from "./components/AccountCreation";
+import AccountCreation from "./components/Login/AccountCreation";
 import Login from "./components/Login/Login.jsx";
 import Profile from "./components/Profile/Profile";
-import ProfilePage from "./components/ProfilePage";
+import ProfilePage from "./components/Profile/ProfilePage";
 import Project from "./components/Project/Project";
 import DirectEventLinkView from './components/EventViewMap/DirectEventLinkView.jsx';
 import MainCircles from "./components/Circles/MainCircles";
-import Callback from './components/Callback';
+import Callback from './contexts/Callback';
 
 const App = () => {
 
