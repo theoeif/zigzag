@@ -100,6 +100,44 @@
     border-color: #dc2626 !important;
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
   }
+
+  .passwordInputContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .passwordToggle {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    z-index: 1;
+    border-radius: 0.25rem;
+  }
+
+  .passwordToggle:hover {
+    color: #374151;
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .passwordToggle:focus {
+    outline: none;
+    color: #40916c;
+    background-color: rgba(64, 145, 108, 0.1);
+  }
+
+  .passwordToggle svg {
+    width: 20px;
+    height: 20px;
+  }
   
   .button {
     width: 100%;
