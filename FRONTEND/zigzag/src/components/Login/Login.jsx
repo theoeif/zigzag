@@ -146,9 +146,13 @@ const Login = () => {
 
         <p className={styles.signupText}>
           Don't have an account?{" "}
-          <a href="/signup" className={styles.signupLink}>
+          <button 
+            type="button"
+            onClick={() => navigate('/create-account')} 
+            className={styles.signupLink}
+          >
             Sign Up
-          </a>
+          </button>
         </p>
       </div>
     </div>

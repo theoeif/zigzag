@@ -222,8 +222,15 @@
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0;
   }
   
   .signupLink:hover {
     color: #2d6a4f;
+    text-decoration: underline;
   }
