@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { fetchProfile } from "../api/api";
+import { fetchProfile } from "../../api/api";
 
 const ProfilePage = () => {
   const { id } = useParams();

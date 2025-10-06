@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { register } from "../api/api";
-import styles from "./Login/Login.module.css";
+import { register } from "../../api/api";
+import styles from "./Login.module.css";
 import { AuthContext } from "../contexts/AuthProvider";
 
 // SVG Eye Icons
