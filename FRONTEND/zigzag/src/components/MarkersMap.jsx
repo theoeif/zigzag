@@ -74,7 +74,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   
   // Tags and location
   const [tags, setTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   // Refs for the map and markers
@@ -406,7 +406,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     // If user is connected, fetch their markers
     if (isConnected) {
       // Pass selectedTags (can be empty array for all markers)
-      const markers = await fetchMarkers(selectedTags);
+      const tagsToUse = Array.isArray(selectedTags) ? selectedTags : [];
+      const markers = await fetchMarkers(tagsToUse);
 
       if (markers) {
         setMarkersData(markers);
@@ -1051,9 +1052,9 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     });
   };
 
-  // Refresh markers when selectedTags change.
+  // Refresh markers when selectedTags is ready (non-null)
   useEffect(() => {
-    if (isConnected && !isBackground) {
+    if (isConnected && !isBackground && selectedTags !== null) {
       refreshMarkersForSelectedTags();
     }
   }, [selectedTags, isConnected, isBackground]);
@@ -1147,12 +1148,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     }
   }, [isConnected, isBackground]);
 
-  // Refresh markers when connection state changes
-  useEffect(() => {
-    if (!isBackground) {
-      refreshMarkersForSelectedTags();
-    }
-  }, [isConnected, isBackground]);
+  // Removed redundant refresh on isConnected change to avoid duplicate fetches
 
   // Center map on event coordinates when provided (but don't affect timeline)
   useEffect(() => {
