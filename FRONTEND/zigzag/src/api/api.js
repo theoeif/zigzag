@@ -223,7 +223,7 @@ export const fetchMyTags = async () => {
     const response = await axios.get("http://127.0.0.1:8000/api/events/tags/", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log("Tags data received:", response.data); // Debug log
+    console.log("Tags data received :", response.data); // Debug log
     return response.data; // Return tags data
   } catch (error) {
     console.error("Error fetching tags:", error);
