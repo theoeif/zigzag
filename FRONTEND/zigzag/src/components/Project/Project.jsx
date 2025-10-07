@@ -6,7 +6,7 @@ import { AuthContext } from '../../contexts/AuthProvider';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import styles from './Project.module.css';
 import { fetchEvents, fetchCircles, deleteEvent, fetchCircleMembers } from '../../api/api';
-import CreateEventForm from './CreateEventForm'; 
+import CreateEventForm from './CreateEventForm';
 import EditEventForm from './EditEventForm';
 import TimelineBar from '../TimelineBar/TimelineBar';
 import CircleMembersPopup from './CircleMembersPopup';
@@ -20,10 +20,10 @@ const Project = ({ projectId }) => {
   const [isManageMode, setIsManageMode] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);   // Track event being edited
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Initialize timeline visibility with default value of true
   const [showTimelineBar, setShowTimelineBar] = useState(true);
-  
+
   const [showCircleMembers, setShowCircleMembers] = useState(false);
   const [selectedCircleIDs, setSelectedCircleIDs] = useState([]);
   const [selectedCircleName, setSelectedCircleName] = useState('');
@@ -34,7 +34,7 @@ const Project = ({ projectId }) => {
   const { mapState } = useContext(MapContext);
   const location = useLocation();
   const [autoOpenEventId, setAutoOpenEventId] = useState(location.state?.openEventId || null);
-  
+
   // (logs removed)
 
   // State for circles (for mapping events)
@@ -55,8 +55,8 @@ const Project = ({ projectId }) => {
 
   // Add state for filtered friends' events
   const [filteredFriendsEvents, setFilteredFriendsEvents] = useState([]);
-  
-  
+
+
 
   useEffect(() => {
     const getCircles = async () => {
@@ -114,7 +114,7 @@ const Project = ({ projectId }) => {
     };
     getEvents();
   }, [isConnected]);
-  
+
   // New useEffect: Update events state whenever projects state changes (for immediate UI updates after edits)
   useEffect(() => {
     if (projects.length > 0) {
@@ -124,11 +124,11 @@ const Project = ({ projectId }) => {
       setEvents(sortedEvents);
     }
   }, [projects]);
-  
+
   // Filter events based on timeline selection - this should run only when events or timeRange actually change
   useEffect(() => {
     if (!events || events.length === 0) return;
-    
+
     // Clone dates to avoid modifying original values
     const rawStart = new Date(timeRange.start);
     const rawEnd = new Date(timeRange.end);
@@ -139,30 +139,30 @@ const Project = ({ projectId }) => {
 
     const end = new Date(rawEnd);
     end.setHours(23, 59, 59, 999);  // Set to 23:59:59.999
-    
+
     const filterEventByTimeframe = (event) => {
       const eventStart = new Date(event.start_time);
       // If end_time is null, use start_time as end_time (single-day event)
       const eventEnd = event.end_time ? new Date(event.end_time) : new Date(event.start_time);
-      
+
       return (
         // Case 1: Event starts within the filter range
         (eventStart >= start && eventStart <= end) ||
-        
+
         // Case 2: Event ends within the filter range
         (eventEnd >= start && eventEnd <= end) ||
-        
+
         // Case 3: Event completely contains the filter range
         (eventStart <= start && eventEnd >= end) ||
-        
+
         // Case 4: Event is completely within the filter range
         (eventStart >= start && eventEnd <= end)
       );
     };
-    
+
     const filtered = events.filter(filterEventByTimeframe);
     setFilteredEvents(filtered);
-    
+
     // Also filter friends' events based on the same criteria
     if (otherProjects && otherProjects.length > 0) {
       const filteredFriends = otherProjects.filter(filterEventByTimeframe);
@@ -172,15 +172,15 @@ const Project = ({ projectId }) => {
 
   // Update the handleTimeChange function to mark when the user has modified the range
   const handleTimeChange = ({ start, end }) => {
-    // console.log('Project: handleTimeChange called with:', 
+    // console.log('Project: handleTimeChange called with:',
     //   start.toISOString(), '-', end.toISOString());
-    
+
     // Compare if dates are actually different to avoid unnecessary updates
     const currentStart = timeRange.start.getTime();
     const currentEnd = timeRange.end.getTime();
     const newStart = start.getTime();
     const newEnd = end.getTime();
-    
+
     if (currentStart !== newStart || currentEnd !== newEnd) {
       // console.log('Project: Updating time range from TimelineBar');
       setTimeRange({ start, end });
@@ -278,25 +278,25 @@ const Project = ({ projectId }) => {
         return filteredFriendsEvents;
     }
   };
-  
-  
-  
+
+
+
   const handleViewCircleMembers = (circleIdsOrId, circleName) => {
     // Check if we received a single ID or an array
     const circleIds = Array.isArray(circleIdsOrId) ? circleIdsOrId : [circleIdsOrId];
-        
+
     if (!circleIds.length) {
       return;
     }
-    
+
     // Set the circle IDs to display
     setSelectedCircleIDs(circleIds);
-    
+
     // Use the passed title directly without adding redundant text
     setSelectedCircleName(circleName || 'Project Participants');
-    
+
     setShowCircleMembers(true);
-    
+
     // Hide timeline bar when showing the popup
     setShowTimelineBar(false);
   };
@@ -317,7 +317,7 @@ const Project = ({ projectId }) => {
   }, [filteredEvents, filteredFriendsEvents]);
 
   // (logs removed)
-  
+
   // Loading state UI
   if (isLoading) {
     return (
@@ -330,7 +330,7 @@ const Project = ({ projectId }) => {
       </div>
     );
   }
-  
+
   return (
     <div className={styles.profilePageProject}>
       {/* Header */}
@@ -338,12 +338,12 @@ const Project = ({ projectId }) => {
 
       {/* Left Menu - with unique class name */}
       {isLeftMenuOpen && (
-        <div 
-          ref={menuRef} 
+        <div
+          ref={menuRef}
           className="left-menu project-page-left-menu"
         >
-          <LeftMenu 
-            closeMenu={() => setIsLeftMenuOpen(false)} 
+          <LeftMenu
+            closeMenu={() => setIsLeftMenuOpen(false)}
           />
         </div>
       )}
@@ -351,8 +351,8 @@ const Project = ({ projectId }) => {
       {/* TimelineBar - positioned with proper spacing above projects */}
       {showTimelineBar && !editingEvent && (
         <div className={styles.timelineContainerProject}>
-          <TimelineBar 
-            onTimeChange={handleTimeChange} 
+          <TimelineBar
+            onTimeChange={handleTimeChange}
             events={events}
             initialRange={timeRangeModified ? timeRange : undefined}
             inProjectView={true}
@@ -364,7 +364,7 @@ const Project = ({ projectId }) => {
 
       {/* Action buttons - realigned with Edit on right */}
       <div className={styles.actionButtonsContainerProject}>
-        <button 
+        <button
           onClick={() => {
             setShowEventForm(true);
             setShowTimelineBar(false); // Hide timeline when Add Project is clicked
@@ -375,8 +375,8 @@ const Project = ({ projectId }) => {
           <FaPlus /> Ajouter un projet
         </button>
         <div className={styles.spacerProject}></div>
-        <button 
-          onClick={toggleManageMode} 
+        <button
+          onClick={toggleManageMode}
           className={`${styles.manageButtonProject} ${isManageMode ? styles.activeProject : ''}`}
           data-button-type="project-edit"
         >
@@ -412,9 +412,9 @@ const Project = ({ projectId }) => {
               {filteredEvents.map((event) => {
                 const shouldAutoOpen = autoOpenEventId === event.id;
                 return (
-                  <EventCard 
-                    key={event.id} 
-                    event={event} 
+                  <EventCard
+                    key={event.id}
+                    event={event}
                     isManageMode={isManageMode}
                     onDelete={handleDeleteEvent}
                     onEdit={handleEditEvent}
@@ -437,7 +437,7 @@ const Project = ({ projectId }) => {
             <h3 className={styles.h3Project}>Projets invités</h3>
             <div className={styles.filterContainerProject}>
               <FaFilter />
-              <select 
+              <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 className={styles.filterSelectProject}
@@ -447,7 +447,7 @@ const Project = ({ projectId }) => {
               </select>
             </div>
           </div>
-          
+
           {otherProjects.length === 0 ? (
             <p>Vous ne faites partie d'aucun projet pour le moment.</p>
           ) : (
@@ -458,8 +458,8 @@ const Project = ({ projectId }) => {
                 getFilteredFriendsEvents().map((event) => {
                   const shouldAutoOpen = autoOpenEventId === event.id;
                   return (
-                    <EventCard 
-                      key={event.id} 
+                    <EventCard
+                      key={event.id}
                       event={event}
                       isManageMode={false} // Don't allow editing of friend's events
                       onDelete={handleDeleteEvent}
@@ -475,10 +475,10 @@ const Project = ({ projectId }) => {
             </div>
           )}
         </div>
-        
-        
+
+
       </div>
-      
+
       {/* Edit Form Modal */}
       {editingEvent && (
         <EditEventForm
@@ -493,10 +493,10 @@ const Project = ({ projectId }) => {
           setIsManageMode={setIsManageMode} // Pass the state setter function
         />
       )}
-      
+
       {/* Circle Members Popup */}
       {showCircleMembers && (
-          <CircleMembersPopup 
+          <CircleMembersPopup
           circleIds={selectedCircleIDs}
           circleName={selectedCircleName}
           onClose={() => {

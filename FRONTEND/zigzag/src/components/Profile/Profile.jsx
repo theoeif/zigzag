@@ -14,7 +14,7 @@ const labelSuggestions = ["Localisation d'Amis", "Travail", "Résidence Secondai
 const Profile = () => {
   // Get logout function from auth context
   const { logout } = useContext(AuthContext);
-  
+
   // Profile data state
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -140,7 +140,7 @@ const Profile = () => {
   const handleLabelUpdate = async (addressId, newLabel) => {
     const updated = await updateAddressLabel(addressId, newLabel);
     if (updated) {
-      setAddresses(prev => prev.map(addr => 
+      setAddresses(prev => prev.map(addr =>
         addr.id === addressId ? { ...addr, label: newLabel } : addr
       ));
     }
@@ -216,18 +216,18 @@ const Profile = () => {
           </div>
 
           <div className={styles.addAddressSection}>
-            <button 
-              onClick={() => setShowAddAddressPopup(true)} 
+            <button
+              onClick={() => setShowAddAddressPopup(true)}
               className={styles.addButton}
               aria-label="Add new address"
             >
               <FaPlus />
             </button>
           </div>
-          
+
           {/* Address Popup */}
           {showAddAddressPopup && (
-            <AddAddressPopup 
+            <AddAddressPopup
               onClose={() => setShowAddAddressPopup(false)}
               onAddAddress={handleAddAddress}
             />
@@ -255,8 +255,8 @@ const Profile = () => {
       </div>
 
       {/* Floating save button */}
-      <button 
-        onClick={handleSaveProfile} 
+      <button
+        onClick={handleSaveProfile}
         className={`${styles.saveButton} ${saveStatus ? styles[saveStatus] : ''}`}
         disabled={saveStatus === 'saving' || saveStatus === 'saved'}
       >

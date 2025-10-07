@@ -12,7 +12,7 @@
 // )
 
 
-// Functionnable : 
+// Functionnable :
 import React from 'react';
 import { createRoot } from 'react-dom/client'; // Use createRoot instead of render
 import './index.css';

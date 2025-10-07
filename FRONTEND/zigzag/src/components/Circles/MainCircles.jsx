@@ -25,17 +25,17 @@ const MainCircles = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Close left menu if open and clicked outside
-      if (isLeftMenuOpen && 
-          menuRef.current && 
+      if (isLeftMenuOpen &&
+          menuRef.current &&
           !menuRef.current.contains(event.target) &&
           !event.target.closest('.header-menu-button')) { // Ignore clicks on the menu toggle button
         setIsLeftMenuOpen(false);
       }
-      
+
       // Close circles sidebar if mobile, open, and clicked outside
-      if (isMobile && 
-          isCirclesSidebarOpen && 
-          circlesSidebarRef.current && 
+      if (isMobile &&
+          isCirclesSidebarOpen &&
+          circlesSidebarRef.current &&
           !circlesSidebarRef.current.contains(event.target) &&
           !event.target.closest('[data-circles-toggle]')) { // Ignore clicks on the sidebar toggle button
         setIsCirclesSidebarOpen(false);
@@ -45,7 +45,7 @@ const MainCircles = () => {
     // Add click and touch event listeners
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('touchstart', handleClickOutside);
-    
+
     return () => {
       // Clean up event listeners
       document.removeEventListener('mousedown', handleClickOutside);
@@ -73,7 +73,7 @@ const MainCircles = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <Header 
+      <Header
         toggleLeftMenu={() => setIsLeftMenuOpen(!isLeftMenuOpen)}
         showBackButton={false}
       />
@@ -92,7 +92,7 @@ const MainCircles = () => {
           sx={{
             width: 240,
             flexShrink: 0,
-            '& .MuiDrawer-paper': { 
+            '& .MuiDrawer-paper': {
               width: 240,
               boxSizing: 'border-box',
               mt: '64px' // Account for header height
@@ -107,10 +107,10 @@ const MainCircles = () => {
           />
         </Drawer>
 
-        <Box 
-          component="main" 
-          sx={{ 
-            flexGrow: 1, 
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
             p: 3,
             mt: '64px', // Account for header height
             overflow: 'auto'
@@ -128,12 +128,12 @@ const MainCircles = () => {
               Cercles
             </Button>
           )}
-          
+
           {selectedUser ? (
             <UserProfileView userId={selectedUser.id} onBack={handleBackToCircles} />
           ) : (
-            <CircleDetailsView 
-              circle={selectedCircle} 
+            <CircleDetailsView
+              circle={selectedCircle}
               onSelectUser={setSelectedUser}
               onCircleDeleted={handleCircleDeleted}
             />

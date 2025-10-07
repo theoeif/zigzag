@@ -34,7 +34,7 @@ const Map = ({ isFilterOpen, isLeftMenuOpen, initializeMap, children }) => {
           filter: isFilterOpen || isLeftMenuOpen ? 'brightness(50%) blur(5px)' : 'none',
         }}
       />
-            
+
     </div>
   );
 };

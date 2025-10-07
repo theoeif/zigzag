@@ -68,12 +68,12 @@ const ProfilePage = () => {
   return (
     <div className={styles.profilePage}>
       <Header toggleLeftMenu={toggleLeftMenu} />
-      
+
       <div className={styles.manageButtonContainer}>
-        <h1 style={{ 
-          margin: 0, 
-          color: '#2563eb', 
-          fontSize: '1.5rem', 
+        <h1 style={{
+          margin: 0,
+          color: '#2563eb',
+          fontSize: '1.5rem',
           fontWeight: 'bold',
           textAlign: 'left'
         }}>

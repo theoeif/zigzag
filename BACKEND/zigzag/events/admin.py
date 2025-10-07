@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from django.db.models import Q
 from .models import User, UserAddress, Address, Tag, Circle, Event, EventParticipation, EventInvitation
 
 # Unregister default Group to avoid confusion since you don’t use it directly

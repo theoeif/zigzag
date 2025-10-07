@@ -30,9 +30,9 @@ const toggleTimelineVisibility = () => {
 
 ```jsx
 {/* Always visible timeline toggle button */}
-<TimelineToggle 
-  isVisible={showTimelineBar} 
-  onToggle={toggleTimelineVisibility} 
+<TimelineToggle
+  isVisible={showTimelineBar}
+  onToggle={toggleTimelineVisibility}
 />
 ```
 
@@ -41,8 +41,8 @@ const toggleTimelineVisibility = () => {
 ```jsx
 {showTimelineBar && (
   <div className={styles.timelineContainerProject}>
-    <TimelineBar 
-      onTimeChange={handleTimeChange} 
+    <TimelineBar
+      onTimeChange={handleTimeChange}
       events={events}
     />
   </div>
@@ -59,40 +59,40 @@ import TimelineToggle from '../TimelineBar/TimelineToggle';
 const MarkerMaps = () => {
   // Timeline visibility state
   const [showTimelineBar, setShowTimelineBar] = useState(true);
-  
+
   // Toggle function
   const toggleTimelineVisibility = () => {
     setShowTimelineBar(prev => !prev);
   };
-  
+
   // Handle timeline range changes
   const handleTimeRangeChange = useCallback((range) => {
     // Process the selected date range
     console.log('Date range changed:', range);
   }, []);
-  
+
   return (
     <div>
       {/* Your existing MarkerMaps code */}
-      
+
       {/* Conditionally render TimelineBar */}
       {showTimelineBar && (
         <div className="timeline-container">
-          <TimelineBar 
-            onTimeChange={handleTimeRangeChange} 
+          <TimelineBar
+            onTimeChange={handleTimeRangeChange}
             events={events}
           />
         </div>
       )}
-      
+
       {/* Always visible toggle button */}
-      <TimelineToggle 
-        isVisible={showTimelineBar} 
-        onToggle={toggleTimelineVisibility} 
+      <TimelineToggle
+        isVisible={showTimelineBar}
+        onToggle={toggleTimelineVisibility}
       />
     </div>
   );
 };
 ```
 
-This ensures consistent behavior across all pages that use the TimelineBar component while keeping each component's state independent. 
+This ensures consistent behavior across all pages that use the TimelineBar component while keeping each component's state independent.

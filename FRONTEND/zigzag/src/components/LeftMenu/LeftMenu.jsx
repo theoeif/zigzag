@@ -19,7 +19,7 @@ const LeftMenu = ({ closeMenu }) => {
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [allData, setAllData] = useState({ profiles: [], events: [] });
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  
+
   // Refs for buttons to attach animation listeners
   const buttonRefs = useRef({
     profile: null,
@@ -29,7 +29,7 @@ const LeftMenu = ({ closeMenu }) => {
     login: null,
     disconnect: null
   });
-  
+
   // Get active button from localStorage - moved outside of useState to ensure it's always current
   const savedActiveButton = localStorage.getItem('activeMenuButton') || "";
   const [activeButton, setActiveButton] = useState(savedActiveButton);
@@ -37,26 +37,26 @@ const LeftMenu = ({ closeMenu }) => {
   // Load all data once when component mounts (only if connected)
   useEffect(() => {
     if (!isConnected) return;
-    
+
     const loadAllData = async () => {
       try {
         const [rawProfiles, rawEventsResponse] = await Promise.all([
           fetchUsers(),
           fetchEvents(),
         ]);
-      
+
         const profiles = rawProfiles.map((profile) => ({
           id: profile.id,
           name: profile.username,
           type: "profile",
         }));
-      
+
         // Handle new events format - concatenate events_user and events_invited
         const allEvents = [
           ...(rawEventsResponse.events_user || []),
           ...(rawEventsResponse.events_invited || [])
         ];
-        
+
         const events = allEvents.map((event) => ({
           id: event.id,
           name: event.title,
@@ -69,7 +69,7 @@ const LeftMenu = ({ closeMenu }) => {
         console.error("Error loading search data:", error);
       }
     };
-    
+
     loadAllData();
   }, [isConnected]);
 
@@ -82,7 +82,7 @@ const LeftMenu = ({ closeMenu }) => {
         timeoutId = setTimeout(() => {
           if (query.length > 1 && isDataLoaded) {
             const allResults = [...allData.profiles, ...allData.events];
-            const filteredResults = allResults.filter(result => 
+            const filteredResults = allResults.filter(result =>
               result.name.toLowerCase().includes(query.toLowerCase())
             );
             setSearchResults(filteredResults);
@@ -119,10 +119,10 @@ const LeftMenu = ({ closeMenu }) => {
     const handleAnimationEnd = () => {
       if (pendingNavigation) {
         const { path, buttonKey } = pendingNavigation;
-        
+
         setClickingButton(null);
         setPendingNavigation(null);
-        
+
         if (location.pathname === path) {
           closeMenu();
         } else {
@@ -157,7 +157,7 @@ const LeftMenu = ({ closeMenu }) => {
   useEffect(() => {
     const path = location.pathname;
     let currentActive = "";
-    
+
     // Check for exact paths
     if (path === "/profile" || path.startsWith("/profile/")) {
       currentActive = "profile";
@@ -170,7 +170,7 @@ const LeftMenu = ({ closeMenu }) => {
     } else if (path === "/login") {
       currentActive = "login";
     }
-    
+
     if (currentActive) {
       setActiveButton(currentActive);
       // Ensure we update localStorage for both web and mobile
@@ -181,27 +181,27 @@ const LeftMenu = ({ closeMenu }) => {
   const handleNavigation = (path, buttonKey) => {
     // Don't navigate if we're already clicking a button
     if (clickingButton) return;
-    
+
     // Immediately update activeButton for visual feedback
     setActiveButton(buttonKey);
-    
+
     // Set the clicking button to show animation
     setClickingButton(buttonKey);
-    
+
     // Make sure to set localStorage first before animation
     localStorage.setItem('activeMenuButton', buttonKey);
-    
+
     // Store the pending navigation to be executed when animation ends
     setPendingNavigation({ path, buttonKey });
-    
+
     // Fallback timeout in case animation events don't fire
     setTimeout(() => {
       if (clickingButton === buttonKey && pendingNavigation) {
         setClickingButton(null);
         setPendingNavigation(null);
-        
+
         if (location.pathname === path) {
-          closeMenu(); 
+          closeMenu();
         } else {
           navigate(path);
         }
@@ -212,10 +212,10 @@ const LeftMenu = ({ closeMenu }) => {
   const handleDisconnect = () => {
     // Don't disconnect if we're already clicking a button
     if (clickingButton) return;
-    
+
     // Set clicking animation for disconnect button
     setClickingButton("disconnect");
-    
+
     // Fallback timeout in case animation events don't fire
     setTimeout(() => {
       if (clickingButton === "disconnect") {
@@ -234,14 +234,14 @@ const LeftMenu = ({ closeMenu }) => {
   const handleSearch = (e) => {
     const query = e.target.value.trim();
     setSearchTerm(query);
-    
+
     // Use debounced search for better performance
     debouncedSearch(query);
   };
 
   const handleSelectResult = async (result) => {
     if (clickingButton) return;
-    
+
     if (result.type === "profile") {
       // Set active button to "profile" when navigating to a profile
       setActiveButton("profile");
@@ -309,21 +309,21 @@ const LeftMenu = ({ closeMenu }) => {
             <h3>Navigation</h3>
           </div>
           <div className="menu-btn-group">
-            <button 
+            <button
               className={getButtonClass("profile")}
               onClick={() => handleNavigation("/profile", "profile")}
               ref={el => buttonRefs.current.profile = el}
             >
               Profil
             </button>
-            <button 
+            <button
               className={getButtonClass("events")}
               onClick={() => handleNavigation("/events", "events")}
               ref={el => buttonRefs.current.events = el}
             >
               Projets
             </button>
-            <button 
+            <button
               className={getButtonClass("circles")}
               onClick={() => handleNavigation("/circles", "circles")}
               ref={el => buttonRefs.current.circles = el}
@@ -344,14 +344,14 @@ const LeftMenu = ({ closeMenu }) => {
         </div>
         {!isConnected ? (
           <div className="menu-btn-group">
-            <button 
+            <button
               className={getButtonClass("create-account")}
               onClick={() => handleNavigation("/create-account", "create-account")}
               ref={el => buttonRefs.current["create-account"] = el}
             >
               Créer un compte
             </button>
-            <button 
+            <button
               className={getButtonClass("login")}
               onClick={() => handleNavigation("/login", "login")}
               ref={el => buttonRefs.current.login = el}
@@ -361,8 +361,8 @@ const LeftMenu = ({ closeMenu }) => {
           </div>
         ) : (
           <div className="menu-btn-group">
-            <button 
-              className={`menu-btn disconnect ${clickingButton === "disconnect" ? "menu-btn-clicking" : ""}`} 
+            <button
+              className={`menu-btn disconnect ${clickingButton === "disconnect" ? "menu-btn-clicking" : ""}`}
               onClick={handleDisconnect}
               ref={el => buttonRefs.current.disconnect = el}
             >
@@ -372,7 +372,7 @@ const LeftMenu = ({ closeMenu }) => {
         )}
       </div>
 
-      
+
     </div>
   );
 };
