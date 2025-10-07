@@ -80,7 +80,7 @@ const FilterMenu = ({
             />
           </svg>
         </button>
-        <h2>Filtres</h2>
+        <h2>filtres</h2>
       </div>
 
       {/* Location Search Section - Moved to top */}

@@ -151,7 +151,7 @@
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; /* Center the title */
   border-bottom: 1px solid #d1fae5;
 }
 
@@ -171,10 +171,19 @@
 }
 
 .menu-header h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 500; /* Softer weight */
   color: #065f46;
   margin: 0;
+  text-transform: lowercase; /* Ensure lowercase look */
+  letter-spacing: 0.2px; /* Gentle spacing for softer feel */
+}
+
+/* Keep action icons from shifting centered titles */
+.menu-header .close-button,
+.menu-header .menu-icon {
+  position: absolute;
+  left: 0.5rem;
 }
 
 .menu-icon {
