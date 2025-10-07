@@ -182,6 +182,14 @@ const styles = {
     fontSize: "0.9rem",
     color: "#2d6a4f",
   },
+  participantsRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "8px",
+    marginTop: "10px",
+    marginBottom: "15px",
+  },
   circlesContainer: {
     display: "flex",
     flexWrap: "wrap",
@@ -664,7 +672,7 @@ const EventView = ({
     const allCircleIds = event.circles.map(circle => circle.id);
     
     setSelectedCircleIds(allCircleIds);
-    setSelectedCircleName("Project Attendees");
+    setSelectedCircleName("Paricipants");
     setShowCircleMembers(true);
   };
 
@@ -783,8 +791,8 @@ const EventView = ({
                   
                   {/* Participants */}
                   {event.circles && event.circles.length > 0 && (
-                    <div>
-                      <strong>Participants:</strong>
+                    <div style={styles.participantsRow}>
+                      <strong>Cercles:</strong>
                       <div style={styles.circlesContainer}>
                         {event.circles.map((circle, index) => (
                           <div 
@@ -985,7 +993,7 @@ const EventView = ({
                 
                 {/* Participants */}
                 {event.circles && event.circles.length > 0 && (
-                  <div>
+                  <div style={styles.participantsRow}>
                     <strong>Participants:</strong>
                     <div style={styles.circlesContainer}>
                       {event.circles.map((circle, index) => (
