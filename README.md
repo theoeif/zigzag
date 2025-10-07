@@ -70,6 +70,175 @@ Run:
 npm run dev
 ```
 
+# Handle postgres database
+---
+
+## PostgreSQL Setup for Zigzag
+
+This guide walks you through configuring PostgreSQL locally for your project, fixing common connection issues, and testing your setup.
+
+---
+
+### 1. Set Environment Variables
+
+Before starting, export the database connection variables:
+
+```bash
+export POSTGRES_DB=zigzag
+export POSTGRES_USER=zigzag
+export POSTGRES_PASSWORD=your_password
+export POSTGRES_HOST=localhost
+export POSTGRES_PORT=5432
+```
+
+You can also add these lines to your `.env` file for convenience.
+
+---
+
+### ⚠️ Problem: “User password required” or “FATAL: password authentication failed”
+
+If you don’t know your PostgreSQL password or can’t connect, follow these steps to connect and verify your setup.
+
+---
+
+### 2. Check PostgreSQL Installation
+
+Run the following commands to confirm PostgreSQL is installed:
+
+```bash
+command -v psql
+psql --version
+```
+
+Example output:
+
+```
+/usr/local/bin/psql
+psql (PostgreSQL) 14.15 (Homebrew)
+```
+
+If PostgreSQL isn’t running, start the service (for Homebrew installations):
+
+```bash
+brew services start postgresql@14
+```
+
+---
+
+### 3. Connect with the Default `postgres` User
+
+Try connecting using the default superuser:
+
+```bash
+psql -U postgres
+```
+
+> 💡 The password is usually your macOS user password (if installed via Homebrew).
+
+---
+
+### 4. Create the Target Database and Role
+
+Once inside `psql`, run:
+
+```sql
+CREATE ROLE zigzag WITH LOGIN PASSWORD 'your_strong_password';
+CREATE DATABASE zigzag OWNER zigzag;
+GRANT ALL PRIVILEGES ON DATABASE zigzag TO zigzag; // might be optionnal
+```
+To verify:
+
+```sql
+\du zigzag      -- check the role exists
+\l              -- list databases
+\conninfo       -- confirm connection info
+```
+
+---
+
+### 5. Test the Connection
+
+Outside `psql`, run:
+
+```bash
+psql "host=${POSTGRES_HOST:-localhost} port=${POSTGRES_PORT:-5432} dbname=${POSTGRES_DB:-zigzag} user=${POSTGRES_USER:-zigzag} password=${POSTGRES_PASSWORD}"
+```
+
+Inside `psql`:
+
+```sql
+\l       -- list databases
+\dt      -- list tables
+\q       -- quit
+```
+
+---
+
+### 6. PostgreSQL Configuration Notes
+
+If you get remote connection errors or authentication issues, check your PostgreSQL host-based authentication file:
+
+```bash
+cd /usr/local/var/postgresql@14
+vi pg_hba.conf
+```
+
+Then restart PostgreSQL:
+
+```bash
+brew services restart postgresql@14
+```
+
+---
+
+### 7. Load and Dump Data (Django Example)
+
+To **export data** from SQLite:
+
+```bash
+python manage.py dumpdata \
+  --database=sqlite \
+  --natural-foreign --natural-primary \
+  --exclude=contenttypes --exclude=auth.Permission \
+  --indent 2 > dump.json
+```
+
+To **import data** into PostgreSQL:
+
+```bash
+python manage.py loaddata dump.json
+```
+
+---
+
+## ⚡ 8. Run Django with PostgreSQL
+
+Switch your default database in your Django terminal session:
+
+```bash
+export DB_DEFAULT="postgres"
+```
+
+Then run migrations and start your app:
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+---
+
+### 💡 Quick Recap
+
+* Create PostgreSQL user + DB: `CREATE ROLE`, `CREATE DATABASE`
+* Grant privileges if needed
+* Test connection with `psql`
+* Update Django to use PostgreSQL
+* Load your data and run migrations
+
+---
+
+
 # Known issues
 Clicking on Profile of people doesn't work
 
@@ -79,13 +248,14 @@ Clicking on Profile of people doesn't work
 
 - View Profile of others.
 - Add a calendar views
-- Make invitation links for people (1 solution : Create "invited Circle" and Hidden from Sidebar)
+- Make invitation links for people (1 solution : Create "invited Circle")
 -  \>300 : 
     - Add Friends relationships :
          - see friends of friends events when Number > 300 : marker and project.
          - Found list of friends insatead of user on the plateform.
     - People could add their circle into a project.
     - Introduce some public event when Number > 1000
+    - Make invitation links for people (1 solution : Create "invited Circle")
 - Implementing a dapp for financing project through the blockchain.
 
 
