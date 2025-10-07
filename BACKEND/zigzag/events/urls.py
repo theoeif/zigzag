@@ -12,6 +12,7 @@ from .views import (
     MyLocationsView,
     ProfileViewSet,
     FriendsListView,
+    ProfileByUserView,
 )
 
 # ViewSet mappings
@@ -37,6 +38,7 @@ urlpatterns = [
     path('profile/', ProfileViewSet.as_view({'get': 'list', 'post': 'create'}), name='profile-list'),
     path('profile/<int:pk>/', ProfileViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='profile-detail'),
     path('profile/me/', ProfileViewSet.as_view({'get': 'me', 'patch': 'me'}), name='profile-me'),
+    path('users/<str:username>/profile/', ProfileByUserView.as_view(), name='user-profile-by-username'),
 
     # User Address endpoints
     path('user/addresses/', UserAddressViewSet.as_view({'get': 'list', 'post': 'create'}), name='user-address-list'),

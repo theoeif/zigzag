@@ -25,7 +25,7 @@ const App = () => {
         <Route path="/create-account" element={<AccountCreation />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/profile/:id" element={<ProfilePage />} />
+        <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/events" element={<Project />} />
         <Route path="/circles" element={<MainCircles />} />
         <Route path="/event/:id" element={<DirectEventLinkView />} />

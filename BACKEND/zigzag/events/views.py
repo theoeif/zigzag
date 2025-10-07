@@ -274,6 +274,20 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response(user_serializer.data)
 
 
+class ProfileByUserView(APIView):
+    """
+    Return a user's username and nested profile by username.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, username: str):
+        from .models import User  # local import to avoid circular imports
+        user = get_object_or_404(User, username=username)
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
+
+
 class CircleViewSet(viewsets.ModelViewSet):
     """
     Manage circles and their members.

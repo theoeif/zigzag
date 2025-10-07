@@ -99,7 +99,8 @@ li {
 /* Fix manage button container positioning and prevent header overlap */
 .manageButtonContainer {
   display: flex;
-  justify-content: flex-end; /* Change from space-between to flex-end */
+  justify-content: space-between; /* Change back to space-between to put username on left */
+  align-items: center;
   padding: 10px 0;
   margin: 80px 0 20px 0;
   position: relative;

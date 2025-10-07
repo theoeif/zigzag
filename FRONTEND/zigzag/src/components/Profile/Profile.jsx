@@ -7,6 +7,7 @@ import AddressItem from './AddressItem';
 import AddAddressPopup from './AddAddressPopup';
 import styles from './Profile.module.css';
 import { AuthContext } from '../../contexts/AuthProvider';
+import ProofileItem from './ProfileItem';
 
 const labelSuggestions = ["Localisation d'Amis", "Travail", "Résidence Secondaire"];
 
@@ -183,9 +184,6 @@ const Profile = () => {
         <button onClick={() => setIsManageMode(!isManageMode)} className={styles.manageButton}>
           <FaCog /> Gérer
         </button>
-        <button onClick={logout} className={styles.manageButton} style={{ marginLeft: 12 }}>
-          Se déconnecter
-        </button>
       </div>
 
       {errorMessage && (
@@ -236,78 +234,24 @@ const Profile = () => {
           )}
         </section>
 
-        {/* Availability Section */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Disponibilité</h2>
-          
-          <div className={styles.subSection}>
-            <h3 className={styles.subTitle}>Emploi du temps</h3>
-            <div className={styles.timetable}>
-              {Object.keys(timetable).map(day => (
-                <div key={day} className={styles.timetableDay} onClick={() => setSelectedDay(day)}>
-                  <h4>{day}</h4>
-                  <p>{timetable[day].start ? `${timetable[day].start} - ${timetable[day].end}` : "XX:XX"}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {selectedDay && (
-            <div className={styles.timeRangePickerModal}>
-              <div className={styles.timeRangePicker}>
-                <h4>Définir les heures pour {selectedDay}</h4>
-                <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-                <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-                <div className={styles.buttonContainer}>
-                  <button onClick={handleTimeRangeSave}>Sauvegarder</button>
-                  <button onClick={() => setSelectedDay(null)}>Annuler</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Remote Work Section */}
-          <div className={styles.subSection}>
-            <h3 className={styles.subTitle}>Télétravail</h3>
-            <div className={styles.remoteWorkSection}>
-              <label className={styles.remoteDaysLabel}>
-                <span>Jours de télétravail / Semaine :</span>
-                <input
-                  type="number"
-                  value={remoteDaysCount}
-                  onChange={(e) => setRemoteDaysCount(Math.max(0, Math.min(7, parseInt(e.target.value, 10))))}
-                  min="0"
-                  max="7"
-                  className={styles.remoteDaysInput}
-                  disabled={selectedDay !== null}
-                />
-              </label>
-              <div className={styles.remoteDaysBar}>
-                {Object.keys(remoteDays).map((day) => (
-                  <div 
-                    key={day} 
-                    className={`${styles.remoteDay} ${remoteDays[day] ? styles.active : ""} ${selectedDay !== null ? styles.disabled : ""}`} 
-                    onClick={() => handleRemoteDayClick(day)}
-                  >
-                    {day.slice(0, 3)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* "What Are You Looking For?" Section */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Que recherchez-vous ?</h2>
-          <textarea
-            value={lookingFor}
-            onChange={(e) => setLookingFor(e.target.value)}
-            className={styles.lookingForInput}
-            placeholder="Décrivez ce que vous recherchez..."
-            rows={4}
-          />
-        </section>
+        <ProofileItem
+          timetable={timetable}
+          remoteDaysCount={remoteDaysCount}
+          remoteDays={remoteDays}
+          lookingFor={lookingFor}
+          readOnly={false}
+          selectedDay={selectedDay}
+          onSelectDay={(day) => setSelectedDay(day)}
+          startTime={startTime}
+          endTime={endTime}
+          onChangeStartTime={(val) => setStartTime(val)}
+          onChangeEndTime={(val) => setEndTime(val)}
+          onSaveTimeRange={handleTimeRangeSave}
+          onCancelSelectDay={() => setSelectedDay(null)}
+          onChangeRemoteDaysCount={(e) => setRemoteDaysCount(Math.max(0, Math.min(7, parseInt(e.target.value, 10))))}
+          onToggleRemoteDay={handleRemoteDayClick}
+          onChangeLookingFor={(val) => setLookingFor(val)}
+        />
       </div>
 
       {/* Floating save button */}

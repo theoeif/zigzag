@@ -246,7 +246,7 @@ const LeftMenu = ({ closeMenu }) => {
       // Set active button to "profile" when navigating to a profile
       setActiveButton("profile");
       localStorage.setItem('activeMenuButton', "profile");
-      navigate(`/profile/${result.id}`);
+      navigate(`/profile/${result.name}`);
     } else if (result.type === "project") {
       // Navigate to DirectEventLinkView for project details
       navigate(`/event/${result.id}`);
