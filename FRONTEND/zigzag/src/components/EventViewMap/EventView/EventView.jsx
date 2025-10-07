@@ -13,7 +13,9 @@ import {
   FaUser,
   FaLink,
   FaUsers,
-  FaUserFriends
+  FaUserFriends,
+  // See more icon to navigate to project page
+  FaInfoCircle
 } from "react-icons/fa";
 
 // Styles for the event view
@@ -432,6 +434,10 @@ const EventView = ({
     return date.toLocaleDateString('en-US', dateFormat);
   };
 
+  const handleSeeMore = () => {
+    navigate('/events', { state: { openEventId: eventId } });
+  };
+
   // Format date only (month + day)
   const formatDateOnly = (dateString) => {
     const date = new Date(dateString);
@@ -821,6 +827,15 @@ const EventView = ({
                         <FaUsers />
                       </button>
                     )}
+
+                    {/* See more button - go to project page */}
+                    <button
+                      onClick={handleSeeMore}
+                      style={styles.shareButton}
+                      title="See more details"
+                    >
+                      <FaInfoCircle />
+                    </button>
                   </div>
                   
                   {/* Show share error as popup if present */}
@@ -1009,6 +1024,15 @@ const EventView = ({
                       <FaUsers />
                     </button>
                   )}
+
+                  {/* See more button - go to project page */}
+                  <button 
+                    onClick={handleSeeMore}
+                    style={styles.shareButton}
+                    title="See more details"
+                  >
+                    <FaInfoCircle />
+                  </button>
                 </div>
                 
                 {/* Show share error as popup if present */}
