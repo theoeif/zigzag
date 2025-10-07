@@ -1,6 +1,5 @@
 import React from 'react';
 import { MapContainer } from 'react-leaflet';
-// import './Map.css'; // Add necessary styles here
 import '../../index.css'
 import TimelineBar from "../TimelineBar/TimelineBar";
 

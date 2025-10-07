@@ -23,6 +23,7 @@ import { AuthContext } from "../contexts/AuthProvider";
 import { MapContext } from "../contexts/MapContext.jsx";
 
 const MarkersMap = ({ eventCoordinates = null }) => {
+  const isBackground = !!eventCoordinates;
   // Authentication and header state
   const { isConnected } = useContext(AuthContext);
   const [isFilterOpen, setisFilterOpen] = useState(false);
@@ -1025,7 +1026,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Load tags and set default selections.
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && !isBackground) {
       const loadTags = async () => {
         const data = await fetchMyTags();
         if (data) {
@@ -1037,7 +1038,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       };
       loadTags();
     }
-  }, [isConnected]);
+  }, [isConnected, isBackground]);
 
   // Handle tag selection.
   const handleTagSelection = (tagId) => {
@@ -1052,10 +1053,10 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Refresh markers when selectedTags change.
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && !isBackground) {
       refreshMarkersForSelectedTags();
     }
-  }, [selectedTags, isConnected]);
+  }, [selectedTags, isConnected, isBackground]);
 
   // Update map view when clustering state changes.
   useEffect(() => {
@@ -1141,15 +1142,17 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Fetch friend locations when component mounts
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && !isBackground) {
       loadFriendLocations();
     }
-  }, [isConnected]);
+  }, [isConnected, isBackground]);
 
   // Refresh markers when connection state changes
   useEffect(() => {
-    refreshMarkersForSelectedTags();
-  }, [isConnected]);
+    if (!isBackground) {
+      refreshMarkersForSelectedTags();
+    }
+  }, [isConnected, isBackground]);
 
   // Center map on event coordinates when provided (but don't affect timeline)
   useEffect(() => {
@@ -1166,8 +1169,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         toggleLeftMenu={() => setIsLeftMenuOpen(!isLeftMenuOpen)}
         toggleFilterMenu={() => setisFilterOpen(!isFilterOpen)}
       />
-      {isLeftMenuOpen && <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />}
-      {isFilterOpen && (
+      {!isBackground && isLeftMenuOpen && <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />}
+      {!isBackground && isFilterOpen && (
         <FilterMenu
           toggleClustering={() => setIsClustered((prev) => !prev)}
           isClustered={isClustered}
@@ -1184,12 +1187,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         />
       )}
       <Map
-        isFilterOpen={isFilterOpen}
-        isLeftMenuOpen={isLeftMenuOpen}
+        isFilterOpen={!isBackground && isFilterOpen}
+        isLeftMenuOpen={!isBackground && isLeftMenuOpen}
         initializeMap={initializeMap}
       >
-        {/* Only render TimelineBar when visible, but always pass the same timeframe */}
-        {showTimelineBar && (
+        {/* Only render TimelineBar when visible and not in background mode */}
+        {!isBackground && showTimelineBar && (
           <TimelineBar 
             onTimeChange={handleTimelineTimeChange} 
             initialRange={timeframe}
@@ -1199,10 +1202,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       </Map>
       
       {/* Simple toggle button */}
-      <TimelineToggle 
-        isVisible={showTimelineBar} 
-        onToggle={toggleTimelineVisibility} 
-      />
+      {!isBackground && (
+        <TimelineToggle 
+          isVisible={showTimelineBar} 
+          onToggle={toggleTimelineVisibility} 
+        />
+      )}
     </>
   );
 };
