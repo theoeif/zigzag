@@ -334,7 +334,7 @@ export const updateAddressLabel = async (addressId, newLabel) => {
 
 // TODO : Reomve releated Code
 // fetch Friends profile
-export const fetchProfile = async (id) => {
+export const fetchProfile = async (username) => {
   try {
     let token = localStorage.getItem("access_token");
     if (!token) {
@@ -342,13 +342,14 @@ export const fetchProfile = async (id) => {
       if (!token) return null;
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/events/profile/${id}/`, {
+    // Use the user-profile-by-username endpoint to get username + nested profile
+    const response = await axios.get(`http://127.0.0.1:8000/api/events/users/${username}/profile/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    return response.data; // Return the fetched profile data
+    return response.data; // { id, username, profile: { ... } }
   } catch (error) {
     console.error("Error fetching profile:", error);
     throw error.response?.data?.error || "Failed to load profile";
