@@ -1075,7 +1075,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
           >
             <ButtonGroup variant="text" size="small">
               <Button onClick={handleThisWeek}>
-                {isSmallScreen ? 'Sem' : 'Cette Semaine'}
+                {isSmallScreen ? 'Sem' : 'En cours'}
               </Button>
               <Button onClick={handleAllPeriod} sx={{ fontWeight: 500 }}>
                 {isSmallScreen ? '1M' : '1 Mois'}

@@ -494,8 +494,8 @@ class RegisterView(generics.CreateAPIView):
 class TagListView(generics.ListAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [AllowAny]
-
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
 class MyLocationsView(APIView):
     """
