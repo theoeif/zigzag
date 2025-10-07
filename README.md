@@ -26,23 +26,18 @@ Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
 ### requirements
 
 ```bash
-uv init
+cd BACKEND
 uv sync
-source .venv/bin/activate
-```
-
-### DB setup:
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
 ```
 
 ### Run server:
 
 ```bash
-source .venv/bin/activate && cd myproject && python3 manage.py runserver --skip-checks
+cd zigzag
+uv run manage.py runserver
 ```
+
+You can then open the admin dashboard at <http://127.0.0.1:8000/admin/> and type-in your password.
 
 ---
 
@@ -50,7 +45,8 @@ source .venv/bin/activate && cd myproject && python3 manage.py runserver --skip-
 
 Prerequsites: 
 
-Replace FRONTEND/zigzag/src/config.example.js by FRONTEND/zigzag/src/config.js with proper Api key : 
+Duplicate `FRONTEND/zigzag/src/config.example.js` rename it with `FRONTEND/zigzag/src/config.js` (to have it ignored by `git`) and replace the following fields with your proper API key :
+
 ```bash
 export const OPEN_CAGE_API_KEY = "geocoding api OpenCage" (gratuit);
 export const OPENCAGE_SEARCH_TOKEN = "Location autosuggest OpenCage" (payant);
