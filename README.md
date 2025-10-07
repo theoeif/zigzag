@@ -75,7 +75,8 @@ npm run dev
 
 ## PostgreSQL Setup for Zigzag
 
-This guide walks you through configuring PostgreSQL locally for your project, fixing common connection issues, and testing your setup.
+The following walks you through configuring PostgreSQL locally for your project, fixing common connection issues, and testing your setup.
+The project use sqlite3 with a dump db.sqlite3 by default in local.
 
 ---
 
