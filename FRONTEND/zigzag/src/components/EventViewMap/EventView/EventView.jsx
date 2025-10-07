@@ -464,6 +464,40 @@ const EventView = ({
     });
   };
   
+  // Create a short, beautiful description preview (EventView only)
+  const getDescriptionPreviewParagraphs = (description) => {
+    if (!description) return [];
+    const MAX = 250; // target length budget for preview
+    // Normalize and inject spacing similar to EventCard expectations
+    let text = String(description).replace(/\r\n/g, '\n').trim();
+    // Insert blank lines after headings ending with ':'
+    text = text.replace(/:\s*/g, ':\n\n');
+    // Collapse 3+ newlines to double newlines
+    text = text.replace(/\n{3,}/g, '\n\n');
+
+    const rawParagraphs = text.split(/\n{2,}/);
+    const result = [];
+    let used = 0;
+    for (let i = 0; i < rawParagraphs.length; i++) {
+      const p = rawParagraphs[i].trim();
+      if (!p) continue;
+      if (used + p.length <= MAX) {
+        result.push(p);
+        used += p.length + 2; // account for spacing
+      } else {
+        const remaining = Math.max(0, MAX - used);
+        if (remaining > 20) {
+          const slice = p.slice(0, remaining);
+          const lastSpace = slice.lastIndexOf(' ');
+          const trimmed = slice.slice(0, lastSpace > 0 ? lastSpace : remaining).trimEnd();
+          result.push(`${trimmed}...`);
+        }
+        break;
+      }
+    }
+    return result;
+  };
+  
   // Get day name
   const getDayName = (dateString) => {
     const date = new Date(dateString);
@@ -768,26 +802,31 @@ const EventView = ({
                   
                 </div>
                 
-                {/* Add description in its own container */}
+                {/* Description preview - inspired by EventCard */}
                 {event.description && (
                   <div style={{
-                    marginTop: "5px",
-                    marginBottom: "15px",
-                    padding: "15px",
+                    marginTop: "8px",
+                    marginBottom: "16px",
+                    padding: "14px 16px",
                     backgroundColor: "#f9f9f9",
-                    borderRadius: "8px",
-                    border: "1px solid #eee"
+                    borderRadius: "10px",
+                    border: "1px solid #eee",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
                   }}>
-                    <h3 style={{
-                      fontSize: "1rem",
-                      margin: "0 0 10px 0",
-                      color: "#333"
-                    }}>Description</h3>
-                    <p style={{
-                      margin: 0,
-                      fontSize: "0.95rem",
-                      lineHeight: "1.5"
-                    }}>{event.description}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <FaInfoCircle style={{ color: "#2d6a4f" }} />
+                      <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#2d2d2d" }}>Description</span>
+                    </div>
+                    <div>
+                      {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
+                        <p key={idx} style={{
+                          margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
+                          fontSize: '0.95rem',
+                          lineHeight: 1.5,
+                          color: '#333'
+                        }}>{para}</p>
+                      ))}
+                    </div>
                   </div>
                 )}
                 
@@ -965,26 +1004,31 @@ const EventView = ({
                 
               </div>
               
-              {/* Add description in its own container */}
+              {/* Description preview - inspired by EventCard */}
               {event.description && (
                 <div style={{
-                  marginTop: "5px",
-                  marginBottom: "15px",
-                  padding: "15px",
+                  marginTop: "8px",
+                  marginBottom: "16px",
+                  padding: "14px 16px",
                   backgroundColor: "#f9f9f9",
-                  borderRadius: "8px",
-                  border: "1px solid #eee"
+                  borderRadius: "10px",
+                  border: "1px solid #eee",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
                 }}>
-                  <h3 style={{
-                    fontSize: "1rem",
-                    margin: "0 0 10px 0",
-                    color: "#333"
-                  }}>Description</h3>
-                  <p style={{
-                    margin: 0,
-                    fontSize: "0.95rem",
-                    lineHeight: "1.5"
-                  }}>{event.description}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <FaInfoCircle style={{ color: "#2d6a4f" }} />
+                    <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#2d2d2d" }}>Description</span>
+                  </div>
+                  <div>
+                    {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
+                      <p key={idx} style={{
+                        margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
+                        fontSize: '0.95rem',
+                        lineHeight: 1.5,
+                        color: '#333'
+                      }}>{para}</p>
+                    ))}
+                  </div>
                 </div>
               )}
               
