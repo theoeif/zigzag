@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import styles from './Project.module.css';
 
-const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle }) => {
+const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
   const [showCirclesDropdown, setShowCirclesDropdown] = useState(false);
@@ -320,6 +320,15 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       onDetailsToggle(newShowDetails);
     }
   };
+
+  // Auto-open details when requested by parent
+  React.useEffect(() => {
+    if (autoOpen && !showDetails) {
+      setShowDetails(true);
+      if (onDetailsToggle) onDetailsToggle(true);
+      if (onAutoOpened) onAutoOpened();
+    }
+  }, [autoOpen, showDetails, event.id, event.title, onDetailsToggle, onAutoOpened]);
 
   return (
     <div className={styles.eventCardProject} style={{ 

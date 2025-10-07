@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { FaTrashAlt, FaCog, FaEdit, FaMapMarkerAlt, FaClock, FaWhatsapp, FaGlobe, FaUser, FaChevronUp, FaChevronDown, FaShare, FaCalendarPlus, FaBookmark, FaLink, FaUsers, FaFilter, FaPlus, FaUserFriends, FaCalendarAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Header from '../Header/Header';
 import { AuthContext } from '../../contexts/AuthProvider';
 import LeftMenu from '../LeftMenu/LeftMenu';
@@ -32,6 +32,10 @@ const Project = ({ projectId }) => {
   const menuRef = useRef(null);
   const { isConnected } = useContext(AuthContext);
   const { mapState } = useContext(MapContext);
+  const location = useLocation();
+  const [autoOpenEventId, setAutoOpenEventId] = useState(location.state?.openEventId || null);
+  
+  // (logs removed)
 
   // State for circles (for mapping events)
   const [circles, setCircles] = useState([]);
@@ -311,6 +315,8 @@ const Project = ({ projectId }) => {
   useEffect(() => {
     setAnyDetailsExpanded(false);
   }, [filteredEvents, filteredFriendsEvents]);
+
+  // (logs removed)
   
   // Loading state UI
   if (isLoading) {
@@ -403,17 +409,22 @@ const Project = ({ projectId }) => {
             <p>Vous n'avez pas encore créé de projets.</p>
           ) : (
             <div className={styles.eventsGridProject}>
-              {filteredEvents.map((event) => (
-                <EventCard 
-                  key={event.id} 
-                  event={event} 
-                  isManageMode={isManageMode}
-                  onDelete={handleDeleteEvent}
-                  onEdit={handleEditEvent}
-                  onViewCircleMembers={handleViewCircleMembers}
-                  onDetailsToggle={handleDetailsToggle}
-                />
-              ))}
+              {filteredEvents.map((event) => {
+                const shouldAutoOpen = autoOpenEventId === event.id;
+                return (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    isManageMode={isManageMode}
+                    onDelete={handleDeleteEvent}
+                    onEdit={handleEditEvent}
+                    onViewCircleMembers={handleViewCircleMembers}
+                    onDetailsToggle={handleDetailsToggle}
+                    autoOpen={shouldAutoOpen}
+                    onAutoOpened={() => setAutoOpenEventId(null)}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
@@ -444,17 +455,22 @@ const Project = ({ projectId }) => {
               {filteredFriendsEvents.length === 0 ? (
                 <p>Aucun événement d'ami ne correspond à la période sélectionnée.</p>
               ) : (
-                getFilteredFriendsEvents().map((event) => (
-                  <EventCard 
-                    key={event.id} 
-                    event={event}
-                    isManageMode={false} // Don't allow editing of friend's events
-                    onDelete={handleDeleteEvent}
-                    onEdit={handleEditEvent}
-                    onViewCircleMembers={handleViewCircleMembers}
-                    onDetailsToggle={handleDetailsToggle}
-                  />
-                ))
+                getFilteredFriendsEvents().map((event) => {
+                  const shouldAutoOpen = autoOpenEventId === event.id;
+                  return (
+                    <EventCard 
+                      key={event.id} 
+                      event={event}
+                      isManageMode={false} // Don't allow editing of friend's events
+                      onDelete={handleDeleteEvent}
+                      onEdit={handleEditEvent}
+                      onViewCircleMembers={handleViewCircleMembers}
+                      onDetailsToggle={handleDetailsToggle}
+                      autoOpen={shouldAutoOpen}
+                      onAutoOpened={() => setAutoOpenEventId(null)}
+                    />
+                  );
+                })
               )}
             </div>
           )}
