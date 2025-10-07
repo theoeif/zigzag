@@ -214,7 +214,15 @@ export const fetchCircles = async () => {
 // Function to fetch tags data (public endpoint)
 export const fetchMyTags = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:8000/api/events/tags/");
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      token = await refreshAccessToken(); // Attempt to refresh if no token
+      if (!token) return null;
+    }
+
+    const response = await axios.get("http://127.0.0.1:8000/api/events/tags/", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     console.log("Tags data received:", response.data); // Debug log
     return response.data; // Return tags data
   } catch (error) {
