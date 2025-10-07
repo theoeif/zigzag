@@ -21,7 +21,7 @@ const ProofileItem = ({
 }) => {
   // Define the correct order of days starting with Monday
   const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
+
   return (
     <>
       <section className={styles.section}>
@@ -122,5 +122,3 @@ const ProofileItem = ({
 };
 
 export default ProofileItem;
-
-

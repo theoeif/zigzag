@@ -20,21 +20,21 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
       setErrorMessage("Veuillez saisir une adresse à localiser.");
       return;
     }
-    
+
     setIsLocalizing(true);
     setErrorMessage("");
-    
+
     try {
       const response = await axios.get(
         `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(newAddress)}&key=${OPEN_CAGE_API_KEY}`
       );
-      
+
       const data = response.data;
       if (data.results && data.results.length > 0) {
         const result = data.results[0];
         const { formatted, components, geometry } = result;
         const resolvedCity = components.city || components.town || components.village || "";
-        
+
         setLocalizedAddress({
           address_line: formatted,
           city: resolvedCity,
@@ -44,7 +44,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           latitude: geometry.lat,
           longitude: geometry.lng,
         });
-        
+
         // Update the address field with the formatted address
         setNewAddress(formatted);
       } else {
@@ -63,18 +63,18 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
       setErrorMessage("Veuillez saisir une adresse");
       return;
     }
-    
-    
+
+
     if (!localizedAddress) {
       setErrorMessage("Veuillez localiser l'adresse avant de l'ajouter");
       return;
     }
-    
+
     const fullAddress = {
       ...localizedAddress,
       label: newAddressLabel.trim() || "Aucun libellé"
     };
-    
+
     onAddAddress(fullAddress);
     onClose();
   };
@@ -163,7 +163,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
               value={newAddressLabel}
               onChange={(e) => setNewAddressLabel(e.target.value)}
             />
-            
+
             {/* Label Suggestions */}
             <Box className={styles.labelSuggestions} sx={{ mt: 1 }}>
               <Typography variant="caption" sx={{ color: '#666', mr: 1 }}>
@@ -209,10 +209,10 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
                 gap: '6px'
               }}
             >
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                marginBottom: '4px', 
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '4px',
                 borderBottom: '1px solid #e0e0e0',
                 paddingBottom: '6px'
               }}>
@@ -221,7 +221,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
                   Adresse localisée
                 </Typography>
               </Box>
-              
+
               <Typography variant="body2" sx={{ margin: '2px 0' }}>
                 {localizedAddress.address_line}
               </Typography>
@@ -236,8 +236,8 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           )}
 
           {/* Add note about required fields */}
-          <Typography 
-            variant="caption" 
+          <Typography
+            variant="caption"
             sx={{ display: 'block', mb: 2, color: '#666', fontStyle: 'italic' }}
           >
             Le champ marqué d'un <span style={{ color: '#d32f2f' }}>*</span> est obligatoire
@@ -276,4 +276,4 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
   );
 };
 
-export default AddAddressPopup; 
+export default AddAddressPopup;

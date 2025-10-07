@@ -27,10 +27,10 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { setIsConnected } = useContext(AuthContext);
-  
+
   // Extract redirect URL from query parameter if it exists
   const [redirectPath, setRedirectPath] = useState("/");
-  
+
   useEffect(() => {
     // Parse query parameters to check if there's a redirect path
     const queryParams = new URLSearchParams(location.search);
@@ -64,7 +64,7 @@ const Login = () => {
       navigate(redirectPath);
     } catch (err) {
       console.error("Login: Error during login:", err);
-      
+
       // Handle different types of errors
       if (err.response?.status === 401) {
         setError("Invalid username or password. Please check your credentials and try again.");
@@ -146,9 +146,9 @@ const Login = () => {
 
         <p className={styles.signupText}>
           Don't have an account?{" "}
-          <button 
+          <button
             type="button"
-            onClick={() => navigate('/create-account')} 
+            onClick={() => navigate('/create-account')}
             className={styles.signupLink}
           >
             Sign Up
