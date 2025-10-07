@@ -172,6 +172,82 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
   );
 };
 
+// New component for editing circle name
+const EditCircleNameModal = ({ open, onClose, onUpdate, circle }) => {
+  const [circleName, setCircleName] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (open && circle) {
+      setCircleName(circle.name || '');
+      setError('');
+    }
+  }, [open, circle]);
+
+  const handleUpdate = async () => {
+    if (!circleName.trim()) {
+      setError('Le nom du cercle est obligatoire');
+      return;
+    }
+
+    if (circleName.trim() === circle.name) {
+      onClose();
+      return;
+    }
+
+    try {
+      const updatedData = {
+        name: circleName.trim()
+      };
+      
+      await onUpdate(updatedData);
+      onClose();
+    } catch (err) {
+      console.error('Error updating circle name:', err);
+      setError('Échec de la mise à jour du nom');
+    }
+  };
+
+  return (
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      maxWidth="sm" 
+      fullWidth
+    >
+      <DialogTitle>Modifier le Nom du Cercle</DialogTitle>
+      <DialogContent>
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>
+        )}
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Nom du cercle"
+          type="text"
+          fullWidth
+          value={circleName}
+          onChange={(e) => {
+            setCircleName(e.target.value);
+            setError('');
+          }}
+          sx={{ mt: 1 }}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Annuler</Button>
+        <Button 
+          onClick={handleUpdate}
+          disabled={!circleName.trim() || circleName.trim() === circle?.name}
+          variant="contained"
+        >
+          Mettre à jour
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 // New component for editing circle tags
 const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
   const [allTags, setAllTags] = useState([]);
@@ -312,6 +388,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   const [members, setMembers] = useState([]);
   const [isAddUsersModalOpen, setIsAddUsersModalOpen] = useState(false);
   const [isEditTagsModalOpen, setIsEditTagsModalOpen] = useState(false);
+  const [isEditNameModalOpen, setIsEditNameModalOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [isCreator, setIsCreator] = useState(false);
@@ -385,6 +462,27 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
       if (onCircleDeleted) onCircleDeleted();
     } catch (error) {
       console.error('Error deleting circle:', error);
+    }
+  };
+
+  const handleUpdateName = async (updatedData) => {
+    try {
+      const updatedCircle = await updateCircle(circle.id, updatedData);
+      
+      // Update local state immediately for better UX
+      setLocalCircle({
+        ...localCircle,
+        name: updatedData.name
+      });
+      
+      // Create a custom event to force CirclesSidebar to refresh
+      const event = new CustomEvent('refreshCircles');
+      window.dispatchEvent(event);
+      
+      return updatedCircle;
+    } catch (error) {
+      console.error('Error updating circle name:', error);
+      throw error;
     }
   };
 
@@ -499,6 +597,16 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
             <MenuItem 
               onClick={() => {
                 setAnchorEl(null);
+                setIsEditNameModalOpen(true);
+              }} 
+              className="editNameMenuItem"
+            >
+              <EditIcon sx={{ mr: 1 }} />
+              Modifier le Nom
+            </MenuItem>
+            <MenuItem 
+              onClick={() => {
+                setAnchorEl(null);
                 setIsEditTagsModalOpen(true);
               }} 
               className="editTagsMenuItem"
@@ -577,6 +685,13 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
             onAdd={loadMembers}
             circle={circle}
             existingMembers={members}
+          />
+
+          <EditCircleNameModal
+            open={isEditNameModalOpen}
+            onClose={() => setIsEditNameModalOpen(false)}
+            onUpdate={handleUpdateName}
+            circle={localCircle}
           />
 
           <EditTagsModal
