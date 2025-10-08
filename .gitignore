@@ -5,13 +5,12 @@ config.js
 
 # external libraries
 # External NODE libraries
-node_modules/*
 node_modules/
+package-lock.json
+
 # External PYTHON libraries
 venv/
 .venv/
-other/
-venv2/
 
 # Computer dependencies
 *.pyc

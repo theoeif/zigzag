@@ -22,7 +22,7 @@ body, html {
 }
 
 .leaflet-control-zoom {
-  top: 80px !important; /* Adjust this value to push it below the header */
+  top: 8px !important; /* Smaller value = closer to the top */
   left: 10px !important; /* Keep it near the left edge */
 }
 
@@ -142,7 +142,7 @@ body, html {
   width: 30%;
   height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   background-color: #f0fdf4;
-  z-index: 1700;
+  z-index: 1900; /* Below header */
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -167,6 +167,24 @@ body, html {
 .filter-menu .aa-PanelLayout {
   max-height: inherit;
   overflow-y: auto;
+}
+
+/* Fix GeoSearch autocomplete positioning on mobile - Alternative approach */
+.filter-menu .aa-DetachedContainer {
+  position: relative !important;
+}
+
+.filter-menu .aa-Panel {
+  position: relative !important;
+  margin-top: 8px;
+  max-height: 300px !important;
+  overflow-y: auto;
+}
+
+/* Ensure dropdown stays within filter menu bounds */
+.filter-menu .geo-search-wrapper {
+  position: relative;
+  z-index: 10;
 }
 
 /* Ensure the menu header stays fixed */
@@ -522,7 +540,7 @@ input:checked + .slider:before {
 /* ========== Header Styles ========== */
 .header {
   position: fixed; /* Ensures it sticks to the top */
-  top: 0;
+  top: env(safe-area-inset-top); /* Remove conflicting top: 0 */
   left: 0;
   width: 100%;
   height: 60px; /* Reduced back to normal height */
@@ -531,15 +549,13 @@ input:checked + .slider:before {
   justify-content: center;
   align-items: center;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1200;
+  z-index: 2000; /* Higher than menus */
   pointer-events: auto;
   touch-action: manipulation;
   /* iOS safe area handling - push header below status bar */
   padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  /* Ensure header starts below the status bar */
-  top: env(safe-area-inset-top);
 }
 
 .left-menu-icon, .filter-icon {
@@ -549,16 +565,14 @@ input:checked + .slider:before {
   cursor: pointer;
   font-size: 24px;
   color: #fff;
-  z-index: 1001;
+  z-index: 2001; /* Higher than header */
   pointer-events: auto;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  /* Center vertically accounting for safe area */
-  top: calc(env(safe-area-inset-top) + 50%);
-  transform: translateY(-25%);
-  /* Increase tap area for easier interaction */
-  padding: 12px; /* Increase tap area */
-  margin: -12px; /* Compensate to maintain visual position */
+  /* Center vertically within the header bar */
+  top: calc(env(safe-area-inset-top) + 6px); /* Safe area + (60px - 48px) / 2 = perfect center */
+  /* Remove transform: translateY(-50%) - not needed since we calculated exact center */
+  /* Remove padding/margin that was causing positioning issues */
   min-width: 48px; /* iOS recommended minimum touch target */
   min-height: 48px; /* iOS recommended minimum touch target */
 }
@@ -566,12 +580,12 @@ input:checked + .slider:before {
 .left-menu-icon:hover, .filter-icon:hover {
   color: #ffcc00;
   /* Scale without affecting position */
-  transform: translateY(-50%) scale(1.1);
+  transform: scale(1.1); /* Only scale, no translateY */
   transition: transform 0.1s ease, color 0.1s ease;
 }
 
 .left-menu-icon:active, .filter-icon:active {
-  transform: translateY(-50%) scale(0.9);
+  transform: scale(0.9); /* Only scale, no translateY */
   color: #ffcc00;
   opacity: 0.8;
 }
@@ -621,7 +635,7 @@ input:checked + .slider:before {
   width: 30%;
   height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   background-color: #f0fdf4;
-  z-index: 1500;
+  z-index: 1800; /* Below header */
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
