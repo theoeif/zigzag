@@ -9,7 +9,7 @@ import { OPENCAGE_SEARCH_TOKEN } from "../../config";
 const predefinedLocations = [
   { label: "France", lat: 46.603354, lng: 1.888334, zoom: 6 },
   { label: "Europe", lat: 54.5260, lng: 15.2551,  zoom: 4 },
-  { label: "World", lat: 60, lng: 0,  zoom: 2.4 },
+  { label: "World", lat: 50, lng: 0,  zoom: window.innerWidth > 768 ? 2.4 : 2.9 },
 ];
 
 const FilterMenu = ({

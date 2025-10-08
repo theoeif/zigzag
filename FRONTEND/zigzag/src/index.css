@@ -10,6 +10,17 @@
   font-family: Arial, sans-serif;
 }
 
+/* iOS/Capacitor touch optimization */
+body, html {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .leaflet-control-zoom {
   top: 80px !important; /* Adjust this value to push it below the header */
   left: 10px !important; /* Keep it near the left edge */
@@ -21,6 +32,11 @@
   position: relative;
   width: 100%;
   height: 100vh; /* Critical change - ensures full viewport height */
+  pointer-events: auto; /* Ensure map container can receive events */
+  touch-action: pan-x pan-y pinch-zoom; /* Allow map gestures */
+  margin-top: 60px;
+  /* Adjust height to account for header */
+  height: calc(100vh - 60px);
 }
 
 .overlay {
@@ -31,6 +47,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.3); /* Semi-transparent black overlay */
   z-index: 999; /* Ensure it is on top of the map */
+  pointer-events: none; /* Allow touches to pass through to elements below */
 }
 
 .custom-tooltip {
@@ -120,10 +137,10 @@
 /* Filter Menu Styles */
 .filter-menu {
   position: fixed;
-  top: 0;
+  top: calc(60px + env(safe-area-inset-top)); /* Account for header + safe area */
   right: 0;
   width: 30%;
-  height: 100%;
+  height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   background-color: #f0fdf4;
   z-index: 1700;
   padding: 1.5rem;
@@ -139,6 +156,17 @@
 /* Prevent zoom on mobile */
 .filter-menu * {
   touch-action: pan-y pinch-zoom;
+}
+
+/* Prevent GeoSearch from overflowing into Capacitor status bar */
+.filter-menu .aa-Panel {
+  margin-top: 8px; /* Add space below input */
+  max-height: calc(100vh - 200px - env(safe-area-inset-top)) !important;
+}
+
+.filter-menu .aa-PanelLayout {
+  max-height: inherit;
+  overflow-y: auto;
 }
 
 /* Ensure the menu header stays fixed */
@@ -474,8 +502,10 @@ input:checked + .slider:before {
   .filter-menu {
     width: 66%;
     padding: 1rem;
+    top: calc(60px + env(safe-area-inset-top)); /* Keep below header on mobile */
+    height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   }
-  
+
   .section-header h3 {
     font-size: 1rem;
   }
@@ -484,6 +514,8 @@ input:checked + .slider:before {
 @media (max-width: 480px) {
   .filter-menu {
     width: 80%;
+    top: calc(60px + env(safe-area-inset-top)); /* Keep below header on small mobile */
+    height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   }
 }
 
@@ -493,13 +525,21 @@ input:checked + .slider:before {
   top: 0;
   left: 0;
   width: 100%;
-  height: 60px;
+  height: 60px; /* Reduced back to normal height */
   background-color: #2d6a4f; /* Deep green */
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1200;
+  pointer-events: auto;
+  touch-action: manipulation;
+  /* iOS safe area handling - push header below status bar */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Ensure header starts below the status bar */
+  top: env(safe-area-inset-top);
 }
 
 .left-menu-icon, .filter-icon {
@@ -510,12 +550,30 @@ input:checked + .slider:before {
   font-size: 24px;
   color: #fff;
   z-index: 1001;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* Center vertically accounting for safe area */
+  top: calc(env(safe-area-inset-top) + 50%);
+  transform: translateY(-25%);
+  /* Increase tap area for easier interaction */
+  padding: 12px; /* Increase tap area */
+  margin: -12px; /* Compensate to maintain visual position */
+  min-width: 48px; /* iOS recommended minimum touch target */
+  min-height: 48px; /* iOS recommended minimum touch target */
 }
 
 .left-menu-icon:hover, .filter-icon:hover {
   color: #ffcc00;
-  transform: scale(1.1);
-  transition: transform 0.2s ease, color 0.2s ease;
+  /* Scale without affecting position */
+  transform: translateY(-50%) scale(1.1);
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.left-menu-icon:active, .filter-icon:active {
+  transform: translateY(-50%) scale(0.9);
+  color: #ffcc00;
+  opacity: 0.8;
 }
 
 .left-menu-icon {
@@ -526,25 +584,42 @@ input:checked + .slider:before {
   right: 10px;
 }
 
+/* iOS-specific touch optimization */
+@media (hover: none) and (pointer: coarse) {
+  .left-menu-icon, .filter-icon {
+    -webkit-tap-highlight-color: rgba(255, 204, 0, 0.3);
+  }
+  
+  .menu-btn {
+    -webkit-tap-highlight-color: rgba(45, 106, 79, 0.3);
+  }
+}
+
 .app-title {
   color: #fff;
   font-size: 1.6em;
   margin: 0;
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
   font-weight: bold;
+  /* Add neutral background above the title */
+  background: linear-gradient(180deg, rgba(45, 106, 79, 0.8) 0%, rgba(45, 106, 79, 0.4) 50%, transparent 100%);
+  padding: 8px 16px;
+  border-radius: 8px;
+  backdrop-filter: blur(2px);
 }
 
 /* ========== LeftMenu Styles ========== */
 /* index.css */
 .left-menu {
   position: fixed;
-  top: 0;
+  top: calc(60px + env(safe-area-inset-top)); /* Account for header + safe area */
   left: 0;
   width: 30%;
-  height: 100%;
+  height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   background-color: #f0fdf4;
   z-index: 1500;
   padding: 1.5rem;
@@ -569,7 +644,7 @@ input:checked + .slider:before {
   padding: 0.75rem 1rem;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -662,7 +737,10 @@ input:checked + .slider:before {
 }
 
 .menu-btn:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
+  background-color: #2d6a4f;
+  color: #ffffff;
+  border-color: #1a4031;
 }
 
 .menu-btn.disconnect {
@@ -674,6 +752,35 @@ input:checked + .slider:before {
   background: #fee2e2;
   border-color: #fca5a5;
   transform: translateY(-2px);
+}
+
+/* Touch ripple effect for better mobile feedback */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.menu-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+}
+
+.menu-btn:active::after {
+  animation: ripple 0.4s ease-out;
 }
 
 .research-bar input {
@@ -755,17 +862,19 @@ input:checked + .slider:before {
   .left-menu {
     width: 66%;
     padding: 1rem;
+    top: calc(60px + env(safe-area-inset-top)); /* Keep below header on mobile */
+    height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   }
-  
+
   .menu-header h2 {
     font-size: 1.25rem;
   }
-  
+
   .menu-btn {
     font-size: 0.9rem;
     padding: 0.6rem 0.9rem;
   }
-  
+
   /* Ensure active state styling works on mobile too */
   .menu-btn-active {
     background-color: #f0fdf4; /* Changed from #dcfce7 to #f0fdf4 */
@@ -776,6 +885,8 @@ input:checked + .slider:before {
 @media (max-width: 480px) {
   .left-menu {
     width: 80%;
+    top: calc(60px + env(safe-area-inset-top)); /* Keep below header on small mobile */
+    height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   }
 }
 

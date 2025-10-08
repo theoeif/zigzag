@@ -16,6 +16,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false }) => {
   const isSmallScreen = useMediaQuery('(max-width:599px)');
+  const isMediumScreen = useMediaQuery('(max-width:893px)');
+  const isVerySmallScreen = useMediaQuery('(max-width:443px)');
   const [currentDate] = useState(new Date());
   
   // Get initial end date
@@ -230,7 +232,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   const formatDate = (date) => {
     try {
       // Different format for mobile - no year
-      if (isSmallScreen) {
+      if (isMediumScreen) {
         return date.toLocaleDateString('fr-FR', {
           day: '2-digit',
           month: 'short',
@@ -257,7 +259,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       const dayPart = d.toLocaleDateString('fr-FR', {
         day: '2-digit',
         month: 'short',
-        year: isSmallScreen ? undefined : 'numeric',
+        year: isMediumScreen ? undefined : 'numeric',
       });
       
       return `${dayName} ${dayPart}`;
@@ -885,8 +887,8 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
           className="slider-container" 
           sx={{ 
             position: 'relative', 
-            py: 5.5, 
-            mt: { xs: 3, sm: 1 } // Increased margin top on mobile to lower the slider
+            py: isVerySmallScreen ? 0.5 : 5.5, 
+            mt: isVerySmallScreen ? 0 : { xs: 3, sm: 1 } // Increased margin top on mobile to lower the slider
           }}
           ref={sliderRef}
         >
@@ -1023,14 +1025,16 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
         <Box 
           sx={{ 
             position: 'relative', 
-            mt: 4, // Increased from 3 to 4 to lower the container
+            mt: isVerySmallScreen ? 0 : 4, // Reduce margin on very small screens
             display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
+            flexDirection: isVerySmallScreen ? 'column' : 'row',
+            justifyContent: isVerySmallScreen ? 'center' : 'space-between', 
+            alignItems: isVerySmallScreen ? 'center' : 'center',
+            gap: isVerySmallScreen ? 0 : 0,
             // Keep horizontal but compress on mobile and lower more
             '@media (max-width: 768px)': {
               gap: 1,
-              mt: 4 // Increased from 3 to 4 on mobile to lower controls more
+              mt: isVerySmallScreen ? 0 : 4 // Use the same logic
             }
           }}
         >
@@ -1047,9 +1051,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               zIndex: 3,
               // Position more to the left to give space for date bar
-              position: 'absolute',
-              left: { xs: '5px', sm: '0px' }, // Moved further left on mobile
-              top: { xs: -85, sm: -40 }, // Reverted back to original values
+              position: isVerySmallScreen ? 'relative' : 'absolute',
+              left: isVerySmallScreen ? 'auto' : { xs: '5px', sm: '0px' }, // Moved further left on mobile
+              top: isVerySmallScreen ? 'auto' : { xs: -85, sm: -40 }, // Reverted back to original values
               '& .MuiButton-root': {
                 fontSize: '0.8rem',
                 padding: '4px 12px',
@@ -1075,7 +1079,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
           >
             <ButtonGroup variant="text" size="small">
               <Button onClick={handleThisWeek}>
-                {isSmallScreen ? 'Sem' : 'En cours'}
+                {isSmallScreen ? 'Sem' : 'Semaine'}
               </Button>
               <Button onClick={handleAllPeriod} sx={{ fontWeight: 500 }}>
                 {isSmallScreen ? '1M' : '1 Mois'}
@@ -1150,14 +1154,15 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               whiteSpace: 'nowrap',
               // Positioning - vertically aligned with the four icons container
-              position: 'absolute',
-              top: { xs: -85, sm: -40 }, // Reverted back to original values
-              left: { xs: 'auto', sm: 'auto' }, // Remove centering
-              right: { xs: '5px', sm: '40px' }, // Positioned more right on mobile to give more space
+              position: isVerySmallScreen ? 'relative' : 'absolute',
+              top: isVerySmallScreen ? 'auto' : { xs: -85, sm: -40 }, // Reverted back to original values
+              left: isVerySmallScreen ? 'auto' : { xs: 'auto', sm: 'auto' }, // Remove centering
+              right: isVerySmallScreen ? 'auto' : { xs: '5px', sm: '40px' }, // Positioned more right on mobile to give more space
               transform: { xs: 'none', sm: 'none' }, // Remove transform
+              marginTop: isVerySmallScreen ? 1 : 0,
               // Handle overflow on small screens - make bar longer on mobile
-              maxWidth: { xs: '150px', sm: '200px', md: '90%' },
-              minWidth: { xs: '180px', sm: '150px' },
+              maxWidth: isVerySmallScreen ? 'auto' : { xs: '150px', sm: '200px', md: '90%' },
+              minWidth: isVerySmallScreen ? 'auto' : { xs: '180px', sm: '150px' },
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               // Adjust zIndex to ensure it appears above other elements

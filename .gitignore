@@ -26,3 +26,7 @@ migrations/
 
 # Tempo
 Tempo/
+
+# capacitor
+dist/
+ios/
