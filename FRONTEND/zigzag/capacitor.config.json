@@ -5,7 +5,7 @@
   "plugins": {
     "StatusBar": {
       "overlaysWebView": false,
-      "style": "DARK",              
+      "style": "DARK",
       "backgroundColor": "#2d6a4f"
     }
   }

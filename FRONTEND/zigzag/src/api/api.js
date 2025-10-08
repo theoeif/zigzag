@@ -2,7 +2,7 @@ import axios from "axios";
 
 // API Base URL - easily changeable
 // const API_BASE_URL = "http://192.168.1.13:8000/api/";
-const API_BASE_URL = "http://http://127.0.0.1:8000/api/";
+const API_BASE_URL = "http://127.0.0.1:8000/api/";
 
 // Single in-flight refresh promise to throttle concurrent refreshes
 let refreshPromise = null;
@@ -282,7 +282,7 @@ export const addAddress = async (address) => {
     }
     const response = await axios.post(
       API_BASE_URL + "events/user/addresses/",
-      { 
+      {
       "address_line": address.address_line,
       "city": address.city,
       "state": address.state,
@@ -539,7 +539,7 @@ export const fetchCircleMembers = async (circleIdOrIds) => {
 
     // Use the circles/members endpoint for all requests
     const response = await axios.post(
-      `${API_BASE_URL}events/circles/members/`, 
+      `${API_BASE_URL}events/circles/members/`,
       { circle_ids: circleIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -579,7 +579,7 @@ export const fetchFriendsAddresses = async () => {
       token = await refreshAccessToken();
       if (!token) return null;
     }
-    
+
     const response = await axios.get(API_BASE_URL + "friends/addresses/", {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -801,7 +801,7 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
         if (!inviteToken) {
           try {
             const directEventResponse = await axios.get(
-              `${API_BASE_URL}events/event/${eventId}/`, 
+              `${API_BASE_URL}events/event/${eventId}/`,
               { headers }
             );
             return directEventResponse.data;
