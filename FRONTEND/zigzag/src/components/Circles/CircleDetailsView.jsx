@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Button, 
-  List, 
-  ListItem, 
-  ListItemAvatar, 
-  ListItemText, 
-  Avatar, 
+import {
+  Box,
+  Typography,
+  Button,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Avatar,
   useMediaQuery,
   Dialog,
   DialogTitle,
@@ -27,9 +27,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LabelIcon from '@mui/icons-material/Label';
 import EditIcon from '@mui/icons-material/Edit';
-import { 
-  fetchCircleMembers, 
-  fetchUsers, 
+import {
+  fetchCircleMembers,
+  fetchUsers,
   fetchUserProfile,
   addUsersToCircle,
   removeUsersFromCircle,
@@ -51,7 +51,7 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
         const data = await fetchUsers();
         // Filter out existing members using username
         const existingMemberUsernames = existingMembers.map(member => member.username);
-        const availableUsers = data.filter(user => 
+        const availableUsers = data.filter(user =>
           !existingMemberUsernames.includes(user.username)
         );
         setUsers(availableUsers);
@@ -94,10 +94,10 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
       classes={{ paper: 'addUsersDialog' }}
     >
@@ -122,14 +122,14 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
             {filteredUsers.map((user) => {
               const isSelected = selectedUsers.some(u => u.username === user.username);
               return (
-                <ListItem 
-                  key={user.username} 
-                  dense 
+                <ListItem
+                  key={user.username}
+                  dense
                   button
                   onClick={() => toggleUserSelection(user)}
                   className="userItem"
-                  sx={{ 
-                    width: '100%', 
+                  sx={{
+                    width: '100%',
                     bgcolor: isSelected ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
                     '&:hover': {
                       bgcolor: isSelected ? 'rgba(25, 118, 210, 0.12)' : 'rgba(0, 0, 0, 0.04)'
@@ -159,7 +159,7 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Annuler</Button>
-        <Button 
+        <Button
           onClick={handleAdd}
           disabled={selectedUsers.length === 0}
           variant="contained"
@@ -199,7 +199,7 @@ const EditCircleNameModal = ({ open, onClose, onUpdate, circle }) => {
       const updatedData = {
         name: circleName.trim()
       };
-      
+
       await onUpdate(updatedData);
       onClose();
     } catch (err) {
@@ -209,10 +209,10 @@ const EditCircleNameModal = ({ open, onClose, onUpdate, circle }) => {
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
     >
       <DialogTitle>Modifier le Nom du Cercle</DialogTitle>
@@ -236,7 +236,7 @@ const EditCircleNameModal = ({ open, onClose, onUpdate, circle }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Annuler</Button>
-        <Button 
+        <Button
           onClick={handleUpdate}
           disabled={!circleName.trim() || circleName.trim() === circle?.name}
           variant="contained"
@@ -261,7 +261,7 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
       try {
         const tagsData = await fetchMyTags();
         setAllTags(tagsData);
-        
+
         // Initialize selected tags from circle
         if (circle && circle.tags) {
           setSelectedTags(
@@ -298,12 +298,12 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
       setError('Au moins un tag est requis');
       return;
     }
-    
+
     try {
       const updatedData = {
         tags: selectedTags.map(tag => tag.name)
       };
-      
+
       await onUpdate(updatedData);
       onClose();
       } catch (err) {
@@ -313,10 +313,10 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
     >
       <DialogTitle>Modifier les Tags</DialogTitle>
@@ -343,7 +343,7 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
                     onClick={() => toggleTagSelection(tag)}
                     color={isSelected ? "primary" : "default"}
                     variant={isSelected ? "filled" : "outlined"}
-                    sx={{ 
+                    sx={{
                       m: 0.5,
                       borderRadius: '16px',
                       backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.15)' : undefined,
@@ -370,7 +370,7 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Annuler</Button>
-        <Button 
+        <Button
           onClick={handleUpdate}
           disabled={selectedTags.length === 0 || loading}
           variant="contained"
@@ -414,7 +414,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const initializeView = async () => {
       if (circle) {
         try {
@@ -468,17 +468,17 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   const handleUpdateName = async (updatedData) => {
     try {
       const updatedCircle = await updateCircle(circle.id, updatedData);
-      
+
       // Update local state immediately for better UX
       setLocalCircle({
         ...localCircle,
         name: updatedData.name
       });
-      
+
       // Create a custom event to force CirclesSidebar to refresh
       const event = new CustomEvent('refreshCircles');
       window.dispatchEvent(event);
-      
+
       return updatedCircle;
     } catch (error) {
       console.error('Error updating circle name:', error);
@@ -491,30 +491,30 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
       // updatedData contains the tags array with tag names
       // We need to convert tag names to tag IDs for the backend
       const tagNames = updatedData.tags;
-      
+
       // Get all available tags to find their IDs
       const allTags = await fetchMyTags();
       const tagIds = tagNames.map(tagName => {
         const tag = allTags.find(t => t.name === tagName);
         return tag ? tag.id : null;
       }).filter(id => id !== null);
-      
+
       const updatePayload = {
         categories: tagIds
       };
-      
+
       const updatedCircle = await updateCircle(circle.id, updatePayload);
-      
+
       // Update local state immediately for better UX
       setLocalCircle({
         ...circle,
         tags: updatedData.tags
       });
-      
+
       // Create a custom event to force CirclesSidebar to refresh
       const event = new CustomEvent('refreshCircles');
       window.dispatchEvent(event);
-      
+
       return updatedCircle;
     } catch (error) {
       console.error('Error updating circle tags:', error);
@@ -528,11 +528,11 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   return (
     <Box sx={{ p: 2 }}>
       {!localCircle && (
-        <Box className="emptyStateContainer" sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
+        <Box className="emptyStateContainer" sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
           minHeight: '60vh'
         }}>
           <Typography variant="h6" className="emptyStateTitle" gutterBottom>
@@ -565,7 +565,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                       size="small"
                       color="primary"
                       variant="outlined"
-                      sx={{ 
+                      sx={{
                         borderRadius: '16px',
                         backgroundColor: 'rgba(25, 118, 210, 0.1)',
                         color: '#1976d2',
@@ -581,7 +581,7 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                 </Box>
               )}
             </Box>
-            
+
             {isCreator && (
               <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} className="moreOptions">
                 <MoreVertIcon />
@@ -594,21 +594,21 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
             open={Boolean(anchorEl)}
             onClose={() => setAnchorEl(null)}
           >
-            <MenuItem 
+            <MenuItem
               onClick={() => {
                 setAnchorEl(null);
                 setIsEditNameModalOpen(true);
-              }} 
+              }}
               className="editNameMenuItem"
             >
               <EditIcon sx={{ mr: 1 }} />
               Modifier le Nom
             </MenuItem>
-            <MenuItem 
+            <MenuItem
               onClick={() => {
                 setAnchorEl(null);
                 setIsEditTagsModalOpen(true);
-              }} 
+              }}
               className="editTagsMenuItem"
             >
               <EditIcon sx={{ mr: 1 }} />
@@ -622,13 +622,13 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
 
           <List className="circleMembers" sx={{ overflow: 'auto', maxHeight: '60vh', pr: 1 }}>
             {members.map((member) => (
-              <ListItem 
+              <ListItem
                 key={member.username}
                 className="circleMemberItem"
                 secondaryAction={
                   (isCreator || member.username === currentUser?.username) && (
-                    <IconButton 
-                      edge="end" 
+                    <IconButton
+                      edge="end"
                       aria-label="delete"
                       onClick={() => handleRemoveMember(member.id)}
                       className="deleteIcon"
@@ -637,10 +637,10 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
                     </IconButton>
                   )
                 }
-                sx={{ 
+                sx={{
                   borderRadius: 2,
                   mb: 0.5,
-                  '&:hover': { 
+                  '&:hover': {
                     bgcolor: 'action.hover'
                   }
                 }}
@@ -662,14 +662,14 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
 
           {canManageMembers && (
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 className="circleAddButton"
                 onClick={() => setIsAddUsersModalOpen(true)}
-                sx={{ 
-                  width: '50px', 
-                  height: '50px', 
-                  borderRadius: '50%', 
+                sx={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
                   minWidth: '50px',
                   padding: 0
                 }}

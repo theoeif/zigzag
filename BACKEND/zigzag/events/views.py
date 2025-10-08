@@ -39,7 +39,7 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     lookup_field = "id"
     lookup_url_kwarg = "id"
-    
+
     def get_queryset(self):
         """
         Return a standard queryset for CRUD operations.
@@ -199,7 +199,7 @@ class EventViewSet(viewsets.ModelViewSet):
         user_circles = Circle.objects.filter(members=user)
 
         events = Event.objects.filter(Q(creator=user) | Q(circles__in=user_circles)).distinct()
-        
+
         # If tags are provided, filter by circle categories
         if tags_param and len(tags_param) > 0:
             events = events.filter(circles__categories__id__in=tags_param).distinct()
@@ -210,10 +210,10 @@ class EventViewSet(viewsets.ModelViewSet):
             event_tags = []
             for circle in e.circles.all():
                 event_tags.extend([tag.name for tag in circle.categories.all()])
-            
+
             # Remove duplicates
             event_tags = list(set(event_tags))
-            
+
             markers.append({
                 "id": e.id,
                 "title": e.title,
@@ -225,7 +225,7 @@ class EventViewSet(viewsets.ModelViewSet):
                 "end_date": e.end_time,
                 "tags": event_tags,
             })
-    
+
         return Response({"private_markers": markers}, status=status.HTTP_200_OK)
 
 
@@ -258,17 +258,17 @@ class ProfileViewSet(viewsets.ModelViewSet):
         This allows for /api/events/profile/me/ endpoint
         """
         profile = self.get_object()
-        
+
         if request.method == 'GET':
             serializer = UserProfileSerializer(request.user)
             return Response(serializer.data)
-        
+
         elif request.method == 'PATCH':
             profile_data = request.data.get('profile', {})
             serializer = self.get_serializer(profile, data=profile_data, partial=True)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
-            
+
             # Return the full user profile after update
             user_serializer = UserProfileSerializer(request.user)
             return Response(user_serializer.data)
@@ -489,7 +489,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
-    
+
     # @ratelimit(key='ip', rate='5/h', block=True)  # Limit to 5 requests per hour per IP
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -551,12 +551,12 @@ class FriendsListView(APIView):
 
     def get(self, request):
         from .models import User  # local import to avoid circular imports
-        
+
         # Get all users except the current user
         users = User.objects.exclude(id=request.user.id).values(
             'id', 'username', 'first_name', 'last_name'
         ).order_by('username')
-        
+
         # Convert to list of dictionaries
         friends_data = [
             {
@@ -567,5 +567,5 @@ class FriendsListView(APIView):
             }
             for user in users
         ]
-        
+
         return Response(friends_data, status=status.HTTP_200_OK)

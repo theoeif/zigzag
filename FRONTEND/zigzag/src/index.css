@@ -414,8 +414,8 @@ input:checked + .slider:before {
 }
 
 /* Additional style to override Algolia's default container styles */
-.filter-menu .aa-Autocomplete, 
-.filter-menu .aa-DetachedFormContainer, 
+.filter-menu .aa-Autocomplete,
+.filter-menu .aa-DetachedFormContainer,
 .filter-menu .aa-InputWrapperPrefix,
 .filter-menu .aa-InputWrapperSuffix {
   border: none !important;
@@ -475,7 +475,7 @@ input:checked + .slider:before {
     width: 66%;
     padding: 1rem;
   }
-  
+
   .section-header h3 {
     font-size: 1rem;
   }
@@ -756,16 +756,16 @@ input:checked + .slider:before {
     width: 66%;
     padding: 1rem;
   }
-  
+
   .menu-header h2 {
     font-size: 1.25rem;
   }
-  
+
   .menu-btn {
     font-size: 0.9rem;
     padding: 0.6rem 0.9rem;
   }
-  
+
   /* Ensure active state styling works on mobile too */
   .menu-btn-active {
     background-color: #f0fdf4; /* Changed from #dcfce7 to #f0fdf4 */
@@ -1267,4 +1267,3 @@ input:checked + .slider:before {
   animation: pulse-outward 0.7s infinite ease-in-out; /* Same animation as red markers */
   border-color: rgba(146, 146, 146, 0.597); /* Same as red markers */
 }
-

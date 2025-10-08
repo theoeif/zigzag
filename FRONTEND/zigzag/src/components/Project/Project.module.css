@@ -5,7 +5,7 @@
 /* Overall page layout */
 .profilePageProject {
   padding-top: 40px;
-  padding-bottom: 20px; 
+  padding-bottom: 20px;
   font-family: Arial, sans-serif;
   background-color: #f0fdf4; /* Soft green background */
   min-height: 100vh;
@@ -282,17 +282,17 @@ ulProject li a:hover {
     align-items: center;
     padding: 20px 25px;
   }
-  
+
   /* You can adjust typography on wider screens if desired */
   ulProject li h4 {
     font-size: 1.4rem;
   }
-  
+
   ulProject li p {
     font-size: 1rem;
     margin-bottom: 0; /* Remove extra margin when laid out in row */
   }
-  
+
   /* If needed, space out the different pieces of content */
   /* For example, if you wrap text and links in separate containers */
 }
@@ -302,7 +302,7 @@ ulProject li a:hover {
   .profilePageProject {
     padding: 15px;
   }
-  
+
   h2Project {
     font-size: 1.5em;
   }
@@ -313,15 +313,15 @@ ulProject li a:hover {
   h2Project {
     font-size: 1.3em;
   }
-  
+
   ulProject li {
     padding: 15px 18px;
   }
-  
+
   .left-menuProject {
     width: 100%;
   }
-  
+
   .left-menuProject .left-menu-iconProject {
     font-size: 2rem;
   }
@@ -342,7 +342,7 @@ ulProject li a:hover {
 }
 
 .eventItemProject h4 {
-  font-size: 1.3rem; 
+  font-size: 1.3rem;
   font-weight: bold;
   color: #2d6a4f;
   margin-bottom: 15px; /* Increase spacing below the title */
@@ -736,7 +736,7 @@ ulProject li a:hover {
 }
 
 /* Section Headers */
-.profilePageProject h2Project, 
+.profilePageProject h2Project,
 .profilePageProject h3Project,
 .profilePageProject .h2Project, /* Add this to target with class correctly */
 .profilePageProject .h3Project {
@@ -762,7 +762,7 @@ ulProject li a:hover {
   .profilePageProject {
     padding-top: 80px !important; /* Reduced padding */
   }
-  
+
   /* Position timeline at the top of the page */
   .timelineContainerProject {
     position: absolute !important;
@@ -775,7 +775,7 @@ ulProject li a:hover {
     margin-right: 15px !important; /* Add right margin for mobile */
     z-index: 100 !important;
   }
-  
+
   /* Add space after the timeline for Projects heading */
   .h2Project {
     margin-top: 100px !important; /* Ensure adequate space after timeline on mobile */
@@ -1148,7 +1148,7 @@ ulProject li a:hover {
 }
 
 /* Remove animations from section headers */
-.profilePageProject h2Project, 
+.profilePageProject h2Project,
 .profilePageProject h3Project,
 .profilePageProject .h2Project, /* Add this to target with class correctly */
 .profilePageProject .h3Project {
@@ -1217,11 +1217,11 @@ button.manageButtonProject.activeProject {
 }
 
 @keyframes popupFadeIn {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }

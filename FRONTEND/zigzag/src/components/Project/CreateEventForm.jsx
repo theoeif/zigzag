@@ -26,33 +26,33 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     const year = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
     const day = parseInt(parts[2], 10);
-    
+
     // Get the time part if it exists
     const timePart = fromDate.split('T')[1] || "00:00";
     const timeComponents = timePart.split(':');
     const hours = parseInt(timeComponents[0], 10);
     const minutes = parseInt(timeComponents[1], 10);
-    
+
     // Create a new date with explicit year, month, day, hours, minutes
     const date = new Date(year, month, day, hours, minutes);
-    
+
     // Add 3 months
     date.setMonth(date.getMonth() + 3);
-    
+
     // Format back to string in the required format (YYYY-MM-DDTHH:MM)
     const resultYear = date.getFullYear();
     const resultMonth = String(date.getMonth() + 1).padStart(2, '0'); // Add 1 since months are 0-indexed
     const resultDay = String(date.getDate()).padStart(2, '0');
     const resultHours = String(date.getHours()).padStart(2, '0');
     const resultMinutes = String(date.getMinutes()).padStart(2, '0');
-    
+
     return `${resultYear}-${resultMonth}-${resultDay}T${resultHours}:${resultMinutes}`;
   };
 
   // Initialize form state with current date for start_time and 3 months later for end_time
   const initialDateTime = getCurrentDateTime();
   const initialEndDateTime = getThreeMonthsLater(initialDateTime);
-  
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -64,12 +64,12 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
 
   // State for tracking if the form should be shown
   const [showForm, setShowForm] = useState(true);
-  
+
   // Removed public/friends-of-friends settings
 
   // State for address validation
   const [addressError, setAddressError] = useState("");
-  
+
   // State for date validation
   const [dateError, setDateError] = useState("");
   const [endDateManuallyChanged, setEndDateManuallyChanged] = useState(false);
@@ -101,7 +101,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   useEffect(() => {
     if (formData.start_time && !endDateManuallyChanged) {
       const calculatedEndTime = getThreeMonthsLater(formData.start_time);
-      
+
       // Only update if it's different from the current end time
       if (calculatedEndTime !== formData.end_time) {
         setFormData(prev => ({
@@ -110,7 +110,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
         }));
       }
     }
-    
+
     // Validate dates if both exist
     if (formData.start_time && formData.end_time) {
       validateDates(formData.start_time, formData.end_time);
@@ -120,10 +120,10 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // Validate that end date is not earlier than start date
   const validateDates = (startDate, endDate) => {
     if (!startDate || !endDate) return true;
-    
+
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (end < start) {
       setDateError("La date de fin ne peut pas être antérieure à la date de début");
       return false;
@@ -136,7 +136,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // Handle change for all text/select/checkbox inputs except circles
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     // Special case for start_time to make hour optional
     if (name === 'start_time' && value) {
       // If user only enters a date without time (YYYY-MM-DD),
@@ -150,39 +150,39 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
         return;
       }
     }
-    
+
     // Special handling for end_time
     if (name === 'end_time') {
       setEndDateManuallyChanged(true);
-      
+
       // If user only enters a date (YYYY-MM-DD) without time
       if (value.length === 10 || !value.includes('T')) {
         const dateWithDefaultTime = `${value.split('T')[0]}T00:00`;
-        
+
         // Validate against start date
         if (formData.start_time) {
           validateDates(formData.start_time, dateWithDefaultTime);
         }
-        
+
         setFormData(prev => ({
           ...prev,
           [name]: dateWithDefaultTime
         }));
         return;
       }
-      
+
       // For full date-time values, also validate
       if (formData.start_time) {
         validateDates(formData.start_time, value);
       }
     }
-    
+
     if (name === 'address_line') {
       // Clear any previous validation errors when address is being typed
       setAddressError("");
       setLocalizedAddress(null);
     }
-    
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -197,7 +197,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // Handle tickbar for circles selection
   const handleCircleSelection = (e) => {
     const circleId = parseInt(e.target.value, 10);
-    
+
     if (e.target.checked) {
       if (!selectedCircles.includes(circleId)) {
         setSelectedCircles(prev => [...prev, circleId]);
@@ -206,7 +206,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       setSelectedCircles(prev => prev.filter(id => id !== circleId));
     }
   };
-  
+
   // Select all or none circles
   const handleSelectAllCircles = () => {
     if (selectedCircles.length === allCircles.length) {
@@ -222,20 +222,20 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       setLocalizeError("Veuillez saisir une adresse à localiser.");
       return;
     }
-    
+
     const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(formData.address_line)}&key=${OPEN_CAGE_API_KEY}`;
-    
+
     try {
       const response = await axios.get(url);
       const data = response.data;
-      
+
       if (data.results && data.results.length > 0) {
         const result = data.results[0];
         const { formatted, components, geometry } = result;
-        
+
         // Extract city from components, fallback to town or village if no city
         const resolvedCity = components.city || components.town || components.village || "";
-        
+
         setLocalizedAddress({
           address_line: formatted,
           city: resolvedCity,
@@ -245,9 +245,9 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           latitude: geometry.lat,
           longitude: geometry.lng,
         });
-        
+
         setLocalizeError("");
-        
+
         // Update the form data with the formatted address for better UX
         setFormData(prev => ({
           ...prev,
@@ -265,24 +265,24 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate address is not empty
     if (!formData.address_line.trim()) {
       setAddressError("L'adresse est requise");
       return;
     }
-    
+
     // Validate that address is localized
     if (!localizedAddress) {
       setAddressError("Veuillez d'abord localiser l'adresse");
       return;
     }
-    
+
     // Validate dates
     if (formData.end_time && !validateDates(formData.start_time, formData.end_time)) {
       return; // Don't submit if dates are invalid
     }
-    
+
     // Backend handles authentication automatically
 
     const eventData = {
@@ -295,25 +295,25 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       project: projectId,
       circle_ids: selectedCircles,
     };
-    
+
     try {
       const createdEvent = await createEvent(eventData);
-      
+
       // Close form and notify parent component
       setShowForm(false);
-      
+
       if (onEventCreated) {
         onEventCreated(createdEvent);
       }
-      
+
       if (onClose) {
         onClose();
       }
     } catch (error) {
       console.error("Error creating event:", error);
-      
+
       let errorMessage = "Erreur lors de la création de l'événement";
-      
+
       if (error.response && error.response.data) {
         if (typeof error.response.data === 'string') {
           errorMessage += `: ${error.response.data}`;
@@ -327,7 +327,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           errorMessage += `: ${errors}`;
         }
       }
-      
+
       alert(errorMessage);
     }
   };
@@ -339,10 +339,10 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   return (
     <div className={styles.modalOverlayProjectNoAnimation || styles.modalOverlayProject}
          style={{ zIndex: 1500 }}>
-      <div 
+      <div
         className={styles.modalContentProjectRounded}
       >
-        <div 
+        <div
           className={styles.popupHeaderProjectEnhanced}
           style={{
             position: 'sticky',
@@ -363,7 +363,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             ✕
           </button>
         </div>
-        
+
         <div className={styles.modalContentProjectRoundedInner}>
           <form
             onSubmit={handleSubmit}
@@ -385,7 +385,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               required
             />
           </div>
-          
+
           <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Description :</label>
             <textarea
@@ -396,7 +396,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               rows="4"
             />
           </div>
-          
+
           <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Adresse :</label>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -410,13 +410,13 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 placeholder="Saisir l'emplacement de l'événement"
                 required
               />
-              <button 
-                type="button" 
-                onClick={handleLocalizeAddress} 
+              <button
+                type="button"
+                onClick={handleLocalizeAddress}
                 className={styles.localizeButtonProject}
                 disabled={!formData.address_line}
-                style={{ 
-                  minWidth: '100px', 
+                style={{
+                  minWidth: '100px',
                   backgroundColor: '#40916c',
                   color: 'white',
                   borderRadius: '6px',
@@ -431,11 +431,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             </div>
             {addressError && <p className={styles.errorMessageProject}>{addressError}</p>}
           </div>
-          
+
           {localizeError && <p className={styles.errorMessageProject}>{localizeError}</p>}
-          
+
           {localizedAddress && (
-            <div 
+            <div
               className={styles.localizedInfoProject}
               style={{
                 backgroundColor: '#f5f5f5',
@@ -452,10 +452,10 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 gap: '6px'
               }}
             >
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                marginBottom: '4px', 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '4px',
                 borderBottom: '1px solid #e0e0e0',
                 paddingBottom: '6px'
               }}>
@@ -477,7 +477,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               </p>
             </div>
           )}
-          
+
           <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Date de début :</label>
             <input
@@ -490,7 +490,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             />
             <small style={{ color: '#666', fontStyle: 'italic' }}>Ajouter l'heure si nécessaire</small>
           </div>
-          
+
           <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Date de fin :</label>
             <input
@@ -510,13 +510,13 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               </small>
             )}
           </div>
-          
+
           {/* WhatsApp link removed */}
-          
+
           {/* Public checkbox removed */}
-          
+
           {/* Friends of friends checkbox removed */}
-          
+
           <div className={styles.checkboxContainerProject} style={{ marginBottom: '20px' }}>
             <input
               type="checkbox"
@@ -530,8 +530,8 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               Lien directe
             </label>
           </div>
-          
-          <fieldset 
+
+          <fieldset
             className={styles.fieldsetGroupProject}
             style={{
               border: '1px solid #ddd',
@@ -541,12 +541,12 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             }}
           >
             <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
-            
+
             {/* Container for the 'Select All' button */}
             <div className={styles.selectAllContainerProject}>
-              <button 
-                type="button" 
-                onClick={handleSelectAllCircles} 
+              <button
+                type="button"
+                onClick={handleSelectAllCircles}
                 className={styles.selectAllButtonProject}
                 style={{
                   backgroundColor: '#40916c',
@@ -561,12 +561,12 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 {selectedCircles.length === allCircles.length ? "Tout désélectionner" : "Tout sélectionner"}
               </button>
             </div>
-            
-            <div 
-              className={styles.checkboxGroupProject} 
-              style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
+
+            <div
+              className={styles.checkboxGroupProject}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
                 gap: '8px',
                 maxHeight: '200px',
                 overflowY: 'auto',
@@ -591,10 +591,10 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               ))}
             </div>
           </fieldset>
-          
-          <div 
+
+          <div
             className={styles.buttonGroupProject}
-            style={{ 
+            style={{
               marginTop: '25px',
               marginBottom: '15px',
               position: 'sticky',
@@ -607,8 +607,8 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               borderBottomRightRadius: '12px'
             }}
           >
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className={styles.submitButtonProject}
               style={{
                 backgroundColor: '#40916c',
