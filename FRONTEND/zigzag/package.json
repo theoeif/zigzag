@@ -12,6 +12,7 @@
   "dependencies": {
     "@algolia/autocomplete-js": "^1.17.9",
     "@algolia/autocomplete-theme-classic": "^1.17.9",
+    "@capacitor-community/date-picker": "^7.1.0",
     "@capacitor/ios": "^7.4.3",
     "@capacitor/status-bar": "^7.0.3",
     "@date-io/date-fns": "^3.2.0",

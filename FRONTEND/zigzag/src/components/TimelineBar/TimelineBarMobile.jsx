@@ -8,6 +8,7 @@ import {
   Tooltip,
   useMediaQuery
 } from '@mui/material';
+import { DatePicker } from '@capacitor-community/date-picker';
 import AddIcon from '@mui/icons-material/Add';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
@@ -308,38 +309,137 @@ const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView =
               </Tooltip>
             )}
 
-            {/* Calendar picker - direct date input */}
+            {/* Calendar picker - Capacitor native date picker with web fallback */}
             <Tooltip title="Sélectionner une date">
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => handleDateSelect(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    opacity: 0,
-                    cursor: 'pointer',
-                    zIndex: 1
-                  }}
-                />
-                <IconButton
-                  size={isSmallScreen ? "small" : "medium"}
-                  sx={{
-                    color: '#40916c',
-                    padding: { xs: 0.5, sm: 1 },
-                    '&:hover': {
-                      backgroundColor: 'rgba(64, 145, 108, 0.1)'
+              <IconButton
+                onClick={async () => {
+                  try {
+                    // Check if we're in a Capacitor environment
+                    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                      // Prepare the date properly for Capacitor
+                      let dateToUse;
+                      if (selectedDate) {
+                        // Ensure selectedDate is a valid date string
+                        const date = new Date(selectedDate);
+                        if (!isNaN(date.getTime())) {
+                          // Use YYYY-MM-DD format for Capacitor plugin
+                          dateToUse = date.toISOString().split('T')[0];
+                        } else {
+                          dateToUse = new Date().toISOString().split('T')[0];
+                        }
+                      } else {
+                        dateToUse = new Date().toISOString().split('T')[0];
+                      }
+
+                      console.log('Capacitor DatePicker - selectedDate:', selectedDate);
+                      console.log('Capacitor DatePicker - dateToUse:', dateToUse);
+
+                      // Use Capacitor native date picker with minimal config
+                      const result = await DatePicker.present({
+                        mode: 'date',
+                        locale: 'fr-FR',
+                        date: dateToUse,
+                        format: 'yyyy-MM-dd',
+                        android: {
+                          theme: 'light',
+                        },
+                        ios: {
+                          style: 'wheels',
+                        },
+                      });
+
+                      console.log('Capacitor DatePicker - result:', result);
+
+                      if (result.value) {
+                        handleDateSelect(result.value);
+                      }
+                    } else {
+                      // Fallback to web date picker for web browsers
+                      const input = document.createElement('input');
+                      input.type = 'date';
+                      input.min = new Date().toISOString().split('T')[0];
+                      input.value = selectedDate || '';
+                      input.style.position = 'fixed';
+                      input.style.top = '50%';
+                      input.style.left = '50%';
+                      input.style.transform = 'translate(-50%, -50%)';
+                      input.style.opacity = '0.01';
+                      input.style.pointerEvents = 'none';
+                      input.style.zIndex = '9999';
+                      document.body.appendChild(input);
+
+                      input.showPicker();
+
+                      input.onchange = (e) => {
+                        if (e.target.value) {
+                          handleDateSelect(e.target.value);
+                        }
+                        document.body.removeChild(input);
+                      };
+
+                      input.onblur = () => {
+                        setTimeout(() => {
+                          if (document.body.contains(input)) {
+                            document.body.removeChild(input);
+                          }
+                        }, 100);
+                      };
                     }
-                  }}
-                >
-                  <CalendarTodayIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
-                </IconButton>
-              </div>
+                  } catch (error) {
+                    console.error('Date picker error:', error);
+                    console.error('Error details:', {
+                      message: error.message,
+                      stack: error.stack,
+                      selectedDate: selectedDate,
+                      isCapacitor: window.Capacitor && window.Capacitor.isNativePlatform()
+                    });
+                    // Fallback to web date picker if Capacitor fails
+                    try {
+                      const input = document.createElement('input');
+                      input.type = 'date';
+                      input.min = new Date().toISOString().split('T')[0];
+                      input.value = selectedDate || '';
+                      input.style.position = 'fixed';
+                      input.style.top = '50%';
+                      input.style.left = '50%';
+                      input.style.transform = 'translate(-50%, -50%)';
+                      input.style.opacity = '0.01';
+                      input.style.pointerEvents = 'none';
+                      input.style.zIndex = '9999';
+                      document.body.appendChild(input);
+
+                      input.showPicker();
+
+                      input.onchange = (e) => {
+                        if (e.target.value) {
+                          handleDateSelect(e.target.value);
+                        }
+                        document.body.removeChild(input);
+                      };
+
+                      input.onblur = () => {
+                        setTimeout(() => {
+                          if (document.body.contains(input)) {
+                            document.body.removeChild(input);
+                          }
+                        }, 100);
+                      };
+                    } catch (fallbackError) {
+                      console.error('Both date picker methods failed:', fallbackError);
+                    }
+                  }
+                }}
+                size={isSmallScreen ? "small" : "medium"}
+                sx={{
+                  color: '#40916c',
+                  padding: { xs: 0.5, sm: 1 },
+                  '&:hover': {
+                    backgroundColor: 'rgba(64, 145, 108, 0.1)'
+                  }
+                }}
+              >
+                <CalendarTodayIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
+              </IconButton>
             </Tooltip>
           </Box>
 
