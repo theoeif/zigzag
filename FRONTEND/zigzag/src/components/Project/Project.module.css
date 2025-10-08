@@ -833,6 +833,8 @@ ulProject li a:hover {
 .dateRangeActionsProject button:hover {
   background-color: #eee;
 }
+
+/* removed error styling as validation is constrained via min/max */
 /* Media query for mobile devices - specific to Project page */
 @media (max-width: 768px) {
   /* Add padding at the top of the Project page to make room for timeline */
@@ -943,7 +945,7 @@ ulProject li a:hover {
 /* Events Grid */
 .eventsGridProject {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Reduced from 320px */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Use auto-fit to avoid ghost columns */
   gap: 15px; /* Reduced from 25px */
   width: 100%;
 }
@@ -2402,4 +2404,12 @@ button.manageButtonProject.activeProject {
   border-radius: 10px;
   font-weight: 500;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Wide screen adjustments */
+@media (min-width: 1024px) {
+  .eventsGridProject {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    align-items: stretch;
+  }
 }
