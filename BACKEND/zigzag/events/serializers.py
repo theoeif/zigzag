@@ -1,6 +1,5 @@
 # serializers.py
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from .models import Event, Address, Circle, UserAddress, EventInvitation, User, Tag, Profile
 
@@ -12,11 +11,11 @@ class AddressSerializer(serializers.ModelSerializer):
 class CircleSerializer(serializers.ModelSerializer):
     creator = serializers.StringRelatedField(read_only=True)
     tags = serializers.StringRelatedField(source='categories', many=True, read_only=True)
-    
+
     class Meta:
         model = Circle
         fields = ['id', 'name', 'creator', 'categories', 'tags']
-    
+
     def create(self, validated_data):
         # Handle categories (tags) during creation
         categories_data = validated_data.pop('categories', [])
@@ -24,17 +23,17 @@ class CircleSerializer(serializers.ModelSerializer):
         if categories_data:
             circle.categories.set(categories_data)
         return circle
-    
+
     def update(self, instance, validated_data):
         # Handle categories (tags) update
         if 'categories' in validated_data:
             categories_data = validated_data.pop('categories')
             instance.categories.set(categories_data)
-        
+
         # Update other fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        
+
         instance.save()
         return instance
 
@@ -55,7 +54,7 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'address', 'start_time', 'end_time',
                   'circles','circle_ids', 'shareable_link', 'participants_count']
 
-# TODO replace functionnality of circle_ids in the front as well 
+# TODO replace functionnality of circle_ids in the front as well
 # TODO change name categories to tags everywhere.
 
 
@@ -78,8 +77,6 @@ class EventInvitationSerializer(serializers.ModelSerializer):
         read_only_fields = ['token', 'created_at', 'accepted', 'accepted_at', 'invitation_link']
 
 
-from rest_framework.validators import UniqueValidator
-from django.contrib.auth.password_validation import validate_password
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])

@@ -161,10 +161,10 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
   return (
     <div className={styles.modalOverlayProjectNoAnimation || styles.modalOverlayProject}
          style={{ zIndex: 1500 }}>
-      <div 
+      <div
         className={styles.modalContentProjectRounded}
       >
-        <div 
+        <div
           className={styles.popupHeaderProjectEnhanced}
           style={{
             position: 'sticky',
@@ -185,7 +185,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             ✕
           </button>
         </div>
-        
+
         <div className={styles.modalContentProjectRoundedInner}>
           <form
             onSubmit={handleSubmit}

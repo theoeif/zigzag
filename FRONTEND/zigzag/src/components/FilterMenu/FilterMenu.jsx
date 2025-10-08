@@ -42,11 +42,11 @@ const FilterMenu = ({
       } else if (location.item.geometry) {
         lat = parseFloat(location.item.geometry.lat);
         lng = parseFloat(location.item.geometry.lng);
-        zoom = location.item.bounds ? 
+        zoom = location.item.bounds ?
           Math.max(4, Math.min(16, Math.floor(12 - Math.log(
-            Math.abs(parseFloat(location.item.bounds.northeast.lat) - 
-            parseFloat(location.item.bounds.southwest.lat)) + 
-            Math.abs(parseFloat(location.item.bounds.northeast.lng) - 
+            Math.abs(parseFloat(location.item.bounds.northeast.lat) -
+            parseFloat(location.item.bounds.southwest.lat)) +
+            Math.abs(parseFloat(location.item.bounds.northeast.lng) -
             parseFloat(location.item.bounds.southwest.lng))
           )))) : 12;
       }
@@ -128,7 +128,7 @@ const FilterMenu = ({
           </svg>
           <h3>Visibilité</h3>
         </div>
-        
+
         <div className="toggle-group">
           <div className="toggle-label">
             <div className="label-with-icon">
@@ -175,7 +175,7 @@ const FilterMenu = ({
           </label>
         </div>
 
-        
+
 
         <div className="toggle-group">
           <div className="toggle-label">

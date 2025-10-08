@@ -116,7 +116,7 @@ axios.interceptors.response.use(
     }
 
     // Handle non-401 errors
-    if (!response || response.status !== 401) return Promise.reject(error); 
+    if (!response || response.status !== 401) return Promise.reject(error);
 
     // Throttle refresh to a single in-flight promise
     if (!refreshPromise) {
@@ -128,13 +128,13 @@ axios.interceptors.response.use(
     // Retry original request
     if (newAccessToken) {
       config.headers["Authorization"] = `Bearer ${newAccessToken}`;
-      return axios(config); 
+      return axios(config);
     }
     return Promise.reject(error); // Exit if token refresh fails
   }
 );
 
-// TODO : understand why its here 
+// TODO : understand why its here
 export const validateAccessToken = async () => {
   const token = localStorage.getItem("access_token");
   if (!token) return false;
@@ -195,8 +195,8 @@ export const fetchMarkers = async (selectedTags) => {
     console.log("Markers data received:", response.data); // Debug log
 
     // Return simplified format with just red_markers (projected events)
-    return { 
-      red_markers: response.data.private_markers || [] 
+    return {
+      red_markers: response.data.private_markers || []
     };
   } catch (error) {
     console.error("Error fetching markers:", error);
@@ -530,20 +530,20 @@ export const fetchCircleMembers = async (circleIdOrIds) => {
   try {
     // Always convert input to array format for consistency
     const circleIds = Array.isArray(circleIdOrIds) ? circleIdOrIds : [circleIdOrIds];
-    
+
     let token = localStorage.getItem("access_token");
     if (!token) {
       token = await refreshAccessToken();
       if (!token) throw new Error("No access token available");
     }
-    
+
     // Use the circles/members endpoint for all requests
     const response = await axios.post(
       `${API_BASE_URL}events/circles/members/`, 
       { circle_ids: circleIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error fetching circle members:', error);
@@ -648,13 +648,13 @@ export const addUsersToCircle = async (circleId, users) => {
 
     // Extract IDs from user objects
     const memberIds = users.map(user => user.id).filter(id => id);
-    
+
     const response = await axios.post(
       `${API_BASE_URL}events/circles/${circleId}/add_members/`,
       { member_ids: memberIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error adding users to circle:', error);
@@ -679,7 +679,7 @@ export const removeUsersFromCircle = async (circleId, memberIds) => {
       { member_ids: ids },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error removing users from circle:', error);
@@ -721,7 +721,7 @@ export const updateCircle = async (circleId, updatedData) => {
       updatedData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error updating circle:', error);
@@ -758,12 +758,12 @@ export const fetchEventParticipants = async (eventId) => {
       token = await refreshAccessToken();
       if (!token) throw new Error("No access token available");
     }
-    
+
     const response = await axios.get(
       `${API_BASE_URL}events/event/${eventId}/participants/`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error fetching event participants:', error);
@@ -783,14 +783,14 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
       // If we have an invite token, use the public-event endpoint which supports invitation tokens
       url = `${API_BASE_URL}events/public-event/${eventId}/?invite=${inviteToken}`;
     } // in a V2
-    
+
     // Get auth headers if available, but don't require them
     const headers = {};
     const token = localStorage.getItem("access_token");
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
-    
+
     try {
       const response = await axios.get(url, { headers });
       return response.data;
@@ -813,7 +813,7 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
             throw directEventError;
           }
         }
-        
+
         // Return the limited data from the original 403 response
         return error.response.data;
       }
@@ -848,13 +848,13 @@ export const createEventInvitation = async (eventId, email) => {
       const newToken = await refreshAccessToken();
       if (!newToken) throw new Error('Authentication required');
     }
-    
+
     const response = await axios.post(
       `${API_BASE_URL}events/invitations/`,
       { event: eventId, email },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error creating invitation:', error);
@@ -870,13 +870,13 @@ export const acceptInvitation = async (token) => {
       const newToken = await refreshAccessToken();
       if (!newToken) throw new Error('Authentication required');
     }
-    
+
     const response = await axios.post(
       `${API_BASE_URL}events/accept-invitation/`,
       { token },
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error accepting invitation:', error);
@@ -892,13 +892,13 @@ export const generateEventShareToken = async (eventId) => {
       const newToken = await refreshAccessToken();
       if (!newToken) throw new Error('Authentication required');
     }
-    
+
     const response = await axios.post(
       `${API_BASE_URL}events/event-share-token/`,
       { event: eventId },
       { headers: { Authorization: `Bearer ${token || newToken}` } }
     );
-    
+
     return response.data;
   } catch (error) {
     console.error('Error generating share token:', error);

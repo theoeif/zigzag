@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  Slider, 
-  Typography, 
-  ButtonGroup, 
+import {
+  Slider,
+  Typography,
+  ButtonGroup,
   Button,
   Box,
   IconButton,
@@ -19,7 +19,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   const isMediumScreen = useMediaQuery('(max-width:893px)');
   const isVerySmallScreen = useMediaQuery('(max-width:443px)');
   const [currentDate] = useState(new Date());
-  
+
   // Get initial end date
   const getInitialEndDate = () => {
     if (initialRange && initialRange.end) {
@@ -30,9 +30,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     endDate.setMonth(currentDate.getMonth() + 1);
     return endDate;
   };
-  
+
   const initialEndDate = getInitialEndDate();
-  
+
   // Calculate initial days difference based on provided range or default
   const getInitialDaysDifference = () => {
     if (initialRange && initialRange.start && initialRange.end) {
@@ -52,7 +52,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     });
     return daysDiff;
   };
-  
+
   // Calculate initial start day offset from current date
   const getInitialStartDay = () => {
     if (initialRange && initialRange.start) {
@@ -64,13 +64,13 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     }
     return 0; // Default to today
   };
-  
+
   const initialStartDay = getInitialStartDay();
   const initialDaysDifference = getInitialDaysDifference();
-  
+
   // Set timeRange with the initial values
   const [timeRange, setTimeRange] = useState([
-    initialStartDay, 
+    initialStartDay,
     initialStartDay + initialDaysDifference
   ]);
 
@@ -88,12 +88,12 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     });
     return shouldPreserveState;
   });
-  
+
   // Use localStorage to persist whether we've processed the initial range
   const hasProcessedInitialRange = useRef(() => {
     return localStorage.getItem('timelineProcessedInitial') === 'true';
   });
-  
+
   useEffect(() => {
     // Only update timeline from initialRange if:
     // 1. User has never moved the timeline (userHasMovedTimeline is false)
@@ -121,16 +121,16 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   // Function to save timeline state to localStorage
   const saveTimelineState = (timeRangeValue) => {
     const now = Date.now();
-    
+
     // Calculate the actual dates for debugging
     const start = new Date(currentDate);
     start.setHours(0, 1, 0, 0);
     start.setDate(currentDate.getDate() + timeRangeValue[0]);
-    
+
     const end = new Date(currentDate);
     end.setHours(23, 59, 0, 0);
     end.setDate(currentDate.getDate() + Math.max(timeRangeValue[1] - 1, timeRangeValue[0]));
-    
+
     const state = {
       timeRange: timeRangeValue,
       timestamp: now,
@@ -157,21 +157,21 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
 
   // Restore timeline state from localStorage on mount (only once)
   const [hasRestoredState, setHasRestoredState] = useState(false);
-  
+
   useEffect(() => {
     if (hasRestoredState) return; // Only restore once
-    
+
     const savedState = localStorage.getItem('timelineState');
     if (savedState && userHasMovedTimeline) {
       try {
         const parsedState = JSON.parse(savedState);
         console.log('TimelineBar: Restoring timeline state from localStorage:', parsedState);
-        
+
         // Only restore if the saved state is recent (within last 5 minutes)
         const now = Date.now();
         const stateAge = now - parsedState.timestamp;
         const maxAge = 5 * 60 * 1000; // 5 minutes
-        
+
         if (stateAge < maxAge && parsedState.timeRange && Array.isArray(parsedState.timeRange)) {
           console.log('TimelineBar: Restoring recent timeline state:', {
             timeRange: parsedState.timeRange,
@@ -179,7 +179,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             currentTimeRange: timeRange,
             savedActualDates: parsedState.actualDates
           });
-          
+
           setTimeRange(parsedState.timeRange);
           setHasRestoredState(true);
           console.log('TimelineBar: Applied restored timeline state');
@@ -255,13 +255,13 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
       const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
       const dayName = dayNames[dayOfWeek];
-      
+
       const dayPart = d.toLocaleDateString('fr-FR', {
         day: '2-digit',
         month: 'short',
         year: isMediumScreen ? undefined : 'numeric',
       });
-      
+
       return `${dayName} ${dayPart}`;
     } catch {
       return 'Date invalide';
@@ -275,7 +275,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     const endDays = 365 * 10;
     setMaxRange(endDays);
     setTimeRange([0, endDays]);
-    
+
     // Save timeline state immediately
     saveTimelineState([0, endDays]);
   };
@@ -291,29 +291,29 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   const getWeeks = () => {
     const weeks = [];
     const today = new Date();
-    
+
     // Normalize today to midnight for consistent calculations
     const todayMidnight = new Date(today);
     todayMidnight.setHours(0, 0, 0, 0);
-    
+
     // Special initialization for the first week: current day to Sunday
     const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     const daysToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek; // Days until next Sunday
-    
+
     // First week: from today to Sunday
     const firstWeekStart = new Date(today);
     firstWeekStart.setHours(0, 1, 0, 0);
     const firstWeekEnd = new Date(today);
     firstWeekEnd.setDate(today.getDate() + daysToSunday);
     firstWeekEnd.setHours(23, 59, 0, 0);
-    
+
     // Calculate days from today to first week start (today)
     const firstWeekDaysFromNow = 0;
-    
+
     // Calculate the actual position of the Sunday button for the first week
     // Use the direct calculation: start position + days to Sunday
     const firstWeekSundayPosition = firstWeekDaysFromNow + daysToSunday;
-    
+
     weeks.push({
       start: new Date(firstWeekStart),
       end: new Date(firstWeekEnd),
@@ -321,31 +321,31 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       // Position button at the END of the week (Sunday)
       buttonPosition: firstWeekSundayPosition
     });
-    
+
     // Subsequent weeks: Monday to Sunday
     let found = 1; // We already have the first week
     const maxWeeks = Math.ceil(maxRange / 7); // Calculate max weeks based on range
-    
+
     for (let weekIndex = 1; weekIndex < maxWeeks && found < 8; weekIndex++) {
       // Calculate the Monday of this week
       const weekMonday = new Date(today);
       const daysToNextMonday = daysToSunday + 1 + (weekIndex - 1) * 7; // Monday after the first week's Sunday
       weekMonday.setDate(today.getDate() + daysToNextMonday);
       weekMonday.setHours(0, 1, 0, 0);
-      
+
       const weekSunday = new Date(weekMonday);
       weekSunday.setDate(weekMonday.getDate() + 6); // Sunday (6 days after Monday)
       weekSunday.setHours(23, 59, 0, 0);
-      
+
       // Calculate days from today to this Monday
       const daysFromNow = Math.round((weekMonday - todayMidnight) / 86400000);
-      
+
       // Only include weeks that are within our range
       if (daysFromNow >= 0 && daysFromNow < maxRange) {
         // Calculate the actual position of the Sunday button
         // Use the direct calculation: Monday position + 6 days = Sunday position
         const sundayPosition = daysFromNow + 6;
-        
+
         weeks.push({
           start: new Date(weekMonday),
           end: new Date(weekSunday),
@@ -356,7 +356,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
         found++;
       }
     }
-    
+
     return weeks;
   };
 
@@ -373,19 +373,19 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       const daysDifference = Math.ceil((endDate - currentDate) / 86400000);
       setMaxRange(daysDifference);
     }
-    
+
     // Use the same logic as the first week in getWeeks(): today to Sunday
     const currentDayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     const daysToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek; // Days until next Sunday
-    
+
     // First week: from today to Sunday (same as Semaine 1)
     const firstWeekDaysFromNow = 0;
     const firstWeekSundayPosition = firstWeekDaysFromNow + daysToSunday;
-    
+
     // Set range from today to Sunday (same as clicking Semaine 1 button)
     setTimeRange([firstWeekDaysFromNow, firstWeekSundayPosition]);
   };
-  
+
   const handleAllPeriod = () => {
     setUserHasMovedTimeline(true);
     localStorage.setItem('timelineUserMoved', 'true');
@@ -404,19 +404,19 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   // Handle slider mouse down to detect which thumb is being clicked
   const handleSliderMouseDown = (e) => {
     if (!sliderRef.current) return;
-    
+
     const sliderRect = sliderRef.current.getBoundingClientRect();
     const sliderWidth = sliderRect.width;
     const clickX = e.clientX - sliderRect.left;
-    
+
     // Calculate the positions of the thumbs
     const leftThumbX = (timeRange[0] / maxRange) * sliderWidth;
     const rightThumbX = (timeRange[1] / maxRange) * sliderWidth;
-    
+
     // Determine which thumb is closer to the click
     const distanceToLeft = Math.abs(clickX - leftThumbX);
     const distanceToRight = Math.abs(clickX - rightThumbX);
-    
+
     console.log('Slider mouse down:', {
       clickX,
       leftThumbX,
@@ -425,10 +425,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       distanceToRight,
       timeRange
     });
-    
+
     // Store the original range and which thumb is being dragged
     setDragStartRange([...timeRange]);
-    
+
     if (distanceToLeft < distanceToRight) {
       setDraggedThumb('left');
       setLastDragMode('left');
@@ -438,7 +438,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       setLastDragMode('right');
       console.log('Detected RIGHT thumb click');
     }
-    
+
     setIsSliderDragging(true);
   };
 
@@ -466,10 +466,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     setUserHasMovedTimeline(true);
     localStorage.setItem('timelineUserMoved', 'true');
     localStorage.setItem('timelineProcessedInitial', 'false');
-    
+
     // Save timeline state immediately
     saveTimelineState(newValue);
-    
+
     if (isSliderDragging && draggedThumb === 'left') {
       // Only modify the left edge (start), keep right edge fixed
       const newStart = Math.max(0, Math.min(newValue[0], dragStartRange[1] - 1));
@@ -492,7 +492,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   useEffect(() => {
     // Don't send updates while we're restoring state
     if (!hasRestoredState) return;
-    
+
     const now = Date.now();
     // Limit updates to once every 50ms to avoid excessive callbacks
     if (now - lastUpdateTime > 50) {
@@ -500,11 +500,11 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       const start = new Date(currentDate);
       start.setHours(0, 1, 0, 0);
       start.setDate(currentDate.getDate() + timeRange[0]);
-      
+
       const end = new Date(currentDate);
       end.setHours(23, 59, 0, 0);
       end.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
-      
+
       console.log('TimelineBar: Sending time change to parent:', {
         timeRange,
         start: start.toLocaleDateString(),
@@ -518,7 +518,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
           endDate: end.toISOString()
         }
       });
-      
+
       // Save timeline state to localStorage for persistence
       localStorage.setItem('timelineState', JSON.stringify({
         timeRange,
@@ -526,7 +526,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
         end: end.toISOString(),
         timestamp: now
       }));
-      
+
       onTimeChange({ start, end });
       setLastUpdateTime(now);
     }
@@ -539,7 +539,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     const sliderWidth = sliderRect.width;
     const diffX = clientX - dragStartXRef.current;
     const diffDays = Math.round((diffX / sliderWidth) * maxRange);
-    
+
     let newStart = dragStartRangeRef.current[0];
     let newEnd = dragStartRangeRef.current[1];
 
@@ -578,27 +578,27 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       return; // Don't start dragging if clicking on a button or tooltip
     }
     e.preventDefault();
-    
+
     // Determine which part of the overlay was clicked
     if (!sliderRef.current) return;
     const sliderRect = sliderRef.current.getBoundingClientRect();
     const sliderWidth = sliderRect.width;
     const clickX = e.clientX - sliderRect.left;
-    
+
     // Calculate the positions of the left and right edges of the current range
     const leftEdgeX = (timeRange[0] / maxRange) * sliderWidth;
     const rightEdgeX = (timeRange[1] / maxRange) * sliderWidth;
-    
+
     // Account for the overlay positioning (thumbMargin offset)
     const thumbMargin = 10;
     const overlayLeft = Math.min(leftEdgeX + thumbMargin, sliderWidth);
     const overlayRight = Math.max(rightEdgeX - thumbMargin, 0);
-    
+
     // Define edge detection zones (20px from each edge of the overlay)
     const edgeZone = 20;
     const isNearLeftEdge = Math.abs(clickX - overlayLeft) <= edgeZone;
     const isNearRightEdge = Math.abs(clickX - overlayRight) <= edgeZone;
-    
+
     // Determine drag mode
     console.log('Edge detection:', {
       clickX,
@@ -610,7 +610,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       isNearRightEdge,
       edgeZone: 20
     });
-    
+
     if (isNearLeftEdge && !isNearRightEdge) {
       setDragMode('left');
       setLastDragMode('left');
@@ -624,7 +624,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       setLastDragMode('center');
       console.log('Setting drag mode to CENTER');
     }
-    
+
     setIsDragging(true);
     dragStartXRef.current = e.clientX;
     dragStartRangeRef.current = [...timeRange];
@@ -652,27 +652,27 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     }
     if (e.touches.length === 1) {
       e.preventDefault();
-      
+
       // Determine which part of the overlay was touched
       if (!sliderRef.current) return;
       const sliderRect = sliderRef.current.getBoundingClientRect();
       const sliderWidth = sliderRect.width;
       const touchX = e.touches[0].clientX - sliderRect.left;
-      
+
       // Calculate the positions of the left and right edges of the current range
       const leftEdgeX = (timeRange[0] / maxRange) * sliderWidth;
       const rightEdgeX = (timeRange[1] / maxRange) * sliderWidth;
-      
+
       // Account for the overlay positioning (thumbMargin offset)
       const thumbMargin = 10;
       const overlayLeft = Math.min(leftEdgeX + thumbMargin, sliderWidth);
       const overlayRight = Math.max(rightEdgeX - thumbMargin, 0);
-      
+
       // Define edge detection zones (20px from each edge of the overlay)
       const edgeZone = 20;
       const isNearLeftEdge = Math.abs(touchX - overlayLeft) <= edgeZone;
       const isNearRightEdge = Math.abs(touchX - overlayRight) <= edgeZone;
-      
+
       // Determine drag mode
       if (isNearLeftEdge && !isNearRightEdge) {
         setDragMode('left');
@@ -684,7 +684,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
         setDragMode('center'); // Touch in the middle area moves the entire range
         setLastDragMode('center');
       }
-      
+
       setIsDragging(true);
       dragStartXRef.current = e.touches[0].clientX;
       dragStartRangeRef.current = [...timeRange];
@@ -749,8 +749,8 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       width: Math.max(overlayRight - overlayLeft, 0),
       top: isSmallScreen ? -10 : 0,
       bottom: isSmallScreen ? -10 : 0,
-      cursor: isDragging ? 
-        (dragMode === 'left' ? 'w-resize' : 
+      cursor: isDragging ?
+        (dragMode === 'left' ? 'w-resize' :
          dragMode === 'right' ? 'e-resize' : 'grabbing') : 'grab',
       zIndex: 2, // Lower z-index than weekend markers (10) and buttons (20)
       backgroundColor: 'transparent', // Completely transparent for simplicity
@@ -758,7 +758,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
       display: isSmallScreen ? 'none' : 'block',
     };
   };
-  
+
   // Additional clickable area for the entire slider to support clicking anywhere
   const fullSliderAreaStyle = {
     position: 'absolute',
@@ -769,44 +769,44 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     zIndex: isSmallScreen ? 2 : 1, // Higher z-index on mobile to ensure it's clickable
     cursor: 'pointer', // Show pointer cursor to indicate clickable
   };
-  
+
   // Handle clicks on the full slider area
   const handleFullAreaClick = (e) => {
     // Don't handle if clicking on weeks, buttons or tooltips
-    if (e.target.closest('.MuiButtonBase-root') || 
+    if (e.target.closest('.MuiButtonBase-root') ||
         e.target.closest('[role="tooltip"]') ||
         e.target.closest('.week-marker')) {
       return;
     }
-    
+
     // Get click position relative to slider
     if (!sliderRef.current) return;
     const sliderRect = sliderRef.current.getBoundingClientRect();
     const clickX = e.clientX - sliderRect.left;
     const clickPosition = (clickX / sliderRect.width) * maxRange;
-    
+
     // Calculate new range centered around the click position
     const rangeWidth = timeRange[1] - timeRange[0];
     const halfWidth = rangeWidth / 2;
-    
+
     let newStart = Math.round(clickPosition - halfWidth);
     let newEnd = Math.round(clickPosition + halfWidth);
-    
+
     // Adjust if out of bounds
     if (newStart < 0) {
       newEnd -= newStart; // shift right
       newStart = 0;
     }
-    
+
     if (newEnd > maxRange) {
       newStart -= (newEnd - maxRange); // shift left
       newEnd = maxRange;
     }
-    
+
     // Final validation to ensure we stay in bounds
     newStart = Math.max(0, newStart);
     newEnd = Math.min(maxRange, newEnd);
-    
+
     setUserHasMovedTimeline(true);
     localStorage.setItem('timelineUserMoved', 'true');
     localStorage.setItem('timelineProcessedInitial', 'false');
@@ -817,43 +817,43 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
   const handleTouchClick = (e) => {
     // Only process on mobile
     if (!isSmallScreen) return;
-    
+
     // Don't handle if touching on weeks, buttons or tooltips
-    if (e.target.closest('.MuiButtonBase-root') || 
+    if (e.target.closest('.MuiButtonBase-root') ||
         e.target.closest('[role="tooltip"]') ||
         e.target.closest('.week-marker')) {
       return;
     }
-    
+
     // Get touch position relative to slider
     if (!sliderRef.current || !e.touches[0]) return;
-    
+
     const sliderRect = sliderRef.current.getBoundingClientRect();
     const touchX = e.touches[0].clientX - sliderRect.left;
     const touchPosition = (touchX / sliderRect.width) * maxRange;
-    
+
     // Calculate new range centered around the touch position
     const rangeWidth = timeRange[1] - timeRange[0];
     const halfWidth = rangeWidth / 2;
-    
+
     let newStart = Math.round(touchPosition - halfWidth);
     let newEnd = Math.round(touchPosition + halfWidth);
-    
+
     // Adjust if out of bounds
     if (newStart < 0) {
       newEnd -= newStart; // shift right
       newStart = 0;
     }
-    
+
     if (newEnd > maxRange) {
       newStart -= (newEnd - maxRange); // shift left
       newEnd = maxRange;
     }
-    
+
     // Final validation to ensure we stay in bounds
     newStart = Math.max(0, newStart);
     newEnd = Math.min(maxRange, newEnd);
-    
+
     setUserHasMovedTimeline(true);
     localStorage.setItem('timelineUserMoved', 'true');
     localStorage.setItem('timelineProcessedInitial', 'false');
@@ -862,8 +862,8 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
 
   return (
     <Box sx={{ position: 'relative' }}>
-      <Box 
-        className="timeline-container" 
+      <Box
+        className="timeline-container"
         sx={{
           position: inProjectView ? 'relative' : 'fixed',
           bottom: inProjectView ? 'auto' : { xs: '10px', sm: '20px' }, // Lower on mobile by reducing bottom distance
@@ -917,8 +917,8 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             sx={{
               '& .MuiSlider-track': { height: 4 },
               '& .MuiSlider-rail': { height: 4 },
-              '& .MuiSlider-thumb': { 
-                width: 14, 
+              '& .MuiSlider-thumb': {
+                width: 14,
                 height: 14,
                 zIndex: 3, // make sure thumbs are above the overlay
                 '&:hover': { boxShadow: '0 0 0 6px rgba(63, 81, 181, 0.1)' },
@@ -1039,10 +1039,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
           }}
         >
           {/* Left controls with all 4 icons - responsive positioning */}
-          <Box 
-            className="left-controls" 
-            sx={{ 
-              display: 'flex', 
+          <Box
+            className="left-controls"
+            sx={{
+              display: 'flex',
               alignItems: 'center',
               gap: { xs: 0.5, sm: 2 },
               backgroundColor: '#f0fdf4',
@@ -1087,10 +1087,10 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             </ButtonGroup>
 
             <Tooltip title="Sur la période (10 ans)">
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 onClick={handleAllTime}
-                sx={{ 
+                sx={{
                   color: 'text.secondary',
                   padding: { xs: 0.5, sm: 1 },
                   '&:hover': {
@@ -1101,7 +1101,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                 <AddIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
               </IconButton>
             </Tooltip>
-            
+
             {/* Calendar icon - back in the same container */}
             <input
               type="date"
@@ -1117,7 +1117,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               }}
               min={new Date().toISOString().split('T')[0]}
               id="timeline-date-picker"
-              style={{ 
+              style={{
                 display: 'none' // Hide the actual input
               }}
             />
@@ -1126,7 +1126,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
                 onClick={() => document.getElementById('timeline-date-picker').showPicker()}
                 size={isSmallScreen ? "small" : "medium"}
                 sx={{
-                  color: '#40916c', 
+                  color: '#40916c',
                   padding: { xs: 0.5, sm: 1 },
                   '&:hover': {
                     backgroundColor: 'rgba(64, 145, 108, 0.1)'
@@ -1174,11 +1174,11 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               const startDate = new Date(currentDate);
               startDate.setDate(currentDate.getDate() + timeRange[0]);
               startDate.setHours(0, 1, 0, 0);
-              
+
               const endDate = new Date(currentDate);
               endDate.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
               endDate.setHours(23, 59, 0, 0);
-              
+
               return `${formatDateWithTime(startDate)} - ${formatDateWithTime(endDate)}`;
             })()}
           </Box>

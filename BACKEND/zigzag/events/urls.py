@@ -43,7 +43,7 @@ urlpatterns = [
     # User Address endpoints
     path('user/addresses/', UserAddressViewSet.as_view({'get': 'list', 'post': 'create'}), name='user-address-list'),
     path('user/addresses/<int:pk>/', UserAddressViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update', 'delete': 'destroy'}), name='user-address-detail'),
-    
+
     # Circle endpoints
     path('circles/', CircleViewSet.as_view({'get': 'list', 'post': 'create'}), name='circle-list'),
     path('circles/<int:id>/', CircleViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='circle-detail'),
@@ -54,7 +54,7 @@ urlpatterns = [
     path('my/locations/', MyLocationsView.as_view(), name='my-locations'),
     path('users/', FriendsListView.as_view(), name='users-list'),
 
-   
+
     # Invitation endpoints
     path('invitations/', EventInvitationViewSet.as_view({'get': 'list', 'post': 'create'}), name='invitation-list'),
     path('invitations/<int:pk>/', EventInvitationViewSet.as_view({'get': 'retrieve', 'delete': 'destroy'}), name='invitation-detail'),

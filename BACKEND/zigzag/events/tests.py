@@ -3,9 +3,7 @@ from django.test import TestCase
 
 
 # Create your tests here.
-import uuid
 from datetime import datetime, timedelta
-from django.test import TestCase
 from django.utils.timezone import make_aware
 from django.urls import reverse
 
@@ -57,10 +55,10 @@ class BaseModelSetup(TestCase):
             is_public=True,
         )
         self.event.circles.add(self.circle)
-    
+
         # --- EventParticipation ---
         EventParticipation.objects.create(event=self.event, user=self.user2)
-        
+
         # Authenticate
         self.client.login(username="Harry", password="pass123")
 
@@ -74,6 +72,3 @@ class BaseModelSetup(TestCase):
         url = reverse("event-list")
         response = self.client.get(url)
         self.assertTrue(any(e["title"] == "Soirée multisports" for e in response.data))
-
-
-

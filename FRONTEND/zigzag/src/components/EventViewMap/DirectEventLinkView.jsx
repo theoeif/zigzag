@@ -13,7 +13,7 @@ const DirectEventLinkView = () => {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Check authentication and redirect to login if not connected
   useEffect(() => {
     if (!isLoading && !isConnected) {
@@ -24,7 +24,7 @@ const DirectEventLinkView = () => {
   // Fetch event data on component mount (only when authenticated)
   useEffect(() => {
     if (!isConnected || isLoading) return;
-    
+
     const loadEventData = async () => {
       try {
         setLoading(true);
@@ -38,10 +38,10 @@ const DirectEventLinkView = () => {
         setLoading(false);
       }
     };
-    
+
     loadEventData();
   }, [id, isConnected, isLoading]);
-  
+
   const handleClose = () => {
     // Check if we came from a marker click (will have mapState in location.state)
     const mapState = location.state?.mapState;
@@ -57,7 +57,7 @@ const DirectEventLinkView = () => {
       navigate("/");
     }
   };
-  
+
   // Show loading while checking authentication
   if (isLoading) {
     return (
@@ -87,7 +87,7 @@ const DirectEventLinkView = () => {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div style={{
@@ -101,7 +101,7 @@ const DirectEventLinkView = () => {
       }}>
         <h2>Event Not Available</h2>
         <p>{error}</p>
-        <button 
+        <button
           onClick={handleClose}
           style={{
             padding: "8px 16px",
@@ -118,10 +118,10 @@ const DirectEventLinkView = () => {
       </div>
     );
   }
-  
+
   // Get the original map state from location state if available
   const originalMapState = location.state?.mapState;
-  
+
   return (
     <EventView
       eventId={id}
@@ -133,4 +133,4 @@ const DirectEventLinkView = () => {
   );
 };
 
-export default DirectEventLinkView; 
+export default DirectEventLinkView;

@@ -77,5 +77,5 @@ version = "4.12.2"
 version = "2.2.3"
 
 # to limits bots ip address.
-[tool.uv.django-ratelimit] 
+[tool.uv.django-ratelimit]
 version = "4.1.0"
