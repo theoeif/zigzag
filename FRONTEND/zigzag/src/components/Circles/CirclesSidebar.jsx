@@ -65,9 +65,9 @@ const AddCircleModal = ({ onClose, onCreate }) => {
             <FiUsers className={styles.inputIcon} />
             Nom du Cercle
           </label>
-          <input 
-            type="text" 
-            value={name} 
+          <input
+            type="text"
+            value={name}
             onChange={(e) => {
               setName(e.target.value);
               setError('');
@@ -92,7 +92,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
                   selectedTags.some(t => t.id === tag.id) ? styles.tagSelected : ''
                 }`}
                 onClick={() => {
-                  setSelectedTags(prev => 
+                  setSelectedTags(prev =>
                     prev.some(t => t.id === tag.id)
                       ? prev.filter(t => t.id !== tag.id)
                       : [...prev, tag]
@@ -112,7 +112,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.modalActions}>
-          <button 
+          <button
             className={styles.createButton}
             onClick={handleSubmit}
             disabled={!name.trim() || selectedTags.length === 0}
@@ -141,12 +141,12 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
 
   useEffect(() => {
     loadCircles();
-    
+
     const handleRefresh = () => {
       loadCircles();
     };
     window.addEventListener('refreshCircles', handleRefresh);
-    
+
     return () => {
       window.removeEventListener('refreshCircles', handleRefresh);
     };
@@ -173,7 +173,7 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
             <div className={styles.circleCategory}>Cercles Crées</div>
             <ul className={styles.circlesSubList}>
               {createdCircles.map(circle => (
-                <li 
+                <li
                   key={circle.id}
                   className={`${styles.circleItem} ${circle.id === selectedCircleId ? styles.selected : ''}`}
                   onClick={() => onSelectCircle(circle)}
@@ -190,7 +190,7 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
             <div className={styles.circleCategory}></div>
             <ul className={styles.circlesSubList}>
               {otherCircles.map(circle => (
-                <li 
+                <li
                   key={circle.id}
                   className={`${styles.circleItem} ${circle.id === selectedCircleId ? styles.selected : ''}`}
                   onClick={() => onSelectCircle(circle)}
@@ -201,17 +201,17 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
             </ul>
           </>
         )}
-        
+
         <div style={{ height: "30px" }}></div>
-        <button 
+        <button
           className={styles.addCircleButton}
           onClick={() => setShowModal(true)}
-          style={{ 
-            width: '40px', 
-            height: '40px', 
-            borderRadius: '50%', 
-            display: 'flex', 
-            alignItems: 'center', 
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
             padding: 0
           }}
@@ -221,7 +221,7 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
       </div>
 
       {showModal && (
-        <AddCircleModal 
+        <AddCircleModal
           onClose={() => setShowModal(false)}
           onCreate={handleCreateCircle}
         />

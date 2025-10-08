@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
-import { 
-  fetchDirectEvent, 
-  acceptInvitation, 
+import {
+  fetchDirectEvent,
+  acceptInvitation,
   createEventInvitation
 } from "../../../api/api";
 import MarkersMap from "../../MarkersMap";
 import CircleMembersPopup from "../../Project/CircleMembersPopup";
-import { 
+import {
   FaMapMarkerAlt,
   FaUser,
   FaLink,
@@ -287,7 +287,7 @@ const styles = {
     zIndex: 1000,
   },
   shareLinkError: {
-    position: "absolute", 
+    position: "absolute",
     bottom: "40px",
     left: "50%",
     transform: "translateX(-50%)",
@@ -342,9 +342,9 @@ const styles = {
   }
 };
 
-const EventView = ({ 
-  eventId, 
-  displayMode = 'fullpage', 
+const EventView = ({
+  eventId,
+  displayMode = 'fullpage',
   onClose,
   initialData = null,
   originalMapState = null
@@ -354,7 +354,7 @@ const EventView = ({
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite');
   const { isConnected } = useContext(AuthContext);
-  
+
   // State
   const [event, setEvent] = useState(initialData || null);
   const [loading, setLoading] = useState(!initialData);
@@ -365,20 +365,20 @@ const EventView = ({
   const [shareButtonClicked, setShareButtonClicked] = useState(false);
   const [shareError, setShareError] = useState(null);
   const [addressHovered, setAddressHovered] = useState(false);
-  
+
   // Circle members popup state
   const [showCircleMembers, setShowCircleMembers] = useState(false);
   const [selectedCircleIds, setSelectedCircleIds] = useState([]);
   const [selectedCircleName, setSelectedCircleName] = useState('');
-  
+
   // Sharing and invitations
   const [isCreator, setIsCreator] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteSent, setInviteSent] = useState(false);
   const [inviteError, setInviteError] = useState(null);
-  
+
   // Invitation verification removed as public/private distinction is no longer used
-  
+
   // Fetch event data
   useEffect(() => {
     if (!initialData) {
@@ -387,12 +387,12 @@ const EventView = ({
           setLoading(true);
           const eventData = await fetchDirectEvent(eventId, inviteToken);
           setEvent(eventData);
-          
-          
+
+
           // Check if current user is the creator
           const currentUsername = localStorage.getItem("username");
           setIsCreator(eventData.creator === currentUsername);
-          
+
           // Set share URL
           setShareUrl(`http://localhost:5173/event/${eventId}`);
           setError(null);
@@ -403,7 +403,7 @@ const EventView = ({
           setLoading(false);
         }
       };
-      
+
       loadEvent();
     } else {
       // Initialize with provided data
@@ -421,7 +421,7 @@ const EventView = ({
     const date = new Date(dateString);
     const hours = date.getHours();
     const minutes = date.getMinutes();
-    
+
     // Base format without time
     const dateFormat = {
       weekday: 'long',
@@ -429,7 +429,7 @@ const EventView = ({
       month: 'long',
       day: 'numeric'
     };
-    
+
     // Add time format only if time is not midnight
     if (hours !== 0 || minutes !== 0) {
       return date.toLocaleDateString('en-US', {
@@ -438,7 +438,7 @@ const EventView = ({
         minute: '2-digit'
       });
     }
-    
+
     return date.toLocaleDateString('en-US', dateFormat);
   };
 
@@ -460,18 +460,18 @@ const EventView = ({
     const date = new Date(dateString);
     const hours = date.getHours();
     const minutes = date.getMinutes();
-    
+
     // If both hours and minutes are 0 (midnight), don't show the time
     if (hours === 0 && minutes === 0) {
       return "";
     }
-    
+
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
     });
   };
-  
+
   // Create a short, beautiful description preview (EventView only)
   const getDescriptionPreviewParagraphs = (description) => {
     if (!description) return [];
@@ -505,7 +505,7 @@ const EventView = ({
     }
     return result;
   };
-  
+
   // Get day name
   const getDayName = (dateString) => {
     const date = new Date(dateString);
@@ -516,19 +516,19 @@ const EventView = ({
   const toggleEndTimeDisplay = () => {
     setShowEndTime(!showEndTime);
   };
-  
+
   // Event handlers
   const handleLogin = () => {
     // Redirect to login with return path
     navigate(`/login?redirect=${encodeURIComponent(`/event/${eventId}${inviteToken ? `?invite=${inviteToken}` : ''}`)}`);
   };
-  
+
   const handleAcceptInvitation = async () => {
     if (!isConnected) {
       handleLogin();
       return;
     }
-    
+
     try {
       const result = await acceptInvitation(inviteToken);
       if (result.success) {
@@ -541,8 +541,8 @@ const EventView = ({
       setError("Failed to accept invitation. Please try again.");
     }
   };
-  
-  
+
+
   const handleViewOnMap = () => {
     // Pass the event location as state to maintain zoom and center when navigating to map
     if (event && (
@@ -569,13 +569,13 @@ const EventView = ({
       navigate('/');
     }
   };
-  
+
   const handleInvite = async () => {
     if (!inviteEmail || !inviteEmail.includes('@')) {
       setInviteError("Please enter a valid email address");
       return;
     }
-    
+
     try {
       setInviteError(null);
       await createEventInvitation(eventId, inviteEmail);
@@ -591,11 +591,11 @@ const EventView = ({
     try {
       setUrlCopied(false);
       setShareError(null);
-      
+
       // Add click animation effect
       setShareButtonClicked(true);
       setTimeout(() => setShareButtonClicked(false), 300);
-      
+
       // Respect host setting to disable link sharing
       if (event && event.shareable_link === false) {
         setShareError("The host has disabled link sharing for this event");
@@ -611,12 +611,12 @@ const EventView = ({
       setTimeout(() => setShareError(null), 3000);
     }
   };
-  
+
   const openGoogleMaps = () => {
     // Get latitude and longitude values
     let latitude = null;
     let longitude = null;
-    
+
     if (event.address && event.address.latitude && event.address.longitude) {
       latitude = event.address.latitude;
       longitude = event.address.longitude;
@@ -624,7 +624,7 @@ const EventView = ({
       latitude = event.lat;
       longitude = event.lng;
     }
-    
+
     // Verify that we have valid coordinates
     if (latitude && longitude && !isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
       // On desktop, just open in browser
@@ -644,13 +644,13 @@ const EventView = ({
       console.error("EventView: Invalid circle data:", circle);
       return;
     }
-    
+
     // console.log("EventView: Viewing circle members for circle:", circle);
-    
+
     // Make sure we have valid data
     const circleId = circle.id;
     const circleName = circle.name || `Circle ${circleId}`;
-    
+
     // Only proceed if we have an ID
     if (circleId !== undefined && circleId !== null) {
       setSelectedCircleIds([circleId]);
@@ -667,10 +667,10 @@ const EventView = ({
       console.error("EventView: No circles found for this event");
       return;
     }
-    
+
     // Extract all circle IDs
     const allCircleIds = event.circles.map(circle => circle.id);
-    
+
     setSelectedCircleIds(allCircleIds);
     setSelectedCircleName("Paricipants");
     setShowCircleMembers(true);
@@ -684,7 +684,7 @@ const EventView = ({
       </div>
     );
   }
-  
+
   // Render error state
   if (error && !event) {
     return (
@@ -692,15 +692,15 @@ const EventView = ({
         <h2>Event Not Available</h2>
         <p>{error}</p>
         <div style={styles.buttons}>
-          <button 
-            style={{...styles.button, ...styles.primaryButton}} 
+          <button
+            style={{...styles.button, ...styles.primaryButton}}
             onClick={handleViewOnMap}
           >
             Go to Map
           </button>
           {!isConnected && (
-            <button 
-              style={{...styles.button, ...styles.secondaryButton}} 
+            <button
+              style={{...styles.button, ...styles.secondaryButton}}
               onClick={handleLogin}
             >
               Log In
@@ -710,9 +710,9 @@ const EventView = ({
       </div>
     );
   }
-  
+
   // Restricted view removed; always show full event details
-  
+
   // Render the EventView based on displayMode
   if (displayMode === 'fullpage') {
     return (
@@ -726,12 +726,12 @@ const EventView = ({
             } : null}
           />
         </div>
-        
+
         {/* Event info overlay */}
         <div style={styles.fullpage.overlay}>
           <div style={styles.card}>
             {/* Date display in right corner with click interaction */}
-            <div 
+            <div
               style={{
                 ...styles.eventDateBadge
               }}
@@ -748,26 +748,26 @@ const EventView = ({
               </div>
               {/* Time display removed - only showing day and date */}
             </div>
-            
+
             <h2 style={styles.title}>{event.title}</h2>
-            
+
             {/* Invitation banner */}
             {inviteToken && (
               <div style={styles.invitationBanner}>
                 <p>You have been invited to this event. {!isConnected && "Please log in to accept the invitation."}</p>
               </div>
             )}
-            
+
             {
               // Full event view
               <>
                 <div style={styles.details}>
                   {event.address?.address_line && (
-                    <div 
+                    <div
                       style={{
                         ...styles.addressItem,
                         color: addressHovered ? "#2196F3" : "inherit"
-                      }} 
+                      }}
                       onClick={openGoogleMaps}
                       onMouseEnter={() => setAddressHovered(true)}
                       onMouseLeave={() => setAddressHovered(false)}
@@ -779,24 +779,24 @@ const EventView = ({
                       <span><strong>Where:</strong> {event.address.address_line}</span>
                     </div>
                   )}
-                  
+
                   {event.creator && (
                     <div style={styles.detailItem}>
                       <FaUser style={styles.detailIcon} />
                       <span><strong>Host:</strong> {event.creator}</span>
                     </div>
                   )}
-                  
+
                   {/* Public/private and friends-of-friends indicators removed */}
-                  
+
                   {/* Participants */}
                   {event.circles && event.circles.length > 0 && (
                     <div style={styles.participantsRow}>
                       <strong>Cercles:</strong>
                       <div style={styles.circlesContainer}>
                         {event.circles.map((circle, index) => (
-                          <div 
-                            key={index} 
+                          <div
+                            key={index}
                             style={styles.circle}
                             onClick={() => handleViewCircleMembers(circle)}
                           >
@@ -807,9 +807,9 @@ const EventView = ({
                       </div>
                     </div>
                   )}
-                  
+
                 </div>
-                
+
                 {/* Description preview - inspired by EventCard */}
                 {event.description && (
                   <div style={{
@@ -837,17 +837,17 @@ const EventView = ({
                     </div>
                   </div>
                 )}
-                
+
                 {/* WhatsApp link removed */}
-                
+
                 {/* Bottom buttons - share link and view members on left, participate on right */}
                 <div style={styles.bottomButtons}>
                   {/* Left side buttons - share link and view members */}
                   <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                     {/* Share link button */}
                     <div style={{ position: "relative" }}>
-                    <button 
-                      onClick={handleShareEvent} 
+                    <button
+                      onClick={handleShareEvent}
                       style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
                       title="Copy event link"
                     >
@@ -859,10 +859,10 @@ const EventView = ({
                   </div>
                 )}
                     </div>
-                    
+
                     {/* View members button - blue like in EventCard */}
                     {event.circles && event.circles.length > 0 && (
-                      <button 
+                      <button
                         onClick={handleViewAllCircleMembers}
                         style={{
                           ...styles.shareButton,
@@ -884,36 +884,36 @@ const EventView = ({
                       <FaInfoCircle />
                     </button>
                   </div>
-                  
+
                   {/* Show share error as popup if present */}
                   {shareError && (
                     <div style={styles.shareLinkErrorPopup}>
                       {shareError}
                     </div>
                   )}
-                  
+
                   {/* Accept invitation button */}
                   {isConnected && inviteToken ? (
-                    <button 
-                      style={{...styles.button, ...styles.primaryButton}} 
+                    <button
+                      style={{...styles.button, ...styles.primaryButton}}
                       onClick={handleAcceptInvitation}
                     >
                       Accept Invitation
                     </button>
                   ) : !isConnected ? (
-                    <button 
-                      style={{...styles.button, ...styles.primaryButton}} 
+                    <button
+                      style={{...styles.button, ...styles.primaryButton}}
                       onClick={handleLogin}
                     >
                       Log in to participate
                     </button>
                   ) : null}
                 </div>
-                
+
                 {/* View on map button */}
                 <div style={{display: "flex", justifyContent: "center", marginTop: "15px"}}>
-                  <button 
-                    style={{...styles.button, ...styles.secondaryButton}} 
+                  <button
+                    style={{...styles.button, ...styles.secondaryButton}}
                     onClick={handleViewOnMap}
                   >
                     View on Map
@@ -923,10 +923,10 @@ const EventView = ({
             }
           </div>
         </div>
-        
+
         {/* Circle Members Popup */}
         {showCircleMembers && (
-          <CircleMembersPopup 
+          <CircleMembersPopup
             circleIds={selectedCircleIds}
             circleName={selectedCircleName}
             onClose={() => setShowCircleMembers(false)}
@@ -940,7 +940,7 @@ const EventView = ({
       <div style={styles.modal.overlay}>
         <div style={styles.card}>
           {/* Date display in right corner with click interaction */}
-          <div 
+          <div
             style={{
               ...styles.eventDateBadge
             }}
@@ -957,19 +957,19 @@ const EventView = ({
             </div>
             {/* Time display removed - only showing day and date */}
           </div>
-          
+
           <h2 style={styles.title}>{event.title}</h2>
-          
+
           {
             // Full event view
             <>
               <div style={styles.details}>
                 {event.address?.address_line && (
-                  <div 
+                  <div
                     style={{
                       ...styles.addressItem,
                       color: addressHovered ? "#2196F3" : "inherit"
-                    }} 
+                    }}
                     onClick={openGoogleMaps}
                     onMouseEnter={() => setAddressHovered(true)}
                     onMouseLeave={() => setAddressHovered(false)}
@@ -981,24 +981,24 @@ const EventView = ({
                     <span>{event.address.address_line}</span>
                   </div>
                 )}
-                
+
                 {event.creator && (
                   <div style={styles.detailItem}>
                     <FaUser style={styles.detailIcon} />
                     <span><strong>Host:</strong> {event.creator}</span>
                   </div>
                 )}
-                
+
                 {/* Public/private and friends-of-friends indicators removed */}
-                
+
                 {/* Participants */}
                 {event.circles && event.circles.length > 0 && (
                   <div style={styles.participantsRow}>
                     <strong>Participants:</strong>
                     <div style={styles.circlesContainer}>
                       {event.circles.map((circle, index) => (
-                        <div 
-                          key={index} 
+                        <div
+                          key={index}
                           style={styles.circle}
                           onClick={() => handleViewCircleMembers(circle)}
                         >
@@ -1009,9 +1009,9 @@ const EventView = ({
                     </div>
                   </div>
                 )}
-                
+
               </div>
-              
+
               {/* Description preview - inspired by EventCard */}
               {event.description && (
                 <div style={{
@@ -1039,17 +1039,17 @@ const EventView = ({
                   </div>
                 </div>
               )}
-              
+
               {/* WhatsApp link removed */}
-              
+
               {/* Bottom buttons - share link and view members on left, participate on right */}
               <div style={styles.bottomButtons}>
                 {/* Left side buttons - share link and view members */}
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                   {/* Share link button */}
                   <div style={{ position: "relative" }}>
-                    <button 
-                      onClick={handleShareEvent} 
+                    <button
+                      onClick={handleShareEvent}
                       style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
                       title="Copy event link"
                     >
@@ -1061,10 +1061,10 @@ const EventView = ({
                       </div>
                     )}
                   </div>
-                  
+
                   {/* View members button - blue like in EventCard */}
                   {event.circles && event.circles.length > 0 && (
-                    <button 
+                    <button
                       onClick={handleViewAllCircleMembers}
                       style={{
                         ...styles.shareButton,
@@ -1078,7 +1078,7 @@ const EventView = ({
                   )}
 
                   {/* See more button - go to project page */}
-                  <button 
+                  <button
                     onClick={handleSeeMore}
                     style={styles.shareButton}
                     title="See more details"
@@ -1086,14 +1086,14 @@ const EventView = ({
                     <FaInfoCircle />
                   </button>
                 </div>
-                
+
                 {/* Show share error as popup if present */}
                 {shareError && (
                   <div style={styles.shareLinkErrorPopup}>
                     {shareError}
                   </div>
                 )}
-                
+
                 {/* Accept invitation button */}
                 {isConnected && inviteToken && (
                   <button
@@ -1104,12 +1104,12 @@ const EventView = ({
                   </button>
                 )}
               </div>
-              
+
               {/* Close button */}
               <div style={{display: "flex", justifyContent: "center", marginTop: "15px"}}>
-                <button 
-                  type="button" 
-                  style={{...styles.button, ...styles.secondaryButton}} 
+                <button
+                  type="button"
+                  style={{...styles.button, ...styles.secondaryButton}}
                   onClick={onClose || handleViewOnMap}
                 >
                   Close
@@ -1118,10 +1118,10 @@ const EventView = ({
             </>
           }
         </div>
-        
+
         {/* Circle Members Popup */}
         {showCircleMembers && (
-          <CircleMembersPopup 
+          <CircleMembersPopup
             circleIds={selectedCircleIds}
             circleName={selectedCircleName}
             onClose={() => setShowCircleMembers(false)}
@@ -1132,4 +1132,4 @@ const EventView = ({
   }
 };
 
-export default EventView; 
+export default EventView;

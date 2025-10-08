@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
+import {
   FaTrashAlt, FaEdit, FaMapMarkerAlt, FaClock,
-  FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus, 
+  FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus,
   FaLink, FaUsers, FaUserFriends, FaCalendarAlt, FaDirections,
   FaCaretDown, FaCaretRight, FaInfoCircle
 } from "react-icons/fa";
@@ -11,7 +11,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
   const [showCirclesDropdown, setShowCirclesDropdown] = useState(false);
-  
+
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
     const date = new Date(dateString);
@@ -26,24 +26,24 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     const date = new Date(dateString);
     const hours = date.getHours();
     const minutes = date.getMinutes();
-    
+
     // If both hours and minutes are 0 (midnight), don't show the time
     if (hours === 0 && minutes === 0) {
       return "";
     }
-    
+
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
     });
   };
-  
+
   // Format date including the year, conditionally showing time
   const formatFullDate = (dateString) => {
     const date = new Date(dateString);
     const hours = date.getHours();
     const minutes = date.getMinutes();
-    
+
     // Base format without time
     const dateFormat = {
       weekday: 'long',
@@ -51,7 +51,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       month: 'long',
       day: 'numeric'
     };
-    
+
     // Add time format only if time is not midnight
     if (hours !== 0 || minutes !== 0) {
       return date.toLocaleDateString('en-US', {
@@ -60,7 +60,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         minute: '2-digit'
       });
     }
-    
+
     return date.toLocaleDateString('en-US', dateFormat);
   };
 
@@ -69,13 +69,13 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     const date = new Date(dateString);
     const hours = date.getHours();
     const minutes = date.getMinutes();
-    
+
     // Base format without time
     const dateFormat = {
       month: 'short',
       day: 'numeric'
     };
-    
+
     // Add time format only if time is not midnight
     if (hours !== 0 || minutes !== 0) {
       return date.toLocaleDateString('en-US', {
@@ -84,10 +84,10 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         minute: '2-digit'
       });
     }
-    
+
     return date.toLocaleDateString('en-US', dateFormat);
   };
-  
+
   // Get day name
   const getDayName = (dateString) => {
     const date = new Date(dateString);
@@ -126,21 +126,21 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   // Helper function to extract circles data from different formats
   const extractCircleIds = (eventCircles) => {
     if (!eventCircles) return [];
-    
+
     // Initialize array to store circle IDs
     let circleIds = [];
-    
+
     // Handle different data structures
     if (Array.isArray(eventCircles)) {
       // If it's an array of objects with id property
       if (eventCircles.length > 0 && typeof eventCircles[0] === 'object') {
         circleIds = eventCircles.map(circle => circle.id).filter(Boolean);
-      } 
+      }
       // If it's an array of primitive IDs
       else {
         circleIds = eventCircles.filter(id => id);
       }
-    } 
+    }
     // If it's an object with keys as IDs or keys pointing to objects with IDs
     else if (typeof eventCircles === 'object') {
       Object.entries(eventCircles).forEach(([key, value]) => {
@@ -152,7 +152,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         }
       });
     }
-    
+
     return circleIds;
   };
 
@@ -162,15 +162,15 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       console.error("EventCard: Cannot view members - event data is missing");
       return;
     }
-    
+
     // Extract all circle IDs associated with this event
     const allCircleIds = extractCircleIds(event.circles);
-    
+
     if (allCircleIds.length === 0) {
       console.error("EventCard: No circle IDs found for this event");
       return;
     }
-        
+
     // Pass all circle IDs to the parent handler
     onViewCircleMembers(allCircleIds, "Participants du projet");
   };
@@ -181,7 +181,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     if (!event.circles || !Array.isArray(event.circles)) {
       return [];
     }
-    
+
     // Now the circles data should already have id and name properties
     return event.circles.map(circle => ({
       id: circle.id,
@@ -195,13 +195,13 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       console.error("EventCard: Invalid circle data:", circle);
       return;
     }
-    
+
     console.log("EventCard: Viewing circle members for circle:", circle);
-    
+
     // Make sure we have valid data
     const circleId = circle.id;
     const circleName = circle.name || `Circle ${circleId}`;
-    
+
     // Only proceed if we have an ID
     if (circleId !== undefined && circleId !== null) {
       console.log(`EventCard: Passing circleId=${circleId}, circleName=${circleName} to parent`);
@@ -250,11 +250,11 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   // Function to open Google Maps directly, preferably in the native app if installed
   const openGoogleMaps = (e) => {
     e.preventDefault();
-    
+
     // Get latitude and longitude values
     let latitude = null;
     let longitude = null;
-    
+
     if (event.address && event.address.latitude && event.address.longitude) {
       latitude = event.address.latitude;
       longitude = event.address.longitude;
@@ -262,31 +262,31 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       latitude = event.lat;
       longitude = event.lng;
     }
-    
+
     // Verify that we have valid coordinates
     if (latitude && longitude && !isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
       const addressText = event.address?.address_line || "Emplacement de l'événement";
-      
+
       // Check if we're on a mobile device
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
+
       if (isMobile) {
         // Prepare URL schemes for different platforms
         // Google Maps app URL scheme for both iOS and Android
         const googleMapsAppUrl = `comgooglemaps://?q=${latitude},${longitude}&center=${latitude},${longitude}`;
-        
+
         // Universal URL that opens in browser if app is not installed
         const googleMapsWebUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-        
+
         // First try to open the Google Maps app
         // Create a hidden iframe to try to launch the app
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = googleMapsAppUrl;
-        
+
         // Append to body to attempt to open the app
         document.body.appendChild(iframe);
-        
+
         // Set timeout to remove iframe and open web URL if app doesn't open
         setTimeout(() => {
           document.body.removeChild(iframe);
@@ -331,14 +331,14 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   }, [autoOpen, showDetails, event.id, event.title, onDetailsToggle, onAutoOpened]);
 
   return (
-    <div className={styles.eventCardProject} style={{ 
-      display: 'flex', 
+    <div className={styles.eventCardProject} style={{
+      display: 'flex',
       flexDirection: 'column',
       position: 'relative',
       minHeight: '280px' // Set a minimum height for all cards
     }}>
       {/* Date display in right corner with click interaction - more compact version */}
-      <div 
+      <div
         className={`${styles.eventDateBadgeProject} ${event.end_time ? styles.clickableDateBadgeProject : ''}`}
         onClick={toggleDateDisplay}
         title={event.end_time ? "Click to toggle date" : ""}
@@ -353,13 +353,13 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         </div>
         {/* Time display removed - only showing day and date */}
       </div>
-      
+
       {/* Content section */}
       <div style={{ flex: 1 }}>
         {/* Event title and quick info */}
         <div className={styles.eventMainInfoProject}>
           <h3 className={styles.eventTitleProject}>{event.title}</h3>
-          
+
           {/* Location with icon - NOW CLICKABLE */}
           {event.address && (
             <div className={styles.eventLocationProject} onClick={openGoogleMaps}>
@@ -370,27 +370,27 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
               </div>
             </div>
           )}
-          
+
           {/* Show description preview in main view */}
           {event.description && (
             <div className={styles.descriptionPreviewProject}>
               <p>{getDescriptionExcerpt(event.description)}</p>
             </div>
           )}
-          
+
           {/* Render tags in main view */}
           <div className={styles.tagsSectionProject}>
             {renderTags()}
           </div>
-          
+
           {/* Removed Invited Circles section */}
-          
+
         </div>
-        
+
         {/* Manage mode buttons - positioned at bottom left */}
         {isManageMode && (
           <div className={styles.manageButtonsGroupProject}>
-            <button 
+            <button
               className={styles.editButtonProject}
               onClick={() => onEdit && onEdit(event)}
               aria-label="Edit event"
@@ -398,7 +398,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             >
               <FaEdit />
             </button>
-            <button 
+            <button
               className={styles.deleteButtonProject}
               onClick={() => onDelete && onDelete(event.id)}
               aria-label="Delete event"
@@ -409,18 +409,18 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
           </div>
         )}
       </div>
-      
+
       {/* Fixed position footer section with action buttons */}
       <div style={{ marginTop: 'auto' }}>
         {/* Action buttons with View Participants on the left */}
-        <div className={styles.eventActionsProject} style={{ 
+        <div className={styles.eventActionsProject} style={{
           marginBottom: '10px',
           borderTop: '1px solid #eee',
           paddingTop: '10px'
         }}>
           {/* View Invited button - conditionally shown if there are circles */}
           {hasCircles && (
-            <button 
+            <button
               onClick={() => handleViewAllCircleMembers(event, onViewCircleMembers)}
               className={styles.participantsButtonProject}
               aria-label="View invited"
@@ -429,34 +429,34 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
               <FaUserFriends />
             </button>
           )}
-          
+
           <div className={styles.actionButtonsSpacerProject}></div>
-          
+
           {/* Only show share button if sharing is allowed */}
           {(event.shareable_link === undefined || event.shareable_link === true) && (
-            <button 
-              className={styles.actionButtonProject} 
-              aria-label="Share event link" 
+            <button
+              className={styles.actionButtonProject}
+              aria-label="Share event link"
               onClick={shareEventLink}
               title="Copy event link"
             >
               <FaLink />
             </button>
           )}
-          
-          <button 
-            className={styles.actionButtonProject} 
-            aria-label="Add to calendar" 
+
+          <button
+            className={styles.actionButtonProject}
+            aria-label="Add to calendar"
             title="Add to calendar"
           >
             <FaCalendarPlus />
           </button>
           {/* Removed WhatsApp group button */}
         </div>
-        
+
         {/* Simple details button moved to bottom of card */}
         <div className={styles.simpleDetailsButtonContainer}>
-          <button 
+          <button
             className={styles.simpleDetailsButtonProject}
             onClick={toggleDetails}
             aria-label={showDetails ? "Hide details" : "Show details"}
@@ -465,10 +465,10 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
           </button>
         </div>
       </div>
-      
+
       {/* Expanded details section - Position as an overlay */}
       {showDetails && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: '50%',
@@ -485,7 +485,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             overflowY: 'auto'
           }}
         >
-          <div 
+          <div
             className={styles.popupHeaderProjectEnhanced}
             style={{
               position: 'sticky',
@@ -508,7 +508,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
               ✕
             </button>
           </div>
-          
+
           <div style={{ padding: '20px' }}>
             {/* Location with map */}
             {event.address && event.address.latitude && event.address.longitude && (
@@ -518,9 +518,9 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                 overflow: 'hidden',
                 border: '1px solid #ddd'
               }}>
-                <div style={{ 
-                  height: '150px', 
-                  backgroundColor: '#f5f5f5', 
+                <div style={{
+                  height: '150px',
+                  backgroundColor: '#f5f5f5',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -546,45 +546,45 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                 </div>
               </div>
             )}
-            
+
             <div className={styles.fullDescriptionProject}>
               <strong>Description</strong>
               <p>{event.description || "Aucune description fournie pour cet événement."}</p>
             </div>
-            
+
             {/* Additional details with icons */}
             <div className={styles.detailsGridProject}>
               <div className={styles.detailItemProject}>
                 <FaCalendarAlt />
                 <span><strong>Début :</strong> {formatFullDate(event.start_time)}</span>
               </div>
-              
+
               {event.end_time && (
                 <div className={styles.detailItemProject}>
                   <FaClock />
                   <span><strong>Fin :</strong> {formatFullDate(event.end_time)}</span>
                 </div>
               )}
-              
+
               {/* Removed WhatsApp group link */}
-              
+
               {event.is_public && (
                 <div className={styles.detailItemProject}>
                   {/* Removed FaGlobe */}
                   <span>Ceci est public</span>
                 </div>
               )}
-              
+
               {/* Removed Friends of friends allowed */}
-              
+
               {/* Removed Organizer information */}
             </div>
-            
+
             {/* Show all circles/tags when expanded - NOW WITH IMPROVED CIRCLES DISPLAY */}
             <div className={styles.allCirclesSectionProject}>
               {hasCircles && (
                 <div className={styles.allCirclesProject}>
-                  <div style={{ 
+                  <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
@@ -593,8 +593,8 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                     paddingBottom: '5px'
                   }}>
                     <h4 style={{ margin: '5px 0', fontSize: '1rem' }}>Cercles et invités :</h4>
-                    <span style={{ 
-                      color: '#666', 
+                    <span style={{
+                      color: '#666',
                       fontSize: '0.9rem',
                       backgroundColor: '#f0f0f0',
                       padding: '2px 8px',
@@ -603,7 +603,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                       {circleData.length} {circleData.length === 1 ? 'cercle' : 'cercles'}
                     </span>
                   </div>
-                  
+
                   {/* Control how many circles to display */}
                   <div style={{
                     display: 'flex',
@@ -613,8 +613,8 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                   }}>
                     {/* Display either first 3 circles or all circles based on showCirclesDropdown */}
                     {(showCirclesDropdown ? circleData : circleData.slice(0, 3)).map((circle, index) => (
-                      <div 
-                        key={index} 
+                      <div
+                        key={index}
                         onClick={() => handleViewCircleMembers(circle)}
                         style={{
                           backgroundColor: '#f0f7f4',
@@ -631,10 +631,10 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                         <span>{circle.name || `Circle ${circle.id}`}</span>
                       </div>
                     ))}
-                    
+
                     {/* Show/hide more circles button */}
                     {!showCirclesDropdown && circleData.length > 3 && (
-                      <div 
+                      <div
                         style={{
                           backgroundColor: '#f0f7f4',
                           borderRadius: '16px',
@@ -649,10 +649,10 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                         +{circleData.length - 3} de plus
                       </div>
                     )}
-                    
+
                     {/* Show less button when expanded */}
                     {showCirclesDropdown && circleData.length > 3 && (
-                      <div 
+                      <div
                         style={{
                           backgroundColor: '#f0f7f4',
                           borderRadius: '16px',
@@ -670,7 +670,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
                   </div>
                 </div>
               )}
-              
+
               {event.categories && event.categories.length > 0 && (
                 <div className={styles.allTagsProject}>
                   <h4>Tags :</h4>
@@ -687,4 +687,4 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   );
 };
 
-export default EventCard; 
+export default EventCard;

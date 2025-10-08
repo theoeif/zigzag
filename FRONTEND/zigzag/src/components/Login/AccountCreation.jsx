@@ -51,21 +51,21 @@ const AccountCreation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null); // Clear previous errors
-    
+
     // Client-side validation for password match
     if (formData.password !== formData.password2) {
       setError("Passwords do not match.");
       setFieldErrors({ password2: "Passwords do not match" });
       return;
     }
-    
+
     // Client-side validation for password length
     if (formData.password.length < 8) {
       setError("Password must be at least 8 characters long, not entirely numeric, and should not be a commonly used password.");
       setFieldErrors({ password: "Password must be at least 8 characters long" });
       return;
     }
-    
+
     try {
       const { username, password, password2 } = formData;
       const data = await register({ username, password, password2 });
@@ -76,7 +76,7 @@ const AccountCreation = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
-      
+
       // Handle different types of errors
       if (err.response?.status === 400) {
         if (err.response.data?.username) {
@@ -185,9 +185,9 @@ const AccountCreation = () => {
 
         <p className={styles.signupText}>
           Already have an account?{" "}
-          <button 
+          <button
             type="button"
-            onClick={() => navigate('/login')} 
+            onClick={() => navigate('/login')}
             className={styles.signupLink}
           >
             Sign In

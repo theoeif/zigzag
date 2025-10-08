@@ -1,4 +1,4 @@
-import { 
+import {
   Button,
   Typography,
   Box,
@@ -19,8 +19,8 @@ const UserProfileView = ({ userId, onBack }) => {
 
   return (
     <Stack spacing={3}>
-      <Button 
-        variant="outlined" 
+      <Button
+        variant="outlined"
         onClick={onBack}
         startIcon={<ArrowBackIcon />}
         sx={{ alignSelf: 'flex-start' }}
@@ -30,7 +30,7 @@ const UserProfileView = ({ userId, onBack }) => {
 
       <Typography variant="h4">{profile.name}</Typography>
       <Typography variant="body1">Email : {profile.email}</Typography>
-      
+
       <Divider />
 
       <Typography variant="h6">Appartenance aux Cercles</Typography>
@@ -44,8 +44,8 @@ const UserProfileView = ({ userId, onBack }) => {
         ))}
       </Stack>
 
-      <Button 
-        variant="contained" 
+      <Button
+        variant="contained"
         onClick={() => alert('Sauvegarder les modifications')}
         sx={{ mt: 2 }}
       >

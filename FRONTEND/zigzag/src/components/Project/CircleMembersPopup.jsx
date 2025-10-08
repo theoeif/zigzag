@@ -8,7 +8,7 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Whether we're showing multiple circles
   const isMultiCircle = circleIds.length > 1;
 
@@ -16,15 +16,15 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
     const fetchMembers = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         if (!circleIds.length) {
           throw new Error("No circle IDs provided");
         }
-                
+
         // Fetch members using the array of circle IDs
         const membersData = await fetchCircleMembers(circleIds);
-        
+
         if (Array.isArray(membersData)) {
           setMembers(membersData);
         } else {
@@ -67,8 +67,8 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           <div className={styles.popupTitleWrapper}>
             <FaUserFriends className={styles.popupHeaderIcon} />
             <h3>
-              {isMultiCircle 
-                ? `${circleIds.length} Cercles` 
+              {isMultiCircle
+                ? `${circleIds.length} Cercles`
                 : `${circleName || 'Cercle'}`}
             </h3>
           </div>
@@ -97,7 +97,7 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
               <div className={styles.memberCountProject}>
                 <span>{members.length} invité{members.length !== 1 ? 's' : ''}</span>
                 {isMultiCircle && (
-                  <span className={styles.circleGroupLabel}> 
+                  <span className={styles.circleGroupLabel}>
                     de {circleIds.length} cercles
                   </span>
                 )}
@@ -131,4 +131,4 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
   );
 };
 
-export default CircleMembersPopup; 
+export default CircleMembersPopup;

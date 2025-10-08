@@ -74,10 +74,10 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 4px rgba(27, 67, 50, 0.2); /* Lighter shadow */
-  position: sticky; 
+  position: sticky;
   bottom: 20px; /* Put back to original value */
   width: calc(100% - 30px); /* Slightly narrower */
-  z-index: 5; 
+  z-index: 5;
   text-transform: none; /* Remove uppercase */
   letter-spacing: normal;
   opacity: 0.9; /* Slightly transparent */
@@ -226,7 +226,7 @@
   .emptyState {
     padding-top: 60px;
   }
-  
+
   .emptyState h2 {
     font-size: 1.2rem;
   }
@@ -365,7 +365,7 @@
   .detailsView {
     padding: 15px;
   }
-  
+
   .circleTitle {
     font-size: 1.5rem;
   }
@@ -796,10 +796,10 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 4px rgba(27, 67, 50, 0.2); /* Lighter shadow */
-  position: sticky; 
+  position: sticky;
   bottom: 20px; /* Put back to original value */
   width: calc(100% - 30px); /* Slightly narrower */
-  z-index: 5; 
+  z-index: 5;
   text-transform: none; /* Remove uppercase */
   letter-spacing: normal;
   opacity: 0.9; /* Slightly transparent */

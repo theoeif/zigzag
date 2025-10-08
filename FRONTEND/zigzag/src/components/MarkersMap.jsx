@@ -8,8 +8,8 @@ import "@maplibre/maplibre-gl-leaflet";
 import { MAPTILER_API_KEY } from "../config";
 
 import { fetchMarkers, fetchMyTags, persistSelectedTags, fetchMyLocations } from "../api/api";
-import { 
-  redMarkerIcon, 
+import {
+  redMarkerIcon,
   whiteFriendsEventlocationMarkerIcon
 } from "../assets/customMarkers";
 
@@ -29,18 +29,18 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const [isFilterOpen, setisFilterOpen] = useState(false);
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [isClustered, setIsClustered] = useState(false);
-  
+
   // Toggle state for projects and my locations
   const [showProjects, setShowProjects] = useState(true);
   const [showFriendLocations, setShowFriendLocations] = useState(true);
-  
+
 
   // Timeline visibility state - default to visible
   const [showTimelineBar, setShowTimelineBar] = useState(true);
-  
+
   // Track if timeline has been initialized to prevent resets
   const [timelineInitialized, setTimelineInitialized] = useState(false);
-  
+
   // Single source of truth for timeframe
   const [timeframe, setTimeframe] = useState(() => {
     // Default: current date to current date + 1 month (one month range)
@@ -71,7 +71,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const MARKER_OFFSET = 0.0004; // Small offset to northeast
   // Larger offset for close markers (in degrees)
   const CLOSE_MARKER_OFFSET = 0.010; // Double offset for close markers
-  
+
   // Tags and location
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState(null);
@@ -145,23 +145,23 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       }
     })
   );
-  
-  
-  
+
+
+
   const individualMarkersRef = useRef([]);
   const mapRef = useRef(null);
-  
+
   // Get mapState from context and navigation state
   const { mapState: contextMapState } = useContext(MapContext);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Get mapState from navigation state (for direct navigation from events)
   const navigationMapState = location.state?.mapState;
-  
+
   // Use navigation state if available, otherwise use context state
   const mapState = navigationMapState || contextMapState;
-  
+
   // Debug logging
   // console.log("MarkersMap: mapState sources:", {
   //   navigationMapState,
@@ -177,9 +177,9 @@ const MarkersMap = ({ eventCoordinates = null }) => {
    */
   const handleZoomChange = useCallback(() => {
     if (!mapRef.current) return;
-    
+
     const currentZoom = mapRef.current.getZoom();
-    
+
     // We don't need to do anything special here as we're handling
     // close markers based on proximity, not zoom level
     // This hook is maintained for future zoom-based optimizations
@@ -199,7 +199,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     // Set zoom limits
     map.setMinZoom(2);
     map.setMaxZoom(18);
-    
+
     // Initialize the marker cluster groups
     projectClusterGroupRef.current = L.markerClusterGroup({
       maxClusterRadius: 50,
@@ -215,7 +215,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
       }
     });
-    
+
     closeProjectClusterGroupRef.current = L.markerClusterGroup({
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
@@ -230,7 +230,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
       }
     });
-    
+
     friendClusterGroupRef.current = L.markerClusterGroup({
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
@@ -245,7 +245,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
       }
     });
-    
+
     closeFriendClusterGroupRef.current = L.markerClusterGroup({
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
@@ -260,8 +260,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
       }
     });
-    
-    
+
+
 
     // Add a one-time listener for zoom changes to match integer zoom levels
     map.once('zoomend', () => {
@@ -283,10 +283,10 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     );
     map.setMaxBounds(worldBounds);
     map.options.maxBoundsViscosity = 0.8; // Make bounds somewhat solid
-    
+
     // Disable wrapping of longitude
     map.options.noWrap = true;
-    
+
     // Set standard zoom behavior
     map.options.zoomSnap = 1.0;
     map.options.zoomDelta = 1.0;
@@ -294,14 +294,14 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     // Special handler for the World view zoom level
     map.on('zoomend', function() {
       // When selectedLocation is set to World view
-      if (selectedLocation && 
-          selectedLocation.lat === 60 && 
-          selectedLocation.lng === 0 && 
+      if (selectedLocation &&
+          selectedLocation.lat === 60 &&
+          selectedLocation.lng === 0 &&
           selectedLocation.zoom === 2.4) {
         // Don't adjust the zoom, keep it at 2.2
         return;
       }
-      
+
       // For all other zooms, ensure we're at integer levels
       const currentZoom = map.getZoom();
       if (Math.abs(currentZoom - Math.round(currentZoom)) > 0.1) {
@@ -328,7 +328,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
     // Make sure the map is the correct size
     map.invalidateSize();
-    
+
     // Render markers initially if available
     setTimeout(() => {
       renderMarkers();
@@ -358,10 +358,10 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     const filterFunc = (event) => {
       // Always include my locations regardless of date - they don't have real start/end dates
       if (event.isFriendLocation) return true;
-      
+
       // Skip filtering if marker doesn't have date information
       if (!event.start_date && !event.end_date) return true;
-      
+
       // For regular events, apply date filtering
       const eventStart = new Date(event.start_date);
       const eventEnd = new Date(event.end_date);
@@ -369,26 +369,26 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       return (
         // Case 1: Event starts within the filter range
         (eventStart >= start && eventStart <= end) ||
-        
+
         // Case 2: Event ends within the filter range
         (eventEnd >= start && eventEnd <= end) ||
-        
+
         // Case 3: Event completely contains the filter range
         (eventStart <= start && eventEnd >= end) ||
-        
+
         // Case 4: Event is completely within the filter range
         (eventStart >= start && eventEnd <= end)
       );
     };
 
     // Apply visibility filters along with date filtering for red markers
-    const filteredRed = showProjects 
+    const filteredRed = showProjects
       ? markersData.red_markers.filter(filterFunc)
       : [];
-    
+
     // Use stored my location data for blue markers (only when showing my locations)
     const filteredBlue = showFriendLocations ? friendLocationData : [];
-    
+
     setFilteredMarkers({ red_markers: filteredRed });
   }, [markersData, friendLocationData, timeframe, showProjects, showFriendLocations]);
 
@@ -421,12 +421,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const loadFriendLocations = async () => {
     try {
       const friendLocations = await fetchMyLocations();
-      
+
       if (!friendLocations || !Array.isArray(friendLocations) || friendLocations.length === 0) {
         console.warn("No my locations data returned");
         return;
       }
-      
+
       // Transform my locations into the proper format for markers
       const friendMarkers = friendLocations
         .filter(location => {
@@ -444,11 +444,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
             // Use address as name if no proper name is available (but not the label)
             name = location.address_line || 'My Location';
           }
-          
+
           // Create a TRULY unique ID by combining user_id, coordinates, and index
           // This ensures even locations with the same user_id are treated as distinct
           const uniqueId = `${location.user_id_str || 'user'}-${location.lat}-${location.lng}-${index}`;
-          
+
           return {
             id: uniqueId,
             user_id: location.user_id_str, // Changed from user_id to user_id_str
@@ -462,7 +462,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
             isFriendLocation: true
           };
         });
-      
+
       setFriendLocationData(friendMarkers);
     } catch (error) {
       console.error("Error loading friend locations:", error);
@@ -481,16 +481,16 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     const R = 6371; // Earth radius in kilometers
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
-    
-    const a = 
+
+    const a =
       Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
       Math.sin(dLng/2) * Math.sin(dLng/2);
-    
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   };
-  
+
   /**
    * Group markers that are too close to each other
    * @param {Array} markers - Array of marker data objects
@@ -501,41 +501,41 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       console.warn("Invalid markers data provided to groupCloseMarkers", markers);
       return { closeMarkers: [], normalMarkers: [] };
     }
-    
+
     // Filter out markers with invalid coordinates
-    const validMarkers = markers.filter(m => 
-      m && typeof m === 'object' && 
+    const validMarkers = markers.filter(m =>
+      m && typeof m === 'object' &&
       m.lat !== undefined && m.lat !== null && m.lat !== -1 &&
       m.lng !== undefined && m.lng !== null && m.lng !== -1
     );
-    
+
     if (validMarkers.length === 0) {
       return { closeMarkers: [], normalMarkers: [] };
     }
-    
+
     // Use Set to track which markers have been processed
     const processedIds = new Set();
-    
+
     // Create arrays for close and normal markers
     const closeMarkers = [];
     const normalMarkers = [];
-    
+
     // First pass: identify markers with close neighbors
     for (let i = 0; i < validMarkers.length; i++) {
       const current = validMarkers[i];
-      
+
       // Skip if already processed
       if (processedIds.has(current.id)) {
         continue;
       }
-      
+
       // Find all markers that are close to the current one
-      const neighbors = validMarkers.filter((m, index) => 
+      const neighbors = validMarkers.filter((m, index) =>
         index !== i && // Not the same marker
         !processedIds.has(m.id) && // Not already processed
         calculateDistance(current.lat, current.lng, m.lat, m.lng) <= CLOSE_MARKERS_THRESHOLD
       );
-      
+
       if (neighbors.length > 0) {
         // Current marker has close neighbors - add to close group
         processedIds.add(current.id);
@@ -543,7 +543,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           ...current,
           isCloseMarker: true
         });
-        
+
         // Process all neighbors
         neighbors.forEach(neighbor => {
           // Mark as processed and add to close markers
@@ -555,7 +555,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
       }
     }
-    
+
     // Second pass: add all remaining unprocessed markers as normal
     for (const marker of validMarkers) {
       if (!processedIds.has(marker.id)) {
@@ -563,12 +563,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         processedIds.add(marker.id);
       }
     }
-    
+
     // Verify all markers are accounted for
     if (closeMarkers.length + normalMarkers.length !== validMarkers.length) {
       console.error(`Marker count mismatch! Input: ${validMarkers.length}, Output: ${closeMarkers.length + normalMarkers.length}`);
     }
-    
+
     return { closeMarkers, normalMarkers };
   };
 
@@ -582,16 +582,16 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     if (!friendMarker || !friendMarker.lat || !friendMarker.lng || !projectMarkers || !Array.isArray(projectMarkers)) {
       return false;
     }
-    
+
     return projectMarkers.some(projectMarker => {
       if (!projectMarker || !projectMarker.lat || !projectMarker.lng) {
         return false;
       }
-      
+
       // Check if coordinate distance is less than threshold
       const latDiff = Math.abs(friendMarker.lat - projectMarker.lat);
       const lngDiff = Math.abs(friendMarker.lng - projectMarker.lng);
-      
+
       return latDiff < OFFSET_THRESHOLD && lngDiff < OFFSET_THRESHOLD;
     });
   };
@@ -606,12 +606,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     if (!friendMarkers || !Array.isArray(friendMarkers) || !projectMarkers || !Array.isArray(projectMarkers)) {
       return friendMarkers || [];
     }
-    
+
     return friendMarkers.map(friendMarker => {
       if (!friendMarker || !friendMarker.lat || !friendMarker.lng) {
         return friendMarker;
       }
-      
+
       // Only apply offset when both filter types are active
       if (showProjects && showFriendLocations) {
         // Find if this marker is close to any project marker
@@ -619,20 +619,20 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           if (!projectMarker || !projectMarker.lat || !projectMarker.lng) {
             return false;
           }
-          
+
           // Check if coordinate distance is less than threshold
           const latDiff = Math.abs(friendMarker.lat - projectMarker.lat);
           const lngDiff = Math.abs(friendMarker.lng - projectMarker.lng);
-          
+
           return latDiff < OFFSET_THRESHOLD && lngDiff < OFFSET_THRESHOLD;
         });
-        
+
         if (closeProject) {
           // Apply normal or larger offset based on whether the markers are "close" markers
-          const offsetAmount = (friendMarker.isCloseMarker && closeProject.isCloseMarker) 
-            ? CLOSE_MARKER_OFFSET 
+          const offsetAmount = (friendMarker.isCloseMarker && closeProject.isCloseMarker)
+            ? CLOSE_MARKER_OFFSET
             : MARKER_OFFSET;
-            
+
           return {
             ...friendMarker,
             lat: friendMarker.lat + offsetAmount,
@@ -642,12 +642,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           };
         }
       }
-      
+
       return friendMarker;
     });
   };
 
-  
+
 
   /**
    * Render all markers on the map.
@@ -657,7 +657,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     if (!mapRef.current || (!filteredMarkers.red_markers?.length && !friendLocationData?.length)) {
       return;
     }
-    
+
     // Clean up existing layers
     const cleanupLayer = (layerRef) => {
       if (layerRef.current) {
@@ -667,14 +667,14 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         layerRef.current.clearLayers();
       }
     };
-    
+
     // Clean up all cluster groups
     cleanupLayer(projectClusterGroupRef);
     cleanupLayer(closeProjectClusterGroupRef);
     cleanupLayer(friendClusterGroupRef);
     cleanupLayer(closeFriendClusterGroupRef);
-    
-    
+
+
     // Remove any individual markers
     individualMarkersRef.current.forEach(marker => {
       if (marker && mapRef.current.hasLayer(marker)) {
@@ -682,41 +682,41 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       }
     });
     individualMarkersRef.current = [];
-    
+
     const projectMarkers = showProjects ? filteredMarkers.red_markers : [];
     const friendMarkers = showFriendLocations ? friendLocationData : [];
-    
+
     // Apply offset to friend markers if too close to project markers
     const processedFriendMarkers = applyFriendMarkerOffset(friendMarkers, projectMarkers);
-    
-    
-    
+
+
+
     // Determine display mode based on filters and clustering settings
     const showOnlyProjects = showProjects && !showFriendLocations;
     const showOnlyFriends = !showProjects && showFriendLocations;
     const showBoth = showProjects && showFriendLocations;
-    
+
     // Only use clustering for:
     // 1. Close markers (always cluster these)
     // 2. Normal markers when clustering is enabled AND not showing both filters
     const useClusteringForNormal = showBoth ? false : isClustered;
-    
+
     // Group project markers
     const projectMarkersGroups = showProjects ? groupCloseMarkers(projectMarkers) : { closeMarkers: [], normalMarkers: [] };
-    
+
     // Group friend markers
     const friendMarkersGroups = showFriendLocations ? groupCloseMarkers(processedFriendMarkers) : { closeMarkers: [], normalMarkers: [] };
-    
+
     // Process close project markers - always cluster these
     const processCloseProjectMarkers = () => {
       projectMarkersGroups.closeMarkers.forEach(markerData => {
         if (!markerData.lat || !markerData.lng) return;
-        
-        const marker = L.marker([markerData.lat, markerData.lng], { 
+
+        const marker = L.marker([markerData.lat, markerData.lng], {
           icon: redMarkerIcon,
           alt: 'closeProjectMarker'
         });
-        
+
         marker.bindTooltip(`
           <div class="tooltip-content">
             <div class="tooltip-title">${markerData.title}</div>
@@ -734,7 +734,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           className: "custom-tooltip",
           offset: [0, -10],
         });
-        
+
         marker.on("click", () => {
           console.log('MarkersMap: Close project marker clicked:', {
             id: markerData.id,
@@ -751,7 +751,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
             },
           });
         });
-        
+
         // When showing only projects and clustering is on, put close markers in the main cluster group
         // This allows close and normal project markers to merge into a single cluster
         if (showOnlyProjects && useClusteringForNormal) {
@@ -762,17 +762,17 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         }
       });
     };
-    
+
     // Process normal project markers
     const processNormalProjectMarkers = () => {
       projectMarkersGroups.normalMarkers.forEach(markerData => {
         if (!markerData.lat || !markerData.lng) return;
-        
-        const marker = L.marker([markerData.lat, markerData.lng], { 
+
+        const marker = L.marker([markerData.lat, markerData.lng], {
           icon: redMarkerIcon,
           alt: 'normalProjectMarker'
         });
-        
+
         marker.bindTooltip(`
           <div class="tooltip-content">
             <div class="tooltip-title">${markerData.title}</div>
@@ -790,7 +790,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           className: "custom-tooltip",
           offset: [0, -10],
         });
-        
+
         marker.on("click", () => {
           console.log('MarkersMap: Normal project marker clicked:', {
             id: markerData.id,
@@ -806,7 +806,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
             },
           });
         });
-        
+
         // Only cluster normal markers when:
         // - Only one filter is active (just projects or just friends), OR
         // - Clustering is enabled AND we're not showing both filters
@@ -819,26 +819,26 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         }
       });
     };
-    
+
     // Process close friend markers - always cluster these
     const processCloseFriendMarkers = () => {
       friendMarkersGroups.closeMarkers.forEach(markerData => {
         if (!markerData.lat || !markerData.lng) return;
-        
+
         // Improved name display logic
         // Only use title if it doesn't contain the address and isn't empty
-        const hasValidName = markerData.title && 
-                             markerData.title.trim() !== '' && 
+        const hasValidName = markerData.title &&
+                             markerData.title.trim() !== '' &&
                              (!markerData.address_line || !markerData.title.includes(markerData.address_line));
-        
+
         // If no valid name is available, don't display a title
         const displayName = hasValidName ? markerData.title : '';
-        
-        const marker = L.marker([markerData.lat, markerData.lng], { 
+
+        const marker = L.marker([markerData.lat, markerData.lng], {
           icon: whiteFriendsEventlocationMarkerIcon,
           alt: 'closeFriendMarker'
         });
-        
+
         marker.bindTooltip(`
           <div class="tooltip-content">
             ${displayName ? `<div class="tooltip-title">${displayName}</div>` : ''}
@@ -860,7 +860,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           className: "custom-tooltip",
           offset: [0, -10],
         });
-        
+
         marker.on("click", () => {
           if (markerData.user_id) {
             navigate(`/friend/${markerData.user_id}`, {
@@ -874,7 +874,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
             });
           }
         });
-        
+
         // When showing only friends and clustering is on, put close markers in the main friend cluster group
         // This allows close and normal friend markers to merge into a single cluster
         if (showOnlyFriends && useClusteringForNormal) {
@@ -885,26 +885,26 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         }
       });
     };
-    
+
     // Process normal friend markers
     const processNormalFriendMarkers = () => {
       friendMarkersGroups.normalMarkers.forEach(markerData => {
         if (!markerData.lat || !markerData.lng) return;
-        
+
         // Improved name display logic
         // Only use title if it doesn't contain the address and isn't empty
-        const hasValidName = markerData.title && 
-                             markerData.title.trim() !== '' && 
+        const hasValidName = markerData.title &&
+                             markerData.title.trim() !== '' &&
                              (!markerData.address_line || !markerData.title.includes(markerData.address_line));
-        
+
         // If no valid name is available, don't display a title
         const displayName = hasValidName ? markerData.title : '';
-        
-        const marker = L.marker([markerData.lat, markerData.lng], { 
+
+        const marker = L.marker([markerData.lat, markerData.lng], {
           icon: whiteFriendsEventlocationMarkerIcon,
           alt: 'normalFriendMarker'
         });
-        
+
         marker.bindTooltip(`
           <div class="tooltip-content">
             ${displayName ? `<div class="tooltip-title">${displayName}</div>` : ''}
@@ -926,7 +926,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           className: "custom-tooltip",
           offset: [0, -10],
         });
-        
+
         marker.on("click", () => {
           if (markerData.user_id) {
             navigate(`/friend/${markerData.user_id}`, {
@@ -940,7 +940,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
             });
           }
         });
-        
+
         // Make this exactly match the project marker logic for clustering
         if (useClusteringForNormal) {
           // When clustering is enabled, add to the cluster group
@@ -952,21 +952,21 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         }
       });
     };
-    
-    
-    
+
+
+
     // Process markers based on filter state
     if (showProjects) {
       processCloseProjectMarkers();
       processNormalProjectMarkers();
     }
-    
+
     if (showFriendLocations) {
       processCloseFriendMarkers();
       processNormalFriendMarkers();
     }
-    
-    
+
+
 
     // Add the marker groups to the map as needed
     if (showProjects) {
@@ -974,26 +974,26 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       if (closeProjectClusterGroupRef.current.getLayers().length > 0 && !(showOnlyProjects && useClusteringForNormal)) {
         mapRef.current.addLayer(closeProjectClusterGroupRef.current);
       }
-      
+
       // Add normal project clusters only when useClusteringForNormal is true
       if (projectClusterGroupRef.current.getLayers().length > 0 && useClusteringForNormal) {
         mapRef.current.addLayer(projectClusterGroupRef.current);
       }
     }
-    
+
     if (showFriendLocations) {
       // Add close friend clusters, but only when they're not merged with main clusters
       if (closeFriendClusterGroupRef.current.getLayers().length > 0 && !(showOnlyFriends && useClusteringForNormal)) {
         mapRef.current.addLayer(closeFriendClusterGroupRef.current);
       }
-      
+
       // Add normal friend clusters only when useClusteringForNormal is true
       if (friendClusterGroupRef.current.getLayers().length > 0 && useClusteringForNormal) {
         mapRef.current.addLayer(friendClusterGroupRef.current);
       }
     }
-    
-    
+
+
   }, [filteredMarkers, isClustered, navigate, location.pathname, showProjects, showFriendLocations, friendLocationData]);
 
   // Update markers on map when filtered markers change.
@@ -1071,18 +1071,18 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     // When both filters are turned on, clustering should be disabled and off
     if (showProjects && showFriendLocations) {
       setIsClustered(false);
-    } 
+    }
     // When switching from both filters to just one, clustering should be off by default
-    else if ((prevShowProjectsRef.current && prevShowFriendLocationsRef.current) && 
+    else if ((prevShowProjectsRef.current && prevShowFriendLocationsRef.current) &&
              (showProjects !== showFriendLocations)) {
       setIsClustered(false);
     }
     // When one filter is explicitly turned off, turn clustering off
-    else if ((prevShowProjectsRef.current && !showProjects) || 
+    else if ((prevShowProjectsRef.current && !showProjects) ||
              (prevShowFriendLocationsRef.current && !showFriendLocations)) {
       setIsClustered(false);
     }
-    
+
     // Update refs for next render
     prevShowProjectsRef.current = showProjects;
     prevShowFriendLocationsRef.current = showFriendLocations;
@@ -1121,12 +1121,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       endString: range.end.toLocaleDateString(),
       timelineInitialized
     });
-    
+
     // Mark timeline as initialized when user interacts with it
     if (!timelineInitialized) {
       setTimelineInitialized(true);
     }
-    
+
     setTimeframe({
       start: new Date(range.start),
       end: new Date(range.end)
@@ -1189,19 +1189,19 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       >
         {/* Only render TimelineBar when visible and not in background mode */}
         {!isBackground && showTimelineBar && (
-          <TimelineBar 
-            onTimeChange={handleTimelineTimeChange} 
+          <TimelineBar
+            onTimeChange={handleTimelineTimeChange}
             initialRange={timeframe}
             inProjectView={false}
           />
         )}
       </Map>
-      
+
       {/* Simple toggle button */}
       {!isBackground && (
-        <TimelineToggle 
-          isVisible={showTimelineBar} 
-          onToggle={toggleTimelineVisibility} 
+        <TimelineToggle
+          isVisible={showTimelineBar}
+          onToggle={toggleTimelineVisibility}
         />
       )}
     </>
@@ -1209,4 +1209,3 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 };
 
 export default MarkersMap;
-
