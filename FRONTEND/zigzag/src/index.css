@@ -46,6 +46,12 @@ body, html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Remove default margins and padding that could cause gaps */
+  margin: 0;
+  padding: 0;
+  /* Ensure full width */
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .leaflet-control-zoom {
@@ -57,13 +63,20 @@ body, html {
   isolation: isolate; /* Creates new stacking context */
   z-index: 1;
   position: relative;
-  width: 100%;
+  width: 100vw; /* Use viewport width to ensure full width */
   height: 100vh; /* Critical change - ensures full viewport height */
   pointer-events: auto; /* Ensure map container can receive events */
   touch-action: pan-x pan-y pinch-zoom; /* Allow map gestures */
   margin-top: 60px;
   /* Adjust height to account for header */
   height: calc(100vh - 60px);
+  /* Remove any potential margins or padding */
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0;
+  /* Ensure it starts from the very left edge */
+  left: 0;
+  right: 0;
 }
 
 .overlay {
@@ -1460,4 +1473,51 @@ input:checked + .slider:before {
 /* Reset any potential scaling issues */
 * {
   box-sizing: border-box;
+}
+
+/* Ensure Leaflet map takes full width */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Override any Leaflet default styling that might cause gaps */
+.leaflet-map-pane {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.leaflet-tile-pane {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.leaflet-overlay-pane {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure the root element takes full width */
+#root {
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Additional fixes for full-width map */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Ensure no scrollbars cause layout shifts */
+body {
+  overflow-x: hidden;
 }
