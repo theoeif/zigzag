@@ -12,6 +12,7 @@
   "dependencies": {
     "@algolia/autocomplete-js": "^1.17.9",
     "@algolia/autocomplete-theme-classic": "^1.17.9",
+    "@capacitor/ios": "^7.4.3",
     "@date-io/date-fns": "^3.2.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -33,6 +34,8 @@
     "react-router-dom": "^6.28.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@eslint/js": "^9.17.0",
     "@types/leaflet": "^1.9.15",
     "@types/react": "^18.3.18",

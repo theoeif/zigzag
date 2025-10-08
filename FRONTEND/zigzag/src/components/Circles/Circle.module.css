@@ -99,10 +99,10 @@
 @media (max-width: 768px) {
   .circlesSidebarContainer {
     position: fixed;
-    top: 60px;
+    top: calc(60px + env(safe-area-inset-top));
     left: -100%;
     width: 80%;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 60px - env(safe-area-inset-top));
     z-index: 1000;
     transition: left 0.3s ease;
     background: white;
@@ -116,7 +116,7 @@
 
   .mobileMenuButton {
     position: fixed;
-    top: 70px;
+    top: calc(70px + env(safe-area-inset-top));
     right: 20px;
     z-index: 1001;
     padding: 8px 16px;
