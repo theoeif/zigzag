@@ -17,7 +17,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false }) => {
   const isSmallScreen = useMediaQuery('(max-width:599px)');
   const isMediumScreen = useMediaQuery('(max-width:893px)');
-  const isVerySmallScreen = useMediaQuery('(max-width:443px)');
+  const isVerySmallScreen = useMediaQuery('(max-width:448px)');
   const [currentDate] = useState(new Date());
 
   // Get initial end date
@@ -766,8 +766,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     right: 0,
     top: 0,
     bottom: 0,
-    zIndex: isSmallScreen ? 2 : 1, // Higher z-index on mobile to ensure it's clickable
-    cursor: 'pointer', // Show pointer cursor to indicate clickable
+    zIndex: 1, // Same z-index for all screens, thumbs will be z-index 3
+    cursor: isSmallScreen ? 'default' : 'pointer', // No pointer cursor on mobile
+    pointerEvents: isSmallScreen ? 'none' : 'auto', // Disable on mobile, enable on desktop
   };
 
   // Handle clicks on the full slider area
@@ -813,52 +814,8 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     setTimeRange([newStart, newEnd]);
   };
 
-  // Handle touch events for mobile
-  const handleTouchClick = (e) => {
-    // Only process on mobile
-    if (!isSmallScreen) return;
-
-    // Don't handle if touching on weeks, buttons or tooltips
-    if (e.target.closest('.MuiButtonBase-root') ||
-        e.target.closest('[role="tooltip"]') ||
-        e.target.closest('.week-marker')) {
-      return;
-    }
-
-    // Get touch position relative to slider
-    if (!sliderRef.current || !e.touches[0]) return;
-
-    const sliderRect = sliderRef.current.getBoundingClientRect();
-    const touchX = e.touches[0].clientX - sliderRect.left;
-    const touchPosition = (touchX / sliderRect.width) * maxRange;
-
-    // Calculate new range centered around the touch position
-    const rangeWidth = timeRange[1] - timeRange[0];
-    const halfWidth = rangeWidth / 2;
-
-    let newStart = Math.round(touchPosition - halfWidth);
-    let newEnd = Math.round(touchPosition + halfWidth);
-
-    // Adjust if out of bounds
-    if (newStart < 0) {
-      newEnd -= newStart; // shift right
-      newStart = 0;
-    }
-
-    if (newEnd > maxRange) {
-      newStart -= (newEnd - maxRange); // shift left
-      newEnd = maxRange;
-    }
-
-    // Final validation to ensure we stay in bounds
-    newStart = Math.max(0, newStart);
-    newEnd = Math.min(maxRange, newEnd);
-
-    setUserHasMovedTimeline(true);
-    localStorage.setItem('timelineUserMoved', 'true');
-    localStorage.setItem('timelineProcessedInitial', 'false');
-    setTimeRange([newStart, newEnd]);
-  };
+  // Removed handleTouchClick function - causes sliding issues on mobile
+  // Mobile timeline is now handled by TimelineBarMobile.jsx
 
   return (
     <Box sx={{ position: 'relative' }}>
@@ -892,11 +849,11 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
           }}
           ref={sliderRef}
         >
-          {/* Full slider area clickable element */}
+          {/* Full slider area clickable element - desktop only */}
           <Box
             style={fullSliderAreaStyle}
-            onClick={handleFullAreaClick}
-            onTouchStart={isSmallScreen ? handleTouchClick : undefined}
+            onClick={!isSmallScreen ? handleFullAreaClick : undefined}
+            onTouchStart={undefined} // Disable touch-to-move completely
           />
 
           <Slider
