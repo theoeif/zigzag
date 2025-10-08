@@ -8,7 +8,6 @@ import styles from './Project.module.css';
 import { fetchEvents, fetchCircles, deleteEvent, fetchCircleMembers } from '../../api/api';
 import CreateEventForm from './CreateEventForm';
 import EditEventForm from './EditEventForm';
-import TimelineBar from '../TimelineBar/TimelineBar';
 import CircleMembersPopup from './CircleMembersPopup';
 import EventCard from './EventCard';
 import { MapContext } from '../../contexts/MapContext';
@@ -21,8 +20,9 @@ const Project = ({ projectId }) => {
   const [editingEvent, setEditingEvent] = useState(null);   // Track event being edited
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize timeline visibility with default value of true
-  const [showTimelineBar, setShowTimelineBar] = useState(true);
+  // Date range popover state
+  const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
+  const datePopoverRef = useRef(null);
 
   const [showCircleMembers, setShowCircleMembers] = useState(false);
   const [selectedCircleIDs, setSelectedCircleIDs] = useState([]);
@@ -56,6 +56,10 @@ const Project = ({ projectId }) => {
   // Add state for filtered friends' events
   const [filteredFriendsEvents, setFilteredFriendsEvents] = useState([]);
 
+  // Draft date range values for the popover (YYYY-MM-DD)
+  const [draftStart, setDraftStart] = useState(() => timeRange.start.toISOString().slice(0, 10));
+  const [draftEnd, setDraftEnd] = useState(() => timeRange.end.toISOString().slice(0, 10));
+
 
 
   useEffect(() => {
@@ -84,6 +88,27 @@ const Project = ({ projectId }) => {
       document.body.style.overflow = 'unset';
     };
   }, [showEventForm, editingEvent, showCircleMembers, anyDetailsExpanded]);
+
+  // Keep draft dates in sync when timeRange changes
+  useEffect(() => {
+    setDraftStart(timeRange.start.toISOString().slice(0, 10));
+    setDraftEnd(timeRange.end.toISOString().slice(0, 10));
+  }, [timeRange.start, timeRange.end]);
+
+  // Close date popover on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (datePopoverRef.current && !datePopoverRef.current.contains(e.target)) {
+        setIsDatePopoverOpen(false);
+      }
+    };
+    if (isDatePopoverOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDatePopoverOpen]);
 
   // Fetch and categorize events
   useEffect(() => {
@@ -259,13 +284,11 @@ const Project = ({ projectId }) => {
   const handleEditEvent = (event) => {
     // Backend enforces permissions automatically - only creators can edit
     setEditingEvent(event);  // Open Edit Modal with event data
-    setShowTimelineBar(false); // Hide timeline when editing
   };
 
   const handleEventUpdated = (updatedEvent) => {
     setProjects(prev => prev.map(event => (event.id === updatedEvent.id ? updatedEvent : event)));
     setEditingEvent(null);  // Close modal after updating
-    setShowTimelineBar(true); // Show timeline again
   };
 
   // Filter friends' events based on selected filter
@@ -296,14 +319,22 @@ const Project = ({ projectId }) => {
     setSelectedCircleName(circleName || 'Project Participants');
 
     setShowCircleMembers(true);
-
-    // Hide timeline bar when showing the popup
-    setShowTimelineBar(false);
   };
 
-  // Function to toggle timeline visibility (no localStorage dependency)
-  const toggleTimelineVisibility = () => {
-    setShowTimelineBar(prev => !prev);
+  const applyDateRange = () => {
+    const start = new Date(draftStart);
+    const end = new Date(draftEnd);
+    if (isNaN(start) || isNaN(end) || start > end) return;
+    handleTimeChange({ start, end });
+    setIsDatePopoverOpen(false);
+  };
+
+  const resetRange = () => {
+    const start = new Date();
+    const end = new Date();
+    end.setMonth(end.getMonth() + 3);
+    handleTimeChange({ start, end });
+    setIsDatePopoverOpen(false);
   };
 
   // Function to handle details expansion in event cards
@@ -348,15 +379,31 @@ const Project = ({ projectId }) => {
         </div>
       )}
 
-      {/* TimelineBar - positioned with proper spacing above projects */}
-      {showTimelineBar && !editingEvent && (
-        <div className={styles.timelineContainerProject}>
-          <TimelineBar
-            onTimeChange={handleTimeChange}
-            events={events}
-            initialRange={timeRangeModified ? timeRange : undefined}
-            inProjectView={true}
-          />
+      {/* Date Range Selector */}
+      {!editingEvent && (
+        <div className={styles.dateRangeBarProject} ref={datePopoverRef}>
+          <button
+            className={styles.dateRangeButtonProject}
+            onClick={() => setIsDatePopoverOpen(v => !v)}
+          >
+            {`${draftStart} → ${draftEnd}`}
+          </button>
+          {isDatePopoverOpen && (
+            <div className={styles.dateRangePopoverProject}>
+              <label>
+                Début
+                <input type="date" value={draftStart} onChange={e => setDraftStart(e.target.value)} />
+              </label>
+              <label>
+                Fin
+                <input type="date" value={draftEnd} onChange={e => setDraftEnd(e.target.value)} />
+              </label>
+              <div className={styles.dateRangeActionsProject}>
+                <button onClick={resetRange}>Réinitialiser</button>
+                <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -367,7 +414,6 @@ const Project = ({ projectId }) => {
         <button
           onClick={() => {
             setShowEventForm(true);
-            setShowTimelineBar(false); // Hide timeline when Add Project is clicked
           }}
           className={styles.addEventButtonProject}
           data-button-type="project-add"
@@ -389,7 +435,6 @@ const Project = ({ projectId }) => {
         <CreateEventForm
           onClose={() => {
             setShowEventForm(false);
-            setShowTimelineBar(true); // Show timeline when form is closed
           }}
           onEventCreated={(newEvent) => {
             console.log("New event created:", newEvent);
@@ -486,7 +531,6 @@ const Project = ({ projectId }) => {
           onClose={() => {
             setEditingEvent(null);
             setIsManageMode(false); // Reset manage mode when closing
-            setShowTimelineBar(true);
           }}
           onEventUpdated={handleEventUpdated}
           setEditMode={setEditingEvent}

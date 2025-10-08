@@ -756,6 +756,83 @@ ulProject li a:hover {
   margin-right: 15px !important;
   box-shadow: none; /* Removed box-shadow to eliminate border line */
 }
+/* Date range bar and popover */
+.dateRangeBarProject {
+  position: sticky;
+  top: 20px;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 0;
+  width: 100%;
+}
+
+.dateRangeButtonProject {
+  background-color: #ffffff;
+  color: #2d6a4f;
+  border: 1px solid rgba(64, 145, 108, 0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.dateRangeButtonProject:hover {
+  background-color: #f7fffb;
+}
+
+.dateRangePopoverProject {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 260px;
+}
+
+.dateRangePopoverProject label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.dateRangePopoverProject input[type="date"] {
+  border: 1px solid #d3e4cd;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.95rem;
+}
+
+.dateRangeActionsProject {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dateRangeActionsProject button {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.dateRangeActionsProject button:hover {
+  background-color: #eee;
+}
 /* Media query for mobile devices - specific to Project page */
 @media (max-width: 768px) {
   /* Add padding at the top of the Project page to make room for timeline */
