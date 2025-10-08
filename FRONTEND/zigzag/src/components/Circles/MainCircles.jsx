@@ -95,7 +95,7 @@ const MainCircles = () => {
             '& .MuiDrawer-paper': {
               width: 240,
               boxSizing: 'border-box',
-              mt: '64px' // Account for header height
+              mt: 'calc(64px + env(safe-area-inset-top))' // Account for header height + safe area
             },
           }}
           // Add a ref to the drawer content for click outside detection
@@ -112,7 +112,7 @@ const MainCircles = () => {
           sx={{
             flexGrow: 1,
             p: 3,
-            mt: '64px', // Account for header height
+            mt: 'calc(64px + env(safe-area-inset-top))', // Account for header height + safe area
             overflow: 'auto'
           }}
           ref={contentRef}

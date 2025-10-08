@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-dza7zr!u0a@-t@_sgk9ys037ydro5*kv*d^zacgg$hx94vp#rs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["192.168.1.13", "127.0.0.1"]
 
 
 # Application definition
@@ -131,6 +131,8 @@ if DEFAULT_DB == 'postgres':
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server
     "http://127.0.0.1:5173",
+    "http://192.168.1.13:8000", # Django API
+    "http://192.168.1.13:5173",  # Vite dev server  
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 

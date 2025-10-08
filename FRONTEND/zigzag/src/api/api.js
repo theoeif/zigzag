@@ -1,5 +1,9 @@
 import axios from "axios";
 
+// API Base URL - easily changeable
+// const API_BASE_URL = "http://192.168.1.13:8000/api/";
+const API_BASE_URL = "http://http://127.0.0.1:8000/api/";
+
 // Single in-flight refresh promise to throttle concurrent refreshes
 let refreshPromise = null;
 
@@ -11,21 +15,33 @@ export const setLogoutHandler = (handler) => {
 
 // Auth helpers
 export const login = async ({ username, password }) => {
-  const response = await axios.post("http://127.0.0.1:8000/api/token/", { username, password });
-  const { access, refresh } = response.data || {};
-  if (access) localStorage.setItem("access_token", access);
-  if (refresh) localStorage.setItem("refresh_token", refresh);
-  return response.data; // { access, refresh }
+  try {
+    const response = await axios.post(API_BASE_URL + "token/", { username, password });
+    console.log("Login response.data:", response.data);
+    const { access, refresh } = response.data || {};
+    if (access) localStorage.setItem("access_token", access);
+    if (refresh) localStorage.setItem("refresh_token", refresh);
+    return response.data; // { access, refresh }
+  } catch (error) {
+    console.error("Login error:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 // Registration helper
 export const register = async (payload) => {
-  const response = await axios.post("http://127.0.0.1:8000/api/register/", payload);
-  const { access, refresh, username } = response.data || {};
-  if (access) localStorage.setItem("access_token", access);
-  if (refresh) localStorage.setItem("refresh_token", refresh);
-  if (username) localStorage.setItem("username", username);
-  return response.data;
+  try {
+    const response = await axios.post(API_BASE_URL + "register/", payload);
+    console.log("Register response.data:", response.data);
+    const { access, refresh, username } = response.data || {};
+    if (access) localStorage.setItem("access_token", access);
+    if (refresh) localStorage.setItem("refresh_token", refresh);
+    if (username) localStorage.setItem("username", username);
+    return response.data;
+  } catch (error) {
+    console.error("Register error:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 // Function to refresh the access token using the refresh token
@@ -38,7 +54,7 @@ export const refreshAccessToken = async () => {
       }
 
       // Use a direct axios call without interceptors to avoid circular dependency
-      const response = await axios.post("http://127.0.0.1:8000/api/token/refresh/", {
+      const response = await axios.post(API_BASE_URL + "token/refresh/", {
           refresh: refreshToken,
       }, {
         // Skip the response interceptor for this specific request
@@ -72,7 +88,7 @@ export const blacklistRefreshToken = async () => {
   try {
     const refresh = localStorage.getItem("refresh_token");
     if (!refresh) return false;
-    await axios.post("http://127.0.0.1:8000/api/token/blacklist/", { refresh });
+    await axios.post(API_BASE_URL + "token/blacklist/", { refresh });
     return true;
   } catch (error) {
     console.warn("Failed to blacklist refresh token:", error?.response?.data || error?.message);
@@ -149,7 +165,7 @@ export const validateAccessToken = async () => {
 // // Function to fetch public markers (available without authentication)
 // export const fetchPublicMarkers = async () => {
 //   try {
-//     const response = await axios.get("http://127.0.0.1:8000/api/events/markers/public/");
+//     const response = await axios.get(API_BASE_URL + "events/markers/public/");
 //     console.log("Public markers response:", response.data);
 //     return response.data.public_markers || [];
 //   } catch (error) {
@@ -172,7 +188,7 @@ export const fetchMarkers = async (selectedTags) => {
       tags: selectedTags
     };
 
-    const response = await axios.post(`http://127.0.0.1:8000/api/events/markers/`,requestBody, {
+    const response = await axios.post(`${API_BASE_URL}events/markers/`,requestBody, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -198,7 +214,7 @@ export const fetchCircles = async () => {
       if (!token) return null;
     }
 
-    const response = await axios.get("http://127.0.0.1:8000/api/events/circles/", {
+    const response = await axios.get(API_BASE_URL + "events/circles/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -220,7 +236,7 @@ export const fetchMyTags = async () => {
       if (!token) return null;
     }
 
-    const response = await axios.get("http://127.0.0.1:8000/api/events/tags/", {
+    const response = await axios.get(API_BASE_URL + "events/tags/", {
       headers: { Authorization: `Bearer ${token}` },
     });
     console.log("Tags data received:", response.data); // Debug log
@@ -246,7 +262,7 @@ export const fetchAddresses = async () => {
       token = await refreshAccessToken(); // Refresh token if missing
       if (!token) return null;
     }
-    const response = await axios.get("http://127.0.0.1:8000/api/events/user/addresses/", {
+    const response = await axios.get(API_BASE_URL + "events/user/addresses/", {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data; // Expected format: [{ address: "123 Street" }, ...]
@@ -265,8 +281,8 @@ export const addAddress = async (address) => {
       if (!token) return false;
     }
     const response = await axios.post(
-      "http://127.0.0.1:8000/api/events/user/addresses/",
-      {
+      API_BASE_URL + "events/user/addresses/",
+      { 
       "address_line": address.address_line,
       "city": address.city,
       "state": address.state,
@@ -295,7 +311,7 @@ export const deleteAddress = async (addressId) => {
     }
 
     const response = await axios.delete(
-      `http://127.0.0.1:8000/api/events/user/addresses/${addressId}/`,
+      `${API_BASE_URL}events/user/addresses/${addressId}/`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -318,7 +334,7 @@ export const updateAddressLabel = async (addressId, newLabel) => {
     }
 
     const response = await axios.patch(
-      `http://127.0.0.1:8000/api/events/user/addresses/${addressId}/`,
+      `${API_BASE_URL}events/user/addresses/${addressId}/`,
       { label: newLabel },
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -343,7 +359,7 @@ export const fetchProfile = async (username) => {
     }
 
     // Use the user-profile-by-username endpoint to get username + nested profile
-    const response = await axios.get(`http://127.0.0.1:8000/api/events/users/${username}/profile/`, {
+    const response = await axios.get(`${API_BASE_URL}events/users/${username}/profile/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -365,7 +381,7 @@ export const fetchUsers = async (query) => {
       if (!token) return [];
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/events/users/`, {
+    const response = await axios.get(`${API_BASE_URL}events/users/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -387,7 +403,7 @@ export const fetchEvents = async (query) => {
       if (!token) return [];
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/events/event/`, {
+    const response = await axios.get(`${API_BASE_URL}events/event/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -409,7 +425,7 @@ export const fetchEventInfo = async (id) => {
       if (!token) return [];
     }
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/events/event/${id}/`, {
+    const response = await axios.get(`${API_BASE_URL}events/event/${id}/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -440,7 +456,7 @@ export const createEvent = async (eventData) => {
 
     // Post the new event
     const response = await axios.post(
-      "http://127.0.0.1:8000/api/events/event/",
+      API_BASE_URL + "events/event/",
       eventData,
       {
         headers: {
@@ -466,7 +482,7 @@ export const deleteEvent = async (id) => {
       if (!token) return [];
     }
 
-    const response = await axios.delete(`http://127.0.0.1:8000/api/events/event/${id}/`, {
+    const response = await axios.delete(`${API_BASE_URL}events/event/${id}/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -492,7 +508,7 @@ export const patchEvent = async (eventId, patchData) => {
     }
 
     const response = await axios.patch(
-      `http://127.0.0.1:8000/api/events/event/${eventId}/`,
+      `${API_BASE_URL}events/event/${eventId}/`,
       patchData,
       {
         headers: {
@@ -523,7 +539,7 @@ export const fetchCircleMembers = async (circleIdOrIds) => {
 
     // Use the circles/members endpoint for all requests
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/circles/members/`,
+      `${API_BASE_URL}events/circles/members/`, 
       { circle_ids: circleIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -546,7 +562,7 @@ export const fetchAddCircle = async (payload) => {
     }
 
     // You can adjust the endpoint URL as needed.
-    const response = await axios.post(`http://127.0.0.1:8000/api/events/circles/`, payload, {
+    const response = await axios.post(`${API_BASE_URL}events/circles/`, payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -563,8 +579,8 @@ export const fetchFriendsAddresses = async () => {
       token = await refreshAccessToken();
       if (!token) return null;
     }
-
-    const response = await axios.get("http://127.0.0.1:8000/api/friends/addresses/", {
+    
+    const response = await axios.get(API_BASE_URL + "friends/addresses/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -587,7 +603,7 @@ export const updateProfile = async (profileData) => {
     }
 
     const response = await axios.patch(
-      "http://127.0.0.1:8000/api/events/profile/me/",
+      API_BASE_URL + "events/profile/me/",
       profileData,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -610,7 +626,7 @@ export const fetchUserProfile = async () => {
       if (!token) return null;
     }
 
-    const response = await axios.get("http://127.0.0.1:8000/api/events/profile/me/", {
+    const response = await axios.get(API_BASE_URL + "events/profile/me/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -634,7 +650,7 @@ export const addUsersToCircle = async (circleId, users) => {
     const memberIds = users.map(user => user.id).filter(id => id);
 
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/circles/${circleId}/add_members/`,
+      `${API_BASE_URL}events/circles/${circleId}/add_members/`,
       { member_ids: memberIds },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -659,7 +675,7 @@ export const removeUsersFromCircle = async (circleId, memberIds) => {
     const ids = Array.isArray(memberIds) ? memberIds : [memberIds];
 
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/circles/${circleId}/remove_members/`,
+      `${API_BASE_URL}events/circles/${circleId}/remove_members/`,
       { member_ids: ids },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -681,7 +697,7 @@ export const deleteCircle = async (circleId) => {
     }
 
     const response = await axios.delete(
-      `http://127.0.0.1:8000/api/events/circles/${circleId}/`,
+      `${API_BASE_URL}events/circles/${circleId}/`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return response.status === 204;
@@ -701,7 +717,7 @@ export const updateCircle = async (circleId, updatedData) => {
     }
 
     const response = await axios.patch(
-      `http://127.0.0.1:8000/api/events/circles/${circleId}/`,
+      `${API_BASE_URL}events/circles/${circleId}/`,
       updatedData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -721,7 +737,7 @@ export const fetchMyLocations = async () => {
       if (!token) return null;
     }
 
-    const response = await axios.get("http://127.0.0.1:8000/api/events/my/locations/", {
+    const response = await axios.get(API_BASE_URL + "events/my/locations/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -744,7 +760,7 @@ export const fetchEventParticipants = async (eventId) => {
     }
 
     const response = await axios.get(
-      `http://127.0.0.1:8000/api/events/event/${eventId}/participants/`,
+      `${API_BASE_URL}events/event/${eventId}/participants/`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -762,10 +778,10 @@ export const fetchEventParticipants = async (eventId) => {
 export const fetchDirectEvent = async (eventId, inviteToken = null) => {
   try {
     // Build the URL - first try the regular event endpoint which now supports public access
-    let url = `http://127.0.0.1:8000/api/events/event/${eventId}/`;
+    let url = `${API_BASE_URL}events/event/${eventId}/`;
     if (inviteToken) {
       // If we have an invite token, use the public-event endpoint which supports invitation tokens
-      url = `http://127.0.0.1:8000/api/events/public-event/${eventId}/?invite=${inviteToken}`;
+      url = `${API_BASE_URL}events/public-event/${eventId}/?invite=${inviteToken}`;
     } // in a V2
 
     // Get auth headers if available, but don't require them
@@ -785,7 +801,7 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
         if (!inviteToken) {
           try {
             const directEventResponse = await axios.get(
-              `http://127.0.0.1:8000/api/events/event/${eventId}/`,
+              `${API_BASE_URL}events/event/${eventId}/`, 
               { headers }
             );
             return directEventResponse.data;
@@ -816,7 +832,7 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
 // Verify an invitation token
 export const verifyInvitation = async (token) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/events/verify-invitation/?token=${token}`);
+    const response = await axios.get(`${API_BASE_URL}events/verify-invitation/?token=${token}`);
     return response.data;
   } catch (error) {
     console.error('Error verifying invitation:', error);
@@ -834,7 +850,7 @@ export const createEventInvitation = async (eventId, email) => {
     }
 
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/invitations/`,
+      `${API_BASE_URL}events/invitations/`,
       { event: eventId, email },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -856,7 +872,7 @@ export const acceptInvitation = async (token) => {
     }
 
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/accept-invitation/`,
+      `${API_BASE_URL}events/accept-invitation/`,
       { token },
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
@@ -878,7 +894,7 @@ export const generateEventShareToken = async (eventId) => {
     }
 
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/events/event-share-token/`,
+      `${API_BASE_URL}events/event-share-token/`,
       { event: eventId },
       { headers: { Authorization: `Bearer ${token || newToken}` } }
     );

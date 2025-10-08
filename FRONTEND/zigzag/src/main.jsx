@@ -34,19 +34,3 @@ createRoot(document.getElementById('root')).render(
   </MapProvider>
   </AuthProvider>
 );
-
-
-// TAILWIND TEST
-// import React from "react";
-// import ReactDOM from "react-dom/client";
-// import './index.css';  // Import Tailwind styles
-
-// const App = () => (
-//   <div className="bg-gray-100 min-h-screen flex items-center justify-center">
-//     <header className="bg-green-700 text-white py-4 px-6 shadow-lg">
-//       <h1 className="text-2xl font-bold text-center">Minimal Tailwind Test</h1>
-//     </header>
-//   </div>
-// );
-
-// ReactDOM.createRoot(document.getElementById("root")).render(<App />);
