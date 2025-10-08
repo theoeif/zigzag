@@ -132,7 +132,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server
     "http://127.0.0.1:5173",
     "http://192.168.1.13:8000", # Django API
-    "http://192.168.1.13:5173",  # Vite dev server  
+    "http://192.168.1.13:5173",  # Vite dev server
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 

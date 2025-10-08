@@ -883,11 +883,11 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
         }}
       >
         {/* Slider container with reduced padding - lowered for mobile */}
-        <Box 
-          className="slider-container" 
-          sx={{ 
-            position: 'relative', 
-            py: isVerySmallScreen ? 0.5 : 5.5, 
+        <Box
+          className="slider-container"
+          sx={{
+            position: 'relative',
+            py: isVerySmallScreen ? 0.5 : 5.5,
             mt: isVerySmallScreen ? 0 : { xs: 3, sm: 1 } // Increased margin top on mobile to lower the slider
           }}
           ref={sliderRef}
@@ -1022,13 +1022,13 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
         </Box>
 
         {/* Controls with reduced top margin - lowered slightly */}
-        <Box 
-          sx={{ 
-            position: 'relative', 
+        <Box
+          sx={{
+            position: 'relative',
             mt: isVerySmallScreen ? 0 : 4, // Reduce margin on very small screens
-            display: 'flex', 
+            display: 'flex',
             flexDirection: isVerySmallScreen ? 'column' : 'row',
-            justifyContent: isVerySmallScreen ? 'center' : 'space-between', 
+            justifyContent: isVerySmallScreen ? 'center' : 'space-between',
             alignItems: isVerySmallScreen ? 'center' : 'center',
             gap: isVerySmallScreen ? 0 : 0,
             // Keep horizontal but compress on mobile and lower more
