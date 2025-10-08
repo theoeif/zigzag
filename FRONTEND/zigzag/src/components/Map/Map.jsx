@@ -28,9 +28,11 @@ const Map = ({ isFilterOpen, isLeftMenuOpen, initializeMap, children }) => {
     zoomControl: isWideScreen, // Show controls only on wide screens
     whenCreated: initializeMap,
     style: {
-      height: '100vh',
+      height: '100%',
       width: '100%',
       position: 'relative',
+      margin: 0,
+      padding: 0,
       filter: isFilterOpen || isLeftMenuOpen ? 'brightness(50%) blur(5px)' : 'none',
     }
   };

@@ -12,6 +12,7 @@
   "dependencies": {
     "@algolia/autocomplete-js": "^1.17.9",
     "@algolia/autocomplete-theme-classic": "^1.17.9",
+    "@capacitor-community/date-picker": "^7.1.0",
     "@capacitor/ios": "^7.4.3",
     "@capacitor/status-bar": "^7.0.3",
     "@date-io/date-fns": "^3.2.0",
@@ -20,6 +21,7 @@
     "@maplibre/maplibre-gl-leaflet": "^0.0.22",
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
+    "@mui/x-date-pickers": "^8.12.0",
     "@opencage/geosearch-core": "^0.1.10",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",
