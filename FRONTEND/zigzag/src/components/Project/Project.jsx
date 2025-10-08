@@ -325,7 +325,13 @@ const Project = ({ projectId }) => {
     const start = new Date(draftStart);
     const end = new Date(draftEnd);
     if (isNaN(start) || isNaN(end) || start > end) return;
-    handleTimeChange({ start, end });
+    if (typeof handleTimeChange === 'function') {
+      handleTimeChange({ start, end });
+    } else {
+      // Fallback if handleTimeChange is unavailable
+      setTimeRange({ start, end });
+      setTimeRangeModified(true);
+    }
     setIsDatePopoverOpen(false);
   };
 
@@ -333,7 +339,12 @@ const Project = ({ projectId }) => {
     const start = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 3);
-    handleTimeChange({ start, end });
+    if (typeof handleTimeChange === 'function') {
+      handleTimeChange({ start, end });
+    } else {
+      setTimeRange({ start, end });
+      setTimeRangeModified(true);
+    }
     setIsDatePopoverOpen(false);
   };
 
@@ -392,11 +403,11 @@ const Project = ({ projectId }) => {
             <div className={styles.dateRangePopoverProject}>
               <label>
                 Début
-                <input type="date" value={draftStart} onChange={e => setDraftStart(e.target.value)} />
+                <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
               </label>
               <label>
                 Fin
-                <input type="date" value={draftEnd} onChange={e => setDraftEnd(e.target.value)} />
+                <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
               </label>
               <div className={styles.dateRangeActionsProject}>
                 <button onClick={resetRange}>Réinitialiser</button>

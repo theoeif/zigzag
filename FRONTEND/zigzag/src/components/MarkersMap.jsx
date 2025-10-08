@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useMediaQuery } from '@mui/material';
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/leaflet.markercluster.js";
@@ -18,12 +19,14 @@ import LeftMenu from "./LeftMenu/LeftMenu";
 import FilterMenu from "./FilterMenu/FilterMenu";
 import Map from "./Map/Map";
 import TimelineBar from "./TimelineBar/TimelineBar";
+import TimelineBarMobile from "./TimelineBar/TimelineBarMobile";
 import TimelineToggle from "./TimelineBar/TimelineToggle";
 import { AuthContext } from "../contexts/AuthProvider";
 import { MapContext } from "../contexts/MapContext.jsx";
 
 const MarkersMap = ({ eventCoordinates = null }) => {
   const isBackground = !!eventCoordinates;
+  const isSmallScreen = useMediaQuery('(max-width:599px)');
   // Authentication and header state
   const { isConnected } = useContext(AuthContext);
   const [isFilterOpen, setisFilterOpen] = useState(false);
@@ -1189,11 +1192,19 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       >
         {/* Only render TimelineBar when visible and not in background mode */}
         {!isBackground && showTimelineBar && (
-          <TimelineBar
-            onTimeChange={handleTimelineTimeChange}
-            initialRange={timeframe}
-            inProjectView={false}
-          />
+          isSmallScreen ? (
+            <TimelineBarMobile
+              onTimeChange={handleTimelineTimeChange}
+              initialRange={timeframe}
+              inProjectView={false}
+            />
+          ) : (
+            <TimelineBar
+              onTimeChange={handleTimelineTimeChange}
+              initialRange={timeframe}
+              inProjectView={false}
+            />
+          )
         )}
       </Map>
 
