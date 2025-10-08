@@ -20,7 +20,7 @@ __pycache__/
 ingest_venv/
 **/.DS_Store
 
-# db 
+# db
 migrations/
 
 # Tempo

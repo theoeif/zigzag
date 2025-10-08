@@ -32,7 +32,7 @@ urlpatterns = [
     # customer registration for limiting bots
     path('api/register/', RegisterView.as_view(), name='register'),
 
-    # token urls   
+    # token urls
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # to delete refresh_token after log out

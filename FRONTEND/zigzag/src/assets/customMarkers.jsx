@@ -39,8 +39,8 @@ const greenMarkerIcon = L.divIcon({
   iconAnchor: [12, 12],
 });
 
-export { 
-  redMarkerIcon, 
+export {
+  redMarkerIcon,
   whiteFriendsEventlocationMarkerIcon,
   greenMarkerIcon
 };

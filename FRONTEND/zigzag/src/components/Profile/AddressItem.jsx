@@ -33,44 +33,44 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
     }
     setAnchorEl(null);
   };
-  
+
   // Function to open Google Maps with the address location
   const openGoogleMaps = (e) => {
     e.stopPropagation(); // Prevent other click handlers from firing
-    
+
     // Get latitude and longitude values
     let latitude = null;
     let longitude = null;
-    
+
     const addressData = address.address;
-    
+
     if (addressData && addressData.latitude && addressData.longitude) {
       latitude = addressData.latitude;
       longitude = addressData.longitude;
     }
-    
+
     // Verify that we have valid coordinates
     if (latitude && longitude && !isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
       // Check if we're on a mobile device
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
+
       if (isMobile) {
         // Prepare URL schemes for different platforms
         // Google Maps app URL scheme for both iOS and Android
         const googleMapsAppUrl = `comgooglemaps://?q=${latitude},${longitude}&center=${latitude},${longitude}`;
-        
+
         // Universal URL that opens in browser if app is not installed
         const googleMapsWebUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-        
+
         // First try to open the Google Maps app
         // Create a hidden iframe to try to launch the app
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = googleMapsAppUrl;
-        
+
         // Append to body to attempt to open the app
         document.body.appendChild(iframe);
-        
+
         // Set timeout to remove iframe and open web URL if app doesn't open
         setTimeout(() => {
           document.body.removeChild(iframe);
@@ -101,14 +101,14 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         transition: 'all 0.3s ease',
         backgroundColor: 'white',
-        '&:hover': { 
+        '&:hover': {
           transform: 'translateY(-3px)',
           boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
         }
       }}
     >
       <Box className={styles.addressTextContainer} sx={{ flex: 1 }} onClick={openGoogleMaps}>
-        <Typography variant="body1" sx={{ 
+        <Typography variant="body1" sx={{
           '&:hover': { color: '#4285F4' }
         }}>
           {address.address?.address_line}

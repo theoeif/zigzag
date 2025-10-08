@@ -5,7 +5,7 @@ import styles from './TimelineToggle.module.css';
 /**
  * A button component for toggling the visibility of the timeline bar.
  * Wrapped in React.memo to prevent unnecessary re-renders.
- * 
+ *
  * @param {Object} props
  * @param {boolean} props.isVisible - Whether the timeline is currently visible
  * @param {Function} props.onToggle - Function to call when the button is clicked
@@ -19,7 +19,7 @@ const TimelineToggle = memo(({ isVisible, onToggle }) => {
   };
 
   return (
-    <button 
+    <button
       className={styles.timelineToggleButton}
       onClick={handleToggle}
       title={isVisible ? "Hide Timeline" : "Show Timeline"}
@@ -30,4 +30,4 @@ const TimelineToggle = memo(({ isVisible, onToggle }) => {
   );
 });
 
-export default TimelineToggle; 
+export default TimelineToggle;

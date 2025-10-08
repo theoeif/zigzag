@@ -5,7 +5,7 @@ import { AuthContext } from "./AuthProvider";
 
 const Callback = () => {
 
-  const { isConnected, setIsConnected } = useContext(AuthContext);    
+  const { isConnected, setIsConnected } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
 

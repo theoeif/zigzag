@@ -460,8 +460,8 @@ input:checked + .slider:before {
 }
 
 /* Additional style to override Algolia's default container styles */
-.filter-menu .aa-Autocomplete, 
-.filter-menu .aa-DetachedFormContainer, 
+.filter-menu .aa-Autocomplete,
+.filter-menu .aa-DetachedFormContainer,
 .filter-menu .aa-InputWrapperPrefix,
 .filter-menu .aa-InputWrapperSuffix {
   border: none !important;
@@ -1392,4 +1392,3 @@ input:checked + .slider:before {
   animation: pulse-outward 0.7s infinite ease-in-out; /* Same animation as red markers */
   border-color: rgba(146, 146, 146, 0.597); /* Same as red markers */
 }
-

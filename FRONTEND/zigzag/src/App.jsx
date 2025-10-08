@@ -30,7 +30,7 @@ const App = () => {
         <Route path="/circles" element={<MainCircles />} />
         <Route path="/event/:id" element={<DirectEventLinkView />} />
       </Routes>
-      
+
     </>
   );
 };
