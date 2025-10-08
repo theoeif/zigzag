@@ -138,7 +138,7 @@ const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView =
 
     const end = new Date(currentDate);
     end.setHours(23, 59, 0, 0);
-    end.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
+    end.setDate(currentDate.getDate() + timeRange[1]);
 
     onTimeChange({ start, end });
   }, [timeRange, currentDate, onTimeChange]);
@@ -192,7 +192,7 @@ const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView =
             valueLabelDisplay="auto"
             valueLabelFormat={(value, index) => {
               const date = new Date(currentDate);
-              const offset = index === 1 ? Math.max(value - 1, 0) : value;
+              const offset = value;
               date.setDate(currentDate.getDate() + offset);
               return formatDate(date);
             }}
@@ -377,7 +377,7 @@ const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView =
               startDate.setHours(0, 1, 0, 0);
 
               const endDate = new Date(currentDate);
-              endDate.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
+              endDate.setDate(currentDate.getDate() + timeRange[1]);
               endDate.setHours(23, 59, 0, 0);
 
               return `${formatDateWithTime(startDate)} - ${formatDateWithTime(endDate)}`;

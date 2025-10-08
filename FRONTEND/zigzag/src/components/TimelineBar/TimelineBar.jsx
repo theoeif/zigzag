@@ -503,7 +503,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
 
       const end = new Date(currentDate);
       end.setHours(23, 59, 0, 0);
-      end.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
+      end.setDate(currentDate.getDate() + timeRange[1]);
 
       console.log('TimelineBar: Sending time change to parent:', {
         timeRange,
@@ -865,9 +865,9 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             max={maxRange}
             valueLabelDisplay="auto"
             valueLabelFormat={(value, index) => {
-              // Show inclusive end date on the right thumb (index 1)
+              // Show the actual selected date on both thumbs
               const date = new Date(currentDate);
-              const offset = index === 1 ? Math.max(value - 1, 0) : value;
+              const offset = value;
               date.setDate(currentDate.getDate() + offset);
               return formatDate(date);
             }}
@@ -1133,7 +1133,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               startDate.setHours(0, 1, 0, 0);
 
               const endDate = new Date(currentDate);
-              endDate.setDate(currentDate.getDate() + Math.max(timeRange[1] - 1, timeRange[0]));
+              endDate.setDate(currentDate.getDate() + timeRange[1]);
               endDate.setHours(23, 59, 0, 0);
 
               return `${formatDateWithTime(startDate)} - ${formatDateWithTime(endDate)}`;
