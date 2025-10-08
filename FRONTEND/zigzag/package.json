@@ -13,6 +13,7 @@
     "@algolia/autocomplete-js": "^1.17.9",
     "@algolia/autocomplete-theme-classic": "^1.17.9",
     "@capacitor/ios": "^7.4.3",
+    "@capacitor/status-bar": "^7.0.3",
     "@date-io/date-fns": "^3.2.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
