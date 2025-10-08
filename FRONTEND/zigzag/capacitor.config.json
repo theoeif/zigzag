@@ -1,0 +1,12 @@
+{
+  "appId": "com.zigzagunique.app",
+  "appName": "zigzag",
+  "webDir": "dist",
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",              
+      "backgroundColor": "#2d6a4f"
+    }
+  }
+}
