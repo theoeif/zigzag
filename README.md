@@ -77,7 +77,6 @@ Clicking on Profile of people doesn't work
 
 ## Long term
 
-- View Profile of others.
 - Add a calendar views
 - Make invitation links for people (1 solution : Create "invited Circle")
 -  \>300 :
@@ -87,7 +86,7 @@ Clicking on Profile of people doesn't work
     - People could add their circle into a project.
     - Introduce some public event when Number > 1000
     - Make invitation links for people (1 solution : Create "invited Circle")
-- Implementing a dapp for financing project through the blockchain.
+- Implementing a dapp for financing project through the blockchain. (compatible capacitor)
 
 
 ## Credits and references
