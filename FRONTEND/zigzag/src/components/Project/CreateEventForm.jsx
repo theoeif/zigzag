@@ -524,16 +524,17 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             )}
           </div>
 
-          <fieldset
-            className={styles.fieldsetGroupProject}
-            style={{
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '15px',
-              marginBottom: '20px'
-            }}
-          >
-            <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
+          {allCircles.length > 0 && (
+            <fieldset
+              className={styles.fieldsetGroupProject}
+              style={{
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '15px',
+                marginBottom: '20px'
+              }}
+            >
+              <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
 
             {/* Container for the 'Select All' button */}
             <div className={styles.selectAllContainerProject}>
@@ -583,7 +584,8 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 </div>
               ))}
             </div>
-          </fieldset>
+            </fieldset>
+          )}
 
           <div
             className={styles.buttonGroupProject}
