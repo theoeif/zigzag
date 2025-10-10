@@ -256,23 +256,29 @@ const CalendarView = () => {
         return '';
       }
     })();
+
+    // Check if event is narrow (less than 80px width)
+    const isNarrow = eventInfo.event.el && eventInfo.event.el.offsetWidth < 80;
+
     return (
       <div className={styles.eventContent}>
         <div className={styles.eventRow}>
           <span className={styles.eventTitle}>{eventInfo.event.title}</span>
-          <button
-            className={styles.eventDetailsButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedEvent(eventInfo.event);
-              setShowEventDetails(true);
-            }}
-            title="Voir les détails"
-          >
-            ℹ️
-          </button>
+          {!isNarrow && (
+            <button
+              className={styles.eventDetailsButton}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedEvent(eventInfo.event);
+                setShowEventDetails(true);
+              }}
+              title="Voir les détails"
+            >
+              ℹ️
+            </button>
+          )}
         </div>
-        {eventInfo.event.extendedProps.address && (
+        {!isNarrow && eventInfo.event.extendedProps.address && (
           <div className={styles.eventLocation}>
             📍 {eventInfo.event.extendedProps.address.city || 'Lieu'}
           </div>
@@ -353,12 +359,15 @@ const CalendarView = () => {
           selectMirror={true}
           weekends={true}
           nowIndicator={true}
+          slotEventOverlap={false}
+          displayEventTime={false}
           eventDisplay="block"
           dayHeaderFormat={{ weekday: 'short' }}
-          slotMinTime="13:00:00"
+          slotMinTime="08:00:00"
           slotMaxTime="22:00:00"
           allDaySlot={true}
-          slotDuration="00:30:00"
+          allDayText={'hors période'}
+          slotDuration="01:00:00"
           slotLabelInterval="01:00:00"
           buttonText={{
             today: `Aujourd'hui ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`,
@@ -416,7 +425,7 @@ const CalendarView = () => {
             description: selectedEvent.extendedProps?.description || '',
             creator: selectedEvent.extendedProps?.creator || '',
             circles: selectedEvent.extendedProps?.circles || [],
-            start_time: selectedEvent.extendedProps?.originalStart || (selectedEvent.start?.toISOString?.() || selectedEvent.start),
+            start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
             end_time: selectedEvent.extendedProps?.originalEnd || null
           }}
         />
@@ -431,7 +440,7 @@ const CalendarView = () => {
             description: selectedEvent.extendedProps?.description || '',
             address: selectedEvent.extendedProps?.address || null,
             circles: selectedEvent.extendedProps?.circles || [],
-            start_time: selectedEvent.extendedProps?.originalStart || (selectedEvent.start?.toISOString?.() || selectedEvent.start),
+            start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
             end_time: selectedEvent.extendedProps?.originalEnd || null,
             shareable_link: selectedEvent.extendedProps?.shareable_link || true,
             public_link: selectedEvent.extendedProps?.public_link || null
