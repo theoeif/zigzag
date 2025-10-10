@@ -10,6 +10,8 @@ import { fetchEvents, createEvent, patchEvent, deleteEvent } from '../../api/api
 import CreateEventForm from '../Project/CreateEventForm';
 import EditEventForm from '../Project/EditEventForm';
 import EventView from '../EventViewMap/EventView/EventView';
+import EventDetailsSection from '../Project/EventDetailsSection';
+import CircleMembersPopup from '../Project/CircleMembersPopup';
 import styles from './CalendarView.module.css';
 import Header from '../Header/Header';
 
@@ -26,6 +28,9 @@ const CalendarView = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [filteredCircles, setFilteredCircles] = useState([]);
+  const [showEventDetails, setShowEventDetails] = useState(false);
+  const [showCircleMembers, setShowCircleMembers] = useState(false);
+  const [circleMembersData, setCircleMembersData] = useState(null);
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -162,6 +167,11 @@ const CalendarView = () => {
     loadEvents(); // Refresh calendar
   };
 
+  const handleViewCircleMembers = (circleId, circleName) => {
+    setCircleMembersData({ circleId, circleName });
+    setShowCircleMembers(true);
+  };
+
   // Export functionality
   const handleDownloadICS = () => {
     const token = localStorage.getItem('access_token');
@@ -199,9 +209,17 @@ const CalendarView = () => {
       <div className={styles.eventContent}>
         <div className={styles.eventRow}>
           <span className={styles.eventTitle}>{eventInfo.event.title}</span>
-          {endIso && (
-            <span className={styles.eventInfoIcon} title={`Fin: ${endLabel}`}>ℹ️</span>
-          )}
+          <button
+            className={styles.eventDetailsButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedEvent(eventInfo.event);
+              setShowEventDetails(true);
+            }}
+            title="Voir les détails"
+          >
+            ℹ️
+          </button>
         </div>
         {eventInfo.event.extendedProps.address && (
           <div className={styles.eventLocation}>
@@ -330,6 +348,35 @@ const CalendarView = () => {
             start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
             end_time: selectedEvent.extendedProps?.originalEnd || null
           }}
+        />
+      )}
+
+      {/* Event Details Section */}
+      {showEventDetails && selectedEvent && (
+        <EventDetailsSection
+          event={{
+            id: selectedEvent.id,
+            title: selectedEvent.title,
+            description: selectedEvent.extendedProps?.description || '',
+            address: selectedEvent.extendedProps?.address || null,
+            circles: selectedEvent.extendedProps?.circles || [],
+            start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
+            end_time: selectedEvent.extendedProps?.originalEnd || null,
+            shareable_link: selectedEvent.extendedProps?.shareable_link || true,
+            public_link: selectedEvent.extendedProps?.public_link || null
+          }}
+          isOpen={showEventDetails}
+          onClose={() => setShowEventDetails(false)}
+          onViewCircleMembers={handleViewCircleMembers}
+        />
+      )}
+
+      {/* Circle Members Popup */}
+      {showCircleMembers && circleMembersData && (
+        <CircleMembersPopup
+          circleId={circleMembersData.circleId}
+          circleName={circleMembersData.circleName}
+          onClose={() => setShowCircleMembers(false)}
         />
       )}
 

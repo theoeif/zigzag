@@ -6,11 +6,11 @@ import {
   FaCaretDown, FaCaretRight, FaInfoCircle
 } from "react-icons/fa";
 import styles from './Project.module.css';
+import EventDetailsSection from './EventDetailsSection';
 
 const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
-  const [showCirclesDropdown, setShowCirclesDropdown] = useState(false);
 
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
@@ -123,6 +123,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     }
   };
 
+
   // Helper function to extract circles data from different formats
   const extractCircleIds = (eventCircles) => {
     if (!eventCircles) return [];
@@ -187,28 +188,6 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       id: circle.id,
       name: circle.name || `Circle ${circle.id}`
     }));
-  };
-
-  // Handler to view circle members
-  const handleViewCircleMembers = (circle) => {
-    if (!circle || (!circle.id && circle.id !== 0)) {
-      console.error("EventCard: Invalid circle data:", circle);
-      return;
-    }
-
-    console.log("EventCard: Viewing circle members for circle:", circle);
-
-    // Make sure we have valid data
-    const circleId = circle.id;
-    const circleName = circle.name || `Circle ${circleId}`;
-
-    // Only proceed if we have an ID
-    if (circleId !== undefined && circleId !== null) {
-      console.log(`EventCard: Passing circleId=${circleId}, circleName=${circleName} to parent`);
-      onViewCircleMembers && onViewCircleMembers(circleId, circleName);
-    } else {
-      console.error("EventCard: Missing circle ID:", circle);
-    }
   };
 
   // Get circle data
@@ -466,223 +445,13 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         </div>
       </div>
 
-      {/* Expanded details section - Position as an overlay */}
-      {showDetails && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1000,
-            backgroundColor: 'white',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-            borderRadius: '12px',
-            padding: '0',
-            width: '80%',
-            maxWidth: '500px',
-            maxHeight: '80vh',
-            overflowY: 'auto'
-          }}
-        >
-          <div
-            className={styles.popupHeaderProjectEnhanced}
-            style={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 10,
-              backgroundColor: 'white',
-              borderBottom: '1px solid #eee',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '15px 20px',
-              borderTopLeftRadius: '12px',
-              borderTopRightRadius: '12px'
-            }}
-          >
-            <div className={styles.popupTitleWrapper}>
-              <h3 className={styles.modalTitleProject}>Détails du projet : {event.title}</h3>
-            </div>
-            <button onClick={toggleDetails} className={styles.closeButtonProjectEnhanced}>
-              ✕
-            </button>
-          </div>
-
-          <div style={{ padding: '20px' }}>
-            {/* Location with map */}
-            {event.address && event.address.latitude && event.address.longitude && (
-              <div style={{
-                marginBottom: '15px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                border: '1px solid #ddd'
-              }}>
-                <div style={{
-                  height: '150px',
-                  backgroundColor: '#f5f5f5',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }} onClick={openGoogleMaps}>
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '10px'
-                  }}>
-                    <FaMapMarkerAlt style={{ fontSize: '32px', color: '#e63946', marginBottom: '8px' }} />
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                        {event.address.address_line}
-                      </div>
-                      <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                        Cliquer pour ouvrir dans Maps
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className={styles.fullDescriptionProject}>
-              <strong>Description</strong>
-              <p>{event.description || "Aucune description fournie pour cet événement."}</p>
-            </div>
-
-            {/* Additional details with icons */}
-            <div className={styles.detailsGridProject}>
-              <div className={styles.detailItemProject}>
-                <FaCalendarAlt />
-                <span><strong>Début :</strong> {formatFullDate(event.start_time)}</span>
-              </div>
-
-              {event.end_time && (
-                <div className={styles.detailItemProject}>
-                  <FaClock />
-                  <span><strong>Fin :</strong> {formatFullDate(event.end_time)}</span>
-                </div>
-              )}
-
-              {/* Removed WhatsApp group link */}
-
-              {event.is_public && (
-                <div className={styles.detailItemProject}>
-                  {/* Removed FaGlobe */}
-                  <span>Ceci est public</span>
-                </div>
-              )}
-
-              {/* Removed Friends of friends allowed */}
-
-              {/* Removed Organizer information */}
-            </div>
-
-            {/* Show all circles/tags when expanded - NOW WITH IMPROVED CIRCLES DISPLAY */}
-            <div className={styles.allCirclesSectionProject}>
-              {hasCircles && (
-                <div className={styles.allCirclesProject}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '10px',
-                    borderBottom: '1px solid #eee',
-                    paddingBottom: '5px'
-                  }}>
-                    <h4 style={{ margin: '5px 0', fontSize: '1rem' }}>Cercles et invités :</h4>
-                    <span style={{
-                      color: '#666',
-                      fontSize: '0.9rem',
-                      backgroundColor: '#f0f0f0',
-                      padding: '2px 8px',
-                      borderRadius: '12px'
-                    }}>
-                      {circleData.length} {circleData.length === 1 ? 'cercle' : 'cercles'}
-                    </span>
-                  </div>
-
-                  {/* Control how many circles to display */}
-                  <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '8px',
-                    margin: '10px 0'
-                  }}>
-                    {/* Display either first 3 circles or all circles based on showCirclesDropdown */}
-                    {(showCirclesDropdown ? circleData : circleData.slice(0, 3)).map((circle, index) => (
-                      <div
-                        key={index}
-                        onClick={() => handleViewCircleMembers(circle)}
-                        style={{
-                          backgroundColor: '#f0f7f4',
-                          borderRadius: '16px',
-                          padding: '4px 12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          cursor: 'pointer',
-                          fontSize: '0.9rem'
-                        }}
-                      >
-                        <FaUsers style={{ fontSize: '0.8rem', color: '#2d6a4f' }} />
-                        <span>{circle.name || `Circle ${circle.id}`}</span>
-                      </div>
-                    ))}
-
-                    {/* Show/hide more circles button */}
-                    {!showCirclesDropdown && circleData.length > 3 && (
-                      <div
-                        style={{
-                          backgroundColor: '#f0f7f4',
-                          borderRadius: '16px',
-                          padding: '4px 12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          cursor: 'pointer',
-                          fontSize: '0.9rem'
-                        }}
-                        onClick={() => setShowCirclesDropdown(true)}
-                      >
-                        +{circleData.length - 3} de plus
-                      </div>
-                    )}
-
-                    {/* Show less button when expanded */}
-                    {showCirclesDropdown && circleData.length > 3 && (
-                      <div
-                        style={{
-                          backgroundColor: '#f0f7f4',
-                          borderRadius: '16px',
-                          padding: '4px 12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          cursor: 'pointer',
-                          fontSize: '0.9rem'
-                        }}
-                        onClick={() => setShowCirclesDropdown(false)}
-                      >
-                        Afficher moins
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {event.categories && event.categories.length > 0 && (
-                <div className={styles.allTagsProject}>
-                  <h4>Tags :</h4>
-                  <div className={styles.tagsGridProject}>
-                    {renderTags()}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Event Details Section */}
+      <EventDetailsSection
+        event={event}
+        isOpen={showDetails}
+        onClose={toggleDetails}
+        onViewCircleMembers={onViewCircleMembers}
+      />
     </div>
   );
 };
