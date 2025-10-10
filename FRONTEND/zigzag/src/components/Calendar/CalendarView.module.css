@@ -1,0 +1,431 @@
+
+/* Calendar Container */
+.calendarContainer {
+  /* Leave space for the fixed global header */
+  height: calc(100vh - 60px);
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  .calendarContainer {
+    margin-top: calc(60px + env(safe-area-inset-top));
+    height: calc(100vh - (60px + env(safe-area-inset-top)));
+  }
+}
+
+/* Calendar Header */
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 68px 16px 12px 16px; /* slightly narrower and higher */
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.calendarTitle {
+  color: #40916c;
+  font-weight: 600;
+  margin: 0;
+}
+
+.exportButton {
+  color: #40916c !important;
+  border-color: #40916c !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+.exportButton:hover {
+  background-color: rgba(64, 145, 108, 0.1) !important;
+}
+
+.subscribeButton {
+  background-color: #40916c !important;
+  color: white !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+.subscribeButton:hover {
+  background-color: #2d6a4f !important;
+}
+
+/* Calendar Wrapper */
+.calendarWrapper {
+  flex: 1;
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* FullCalendar Customization */
+.fullCalendar {
+  height: 100% !important;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Override FullCalendar CSS Variables */
+:global(.fc) {
+  --fc-border-color: #e0e0e0;
+  --fc-button-bg-color: #40916c;
+  --fc-button-border-color: #40916c;
+  --fc-button-hover-bg-color: #2d6a4f;
+  --fc-button-hover-border-color: #2d6a4f;
+  --fc-button-active-bg-color: #1b4332;
+  --fc-button-active-border-color: #1b4332;
+  --fc-today-bg-color: rgba(64, 145, 108, 0.1);
+  --fc-event-bg-color: #40916c;
+  --fc-event-border-color: #40916c;
+  --fc-highlight-color: rgba(64, 145, 108, 0.1);
+  --fc-more-link-bg-color: #40916c;
+  --fc-more-link-border-color: #40916c;
+}
+
+/* Custom Event Styling */
+.eventContent {
+  padding: 2px 4px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  overflow: hidden;
+}
+
+.eventRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.eventTitle {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventLocation {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventInfoIcon {
+  margin-left: auto;
+  font-size: 0.9rem;
+  cursor: default;
+}
+
+/* Toolbar Customization */
+:global(.fc-toolbar) {
+  padding: 16px 20px 8px 20px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+:global(.fc-toolbar-title) {
+  color: #40916c;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+:global(.fc-button) {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  padding: 6px 12px !important;
+}
+
+/* Add spacing between Mois, Semaine, Jour, Liste */
+:global(.fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button-group) {
+  gap: 6px;
+}
+:global(.fc-header-toolbar .fc-toolbar-chunk:last-child .fc-button-group .fc-button) {
+  margin: 0 2px;
+}
+
+:global(.fc-button-primary) {
+  background-color: #40916c !important;
+  border-color: #40916c !important;
+}
+
+:global(.fc-button-primary:hover) {
+  background-color: #2d6a4f !important;
+  border-color: #2d6a4f !important;
+}
+
+:global(.fc-button-primary:focus) {
+  box-shadow: 0 0 0 2px rgba(64, 145, 108, 0.2) !important;
+}
+
+:global(.fc-button-primary:disabled) {
+  background-color: #ccc !important;
+  border-color: #ccc !important;
+}
+
+/* Day Grid Customization */
+:global(.fc-daygrid-day) {
+  border-color: #e0e0e0;
+}
+
+:global(.fc-daygrid-day-number) {
+  color: #333;
+  font-weight: 500;
+  padding: 8px;
+}
+
+:global(.fc-daygrid-day:hover) {
+  background-color: rgba(64, 145, 108, 0.05);
+}
+
+:global(.fc-daygrid-day.fc-day-today) {
+  background-color: rgba(64, 145, 108, 0.1);
+}
+
+:global(.fc-daygrid-day.fc-day-today .fc-daygrid-day-number) {
+  color: #40916c;
+  font-weight: 600;
+}
+
+/* Event Styling */
+:global(.fc-event) {
+  border-radius: 4px !important;
+  border: none !important;
+  font-size: 0.75rem !important;
+  padding: 2px 4px !important;
+  margin: 1px 0 !important;
+}
+
+:global(.fc-event:hover) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+:global(.fc-event-title) {
+  font-weight: 500 !important;
+  padding: 0 !important;
+}
+
+/* Time Grid Customization */
+:global(.fc-timegrid-slot) {
+  border-color: #f0f0f0;
+}
+
+:global(.fc-timegrid-slot-label) {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+:global(.fc-timegrid-event) {
+  border-radius: 4px !important;
+  border: none !important;
+  font-size: 0.8rem !important;
+  padding: 4px 6px !important;
+}
+
+/* List View Customization */
+:global(.fc-list-day-cushion) {
+  background-color: #f8f9fa;
+  color: #40916c;
+  font-weight: 600;
+}
+
+:global(.fc-list-event) {
+  border-left: 3px solid #40916c;
+  margin-bottom: 4px;
+}
+
+:global(.fc-list-event:hover) {
+  background-color: rgba(64, 145, 108, 0.05);
+}
+
+/* Make the "+2 more" easier to tap */
+:global(.zz-more-link) {
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+:global(.zz-more-link:hover) {
+  background-color: rgba(64,145,108,0.1);
+}
+
+/* Modal Styles */
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modalBody {
+  padding: 20px 24px 24px 24px;
+}
+
+.instructions {
+  background-color: #f8f9fa;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 3px solid #40916c;
+  margin: 8px 0 16px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .calendarHeader {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .calendarTitle {
+    text-align: center;
+    font-size: 1.25rem;
+  }
+
+  .calendarWrapper {
+    padding: 8px;
+  }
+
+  :global(.fc-toolbar) {
+    padding: 12px 16px 8px 16px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :global(.fc-toolbar-chunk) {
+    display: flex;
+    justify-content: center;
+  }
+
+  :global(.fc-toolbar-title) {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  :global(.fc-button) {
+    font-size: 0.8rem !important;
+    padding: 4px 8px !important;
+  }
+
+  .eventContent {
+    font-size: 0.7rem;
+  }
+
+  .eventTitle {
+    font-size: 0.7rem;
+  }
+
+  .eventLocation {
+    font-size: 0.65rem;
+  }
+
+  .modalContent {
+    width: 95%;
+    margin: 16px;
+  }
+
+  .modalHeader {
+    padding: 16px 20px 12px 20px;
+  }
+
+  .modalBody {
+    padding: 16px 20px 20px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendarHeader {
+    padding: 8px 12px;
+  }
+
+  .calendarWrapper {
+    padding: 4px;
+  }
+
+  :global(.fc-toolbar) {
+    padding: 8px 12px 6px 12px;
+  }
+
+  :global(.fc-button) {
+    font-size: 0.75rem !important;
+    padding: 3px 6px !important;
+  }
+
+  .eventContent {
+    font-size: 0.65rem;
+    padding: 1px 2px;
+  }
+
+  .eventTitle {
+    font-size: 0.65rem;
+  }
+
+  .eventLocation {
+    font-size: 0.6rem;
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .calendarContainer {
+    background-color: #1a1a1a;
+  }
+
+  .calendarHeader {
+    background-color: #2d2d2d;
+    border-bottom-color: #404040;
+  }
+
+  .calendarTitle {
+    color: #4ade80;
+  }
+
+  .fullCalendar {
+    background-color: #2d2d2d;
+  }
+
+  :global(.fc-daygrid-day) {
+    border-color: #404040;
+  }
+
+  :global(.fc-daygrid-day-number) {
+    color: #e0e0e0;
+  }
+
+  :global(.fc-timegrid-slot) {
+    border-color: #404040;
+  }
+
+  :global(.fc-timegrid-slot-label) {
+    color: #a0a0a0;
+  }
+}
