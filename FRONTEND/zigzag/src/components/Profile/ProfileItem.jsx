@@ -102,7 +102,7 @@ const ProofileItem = ({
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Que recherchez-vous ?</h2>
+        <h2 className={styles.sectionTitle}>Description : ce que je veux, lien utile ...</h2>
         {readOnly ? (
           <div className={styles.lookingForInput} style={{ whiteSpace: "pre-wrap" }}>
             {lookingFor || "—"}
