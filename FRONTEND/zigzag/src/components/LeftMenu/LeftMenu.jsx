@@ -25,6 +25,7 @@ const LeftMenu = ({ closeMenu }) => {
     profile: null,
     events: null,
     circles: null,
+    calendar: null,
     "create-account": null,
     login: null,
     disconnect: null
@@ -165,6 +166,8 @@ const LeftMenu = ({ closeMenu }) => {
       currentActive = "events";
     } else if (path === "/circles") {
       currentActive = "circles";
+    } else if (path === "/calendar") {
+      currentActive = "calendar";
     } else if (path === "/create-account") {
       currentActive = "create-account";
     } else if (path === "/login") {
@@ -329,6 +332,13 @@ const LeftMenu = ({ closeMenu }) => {
               ref={el => buttonRefs.current.circles = el}
             >
               Cercles
+            </button>
+            <button
+              className={getButtonClass("calendar")}
+              onClick={() => handleNavigation("/calendar", "calendar")}
+              ref={el => buttonRefs.current.calendar = el}
+            >
+              Calendrier
             </button>
           </div>
         </div>

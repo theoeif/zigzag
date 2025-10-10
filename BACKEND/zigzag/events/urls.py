@@ -13,6 +13,8 @@ from .views import (
     ProfileViewSet,
     FriendsListView,
     ProfileByUserView,
+    ICalDownloadView,
+    ICalFeedView,
 )
 
 # ViewSet mappings
@@ -60,4 +62,8 @@ urlpatterns = [
     path('verify-invitation/', VerifyInvitationView.as_view(), name='verify-invitation'),
     path('accept-invitation/', AcceptInvitationView.as_view(), name='accept-invitation'),
     path('event-share-token/', EventShareTokenView.as_view(), name='event-share-token'),
+
+    # iCal export endpoints
+    path('ical/download/', ICalDownloadView.as_view(), name='ical-download'),
+    path('ical/feed/', ICalFeedView.as_view(), name='ical-feed'),
 ]
