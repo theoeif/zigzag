@@ -594,7 +594,7 @@ input:checked + .slider:before {
   padding-right: env(safe-area-inset-right);
 }
 
-.left-menu-icon, .filter-icon, .calendar-icon {
+.left-menu-icon, .filter-icon, .calendar-icon, .projects-icon {
   position: absolute;
   background: transparent;
   border: none;
@@ -613,14 +613,14 @@ input:checked + .slider:before {
   min-height: 48px; /* iOS recommended minimum touch target */
 }
 
-.left-menu-icon:hover, .filter-icon:hover, .calendar-icon:hover {
+.left-menu-icon:hover, .filter-icon:hover, .calendar-icon:hover, .projects-icon:hover {
   color: #ffcc00;
   /* Scale without affecting position */
   transform: scale(1.1); /* Only scale, no translateY */
   transition: transform 0.1s ease, color 0.1s ease;
 }
 
-.left-menu-icon:active, .filter-icon:active, .calendar-icon:active {
+.left-menu-icon:active, .filter-icon:active, .calendar-icon:active, .projects-icon:active {
   transform: scale(0.9); /* Only scale, no translateY */
   color: #ffcc00;
   opacity: 0.8;
@@ -652,6 +652,19 @@ input:checked + .slider:before {
 }
 
 .filter-icon {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  font-size: 20px;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.projects-icon {
   position: relative;
   top: auto;
   left: auto;
