@@ -21,7 +21,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 68px 16px 12px 16px; /* slightly narrower and higher */
+  padding: 24px 16px 12px 16px; /* slightly narrower and higher */
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -428,4 +428,18 @@
   :global(.fc-timegrid-slot-label) {
     color: #a0a0a0;
   }
+}
+
+.eventDetailsButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.eventDetailsButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
