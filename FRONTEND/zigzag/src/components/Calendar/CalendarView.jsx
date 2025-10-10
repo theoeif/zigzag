@@ -51,26 +51,59 @@ const CalendarView = () => {
         ];
 
         // Transform events to FullCalendar format
-        const calendarEvents = allEvents.map(event => ({
-          id: event.id,
-          title: event.title,
-          // Show only the start day visually; keep real end in extendedProps
-          start: event.start_time,
-          end: new Date(new Date(event.start_time).getTime() + 60 * 60 * 1000).toISOString(),
-          allDay: false,
-          extendedProps: {
-            description: event.description,
-            address: event.address,
-            circles: event.circles,
-            creator: event.creator,
-            shareable_link: event.shareable_link,
-            public_link: event.public_link || null,
-            originalEnd: event.end_time || null
-          },
-          backgroundColor: getEventColor(event.circles),
-          borderColor: getEventColor(event.circles),
-          textColor: '#ffffff'
-        }));
+        const calendarEvents = allEvents.map(event => {
+          const startDate = new Date(event.start_time);
+          const startHour = startDate.getHours();
+          const isWithinWindow = startHour >= 13 && startHour < 22; // show in timed grid between 13:00 and 22:00
+
+          const color = getEventColor(event.circles);
+
+          if (isWithinWindow) {
+            const displayEnd = new Date(startDate.getTime() + 60 * 60 * 1000);
+            return {
+              id: event.id,
+              title: event.title,
+              start: startDate.toISOString(),
+              end: displayEnd.toISOString(),
+              allDay: false,
+              extendedProps: {
+                description: event.description,
+                address: event.address,
+                circles: event.circles,
+                creator: event.creator,
+                shareable_link: event.shareable_link,
+                public_link: event.public_link || null,
+                originalStart: event.start_time || null,
+                originalEnd: event.end_time || null
+              },
+              backgroundColor: color,
+              borderColor: color,
+              textColor: '#ffffff'
+            };
+          }
+
+          // Outside 13:00–22:00 → show as all-day on that date
+          const dateOnly = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+          return {
+            id: event.id,
+            title: event.title,
+            start: dateOnly,
+            allDay: true,
+            extendedProps: {
+              description: event.description,
+              address: event.address,
+              circles: event.circles,
+              creator: event.creator,
+              shareable_link: event.shareable_link,
+              public_link: event.public_link || null,
+              originalStart: event.start_time || null,
+              originalEnd: event.end_time || null
+            },
+            backgroundColor: color,
+            borderColor: color,
+            textColor: '#ffffff'
+          };
+        });
 
         setEvents(calendarEvents);
         setFilteredCircles(extractUniqueCircles(allEvents));
@@ -323,7 +356,7 @@ const CalendarView = () => {
           eventDisplay="block"
           dayHeaderFormat={{ weekday: 'short' }}
           slotMinTime="13:00:00"
-          slotMaxTime="23:00:00"
+          slotMaxTime="22:00:00"
           allDaySlot={true}
           slotDuration="00:30:00"
           slotLabelInterval="01:00:00"
@@ -383,7 +416,7 @@ const CalendarView = () => {
             description: selectedEvent.extendedProps?.description || '',
             creator: selectedEvent.extendedProps?.creator || '',
             circles: selectedEvent.extendedProps?.circles || [],
-            start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
+            start_time: selectedEvent.extendedProps?.originalStart || (selectedEvent.start?.toISOString?.() || selectedEvent.start),
             end_time: selectedEvent.extendedProps?.originalEnd || null
           }}
         />
@@ -398,7 +431,7 @@ const CalendarView = () => {
             description: selectedEvent.extendedProps?.description || '',
             address: selectedEvent.extendedProps?.address || null,
             circles: selectedEvent.extendedProps?.circles || [],
-            start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
+            start_time: selectedEvent.extendedProps?.originalStart || (selectedEvent.start?.toISOString?.() || selectedEvent.start),
             end_time: selectedEvent.extendedProps?.originalEnd || null,
             shareable_link: selectedEvent.extendedProps?.shareable_link || true,
             public_link: selectedEvent.extendedProps?.public_link || null
