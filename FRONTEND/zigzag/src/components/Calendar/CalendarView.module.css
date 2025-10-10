@@ -92,16 +92,16 @@
 
 /* Custom Event Styling */
 .eventContent {
-  padding: 1px 2px;
+  padding: 2px 3px;
   font-size: 0.7rem;
-  line-height: 1.1;
+  line-height: 1.2;
   overflow: hidden;
   overflow-wrap: break-word;
   word-break: normal;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
   max-height: 100%;
 }
 
@@ -122,12 +122,12 @@
 }
 
 .eventLocation {
-  font-size: 0.6rem;
-  opacity: 0.8;
+  font-size: 0.7rem;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 1px;
+  margin-top: 2px;
   line-height: 1;
 }
 
@@ -281,8 +281,8 @@
   border-radius: 4px !important;
   border: none !important;
   font-size: 0.8rem !important;
-  padding: 2px 4px !important;
-  min-height: 32px; /* reduced height to prevent overlap */
+  padding: 4px 4px !important;
+  min-height: 48px; /* slightly increased height for better spacing */
   max-height: calc(100% - 2px) !important; /* ensure it doesn't exceed slot height */
   box-sizing: border-box !important;
   max-width: 80% !important; /* make events narrower */
