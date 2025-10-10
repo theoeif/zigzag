@@ -8,6 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from icalendar import Calendar, Event as ICalEvent
 
 from .models import (
     Event,
@@ -573,3 +575,155 @@ class FriendsListView(APIView):
         ]
 
         return Response(friends_data, status=status.HTTP_200_OK)
+
+
+class ICalDownloadView(APIView):
+    """
+    Generate and download a one-time .ics file with user's events.
+    This is a static snapshot that won't update automatically.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Get user's events (created + invited)
+        user_circles = Circle.objects.filter(members=user)
+        events = Event.objects.filter(
+            Q(creator=user) | Q(circles__in=user_circles)
+        ).distinct().select_related('address')
+
+        # Filter by circles if specified
+        circle_ids = request.query_params.getlist('circles')
+        if circle_ids:
+            events = events.filter(circles__id__in=circle_ids)
+
+        # Create iCalendar object
+        cal = Calendar()
+        cal.add('prodid', '-//ZIGZAG//Events//EN')
+        cal.add('version', '2.0')
+        cal.add('calscale', 'GREGORIAN')
+        cal.add('method', 'PUBLISH')
+        cal.add('x-wr-calname', f'ZIGZAG Events - {user.username}')
+        cal.add('x-wr-timezone', 'Europe/Paris')
+
+        # Add events to calendar
+        for event in events:
+            vevent = ICalEvent()
+            vevent.add('summary', event.title)
+            vevent.add('dtstart', event.start_time)
+
+            if event.end_time:
+                vevent.add('dtend', event.end_time)
+            else:
+                # If no end time, set to start time + 1 hour
+                from datetime import timedelta
+                end_time = event.start_time + timedelta(hours=1)
+                vevent.add('dtend', end_time)
+
+            if event.description:
+                vevent.add('description', event.description)
+
+            if event.address:
+                location_parts = [event.address.address_line]
+                if event.address.city:
+                    location_parts.append(event.address.city)
+                vevent.add('location', ', '.join(location_parts))
+
+            # Add circles as categories
+            if event.circles.exists():
+                categories = [circle.name for circle in event.circles.all()]
+                vevent.add('categories', categories)
+
+            vevent.add('uid', f'zigzag-{event.id}@zigzag.com')
+            vevent.add('created', event.created_at)
+            vevent.add('last-modified', event.updated_at)
+
+            cal.add_component(vevent)
+
+        # Generate response
+        response = HttpResponse(cal.to_ical(), content_type='text/calendar; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="zigzag-events-{user.username}.ics"'
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+
+        return response
+
+
+class ICalFeedView(APIView):
+    """
+    Generate a live iCal feed URL that calendar apps can subscribe to.
+    This feed updates automatically when events change.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Get user's events (created + invited)
+        user_circles = Circle.objects.filter(members=user)
+        events = Event.objects.filter(
+            Q(creator=user) | Q(circles__in=user_circles)
+        ).distinct().select_related('address')
+
+        # Filter by circles if specified
+        circle_ids = request.query_params.getlist('circles')
+        if circle_ids:
+            events = events.filter(circles__id__in=circle_ids)
+
+        # Create iCalendar object
+        cal = Calendar()
+        cal.add('prodid', '-//ZIGZAG//Events//EN')
+        cal.add('version', '2.0')
+        cal.add('calscale', 'GREGORIAN')
+        cal.add('method', 'PUBLISH')
+        cal.add('x-wr-calname', f'ZIGZAG Events - {user.username}')
+        cal.add('x-wr-timezone', 'Europe/Paris')
+        cal.add('x-wr-caldesc', 'ZIGZAG social events calendar')
+
+        # Add events to calendar
+        for event in events:
+            vevent = ICalEvent()
+            vevent.add('summary', event.title)
+            vevent.add('dtstart', event.start_time)
+
+            if event.end_time:
+                vevent.add('dtend', event.end_time)
+            else:
+                # If no end time, set to start time + 1 hour
+                from datetime import timedelta
+                end_time = event.start_time + timedelta(hours=1)
+                vevent.add('dtend', end_time)
+
+            if event.description:
+                vevent.add('description', event.description)
+
+            if event.address:
+                location_parts = [event.address.address_line]
+                if event.address.city:
+                    location_parts.append(event.address.city)
+                vevent.add('location', ', '.join(location_parts))
+
+            # Add circles as categories
+            if event.circles.exists():
+                categories = [circle.name for circle in event.circles.all()]
+                vevent.add('categories', categories)
+
+            vevent.add('uid', f'zigzag-{event.id}@zigzag.com')
+            vevent.add('created', event.created_at)
+            vevent.add('last-modified', event.updated_at)
+
+            cal.add_component(vevent)
+
+        # Generate response
+        response = HttpResponse(cal.to_ical(), content_type='text/calendar; charset=utf-8')
+        response['Content-Disposition'] = f'inline; filename="zigzag-events-{user.username}.ics"'
+        response['Cache-Control'] = 'public, max-age=300'  # Cache for 5 minutes
+        response['Access-Control-Allow-Origin'] = '*'
+        response['Access-Control-Allow-Methods'] = 'GET'
+        response['Access-Control-Allow-Headers'] = 'Content-Type'
+
+        return response

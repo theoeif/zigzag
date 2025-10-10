@@ -285,12 +285,20 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
 
     // Backend handles authentication automatically
 
+    // Convert local datetime-local values to UTC ISO strings
+    const toUtcIso = (localDateTimeString) => {
+      if (!localDateTimeString) return null;
+      // Ensure we have "YYYY-MM-DDTHH:MM" format
+      const normalized = localDateTimeString.includes('T') ? localDateTimeString : `${localDateTimeString}T00:00`;
+      return new Date(normalized).toISOString();
+    };
+
     const eventData = {
       title: formData.title,
       description: formData.description,
       address: localizedAddress,
-      start_time: formData.start_time,
-      end_time: formData.end_time || null,
+      start_time: toUtcIso(formData.start_time),
+      end_time: formData.end_time ? toUtcIso(formData.end_time) : null,
       shareable_link: formData.shareable_link,
       project: projectId,
       circle_ids: selectedCircles,
@@ -338,6 +346,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
 
   return (
     <div className={styles.modalOverlayProjectNoAnimation || styles.modalOverlayProject}
+         onMouseDown={(e) => {
+           if (e.target === e.currentTarget && typeof onClose === 'function') {
+             onClose();
+           }
+         }}
          style={{ zIndex: 1500 }}>
       <div
         className={styles.modalContentProjectRounded}
@@ -511,16 +524,17 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             )}
           </div>
 
-          <fieldset
-            className={styles.fieldsetGroupProject}
-            style={{
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '15px',
-              marginBottom: '20px'
-            }}
-          >
-            <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
+          {allCircles.length > 0 && (
+            <fieldset
+              className={styles.fieldsetGroupProject}
+              style={{
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '15px',
+                marginBottom: '20px'
+              }}
+            >
+              <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
 
             {/* Container for the 'Select All' button */}
             <div className={styles.selectAllContainerProject}>
@@ -570,7 +584,8 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 </div>
               ))}
             </div>
-          </fieldset>
+            </fieldset>
+          )}
 
           <div
             className={styles.buttonGroupProject}

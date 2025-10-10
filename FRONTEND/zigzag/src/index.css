@@ -3,7 +3,7 @@
 
 /* General App Styling */
 #root, .App {
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   /* Ensure proper box-sizing */
   box-sizing: border-box;
 }
@@ -48,6 +48,8 @@ body, html {
   /* Ensure full width */
   width: 100%;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .leaflet-control-zoom {
@@ -182,7 +184,7 @@ body, html {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem; /* Reduce vertical spacing to bring sections closer to header */
   box-shadow: -8px 0 15px -3px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -235,6 +237,12 @@ body, html {
   align-items: center;
   justify-content: center; /* Center the title */
   border-bottom: 1px solid #d1fae5;
+}
+
+/* Make filter menu sections sit closer to the header */
+.filter-menu .menu-header {
+  padding: 0.5rem 0; /* Reduce header height inside filter menu */
+  margin-bottom: 0.5rem; /* Bring first section closer to header */
 }
 
 .close-button {
@@ -594,7 +602,7 @@ input:checked + .slider:before {
   padding-right: env(safe-area-inset-right);
 }
 
-.left-menu-icon, .filter-icon {
+.left-menu-icon, .filter-icon, .calendar-icon, .projects-icon {
   position: absolute;
   background: transparent;
   border: none;
@@ -613,14 +621,14 @@ input:checked + .slider:before {
   min-height: 48px; /* iOS recommended minimum touch target */
 }
 
-.left-menu-icon:hover, .filter-icon:hover {
+.left-menu-icon:hover, .filter-icon:hover, .calendar-icon:hover, .projects-icon:hover {
   color: #ffcc00;
   /* Scale without affecting position */
   transform: scale(1.1); /* Only scale, no translateY */
   transition: transform 0.1s ease, color 0.1s ease;
 }
 
-.left-menu-icon:active, .filter-icon:active {
+.left-menu-icon:active, .filter-icon:active, .calendar-icon:active, .projects-icon:active {
   transform: scale(0.9); /* Only scale, no translateY */
   color: #ffcc00;
   opacity: 0.8;
@@ -630,8 +638,51 @@ input:checked + .slider:before {
   left: 10px;
 }
 
-.filter-icon {
+.header-actions {
+  position: absolute;
   right: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.calendar-icon {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  font-size: 20px;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-icon {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  font-size: 20px;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.projects-icon {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  font-size: 20px;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* iOS-specific touch optimization */
@@ -675,7 +726,7 @@ input:checked + .slider:before {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem; /* Reduce vertical spacing to bring sections closer to header */
   box-shadow: 8px 0 15px -3px rgba(0, 0, 0, 0.05);
 }
 
@@ -684,6 +735,12 @@ input:checked + .slider:before {
 .menu-icon:hover {
   transform: rotate(15deg) scale(1.1);
   stroke: #047857;
+}
+
+/* Make left menu sections sit closer to the menu header without affecting FilterMenu */
+.left-menu .menu-header {
+  padding: 0.5rem 0; /* Reduce header height inside left menu */
+  margin-bottom: 0.5rem; /* Bring first section closer to header */
 }
 
 .menu-btn {

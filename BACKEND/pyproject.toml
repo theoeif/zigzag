@@ -14,6 +14,7 @@ dependencies = [
     "requests>=2.32.3",
     "django-ratelimit>=4.1.0",
     "psycopg[binary]>=3.2.1",
+    "icalendar>=5.0.11",
 ]
 authors = [
   {name = "BlueMountain"},
