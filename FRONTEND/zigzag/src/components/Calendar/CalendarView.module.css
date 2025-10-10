@@ -60,7 +60,8 @@
 .calendarWrapper {
   flex: 1;
   padding: 16px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* FullCalendar Customization */
@@ -91,16 +92,25 @@
 
 /* Custom Event Styling */
 .eventContent {
-  padding: 2px 4px;
-  font-size: 0.75rem;
-  line-height: 1.2;
+  padding: 1px 2px;
+  font-size: 0.7rem;
+  line-height: 1.1;
   overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: normal;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  max-height: 100%;
 }
 
 .eventRow {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex: 1;
+  min-height: 0;
 }
 
 .eventTitle {
@@ -108,14 +118,43 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
 }
 
 .eventLocation {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   opacity: 0.8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-top: 1px;
+  line-height: 1;
+}
+
+/* Hide details button and location when event is too narrow */
+:global(.fc-event.fc-event-narrow) .eventDetailsButton,
+:global(.fc-event.fc-event-narrow) .eventLocation {
+  display: none;
+}
+
+/* Ensure proper event positioning and prevent horizontal overlap */
+:global(.fc-timegrid-event) {
+  min-width: 50px;
+  position: relative !important;
+}
+
+/* Stack events vertically when multiple events in same time slot */
+:global(.fc-timegrid-event + .fc-timegrid-event) {
+  margin-top: 2px !important;
+}
+
+:global(.fc-timegrid-event[style*="width: 60px"]),
+:global(.fc-timegrid-event[style*="width: 50px"]),
+:global(.fc-timegrid-event[style*="width: 40px"]) {
+  .eventDetailsButton,
+  .eventLocation {
+    display: none;
+  }
 }
 
 .eventInfoIcon {
@@ -202,6 +241,9 @@
   font-size: 0.75rem !important;
   padding: 2px 4px !important;
   margin: 1px 0 !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
 }
 
 :global(.fc-event:hover) {
@@ -218,6 +260,7 @@
 /* Time Grid Customization */
 :global(.fc-timegrid-slot) {
   border-color: #f0f0f0;
+  height: 56px; /* slightly reduce to fit more vertical space while keeping readability */
 }
 
 :global(.fc-timegrid-slot-label) {
@@ -225,11 +268,28 @@
   font-size: 0.75rem;
 }
 
+/* Make time axis column narrower to widen event columns */
+:global(.fc-timegrid .fc-timegrid-axis) {
+  width: 44px;
+}
+
+:global(.fc-timegrid .fc-timegrid-axis-cushion) {
+  padding: 0 4px;
+}
+
 :global(.fc-timegrid-event) {
   border-radius: 4px !important;
   border: none !important;
   font-size: 0.8rem !important;
-  padding: 4px 6px !important;
+  padding: 2px 4px !important;
+  min-height: 32px; /* reduced height to prevent overlap */
+  max-height: calc(100% - 2px) !important; /* ensure it doesn't exceed slot height */
+  box-sizing: border-box !important;
+  max-width: 80% !important; /* make events narrower */
+  overflow: hidden !important;
+  width: 75% !important; /* narrower width */
+  margin: 1px 0 1px 2px !important; /* left margin to shift left, no right margin */
+  left: 0 !important; /* ensure events start from the left edge */
 }
 
 /* List View Customization */

@@ -71,7 +71,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Threshold for offset calculation (in degrees)
   const OFFSET_THRESHOLD = 0.02; // Approximately 2 km
   // Offset value for friend markers when too close to project markers (in degrees)
-  const MARKER_OFFSET = 0.0004; // Small offset to northeast
+  const MARKER_OFFSET = 0.005; // Small offset to northeast
   // Larger offset for close markers (in degrees)
   const CLOSE_MARKER_OFFSET = 0.010; // Double offset for close markers
 

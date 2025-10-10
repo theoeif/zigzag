@@ -3,7 +3,7 @@
 
 /* General App Styling */
 #root, .App {
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   /* Ensure proper box-sizing */
   box-sizing: border-box;
 }
@@ -48,6 +48,8 @@ body, html {
   /* Ensure full width */
   width: 100%;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .leaflet-control-zoom {
@@ -182,7 +184,7 @@ body, html {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem; /* Reduce vertical spacing to bring sections closer to header */
   box-shadow: -8px 0 15px -3px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -235,6 +237,12 @@ body, html {
   align-items: center;
   justify-content: center; /* Center the title */
   border-bottom: 1px solid #d1fae5;
+}
+
+/* Make filter menu sections sit closer to the header */
+.filter-menu .menu-header {
+  padding: 0.5rem 0; /* Reduce header height inside filter menu */
+  margin-bottom: 0.5rem; /* Bring first section closer to header */
 }
 
 .close-button {
