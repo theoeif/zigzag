@@ -21,9 +21,15 @@
   perspective: none !important;
 }
 
+/* Main content section wrapper */
+.mainContentSectionProject {
+  margin-top: 50px;
+  width: 100%;
+}
+
 /* Section titles */
 .h2Project {
-  margin-top: 60px;
+  margin-top: 0;
   font-size: 2.2em;
   color: #1b4332; /* Darker forest green */
   margin-bottom: 20px;
@@ -35,6 +41,10 @@
   padding-bottom: 10px;
   text-transform: capitalize;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .h2Project::after {
@@ -758,15 +768,16 @@ ulProject li a:hover {
 }
 /* Date range bar and popover */
 .dateRangeBarProject {
-  position: sticky;
-  top: 20px;
+  position: relative;
   z-index: 101;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 10px;
-  padding: 10px 0;
-  width: 100%;
+  padding: 0;
+  margin: 0;
+  height: auto;
+  overflow: visible;
 }
 
 .dateRangeButtonProject {
@@ -1215,16 +1226,18 @@ ulProject li a:hover {
   gap: 8px;
 }
 
-/* Action buttons container - changed to allow spacing Edit to the right */
+/* Action buttons container - stacked vertically */
 .actionButtonsContainerProject {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
   margin: 10px 0; /* Reduced from 20px */
   width: 100%;
 }
 
 .spacerProject {
-  flex: 1;
+  display: none; /* Hide spacer since we're stacking vertically */
 }
 
 /* Remove animations from section headers */
