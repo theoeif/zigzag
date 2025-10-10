@@ -524,26 +524,6 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             )}
           </div>
 
-          {/* WhatsApp link removed */}
-
-          {/* Public checkbox removed */}
-
-          {/* Friends of friends checkbox removed */}
-
-          <div className={styles.checkboxContainerProject} style={{ marginBottom: '20px' }}>
-            <input
-              type="checkbox"
-              id="shareable_link"
-              name="shareable_link"
-              checked={formData.shareable_link}
-              onChange={handleInputChange}
-              className={styles.checkboxInputProject}
-            />
-            <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
-              Lien directe
-            </label>
-          </div>
-
           <fieldset
             className={styles.fieldsetGroupProject}
             style={{

@@ -945,9 +945,10 @@ ulProject li a:hover {
 /* Events Grid */
 .eventsGridProject {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Use auto-fit to avoid ghost columns */
+  grid-template-columns: repeat(3, 1fr); /* Force exactly 3 columns */
   gap: 15px; /* Reduced from 25px */
   width: 100%;
+  justify-content: start; /* Align grid items to the left */
 }
 
 /* Event Card - Reduced white space with gradient background */
@@ -2406,10 +2407,24 @@ button.manageButtonProject.activeProject {
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+/* Responsive adjustments for different screen sizes */
+@media (max-width: 500px) {
+  .eventsGridProject {
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
+}
+
+@media (min-width: 500px) and (max-width: 1023px) {
+  .eventsGridProject {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+  }
+}
+
 /* Wide screen adjustments */
 @media (min-width: 1024px) {
   .eventsGridProject {
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(3, 1fr); /* 3 columns on desktop */
     align-items: stretch;
+    justify-content: start; /* Ensure left alignment on wide screens too */
   }
 }
