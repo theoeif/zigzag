@@ -33,7 +33,6 @@ event_detail = EventViewSet.as_view({
 urlpatterns = [
     path('event/', event_list, name='event-list'),
     path('event/<uuid:id>/', event_detail, name='event-detail'),
-    path('event/<uuid:id>/participants/', EventViewSet.as_view({'get': 'participants'}), name='event-participants'),
     path('markers/', EventViewSet.as_view({'post': 'markers'}), name='user-markers'),
 
     # Profile endpoints
