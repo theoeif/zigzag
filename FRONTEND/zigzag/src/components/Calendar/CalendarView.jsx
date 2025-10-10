@@ -31,6 +31,8 @@ const CalendarView = () => {
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showCircleMembers, setShowCircleMembers] = useState(false);
   const [circleMembersData, setCircleMembersData] = useState(null);
+  const [listMonths, setListMonths] = useState(1);
+  const [activeView, setActiveView] = useState('dayGridMonth');
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -97,6 +99,22 @@ const CalendarView = () => {
       }
     });
     return Array.from(circles.values());
+  };
+
+  const getMonthAlignedRange = (anchorDate, monthCount) => {
+    const base = new Date(anchorDate);
+    const start = new Date(base.getFullYear(), base.getMonth(), 1);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + monthCount);
+    return { start, end };
+  };
+
+  const handleChangeListMonths = (months) => {
+    setListMonths(months);
+    const api = calendarRef.current?.getApi?.();
+    if (api) {
+      api.changeView('myList');
+    }
   };
 
   // Event handlers
@@ -269,6 +287,13 @@ const CalendarView = () => {
 
       {/* FullCalendar Component */}
       <div className={styles.calendarWrapper}>
+        {activeView === 'myList' && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
+            <Button size="small" variant={listMonths === 1 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(1)}>1M</Button>
+            <Button size="small" variant={listMonths === 2 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(2)}>2M</Button>
+            <Button size="small" variant={listMonths === 6 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(6)}>6M</Button>
+          </div>
+        )}
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
@@ -276,7 +301,7 @@ const CalendarView = () => {
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            right: 'dayGridMonth,timeGridWeek,myList'
           }}
           locale="fr"
           events={events}
@@ -297,17 +322,30 @@ const CalendarView = () => {
           nowIndicator={true}
           eventDisplay="block"
           dayHeaderFormat={{ weekday: 'short' }}
-          slotMinTime="06:00:00"
-          slotMaxTime="22:00:00"
+          slotMinTime="13:00:00"
+          slotMaxTime="23:00:00"
           allDaySlot={true}
-          slotDuration="01:00:00"
+          slotDuration="00:30:00"
           slotLabelInterval="01:00:00"
           buttonText={{
-            today: 'Aujourd\'hui',
+            today: `Aujourd'hui ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`,
             month: 'Mois',
-            week: 'Semaine',
-            day: 'Jour',
             list: 'Liste'
+          }}
+          datesSet={(arg) => setActiveView(arg.view.type)}
+          views={{
+            myList: {
+              type: 'list',
+              buttonText: 'Liste',
+              visibleRange: (currentDate) => {
+                const { start, end } = getMonthAlignedRange(currentDate, listMonths);
+                return { start, end };
+              }
+            }
+          }}
+          select={(info) => {
+            // User selected an interval (start/end)
+            console.log('selected interval:', info.start, info.end);
           }}
           className={styles.fullCalendar}
         />
