@@ -162,18 +162,6 @@ export const validateAccessToken = async () => {
   }
 };
 
-// // Function to fetch public markers (available without authentication)
-// export const fetchPublicMarkers = async () => {
-//   try {
-//     const response = await axios.get(API_BASE_URL + "events/markers/public/");
-//     console.log("Public markers response:", response.data);
-//     return response.data.public_markers || [];
-//   } catch (error) {
-//     console.error("Error fetching public markers:", error);
-//     return [];
-//   }
-// };
-
 // Function to fetch markers data
 export const fetchMarkers = async (selectedTags) => {
   try {
@@ -572,27 +560,6 @@ export const fetchAddCircle = async (payload) => {
   }
 };
 
-export const fetchFriendsAddresses = async () => {
-  try {
-    let token = localStorage.getItem("access_token");
-    if (!token) {
-      token = await refreshAccessToken();
-      if (!token) return null;
-    }
-
-    const response = await axios.get(API_BASE_URL + "friends/addresses/", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!response.ok) throw new Error("Failed to fetch addresses");
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching friends' addresses:", error);
-    return null;
-  }
-};
-
 // Update user profile data
 export const updateProfile = async (profileData) => {
   try {
@@ -749,31 +716,6 @@ export const fetchMyLocations = async () => {
   }
 };
 
-
-// Fetch participants of an event
-export const fetchEventParticipants = async (eventId) => {
-  try {
-    let token = localStorage.getItem("access_token");
-    if (!token) {
-      token = await refreshAccessToken();
-      if (!token) throw new Error("No access token available");
-    }
-
-    const response = await axios.get(
-      `${API_BASE_URL}events/event/${eventId}/participants/`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching event participants:', error);
-    throw error;
-  }
-};
-
-
-
-
 // New function to fetch public event data even without authentication
 export const fetchDirectEvent = async (eventId, inviteToken = null) => {
   try {
@@ -829,7 +771,7 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
   }
 };
 
-// Verify an invitation token
+// Verify an invitation token : TODO : link sharing invite token
 export const verifyInvitation = async (token) => {
   try {
     const response = await axios.get(`${API_BASE_URL}events/verify-invitation/?token=${token}`);
@@ -884,7 +826,7 @@ export const acceptInvitation = async (token) => {
   }
 };
 
-// Generate share token for an event
+// Generate share token for an event : TODO : for inviteing people ti events
 export const generateEventShareToken = async (eventId) => {
   try {
     const token = localStorage.getItem("access_token");

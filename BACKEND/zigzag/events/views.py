@@ -179,16 +179,6 @@ class EventViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, self.get_object())
         return super().destroy(request, *args, **kwargs)
 
-    @action(detail=True, methods=['get'])
-    def participants(self, request, id=None):
-        """
-        Return event participants as raw dictionaries.
-        """
-        event = self.get_object()
-        participants = event.participants.select_related('user')
-        data = [{"id": p.user.id, "username": p.user.username} for p in participants]
-        return Response(data)
-
     @action(detail=False, methods=['post'])
     def markers(self, request):
         """
@@ -202,7 +192,21 @@ class EventViewSet(viewsets.ModelViewSet):
 
         # If tags are provided, filter by circle categories
         if tags_param and len(tags_param) > 0:
-            events = events.filter(circles__categories__id__in=tags_param).distinct()
+            # Get events that have circles with the specified tags
+            events_with_circles = events.filter(circles__categories__id__in=tags_param).distinct()
+
+            # Get solo events (events created by user that have no circles)
+            events_solo = Event.objects.filter(
+                Q(creator=user) & Q(circles__isnull=True)
+            ).distinct()
+
+            # Union both sets of events
+            events = events_with_circles.union(events_solo)
+
+            # Since union() doesn't support select_related/prefetch_related,
+            # we need to get the IDs and re-query with optimizations
+            event_ids = list(events.values_list('id', flat=True))
+            events = Event.objects.filter(id__in=event_ids)
 
         markers = []
         for e in events.select_related("address").prefetch_related("circles__categories"):
