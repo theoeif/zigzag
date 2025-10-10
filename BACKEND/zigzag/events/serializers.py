@@ -81,10 +81,12 @@ class EventInvitationSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
+    timezone = serializers.CharField(write_only=True, required=False, default='UTC')
+    utc_offset_minutes = serializers.IntegerField(write_only=True, required=False, default=0)
 
     class Meta:
         model = User
-        fields = ("username", "password", "password2")
+        fields = ("username", "password", "password2", "timezone", "utc_offset_minutes")
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
@@ -92,6 +94,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        # Extract timezone fields if provided
+        tz = validated_data.pop("timezone", "UTC")
+        offset = validated_data.pop("utc_offset_minutes", 0)
+
         # Create user as active (no email confirmation required for now)
         user = User.objects.create(
             username=validated_data["username"],
@@ -99,6 +105,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data["password"])
         user.save()
+
+        # Ensure profile exists and store timezone settings
+        try:
+            from .models import Profile
+            if not hasattr(user, 'profile'):
+                Profile.objects.create(user=user, timezone=tz, utc_offset_minutes=offset)
+            else:
+                prof = user.profile
+                prof.timezone = tz
+                prof.utc_offset_minutes = offset
+                prof.save()
+        except Exception:
+            pass
 
         # TODO: Send verification email with activation link
         # Example: send_activation_email(user)
@@ -142,6 +161,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             "looking_for",
             "created_at",
             "updated_at",
+            "timezone",
+            "utc_offset_minutes",
         ]
 
 

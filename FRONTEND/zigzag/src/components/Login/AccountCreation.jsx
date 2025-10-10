@@ -68,7 +68,9 @@ const AccountCreation = () => {
 
     try {
       const { username, password, password2 } = formData;
-      const data = await register({ username, password, password2 });
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const utcOffsetMinutes = -new Date().getTimezoneOffset();
+      const data = await register({ username, password, password2, timezone: timeZone, utc_offset_minutes: utcOffsetMinutes });
       console.log("Account created:", data);
 
       // Tokens are automatically stored by the register function in api.js

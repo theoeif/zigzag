@@ -21,6 +21,8 @@ class Profile(models.Model):
     looking_for = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    timezone = models.CharField(max_length=64, default='UTC')
+    utc_offset_minutes = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
