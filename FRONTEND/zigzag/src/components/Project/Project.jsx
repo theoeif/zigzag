@@ -390,55 +390,58 @@ const Project = ({ projectId }) => {
         </div>
       )}
 
-      {/* Date Range Selector */}
-      {!editingEvent && (
-        <div className={styles.dateRangeBarProject} ref={datePopoverRef}>
-          <button
-            className={styles.dateRangeButtonProject}
-            onClick={() => setIsDatePopoverOpen(v => !v)}
-          >
-            {`${draftStart} → ${draftEnd}`}
-          </button>
-          {isDatePopoverOpen && (
-            <div className={styles.dateRangePopoverProject}>
-              <label>
-                Début
-                <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
-              </label>
-              <label>
-                Fin
-                <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
-              </label>
-              <div className={styles.dateRangeActionsProject}>
-                <button onClick={resetRange}>Réinitialiser</button>
-                <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
-              </div>
+      {/* Main content section with proper spacing */}
+      <div className={styles.mainContentSectionProject}>
+        <h2 className={styles.h2Project}>
+          Page Projet
+          {/* Date Range Selector */}
+          {!editingEvent && (
+            <div className={styles.dateRangeBarProject} ref={datePopoverRef}>
+              <button
+                className={styles.dateRangeButtonProject}
+                onClick={() => setIsDatePopoverOpen(v => !v)}
+              >
+                {`${draftStart} → ${draftEnd}`}
+              </button>
+              {isDatePopoverOpen && (
+                <div className={styles.dateRangePopoverProject}>
+                  <label>
+                    Début
+                    <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
+                  </label>
+                  <label>
+                    Fin
+                    <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
+                  </label>
+                  <div className={styles.dateRangeActionsProject}>
+                    <button onClick={resetRange}>Réinitialiser</button>
+                    <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
+        </h2>
+
+        {/* Action buttons - stacked vertically */}
+        <div className={styles.actionButtonsContainerProject}>
+          <button
+            onClick={() => {
+              setShowEventForm(true);
+            }}
+            className={styles.addEventButtonProject}
+            data-button-type="project-add"
+          >
+            <FaPlus /> Ajouter un projet
+          </button>
+          <button
+            onClick={toggleManageMode}
+            className={`${styles.manageButtonProject} ${isManageMode ? styles.activeProject : ''}`}
+            data-button-type="project-edit"
+          >
+            <FaEdit /> Modifier
+          </button>
         </div>
-      )}
-
-      <h2 className={styles.h2Project}>Projets</h2>
-
-      {/* Action buttons - realigned with Edit on right */}
-      <div className={styles.actionButtonsContainerProject}>
-        <button
-          onClick={() => {
-            setShowEventForm(true);
-          }}
-          className={styles.addEventButtonProject}
-          data-button-type="project-add"
-        >
-          <FaPlus /> Ajouter un projet
-        </button>
-        <div className={styles.spacerProject}></div>
-        <button
-          onClick={toggleManageMode}
-          className={`${styles.manageButtonProject} ${isManageMode ? styles.activeProject : ''}`}
-          data-button-type="project-edit"
-        >
-          <FaEdit /> Modifier
-        </button>
       </div>
 
       {/* Render the Create Event Form Modal */}
