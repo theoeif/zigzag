@@ -404,18 +404,18 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               onChange={handleInputChange}
               className={styles.formTextareaProject}
               rows="4"
+              placeholder="Projet, liens etc."
             />
           </div>
 
           <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Adresse :</label>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
+              <textarea
                 name="address_line"
                 value={formData.address_line}
                 onChange={handleInputChange}
-                className={`${styles.formInputProject} ${addressError ? styles.inputErrorProject : ''}`}
+                className={`${styles.formTextareaProjectNoResize} ${addressError ? styles.inputErrorProject : ''}`}
                 style={{ flexGrow: 1 }}
                 placeholder="Saisir l'emplacement"
                 required

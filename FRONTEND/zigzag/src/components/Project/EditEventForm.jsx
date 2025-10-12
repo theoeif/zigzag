@@ -218,12 +218,11 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
               </button>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
+              <textarea
                 name="address_line"
                 value={formData.address_line}
                 onChange={handleInputChange}
-                className={styles.formInputProject}
+                className={styles.formTextareaProjectNoResize}
                 style={{ flexGrow: 1 }}
                 placeholder="Saisir l'adresse ou laisser vide pour supprimer"
               />
@@ -345,7 +344,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
             >
-              Mettre à jour le projet
+              Mettre à jour
             </button>
           </div>
           </form>

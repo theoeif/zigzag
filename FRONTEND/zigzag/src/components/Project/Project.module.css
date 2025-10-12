@@ -521,7 +521,60 @@ body.modal-open {
 
 .formTextareaProject {
   resize: vertical; /* allow expanding */
-  min-height: 140px; /* wider/ taller area */
+  min-height: 80px; /* wider/ taller area */
+}
+
+.formTextareaProjectNoResize {
+  width: 100%;
+  padding: 12px; /* larger touch area */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  resize: none; /* hide resize handle */
+  min-height: 40px; /* smaller height for address */
+}
+
+.formInputProject::placeholder,
+.formTextareaProject::placeholder,
+.formTextareaProjectNoResize::placeholder {
+  font-weight: 300; /* thinner/lighter font weight */
+  opacity: 1; /* slightly more transparent */
+  font-size: 0.9rem; /* smaller font size */
+  color: #999; /* ensure consistent color */
+  font-family: inherit; /* use same font family */
+}
+
+/* Webkit browsers specific */
+.formInputProject::-webkit-input-placeholder,
+.formTextareaProject::-webkit-input-placeholder,
+.formTextareaProjectNoResize::-webkit-input-placeholder {
+  font-weight: 300;
+  opacity: 1;
+  font-size: 0.9rem;
+  color: #999;
+  font-family: inherit;
+}
+
+/* Firefox specific */
+.formInputProject::-moz-placeholder,
+.formTextareaProject::-moz-placeholder,
+.formTextareaProjectNoResize::-moz-placeholder {
+  font-weight: 300;
+  opacity: 1;
+  font-size: 0.9rem;
+  color: #999;
+  font-family: inherit;
+}
+
+/* IE/Edge specific */
+.formInputProject:-ms-input-placeholder,
+.formTextareaProject:-ms-input-placeholder,
+.formTextareaProjectNoResize:-ms-input-placeholder {
+  font-weight: 300;
+  opacity: 1;
+  font-size: 0.9rem;
+  color: #999;
+  font-family: inherit;
 }
 
 /* Button Group */
@@ -1661,7 +1714,7 @@ button.manageButtonProject.activeProject {
 .membersIconProject {
   font-size: 0.7rem;
   margin-left: 5px;
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .circleTagProject {
@@ -2670,10 +2723,4 @@ button.manageButtonProject.activeProject {
 .eventFormProject .buttonGroupProject {
   margin-top: 16px !important;         /* comfortable gap above submit */
   padding: 6px 0 !important;
-}
-
-/* Keep textarea expandable */
-.formTextareaProject {
-  resize: vertical;    /* allow expanding */
-  min-height: 80px;
 }
