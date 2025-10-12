@@ -6,7 +6,7 @@
 .profilePage {
   padding-top: 80px; /* Space for header */
   padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   background-color: #f0fdf4; /* Soft green background */
   min-height: 100vh;
 }
