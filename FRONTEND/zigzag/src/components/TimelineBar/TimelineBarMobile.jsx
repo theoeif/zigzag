@@ -10,9 +10,10 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@capacitor-community/date-picker';
 import AddIcon from '@mui/icons-material/Add';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView = false }) => {
+const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView = false, onCreateEventClick }) => {
   const isSmallScreen = useMediaQuery('(max-width:599px)');
   const isVerySmallScreen = useMediaQuery('(max-width:448px)');
   const [currentDate] = useState(new Date());
@@ -251,7 +252,7 @@ const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView =
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: { xs: 0.5, sm: 2 },
+              gap: { xs: 0.25, sm: 0.75 },
               backgroundColor: '#f0fdf4',
               padding: { xs: '4px 6px', sm: '8px 12px' },
               borderRadius: '6px',
@@ -281,14 +282,29 @@ const TimelineBarMobile = ({ onTimeChange, events, initialRange, inProjectView =
               }
             }}
           >
-            <ButtonGroup variant="text" size="small">
-              <Button onClick={handleThisWeek}>
-                {isSmallScreen ? 'Sem' : 'Semaine'}
-              </Button>
-              <Button onClick={handleAllPeriod} sx={{ fontWeight: 500 }}>
-                {isSmallScreen ? '1M' : '1 Mois'}
-              </Button>
-            </ButtonGroup>
+          {/* Create event button integrated into left controls on mobile */}
+          <Tooltip title="Créer un projet">
+            <IconButton
+              size="small"
+              onClick={onCreateEventClick}
+              sx={{
+                color: '#40916c',
+                padding: { xs: 0.5, sm: 1 },
+                '&:hover': { backgroundColor: 'rgba(64, 145, 108, 0.1)' }
+              }}
+            >
+              <AddCircleOutlineIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
+            </IconButton>
+          </Tooltip>
+
+          <ButtonGroup variant="text" size="small">
+            <Button onClick={handleThisWeek}>
+              {isSmallScreen ? 'Sem' : 'Semaine'}
+            </Button>
+            <Button onClick={handleAllPeriod} sx={{ fontWeight: 500 }}>
+              {isSmallScreen ? '1M' : '1 Mois'}
+            </Button>
+          </ButtonGroup>
 
             {/* Hide All Time button on small screens */}
             {!isSmallScreen && !isVerySmallScreen && (

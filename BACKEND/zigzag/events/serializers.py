@@ -52,7 +52,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'title', 'description', 'address', 'start_time', 'end_time',
-                  'circles','circle_ids', 'shareable_link', 'participants_count']
+                  'circles','circle_ids', 'shareable_link', 'event_shared', 'participants_count']
 
 # TODO replace functionnality of circle_ids in the front as well
 # TODO change name categories to tags everywhere.
