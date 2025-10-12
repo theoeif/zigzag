@@ -364,7 +364,7 @@ const CalendarView = () => {
           eventDisplay="block"
           dayHeaderFormat={{ weekday: 'short' }}
           slotMinTime="08:00:00"
-          slotMaxTime="22:00:00"
+          slotMaxTime="23:00:00"
           allDaySlot={true}
           allDayText={'hors période'}
           slotDuration="01:00:00"

@@ -24,14 +24,14 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
 
     // Add time format only if time is not midnight
     if (hours !== 0 || minutes !== 0) {
-      return date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString('fr-FR', {
         ...dateFormat,
         hour: '2-digit',
         minute: '2-digit'
       });
     }
 
-    return date.toLocaleDateString('en-US', dateFormat);
+    return date.toLocaleDateString('fr-FR', dateFormat);
   };
 
   // Copy event link from details section

@@ -170,7 +170,7 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
       <div className={styles.circlesList}>
         {createdCircles.length > 0 && (
           <>
-            <div className={styles.circleCategory}>Cercles Crées</div>
+            <div className={styles.circleCategory}>Cercles</div>
             <ul className={styles.circlesSubList}>
               {createdCircles.map(circle => (
                 <li
