@@ -66,6 +66,16 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // State for tracking if the form should be shown
   const [showForm, setShowForm] = useState(true);
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (showForm) {
+      document.body.classList.add('modal-open');
+      return () => {
+        document.body.classList.remove('modal-open');
+      };
+    }
+  }, [showForm]);
+
   // Removed public/friends-of-friends settings
 
   // State for address validation
@@ -353,30 +363,15 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
              onClose();
            }
          }}
-         style={{ zIndex: 1500 }}>
+         style={{ zIndex: 3000 }}>
       <div
         className={styles.modalContentProjectRounded}
       >
-        <div
-          className={styles.popupHeaderProjectEnhanced}
-          style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            backgroundColor: 'white',
-            borderBottom: '1px solid #eee',
-            animation: 'none',
-            transition: 'none',
-            borderTopLeftRadius: '12px',
-            borderTopRightRadius: '12px'
-          }}
-        >
+        <div className={styles.modalHeaderProject}>
           <div className={styles.popupTitleWrapper}>
             <h3 className={styles.modalTitleProject}>Créer un nouveau projet</h3>
           </div>
-          <button onClick={onClose} className={styles.closeButtonProjectEnhanced}>
-            ✕
-          </button>
+          <button onClick={onClose} className={styles.closeButtonProject}>✕</button>
         </div>
 
         <div className={styles.modalContentProjectRoundedInner}>
@@ -422,7 +417,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 onChange={handleInputChange}
                 className={`${styles.formInputProject} ${addressError ? styles.inputErrorProject : ''}`}
                 style={{ flexGrow: 1 }}
-                placeholder="Saisir l'emplacement de l'événement"
+                placeholder="Saisir l'emplacement"
                 required
               />
               <button
@@ -529,12 +524,6 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           {allCircles.length > 0 && (
             <fieldset
               className={styles.fieldsetGroupProject}
-              style={{
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                padding: '15px',
-                marginBottom: '20px'
-              }}
             >
               <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
 
@@ -592,12 +581,6 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           {/* Event sharing options */}
           <fieldset
             className={styles.fieldsetGroupProject}
-            style={{
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '15px',
-              marginBottom: '20px'
-            }}
           >
             <legend className={styles.fieldsetLegendProject}>Options de partage :</legend>
 
@@ -638,37 +621,8 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             </div>
           </fieldset>
 
-          <div
-            className={styles.buttonGroupProject}
-            style={{
-              marginTop: '25px',
-              marginBottom: '15px',
-              position: 'sticky',
-              bottom: 0,
-              background: 'white',
-              padding: '15px 0 5px',
-              borderTop: '1px solid #f0f0f0',
-              zIndex: 5,
-              borderBottomLeftRadius: '12px',
-              borderBottomRightRadius: '12px'
-            }}
-          >
-            <button
-              type="submit"
-              className={styles.submitButtonProject}
-              style={{
-                backgroundColor: '#40916c',
-                color: 'white',
-                border: 'none',
-                padding: '12px 20px',
-                borderRadius: '6px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                width: '100%',
-                fontSize: '1rem',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-            >
+          <div className={styles.buttonGroupProject}>
+            <button type="submit" className={styles.submitButtonProject}>
               Créer l'événement
             </button>
           </div>
