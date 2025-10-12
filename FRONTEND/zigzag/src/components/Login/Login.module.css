@@ -6,7 +6,7 @@
     justify-content: center;
     background-color: #f0fdf4;
     padding: 2rem;
-    font-family: Arial, sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
   }
 
   .formContainer {

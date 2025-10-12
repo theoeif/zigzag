@@ -3,7 +3,7 @@
 
 /* General App Styling */
 #root, .App {
-  font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   /* Ensure proper box-sizing */
   box-sizing: border-box;
 }
