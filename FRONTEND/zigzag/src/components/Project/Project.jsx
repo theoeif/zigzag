@@ -282,12 +282,17 @@ const Project = ({ projectId }) => {
   };
 
   const handleEditEvent = (event) => {
-    // Backend enforces permissions automatically - only creators can edit
+    // Backend enforces permissions automatically - creators and circle members of shared events can edit
     setEditingEvent(event);  // Open Edit Modal with event data
   };
 
   const handleEventUpdated = (updatedEvent) => {
+    // Update in user's events
     setProjects(prev => prev.map(event => (event.id === updatedEvent.id ? updatedEvent : event)));
+
+    // Also update in other projects (invited events) if it's there
+    setOtherProjects(prev => prev.map(event => (event.id === updatedEvent.id ? updatedEvent : event)));
+
     setEditingEvent(null);  // Close modal after updating
   };
 
@@ -513,11 +518,13 @@ const Project = ({ projectId }) => {
               ) : (
                 getFilteredFriendsEvents().map((event) => {
                   const shouldAutoOpen = autoOpenEventId === event.id;
+                  // Allow editing if event is shared AND user is in manage mode
+                  const canEdit = event.event_shared && isManageMode;
                   return (
                     <EventCard
                       key={event.id}
                       event={event}
-                      isManageMode={false} // Don't allow editing of friend's events
+                      isManageMode={canEdit} // Allow editing of shared events only in manage mode
                       onDelete={handleDeleteEvent}
                       onEdit={handleEditEvent}
                       onViewCircleMembers={handleViewCircleMembers}

@@ -115,6 +115,7 @@ class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     shareable_link = models.BooleanField(default=True)
+    event_shared = models.BooleanField(default=False, help_text="If True, any member of associated circles can edit this event")
 
     def __str__(self):
         return self.title

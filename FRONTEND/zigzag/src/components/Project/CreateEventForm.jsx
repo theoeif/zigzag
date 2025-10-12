@@ -60,6 +60,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     start_time: initialDateTime,
     end_time: initialEndDateTime,
     shareable_link: true,  // Default to true - link is shareable
+    event_shared: false,   // Default to false - event is not shared by default
   });
 
   // State for tracking if the form should be shown
@@ -300,6 +301,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       start_time: toUtcIso(formData.start_time),
       end_time: formData.end_time ? toUtcIso(formData.end_time) : null,
       shareable_link: formData.shareable_link,
+      event_shared: formData.event_shared,
       project: projectId,
       circle_ids: selectedCircles,
     };
@@ -586,6 +588,55 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             </div>
             </fieldset>
           )}
+
+          {/* Event sharing options */}
+          <fieldset
+            className={styles.fieldsetGroupProject}
+            style={{
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              padding: '15px',
+              marginBottom: '20px'
+            }}
+          >
+            <legend className={styles.fieldsetLegendProject}>Options de partage :</legend>
+
+            <div className={styles.checkboxContainerProject}>
+              <input
+                type="checkbox"
+                id="event_shared"
+                name="event_shared"
+                checked={formData.event_shared}
+                onChange={handleInputChange}
+                className={styles.checkboxInputProject}
+              />
+              <label htmlFor="event_shared" className={styles.checkboxLabelProject}>
+                Événement partagé
+                <div className={styles.infoIconProject}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                  </svg>
+                  <div className={styles.tooltipProject}>
+                    Tous les membres des cercles peuvent modifier la description et l'adresse
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div className={styles.checkboxContainerProject}>
+              <input
+                type="checkbox"
+                id="shareable_link"
+                name="shareable_link"
+                checked={formData.shareable_link}
+                onChange={handleInputChange}
+                className={styles.checkboxInputProject}
+              />
+              <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
+                Lien de partage
+              </label>
+            </div>
+          </fieldset>
 
           <div
             className={styles.buttonGroupProject}

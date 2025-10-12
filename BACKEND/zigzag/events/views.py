@@ -97,7 +97,18 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer.save(creator=self.request.user)
 
     def check_object_permissions(self, request, obj):
-        if request.method in ["PUT", "PATCH", "DELETE"] and obj.creator != request.user:
+        if request.method in ["PUT", "PATCH", "DELETE"]:
+            # Allow modification if user is the creator
+            if obj.creator == request.user:
+                return
+
+            # Allow modification if event is shared and user is a member of any associated circle
+            if obj.event_shared:
+                user_circles = Circle.objects.filter(members=request.user)
+                if obj.circles.filter(id__in=user_circles.values_list('id', flat=True)).exists():
+                    return
+
+            # Otherwise, deny permission
             self.permission_denied(request, message="You cannot modify this event.")
 
     def update(self, request, *args, **kwargs):
