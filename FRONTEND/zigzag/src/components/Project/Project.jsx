@@ -395,47 +395,39 @@ const Project = ({ projectId }) => {
         </div>
       )}
 
-      {/* Date Range Selector */}
-      {!editingEvent && (
-        <div className={styles.dateRangeBarProject} ref={datePopoverRef}>
-          <button
-            className={styles.dateRangeButtonProject}
-            onClick={() => setIsDatePopoverOpen(v => !v)}
-          >
-            {`${draftStart} → ${draftEnd}`}
-          </button>
-          {isDatePopoverOpen && (
-            <div className={styles.dateRangePopoverProject}>
-              <label>
-                Début
-                <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
-              </label>
-              <label>
-                Fin
-                <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
-              </label>
-              <div className={styles.dateRangeActionsProject}>
-                <button onClick={resetRange}>Réinitialiser</button>
-                <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
-      <h2 className={styles.h2Project}>Projets</h2>
 
-      {/* Action buttons - realigned with Edit on right */}
+      <h2 className={`${styles.h2Project} ${styles.h2ProjectHeader}`}>Projets</h2>
+
+      {/* Action bar with date filter on the left and actions on the right */}
       <div className={styles.actionButtonsContainerProject}>
-        <button
-          onClick={() => {
-            setShowEventForm(true);
-          }}
-          className={styles.addEventButtonProject}
-          data-button-type="project-add"
-        >
-          <FaPlus /> Ajouter un projet
-        </button>
+        {/* Date Range Selector - moved to the left side */}
+        {!editingEvent && (
+          <div className={styles.dateRangeBarProject} ref={datePopoverRef}>
+            <button
+              className={styles.dateRangeButtonProject}
+              onClick={() => setIsDatePopoverOpen(v => !v)}
+            >
+              {`${draftStart} → ${draftEnd}`}
+            </button>
+            {isDatePopoverOpen && (
+              <div className={styles.dateRangePopoverProject}>
+                <label>
+                  Début
+                  <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
+                </label>
+                <label>
+                  Fin
+                  <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
+                </label>
+                <div className={styles.dateRangeActionsProject}>
+                  <button onClick={resetRange}>Réinitialiser</button>
+                  <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         <div className={styles.spacerProject}></div>
         <button
           onClick={toggleManageMode}
@@ -443,6 +435,19 @@ const Project = ({ projectId }) => {
           data-button-type="project-edit"
         >
           <FaEdit /> Modifier
+        </button>
+      </div>
+
+      {/* Add button row – shown below the timeline filter */}
+      <div className={styles.addButtonRowProject}>
+        <button
+          onClick={() => {
+            setShowEventForm(true);
+          }}
+          className={styles.addEventButtonProject}
+          data-button-type="project-add"
+        >
+          <FaPlus />
         </button>
       </div>
 
