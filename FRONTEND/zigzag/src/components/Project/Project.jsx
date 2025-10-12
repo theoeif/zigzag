@@ -398,7 +398,7 @@ const Project = ({ projectId }) => {
       {/* Main content section with proper spacing */}
       <div className={styles.mainContentSectionProject}>
         <h2 className={styles.h2Project}>
-          Page Projet
+         Projets
           {/* Date Range Selector */}
           {!editingEvent && (
             <div className={styles.dateRangeBarProject} ref={datePopoverRef}>

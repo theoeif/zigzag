@@ -602,7 +602,7 @@ input:checked + .slider:before {
   padding-right: env(safe-area-inset-right);
 }
 
-.left-menu-icon, .filter-icon, .calendar-icon, .projects-icon {
+.left-menu-icon, .map-icon, .filter-icon, .calendar-icon, .projects-icon {
   position: absolute;
   background: transparent;
   border: none;
@@ -621,14 +621,14 @@ input:checked + .slider:before {
   min-height: 48px; /* iOS recommended minimum touch target */
 }
 
-.left-menu-icon:hover, .filter-icon:hover, .calendar-icon:hover, .projects-icon:hover {
+.left-menu-icon:hover, .map-icon:hover, .filter-icon:hover, .calendar-icon:hover, .projects-icon:hover {
   color: #ffcc00;
   /* Scale without affecting position */
   transform: scale(1.1); /* Only scale, no translateY */
   transition: transform 0.1s ease, color 0.1s ease;
 }
 
-.left-menu-icon:active, .filter-icon:active, .calendar-icon:active, .projects-icon:active {
+.left-menu-icon:active, .map-icon:active, .filter-icon:active, .calendar-icon:active, .projects-icon:active {
   transform: scale(0.9); /* Only scale, no translateY */
   color: #ffcc00;
   opacity: 0.8;
@@ -636,6 +636,17 @@ input:checked + .slider:before {
 
 .left-menu-icon {
   left: 10px;
+}
+
+.map-icon {
+  left: 58px; /* 10px + 48px button width = placed right of menu */
+}
+
+/* Ensure left-side buttons center their content vertically like the right-side ones */
+.left-menu-icon, .map-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .header-actions {
