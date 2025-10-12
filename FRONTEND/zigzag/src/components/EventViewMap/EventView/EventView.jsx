@@ -8,6 +8,7 @@ import {
 } from "../../../api/api";
 import MarkersMap from "../../MarkersMap";
 import CircleMembersPopup from "../../Project/CircleMembersPopup";
+import EventDetailsSection from "../../Project/EventDetailsSection";
 import {
   FaMapMarkerAlt,
   FaUser,
@@ -371,6 +372,9 @@ const EventView = ({
   const [selectedCircleIds, setSelectedCircleIds] = useState([]);
   const [selectedCircleName, setSelectedCircleName] = useState('');
 
+  // Event details modal state
+  const [showEventDetails, setShowEventDetails] = useState(false);
+
   // Sharing and invitations
   const [isCreator, setIsCreator] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -443,7 +447,7 @@ const EventView = ({
   };
 
   const handleSeeMore = () => {
-    navigate('/events', { state: { openEventId: eventId } });
+    setShowEventDetails(true);
   };
 
   // Format date only (month + day)
@@ -932,6 +936,20 @@ const EventView = ({
             onClose={() => setShowCircleMembers(false)}
           />
         )}
+
+        {/* Event Details Section */}
+        {showEventDetails && event && (
+          <EventDetailsSection
+            event={event}
+            isOpen={showEventDetails}
+            onClose={() => setShowEventDetails(false)}
+            onViewCircleMembers={(circleId, circleName) => {
+              setSelectedCircleIds([circleId]);
+              setSelectedCircleName(circleName);
+              setShowCircleMembers(true);
+            }}
+          />
+        )}
       </div>
     );
   } else {
@@ -1125,6 +1143,20 @@ const EventView = ({
             circleIds={selectedCircleIds}
             circleName={selectedCircleName}
             onClose={() => setShowCircleMembers(false)}
+          />
+        )}
+
+        {/* Event Details Section */}
+        {showEventDetails && event && (
+          <EventDetailsSection
+            event={event}
+            isOpen={showEventDetails}
+            onClose={() => setShowEventDetails(false)}
+            onViewCircleMembers={(circleId, circleName) => {
+              setSelectedCircleIds([circleId]);
+              setSelectedCircleName(circleName);
+              setShowCircleMembers(true);
+            }}
           />
         )}
       </div>
