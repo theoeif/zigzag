@@ -1171,6 +1171,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       <Header
         toggleLeftMenu={() => setIsLeftMenuOpen(!isLeftMenuOpen)}
         toggleFilterMenu={() => setisFilterOpen(!isFilterOpen)}
+        hideNavigationIcons={true}
       />
       {!isBackground && isLeftMenuOpen && <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />}
       {!isBackground && isFilterOpen && (
