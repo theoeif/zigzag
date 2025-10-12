@@ -2428,3 +2428,62 @@ button.manageButtonProject.activeProject {
     justify-content: start; /* Ensure left alignment on wide screens too */
   }
 }
+
+/* Info icon and tooltip styles */
+.infoIconProject {
+  color: #40916c;
+  font-size: 16px;
+  margin-left: 8px;
+  cursor: help;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.infoIconProject:hover {
+  color: #2d6a4f;
+}
+
+.tooltipProject {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  max-width: 250px;
+  white-space: normal;
+  text-align: center;
+}
+
+.tooltipProject::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.infoIconProject:hover .tooltipProject {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Form label with info icon container */
+.formLabelWithInfoProject {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
