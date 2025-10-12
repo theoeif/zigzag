@@ -873,10 +873,12 @@ body.modal-open {
   z-index: 101;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px 0;
+  justify-content: flex-start; /* left aligned */
+  gap: 6px; /* tiny gap */
+  padding: 6px 0; /* tighter vertical padding */
   width: 100%;
+  margin-left: 4px; /* tiny left margin */
+  margin-right: 4px; /* tiny right margin */
 }
 
 .dateRangeButtonProject {
@@ -967,7 +969,7 @@ body.modal-open {
 
   /* Add space after the timeline for Projects heading */
   .h2Project {
-    margin-top: 100px !important; /* Ensure adequate space after timeline on mobile */
+    margin-top: 50px !important; /* Ensure adequate space after timeline on mobile */
   }
 }
 
@@ -2622,6 +2624,41 @@ button.manageButtonProject.activeProject {
     align-items: stretch;
     justify-content: start; /* Ensure left alignment on wide screens too */
   }
+}
+
+/* Global FAB Add Button (applies to all screen sizes) */
+.addEventButtonProject {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 0;
+  min-width: 0;
+  background-color: #40916c;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 2000;
+  font-size: 0; /* hide any text */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.addEventButtonProject svg {
+  font-size: 22px;
+  margin: 0;
+}
+.addEventButtonProject:hover {
+  background-color: #2d6a4f;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.h2ProjectHeader {
+  margin-top: 60px !important;
+  padding-bottom: 10px !important;
 }
 
 /* Info icon and tooltip styles */
