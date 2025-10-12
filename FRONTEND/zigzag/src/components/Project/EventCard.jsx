@@ -116,7 +116,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       }
       const shareUrl = event.public_link || `http://localhost:5173/event/${event.id}`;
       await navigator.clipboard.writeText(shareUrl);
-      alert("Lien de l'événement copié dans le presse-papiers !");
+      alert("Lien copié");
     } catch (error) {
       console.error("Error copying share link:", error);
       alert("Échec de la copie du lien. Veuillez réessayer.");
@@ -337,7 +337,27 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       <div style={{ flex: 1 }}>
         {/* Event title and quick info */}
         <div className={styles.eventMainInfoProject}>
-          <h3 className={styles.eventTitleProject}>{event.title}</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <h3 className={styles.eventTitleProject}>{event.title}</h3>
+            {event.event_shared && (
+              <span
+                className={styles.sharedEventBadgeProject}
+                title="Événement partagé - tous les membres des cercles peuvent modifier"
+                style={{
+                  backgroundColor: '#40916c',
+                  color: 'white',
+                  fontSize: '0.7rem',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}
+              >
+                Partagé
+              </span>
+            )}
+          </div>
 
           {/* Location with icon - NOW CLICKABLE */}
           {event.address && (

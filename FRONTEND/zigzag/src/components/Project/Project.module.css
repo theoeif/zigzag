@@ -383,7 +383,13 @@ ulProject li a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 3000; /* ensure above other UI on mobile */
+  overflow: hidden; /* Prevent background scrolling */
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
 }
 
 .modalContentProject {
@@ -446,15 +452,47 @@ ulProject li a:hover {
   background: #a8a8a8;
 }
 
-/* Close Button */
+/* Modal header - sticky with simpler design */
+.modalHeaderProject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: white;
+  border-radius: 12px 12px 0 0;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.modalHeaderProject h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Close Button - smaller and simpler */
 .closeButtonProject {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
+  background: none;
   border: none;
-  font-size: 1.2rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  color: #666;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+  padding: 0;
+}
+
+.closeButtonProject:hover {
+  color: #333;
 }
 
 /* Modal Title */
@@ -485,21 +523,82 @@ ulProject li a:hover {
 .formInputProject,
 .formTextareaProject {
   width: 100%;
-  padding: 8px;
+  padding: 12px; /* larger touch area */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
 }
 
 .formTextareaProject {
-  resize: vertical;
-  min-height: 80px;
+  resize: vertical; /* allow expanding */
+  min-height: 80px; /* wider/ taller area */
+}
+
+.formTextareaProjectNoResize {
+  width: 100%;
+  padding: 12px; /* larger touch area */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  resize: none; /* hide resize handle */
+  min-height: 40px; /* smaller height for address */
+}
+
+.formInputProject::placeholder,
+.formTextareaProject::placeholder,
+.formTextareaProjectNoResize::placeholder {
+  font-weight: 300; /* thinner/lighter font weight */
+  opacity: 1; /* slightly more transparent */
+  font-size: 0.9rem; /* smaller font size */
+  color: #999; /* ensure consistent color */
+  font-family: inherit; /* use same font family */
+}
+
+/* Webkit browsers specific */
+.formInputProject::-webkit-input-placeholder,
+.formTextareaProject::-webkit-input-placeholder,
+.formTextareaProjectNoResize::-webkit-input-placeholder {
+  font-weight: 300;
+  opacity: 1;
+  font-size: 0.9rem;
+  color: #999;
+  font-family: inherit;
+}
+
+/* Firefox specific */
+.formInputProject::-moz-placeholder,
+.formTextareaProject::-moz-placeholder,
+.formTextareaProjectNoResize::-moz-placeholder {
+  font-weight: 300;
+  opacity: 1;
+  font-size: 0.9rem;
+  color: #999;
+  font-family: inherit;
+}
+
+/* IE/Edge specific */
+.formInputProject:-ms-input-placeholder,
+.formTextareaProject:-ms-input-placeholder,
+.formTextareaProjectNoResize:-ms-input-placeholder {
+  font-weight: 300;
+  opacity: 1;
+  font-size: 0.9rem;
+  color: #999;
+  font-family: inherit;
 }
 
 /* Button Group */
 .buttonGroupProject {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 12px;
+  padding: 8px 0;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 /* Localize Button */
@@ -525,7 +624,7 @@ ulProject li a:hover {
   font-size: 1rem;
   cursor: pointer;
   width: 100%;
-  margin-top: 15px;
+  margin-top: 0;
 }
 
 /* Error Message */
@@ -547,16 +646,18 @@ ulProject li a:hover {
 
 /* Fieldset for Circles */
 .fieldsetGroupProject {
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 4px;
-  margin-top: 15px;
+  border: 1px solid #ddd;
+  padding: 2px 8px 8px; /* minimal top padding; standard sides/bottom */
+  border-radius: 6px;
+  margin-top: 4px; /* slight spacing from previous block */
+  margin-bottom: 8px;
 }
 
 .fieldsetLegendProject {
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-weight: 600;
+  margin-bottom: 0; /* remove gap between legend and first row */
   color: #333;
+  font-size: 14px;
 }
 
 /* Checkbox Container: checkbox at left of its label */
@@ -707,7 +808,7 @@ ulProject li a:hover {
 .selectAllContainerProject {
   display: flex;
   align-items: center;
-  margin-bottom: 10px; /* Spacing between button and checkboxes */
+  margin-bottom: 4px; /* Further reduced spacing between button and checkboxes */
 }
 
 .selectAllButtonProject {
@@ -730,7 +831,7 @@ ulProject li a:hover {
 .checkboxContainerProject {
   display: flex;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 0; /* no extra space between rows */
 }
 
 .checkboxInputProject {
@@ -743,6 +844,15 @@ ulProject li a:hover {
 .checkboxLabelProject {
   font-size: 14px;
   color: #333;
+}
+
+/* Checkbox group layout */
+.checkboxGroupProject {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  row-gap: 0px; /* minimal vertical gap */
+  column-gap: 12px; /* keep horizontal readable */
+  padding: 2px 0 4px;
 }
 
 /* Section Headers */
@@ -868,7 +978,7 @@ ulProject li a:hover {
 
   /* Add space after the timeline for Projects heading */
   .h2Project {
-    margin-top: 100px !important; /* Ensure adequate space after timeline on mobile */
+    margin-top: 50px !important; /* Ensure adequate space after timeline on mobile */
   }
 }
 
@@ -971,7 +1081,7 @@ ulProject li a:hover {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   border: 1px solid #f0f0f0;
-  margin-bottom: 12px;
+  margin-bottom: 0 !important; /* rely on grid gap instead */
 }
 
 .eventCardProject:hover {
@@ -1097,26 +1207,25 @@ ulProject li a:hover {
 }
 
 .detailsButtonProject {
-  background-color: #f5f5f5;
+  background-color: #40916c;
   border: none;
-  color: #40916c;
+  color: #fff;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 12px 16px;
   margin: 12px auto 0;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   width: 100%;
   gap: 8px;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 8px;
+  font-weight: 600;
 }
 
 .detailsButtonProject:hover {
-  color: #2d6a4f;
-  background-color: #e0e0e0;
+  background-color: #2d6a4f;
 }
 
 .detailsButtonProject svg {
@@ -1618,7 +1727,7 @@ button.manageButtonProject.activeProject {
 .membersIconProject {
   font-size: 0.7rem;
   margin-left: 5px;
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .circleTagProject {
@@ -2089,7 +2198,7 @@ button.manageButtonProject.activeProject {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 3000; /* ensure above other UI on mobile */
   /* Explicitly disable any animations or transitions */
   transition: none !important;
   animation: none !important;
@@ -2387,6 +2496,92 @@ button.manageButtonProject.activeProject {
   font-style: italic;
 }
 
+/* Mobile-specific description improvements */
+@media (max-width: 768px) {
+  .descriptionPreviewProject {
+    margin: 6px 0;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .descriptionPreviewProject p {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  /* Make description more touch-friendly on mobile */
+  .detailsButtonProject {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    min-height: 48px; /* iOS touch target minimum */
+    background-color: #40916c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(64, 145, 108, 0.3);
+    margin: 10px 0;
+  }
+
+  .detailsButtonProject:hover {
+    background-color: #2d6a4f;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(64, 145, 108, 0.4);
+  }
+
+  /* Improve details section on mobile */
+  .expandedDetailsProject {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .fullDescriptionProject p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  /* Mobile improvements for CreateEventForm */
+  .modalContentProjectRounded {
+    width: 98%;
+    max-height: 90vh;
+    margin: 10px;
+  }
+
+  .modalHeaderProject {
+    padding: 15px 20px;
+  }
+
+  .modalContentProjectRoundedInner {
+    padding: 15px;
+  }
+
+  .formGroupProject {
+    margin-bottom: 12px;
+  }
+
+  .formInputProject,
+  .formTextareaProject {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 10px;
+  }
+
+  .checkboxGroupProject {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .buttonGroupProject {
+    padding: 12px 0;
+  }
+
+  .submitButtonProject {
+    padding: 14px 20px;
+    font-size: 1rem;
+    min-height: 48px; /* Better touch target */
+  }
+}
+
 /* Removed circles preview styles */
 
 /* Event status indicator */
@@ -2440,4 +2635,155 @@ button.manageButtonProject.activeProject {
     align-items: stretch;
     justify-content: start; /* Ensure left alignment on wide screens too */
   }
+}
+
+/* Global FAB Add Button (applies to all screen sizes) */
+.addEventButtonProject {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 0;
+  min-width: 0;
+  background-color: #40916c;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 2000;
+  font-size: 0; /* hide any text */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.addEventButtonProject svg {
+  font-size: 22px;
+  margin: 0;
+}
+.addEventButtonProject:hover {
+  background-color: #2d6a4f;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.h2ProjectHeader {
+  margin-top: 60px !important;
+  padding-bottom: 10px !important;
+}
+
+/* Adjust Event Card title placement closer to top-left */
+.eventCardProject {
+  padding-top: 15px; /* slightly less top padding */
+}
+
+.eventMainInfoProject {
+  margin-top: 0; /* pull content up */
+  margin-left: 0; /* ensure left alignment flush */
+}
+
+.eventTitleProject {
+  margin-top: 0; /* remove any extra top gap */
+  margin-bottom: 6px; /* keep compact below */
+}
+
+/* Info icon and tooltip styles */
+.infoIconProject {
+  color: #40916c;
+  font-size: 16px;
+  margin-left: 8px;
+  cursor: help;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.infoIconProject:hover {
+  color: #2d6a4f;
+}
+
+.tooltipProject {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  max-width: 250px;
+  white-space: normal;
+  text-align: center;
+}
+
+.tooltipProject::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.infoIconProject:hover .tooltipProject {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Form label with info icon container */
+.formLabelWithInfoProject {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Final overrides – balanced fieldsets in the event forms */
+.eventFormProject fieldset.fieldsetGroupProject {
+  padding: 8px 12px 12px !important;   /* comfortable padding */
+  margin-top: 8px !important;          /* reasonable gap above */
+  margin-bottom: 12px !important;      /* small gap below */
+  border: 1px solid #ddd !important;
+  border-radius: 6px !important;
+}
+
+.eventFormProject fieldset.fieldsetGroupProject > legend.fieldsetLegendProject {
+  margin-bottom: 6px !important;       /* small gap between legend and first row */
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.eventFormProject .selectAllContainerProject {
+  margin-top: 0 !important;            /* no extra gap under legend */
+  margin-bottom: 8px !important;       /* comfortable space before rows */
+}
+
+.eventFormProject .checkboxContainerProject {
+  margin-top: 0 !important;
+  margin-bottom: 2px !important;       /* minimal vertical space between rows */
+}
+
+.eventFormProject .checkboxGroupProject {
+  row-gap: 2px !important;             /* small vertical gap between rows */
+  column-gap: 12px !important;
+  padding-top: 0 !important;
+}
+
+/* Ensure first content after legend has proper spacing */
+.eventFormProject fieldset.fieldsetGroupProject > legend + * {
+  margin-top: 0 !important;
+}
+
+/* Submit area – balanced */
+.eventFormProject .buttonGroupProject {
+  margin-top: 16px !important;         /* comfortable gap above submit */
+  padding: 6px 0 !important;
 }

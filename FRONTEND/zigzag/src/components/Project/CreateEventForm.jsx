@@ -60,10 +60,21 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     start_time: initialDateTime,
     end_time: initialEndDateTime,
     shareable_link: true,  // Default to true - link is shareable
+    event_shared: false,   // Default to false - event is not shared by default
   });
 
   // State for tracking if the form should be shown
   const [showForm, setShowForm] = useState(true);
+
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (showForm) {
+      document.body.classList.add('modal-open');
+      return () => {
+        document.body.classList.remove('modal-open');
+      };
+    }
+  }, [showForm]);
 
   // Removed public/friends-of-friends settings
 
@@ -300,6 +311,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       start_time: toUtcIso(formData.start_time),
       end_time: formData.end_time ? toUtcIso(formData.end_time) : null,
       shareable_link: formData.shareable_link,
+      event_shared: formData.event_shared,
       project: projectId,
       circle_ids: selectedCircles,
     };
@@ -351,30 +363,15 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
              onClose();
            }
          }}
-         style={{ zIndex: 1500 }}>
+         style={{ zIndex: 3000 }}>
       <div
         className={styles.modalContentProjectRounded}
       >
-        <div
-          className={styles.popupHeaderProjectEnhanced}
-          style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            backgroundColor: 'white',
-            borderBottom: '1px solid #eee',
-            animation: 'none',
-            transition: 'none',
-            borderTopLeftRadius: '12px',
-            borderTopRightRadius: '12px'
-          }}
-        >
+        <div className={styles.modalHeaderProject}>
           <div className={styles.popupTitleWrapper}>
             <h3 className={styles.modalTitleProject}>Créer un nouveau projet</h3>
           </div>
-          <button onClick={onClose} className={styles.closeButtonProjectEnhanced}>
-            ✕
-          </button>
+          <button onClick={onClose} className={styles.closeButtonProject}>✕</button>
         </div>
 
         <div className={styles.modalContentProjectRoundedInner}>
@@ -407,20 +404,20 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               onChange={handleInputChange}
               className={styles.formTextareaProject}
               rows="4"
+              placeholder="Projet, liens etc."
             />
           </div>
 
           <div className={styles.formGroupProject}>
             <label className={styles.formLabelProject}>Adresse :</label>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
+              <textarea
                 name="address_line"
                 value={formData.address_line}
                 onChange={handleInputChange}
-                className={`${styles.formInputProject} ${addressError ? styles.inputErrorProject : ''}`}
+                className={`${styles.formTextareaProjectNoResize} ${addressError ? styles.inputErrorProject : ''}`}
                 style={{ flexGrow: 1 }}
-                placeholder="Saisir l'emplacement de l'événement"
+                placeholder="Saisir l'emplacement"
                 required
               />
               <button
@@ -527,12 +524,6 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           {allCircles.length > 0 && (
             <fieldset
               className={styles.fieldsetGroupProject}
-              style={{
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                padding: '15px',
-                marginBottom: '20px'
-              }}
             >
               <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
 
@@ -587,37 +578,51 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             </fieldset>
           )}
 
-          <div
-            className={styles.buttonGroupProject}
-            style={{
-              marginTop: '25px',
-              marginBottom: '15px',
-              position: 'sticky',
-              bottom: 0,
-              background: 'white',
-              padding: '15px 0 5px',
-              borderTop: '1px solid #f0f0f0',
-              zIndex: 5,
-              borderBottomLeftRadius: '12px',
-              borderBottomRightRadius: '12px'
-            }}
+          {/* Event sharing options */}
+          <fieldset
+            className={styles.fieldsetGroupProject}
           >
-            <button
-              type="submit"
-              className={styles.submitButtonProject}
-              style={{
-                backgroundColor: '#40916c',
-                color: 'white',
-                border: 'none',
-                padding: '12px 20px',
-                borderRadius: '6px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                width: '100%',
-                fontSize: '1rem',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-            >
+            <legend className={styles.fieldsetLegendProject}>Options de partage :</legend>
+
+            <div className={styles.checkboxContainerProject}>
+              <input
+                type="checkbox"
+                id="event_shared"
+                name="event_shared"
+                checked={formData.event_shared}
+                onChange={handleInputChange}
+                className={styles.checkboxInputProject}
+              />
+              <label htmlFor="event_shared" className={styles.checkboxLabelProject}>
+                Événement partagé
+                <div className={styles.infoIconProject}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                  </svg>
+                  <div className={styles.tooltipProject}>
+                    Tous les membres des cercles peuvent modifier la description et l'adresse
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div className={styles.checkboxContainerProject}>
+              <input
+                type="checkbox"
+                id="shareable_link"
+                name="shareable_link"
+                checked={formData.shareable_link}
+                onChange={handleInputChange}
+                className={styles.checkboxInputProject}
+              />
+              <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
+                Lien de partage
+              </label>
+            </div>
+          </fieldset>
+
+          <div className={styles.buttonGroupProject}>
+            <button type="submit" className={styles.submitButtonProject}>
               Créer l'événement
             </button>
           </div>
