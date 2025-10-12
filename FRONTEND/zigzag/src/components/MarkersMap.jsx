@@ -23,6 +23,7 @@ import TimelineBarMobile from "./TimelineBar/TimelineBarMobile";
 import TimelineToggle from "./TimelineBar/TimelineToggle";
 import { AuthContext } from "../contexts/AuthProvider";
 import { MapContext } from "../contexts/MapContext.jsx";
+import CreateEventForm from "./Project/CreateEventForm";
 
 const MarkersMap = ({ eventCoordinates = null }) => {
   const isBackground = !!eventCoordinates;
@@ -65,6 +66,9 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const [markersData, setMarkersData] = useState({ red_markers: [] });
   const [filteredMarkers, setFilteredMarkers] = useState({ red_markers: [] });
   const [friendLocationData, setFriendLocationData] = useState([]);
+
+  // Create Event form modal visibility
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   // Precision threshold for close markers (in kilometers)
   const CLOSE_MARKERS_THRESHOLD = 0.05; // 50 meters
@@ -1197,12 +1201,14 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               onTimeChange={handleTimelineTimeChange}
               initialRange={timeframe}
               inProjectView={false}
+              onCreateEventClick={() => setShowCreateForm(true)}
             />
           ) : (
             <TimelineBar
               onTimeChange={handleTimelineTimeChange}
               initialRange={timeframe}
               inProjectView={false}
+              onCreateEventClick={() => setShowCreateForm(true)}
             />
           )
         )}
@@ -1213,6 +1219,18 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         <TimelineToggle
           isVisible={showTimelineBar}
           onToggle={toggleTimelineVisibility}
+        />
+      )}
+
+      {/* Create Event Form modal */}
+      {!isBackground && showCreateForm && (
+        <CreateEventForm
+          projectId={null}
+          onEventCreated={() => {
+            setShowCreateForm(false);
+            refreshMarkersForSelectedTags();
+          }}
+          onClose={() => setShowCreateForm(false)}
         />
       )}
     </>
