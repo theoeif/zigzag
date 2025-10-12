@@ -2661,6 +2661,21 @@ button.manageButtonProject.activeProject {
   padding-bottom: 10px !important;
 }
 
+/* Adjust Event Card title placement closer to top-left */
+.eventCardProject {
+  padding-top: 15px; /* slightly less top padding */
+}
+
+.eventMainInfoProject {
+  margin-top: 0; /* pull content up */
+  margin-left: 0; /* ensure left alignment flush */
+}
+
+.eventTitleProject {
+  margin-top: 0; /* remove any extra top gap */
+  margin-bottom: 6px; /* keep compact below */
+}
+
 /* Info icon and tooltip styles */
 .infoIconProject {
   color: #40916c;
