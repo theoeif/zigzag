@@ -9,12 +9,13 @@ import {
   Tooltip,
   useMediaQuery
 } from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddIcon from '@mui/icons-material/Add';
 import CircleIcon from '@mui/icons-material/Circle';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 // import './TimelineBar.css';
 
-const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false }) => {
+const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false, onCreateEventClick }) => {
   const isSmallScreen = useMediaQuery('(max-width:599px)');
   const isMediumScreen = useMediaQuery('(max-width:893px)');
   const isVerySmallScreen = useMediaQuery('(max-width:448px)');
@@ -377,6 +378,13 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
     // Use the same logic as the first week in getWeeks(): today to Sunday
     const currentDayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     const daysToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek; // Days until next Sunday
+
+    // If today is Sunday, show the NEXT week (Monday to Sunday)
+    if (currentDayOfWeek === 0) {
+      // Next week: start tomorrow (Monday) and end Sunday (7 days from today)
+      setTimeRange([1, 7]);
+      return;
+    }
 
     // First week: from today to Sunday (same as Semaine 1)
     const firstWeekDaysFromNow = 0;
@@ -1001,7 +1009,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: { xs: 0.5, sm: 2 },
+              gap: { xs: 0.25, sm: 0.75 },
               backgroundColor: '#f0fdf4',
               padding: { xs: '4px 6px', sm: '8px 12px' },
               borderRadius: '6px',
@@ -1009,7 +1017,7 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               zIndex: 3,
               // Position more to the left to give space for date bar
               position: isVerySmallScreen ? 'relative' : 'absolute',
-              left: isVerySmallScreen ? 'auto' : { xs: '5px', sm: '0px' }, // Moved further left on mobile
+              left: isVerySmallScreen ? 'auto' : { xs: '12px', sm: '12px' }, // back closer to left now that FAB is removed
               top: isVerySmallScreen ? 'auto' : { xs: -85, sm: -40 }, // Reverted back to original values
               '& .MuiButton-root': {
                 fontSize: '0.8rem',
@@ -1034,6 +1042,23 @@ const TimelineBar = ({ onTimeChange, events, initialRange, inProjectView = false
               }
             }}
           >
+            {/* Create event button integrated into left controls */}
+            {typeof onCreateEventClick === 'function' && (
+              <Tooltip title="Créer un projet">
+                <IconButton
+                  size="small"
+                  onClick={onCreateEventClick}
+                  sx={{
+                    color: '#40916c',
+                    padding: { xs: 0.5, sm: 1 },
+                    '&:hover': { backgroundColor: 'rgba(64, 145, 108, 0.1)' }
+                  }}
+                >
+                  <AddCircleOutlineIcon fontSize={isSmallScreen ? 'small' : 'medium'} />
+                </IconButton>
+              </Tooltip>
+            )}
+
             <ButtonGroup variant="text" size="small">
               <Button onClick={handleThisWeek}>
                 {isSmallScreen ? 'Sem' : 'Semaine'}
