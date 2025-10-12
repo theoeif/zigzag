@@ -116,7 +116,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       }
       const shareUrl = event.public_link || `http://localhost:5173/event/${event.id}`;
       await navigator.clipboard.writeText(shareUrl);
-      alert("Lien de l'événement copié dans le presse-papiers !");
+      alert("Lien copié");
     } catch (error) {
       console.error("Error copying share link:", error);
       alert("Échec de la copie du lien. Veuillez réessayer.");
