@@ -170,26 +170,11 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
       <div
         className={styles.modalContentProjectRounded}
       >
-        <div
-          className={styles.popupHeaderProjectEnhanced}
-          style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            backgroundColor: 'white',
-            borderBottom: '1px solid #eee',
-            animation: 'none',
-            transition: 'none',
-            borderTopLeftRadius: '12px',
-            borderTopRightRadius: '12px'
-          }}
-        >
+        <div className={styles.modalHeaderProject}>
           <div className={styles.popupTitleWrapper}>
             <h3 className={styles.modalTitleProject}>Modifier</h3>
           </div>
-          <button onClick={handleCloseForm} className={styles.closeButtonProjectEnhanced}>
-            ✕
-          </button>
+          <button onClick={handleCloseForm} className={styles.closeButtonProject}>✕</button>
         </div>
 
         <div className={styles.modalContentProjectRoundedInner}>
@@ -210,7 +195,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
               onChange={handleInputChange}
               className={styles.formTextareaProject}
               rows="4"
-              placeholder="Saisir la description de l'événement"
+              placeholder="Projet, liens etc."
             />
           </div>
 
@@ -343,21 +328,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             </div>
           </div>
 
-          <div
-            className={styles.buttonGroupProject}
-            style={{
-              marginTop: '25px',
-              marginBottom: '15px',
-              position: 'sticky',
-              bottom: 0,
-              background: 'white',
-              padding: '15px 0 5px',
-              borderTop: '1px solid #f0f0f0',
-              zIndex: 5,
-              borderBottomLeftRadius: '12px',
-              borderBottomRightRadius: '12px'
-            }}
-          >
+          <div className={styles.buttonGroupProject}>
             <button
               type="submit"
               className={styles.submitButtonProject}
