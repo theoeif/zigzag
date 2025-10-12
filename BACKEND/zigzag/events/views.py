@@ -118,6 +118,36 @@ class EventViewSet(viewsets.ModelViewSet):
         address_data = request.data.get("address")
         event_data = {k: v for k, v in request.data.items() if k != "address"}  # Exclude address from event update
 
+        # Enforce field-level rules
+        user_is_creator = (request.user == event.creator)
+
+        # Two-step rule: cannot toggle event_shared from False -> True in same request as date changes
+        if (
+            "event_shared" in event_data
+            and not event.event_shared
+            and bool(event_data.get("event_shared")) is True
+            and ("start_time" in event_data or "end_time" in event_data)
+        ):
+            return Response({"detail": "Activate sharing first, then change dates."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Guard: dates cannot be modified when event is not shared (even by creator)
+        if ("start_time" in event_data or "end_time" in event_data) and not event.event_shared:
+            return Response({"detail": "Dates can be modified only when event is shared."}, status=status.HTTP_403_FORBIDDEN)
+
+        # When shared, non-creator can only modify description and dates via event fields
+        if not user_is_creator and event.event_shared:
+            allowed_event_fields = {"description", "start_time", "end_time"}
+            extra_fields = set(event_data.keys()) - allowed_event_fields
+            if extra_fields:
+                return Response(
+                    {"detail": "You cannot modify these fields: " + ", ".join(sorted(extra_fields))},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+        # Support clearing address explicitly with null
+        if "address" in request.data and request.data.get("address") is None:
+            event.address = None
+
         if address_data:
             # If address data is provided, create or update the address
             addr_id = address_data.get("id")
@@ -156,6 +186,36 @@ class EventViewSet(viewsets.ModelViewSet):
 
         address_data = request.data.get("address", None)
         event_data = {k: v for k, v in request.data.items() if k != "address"}  # Exclude address from event update
+
+        # Enforce field-level rules
+        user_is_creator = (request.user == event.creator)
+
+        # Two-step rule: cannot toggle event_shared from False -> True in same request as date changes
+        if (
+            "event_shared" in event_data
+            and not event.event_shared
+            and bool(event_data.get("event_shared")) is True
+            and ("start_time" in event_data or "end_time" in event_data)
+        ):
+            return Response({"detail": "Activate sharing first, then change dates."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Guard: dates cannot be modified when event is not shared (even by creator)
+        if ("start_time" in event_data or "end_time" in event_data) and not event.event_shared:
+            return Response({"detail": "Dates can be modified only when event is shared."}, status=status.HTTP_403_FORBIDDEN)
+
+        # When shared, non-creator can only modify description and dates via event fields
+        if not user_is_creator and event.event_shared:
+            allowed_event_fields = {"description", "start_time", "end_time"}
+            extra_fields = set(event_data.keys()) - allowed_event_fields
+            if extra_fields:
+                return Response(
+                    {"detail": "You cannot modify these fields: " + ", ".join(sorted(extra_fields))},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+        # Support clearing address explicitly with null
+        if "address" in request.data and request.data.get("address") is None:
+            event.address = None
 
         if address_data and isinstance(address_data, dict):
             addr_id = address_data.get("id")

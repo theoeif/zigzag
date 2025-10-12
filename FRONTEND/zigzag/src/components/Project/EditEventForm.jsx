@@ -5,12 +5,14 @@ import { patchEvent } from '../../api/api';
 import styles from './Project.module.css';
 
 
-const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsManageMode }) => {
+const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsManageMode, isCreator = false }) => {
   // Pre-fill form state with current event values
   const [formData, setFormData] = useState({
     description: eventData.description || "",
     address_line: eventData.address?.address_line || "",
     event_shared: eventData.event_shared || false,
+    start_time: eventData.start_time ? toLocalDatetimeInputValue(eventData.start_time) : "",
+    end_time: eventData.end_time ? toLocalDatetimeInputValue(eventData.end_time) : "",
   });
 
   const [localizedAddress, setLocalizedAddress] = useState(null);
@@ -30,7 +32,8 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
   }, [setEditMode, setIsManageMode]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, type } = e.target;
+    const value = type === 'checkbox' ? e.target.checked : e.target.value;
 
     setFormData((prev) => ({
       ...prev,
@@ -49,6 +52,23 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
       }
     }
   };
+
+  // Helper: convert ISO string to value suitable for input[type=datetime-local]
+  function toLocalDatetimeInputValue(isoString) {
+    try {
+      const d = new Date(isoString);
+      if (Number.isNaN(d.getTime())) return "";
+      const pad = (n) => String(n).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      const mm = pad(d.getMonth() + 1);
+      const dd = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const mi = pad(d.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    } catch {
+      return "";
+    }
+  }
 
   // Add function to clear address
   const handleClearAddress = () => {
@@ -112,6 +132,9 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
 
     let updatedFields = {};
 
+    const previouslyShared = !!eventData.event_shared;
+    const showDateInputs = previouslyShared && !!formData.event_shared;
+
     // Handle description field
     if (formData.description !== eventData.description) {
       updatedFields.description = formData.description;
@@ -129,6 +152,22 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     } else if (addressModified && localizedAddress) {
       // If address was modified and localized, use the localized address
       updatedFields.address = { ...localizedAddress };
+    }
+
+    // Handle dates only when allowed (shared before and still shared)
+    if (showDateInputs) {
+      if (formData.start_time) {
+        const newStartIso = new Date(formData.start_time).toISOString();
+        if (newStartIso !== eventData.start_time) {
+          updatedFields.start_time = newStartIso;
+        }
+      }
+      if (formData.end_time) {
+        const newEndIso = new Date(formData.end_time).toISOString();
+        if (newEndIso !== eventData.end_time) {
+          updatedFields.end_time = newEndIso;
+        }
+      }
     }
 
     // Only submit if there are changes
@@ -302,30 +341,67 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             </div>
           )}
 
-          {/* Event sharing options */}
-          <div className={styles.formGroupProject}>
-            <div className={styles.checkboxContainerProject}>
-              <input
-                type="checkbox"
-                id="event_shared"
-                name="event_shared"
-                checked={formData.event_shared}
-                onChange={handleInputChange}
-                className={styles.checkboxInputProject}
-              />
-              <label htmlFor="event_shared" className={styles.checkboxLabelProject}>
-                Événement partagé
-                <div className={styles.infoIconProject}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                  </svg>
-                  <div className={styles.tooltipProject}>
-                    Tous les membres des cercles peuvent modifier la description et l'adresse
+          {/* Event sharing options - only creator can toggle */}
+          {isCreator && (
+            <div className={styles.formGroupProject}>
+              <div className={styles.checkboxContainerProject}>
+                <input
+                  type="checkbox"
+                  id="event_shared"
+                  name="event_shared"
+                  checked={formData.event_shared}
+                  onChange={handleInputChange}
+                  className={styles.checkboxInputProject}
+                />
+                <label htmlFor="event_shared" className={styles.checkboxLabelProject}>
+                  Événement partagé
+                  <div className={styles.infoIconProject}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    <div className={styles.tooltipProject}>
+                      Tous les membres des cercles peuvent modifier la description et l'adresse
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Dates (shared-only) */}
+          {(() => {
+            const previouslyShared = !!eventData.event_shared;
+            const showDateInputs = previouslyShared && !!formData.event_shared;
+            if (!showDateInputs) return null;
+            return (
+              <div className={styles.formGroupProject}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ width: '100%' }}>
+                    <label className={styles.formLabelProject} htmlFor="start_time" style={{ fontSize: '0.9rem' }}>Début</label>
+                    <input
+                      type="datetime-local"
+                      id="start_time"
+                      name="start_time"
+                      value={formData.start_time}
+                      onChange={handleInputChange}
+                      className={styles.formInputProject}
+                    />
+                  </div>
+                  <div style={{ width: '100%' }}>
+                    <label className={styles.formLabelProject} htmlFor="end_time" style={{ fontSize: '0.9rem' }}>Fin (optionnel)</label>
+                    <input
+                      type="datetime-local"
+                      id="end_time"
+                      name="end_time"
+                      value={formData.end_time}
+                      onChange={handleInputChange}
+                      className={styles.formInputProject}
+                    />
                   </div>
                 </div>
-              </label>
-            </div>
-          </div>
+              </div>
+            );
+          })()}
 
           <div className={styles.buttonGroupProject}>
             <button

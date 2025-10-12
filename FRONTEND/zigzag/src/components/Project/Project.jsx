@@ -551,6 +551,7 @@ const Project = ({ projectId }) => {
       {editingEvent && (
         <EditEventForm
           eventData={editingEvent}
+          isCreator={projects.some(e => e.id === editingEvent.id)}
           onClose={() => {
             setEditingEvent(null);
             setIsManageMode(false); // Reset manage mode when closing
