@@ -177,8 +177,8 @@ ulProject {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
 }
 
 .deleteButtonProject:hover {
@@ -780,8 +780,13 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+}
+
+.deleteButtonProject svg,
+.editButtonProject svg {
+  font-size: 1.1rem;
 }
 
 .editButtonProject:hover {
