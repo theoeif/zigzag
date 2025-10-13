@@ -348,7 +348,8 @@ const EventView = ({
   displayMode = 'fullpage',
   onClose,
   initialData = null,
-  originalMapState = null
+  originalMapState = null,
+  isModalMode = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -721,19 +722,27 @@ const EventView = ({
   if (displayMode === 'fullpage') {
     return (
       <div style={styles.fullpage.container}>
-        {/* Map as background */}
-        <div style={styles.fullpage.mapContainer}>
-          <MarkersMap
-            eventCoordinates={event ? {
-              lat: event.lat || (event.address && event.address.latitude),
-              lng: event.lng || (event.address && event.address.longitude)
-            } : null}
-          />
-        </div>
+        {/* Only render map for direct link access, not modal mode */}
+        {!isModalMode && (
+          <div style={styles.fullpage.mapContainer}>
+            <MarkersMap
+              eventCoordinates={event ? {
+                lat: event.lat || (event.address && event.address.latitude),
+                lng: event.lng || (event.address && event.address.longitude)
+              } : null}
+            />
+          </div>
+        )}
 
         {/* Event info overlay */}
-        <div style={styles.fullpage.overlay}>
-          <div style={styles.card}>
+        <div
+          style={styles.fullpage.overlay}
+          onClick={isModalMode ? onClose : undefined}
+        >
+          <div
+            style={styles.card}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Date display in right corner with click interaction */}
             <div
               style={{
