@@ -471,7 +471,13 @@ class MultiCircleMembersView(APIView):
         circle_ids = request.data.get("circle_ids", [])
         if not circle_ids:
             return Response({"error": "No circle IDs provided."}, status=status.HTTP_400_BAD_REQUEST)
-        circles = Circle.objects.filter(id__in=circle_ids)
+
+        # Filter circles to only those the user is a member of or created
+        user = request.user
+        circles = Circle.objects.filter(
+            Q(id__in=circle_ids) & (Q(creator=user) | Q(members=user))
+        ).distinct()
+
         found_ids = set(str(c.id) for c in circles)
         missing_ids = set(str(cid) for cid in circle_ids) - found_ids
         if missing_ids:
