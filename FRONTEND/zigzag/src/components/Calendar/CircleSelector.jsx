@@ -14,7 +14,7 @@ import { Search, SelectAll, ClearAll } from '@mui/icons-material';
 import { fetchCircles, fetchGreyEvents } from '../../api/api';
 import styles from './CircleSelector.module.css';
 
-const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, onError }) => {
+const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, onError, isVisible, onClose }) => {
   const [circles, setCircles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,7 +101,7 @@ const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, 
   }
 
   return (
-    <Box className={styles.container}>
+    <Box className={`${styles.container} ${isVisible ? styles.visible : ''}`}>
       {/* Search */}
       <TextField
         fullWidth

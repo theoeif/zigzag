@@ -125,14 +125,26 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .container {
-    width: 100%;
-    height: auto;
-    position: relative;
-    border-right: none;
-    border-bottom: 1px solid #e0e0e0;
+    position: fixed;
+    top: calc(60px + env(safe-area-inset-top));
+    left: -100%;
+    width: 80%;
+    height: calc(100vh - 60px - env(safe-area-inset-top));
+    z-index: 1000;
+    transition: left 0.3s ease;
+    background: white;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+    border-right: 1px solid #e0e0e0;
+    border-bottom: none;
   }
 
+  .container.visible {
+    left: 0;
+  }
+
+
   .circleList {
-    max-height: 200px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
   }
 }
