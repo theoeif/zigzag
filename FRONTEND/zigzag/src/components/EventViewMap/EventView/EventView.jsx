@@ -801,8 +801,6 @@ const EventView = ({
                     </div>
                   )}
 
-                  {/* Public/private and friends-of-friends indicators removed */}
-
                   {/* Participants */}
                   {event.circles && event.circles.length > 0 && (
                     <div style={styles.participantsRow}>
@@ -859,8 +857,6 @@ const EventView = ({
                     </div>
                   </div>
                 )}
-
-                {/* WhatsApp link removed */}
 
                 {/* Bottom buttons - share link and view members on left, participate on right */}
                 <div style={styles.bottomButtons}>
@@ -1036,8 +1032,6 @@ const EventView = ({
                   </div>
                 )}
 
-                {/* Public/private and friends-of-friends indicators removed */}
-
                 {/* Participants */}
                 {event.circles && event.circles.length > 0 && (
                   <div style={styles.participantsRow}>
@@ -1045,7 +1039,7 @@ const EventView = ({
                       ...styles.detailIcon,
                       marginRight: "8px",
                       width: "12px",
-                      height: "12px",
+                      height: "18px",
                       borderRadius: "50%",
                       border: "2px solid #40916c",
                       backgroundColor: "transparent"
