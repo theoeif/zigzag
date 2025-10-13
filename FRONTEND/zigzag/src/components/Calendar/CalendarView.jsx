@@ -13,6 +13,7 @@ import EventView from '../EventViewMap/EventView/EventView';
 import EventDetailsSection from '../Project/EventDetailsSection';
 import CircleMembersPopup from '../Project/CircleMembersPopup';
 import CircleSelector from './CircleSelector';
+import LeftMenu from '../LeftMenu/LeftMenu';
 import styles from './CalendarView.module.css';
 import Header from '../Header/Header';
 
@@ -40,6 +41,7 @@ const CalendarView = () => {
   const [circleError, setCircleError] = useState(null);
   const [showCircleSelector, setShowCircleSelector] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -75,6 +77,19 @@ const CalendarView = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isMobile, showCircleSelector]);
+
+  // Handle click outside to close left menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInside = event.target.closest(".left-menu") || event.target.closest(".left-menu-icon");
+      if (!isClickInside) setIsLeftMenuOpen(false);
+    };
+
+    if (isLeftMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [isLeftMenuOpen]);
 
   const loadEvents = async () => {
     try {
@@ -417,7 +432,15 @@ const CalendarView = () => {
 
   return (
     <div className={styles.calendarContainer}>
-      <Header />
+      <Header
+        toggleLeftMenu={() => setIsLeftMenuOpen(!isLeftMenuOpen)}
+      />
+
+      {isLeftMenuOpen && (
+        <div className="left-menu">
+          <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />
+        </div>
+      )}
 
         {/* Circle Selector Sidebar */}
         {calendarMode === 'circle' && (
