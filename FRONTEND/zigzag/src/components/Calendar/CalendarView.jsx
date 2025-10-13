@@ -318,30 +318,47 @@ const CalendarView = () => {
   const convertGreyEventsToCalendar = (greyEventsData) => {
     if (!greyEventsData || greyEventsData.length === 0) return [];
 
-    // Group events by date to show density
-    const eventsByDate = {};
+    // Group events by 30-minute time slots to reduce clutter while maintaining time accuracy
+    const eventsByTimeSlot = {};
     greyEventsData.forEach(event => {
-      const dateKey = new Date(event.start_time).toDateString();
-      if (!eventsByDate[dateKey]) {
-        eventsByDate[dateKey] = [];
+      const startDate = new Date(event.start_time);
+      const endDate = event.end_time ? new Date(event.end_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+      // Create a 30-minute time slot key for better grouping
+      const hour = startDate.getHours();
+      const minute = startDate.getMinutes();
+      const slotMinute = minute < 30 ? '00' : '30';
+      const timeSlotKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}-${String(hour).padStart(2, '0')}-${slotMinute}`;
+
+      if (!eventsByTimeSlot[timeSlotKey]) {
+        eventsByTimeSlot[timeSlotKey] = [];
       }
-      eventsByDate[dateKey].push(event);
+      eventsByTimeSlot[timeSlotKey].push(event);
     });
 
-    // Create calendar events for each date with event count
-    return Object.entries(eventsByDate).map(([dateKey, events]) => {
+    // Create calendar events for each time slot with event count
+    return Object.entries(eventsByTimeSlot).map(([timeSlotKey, events]) => {
       const firstEvent = events[0];
       const startDate = new Date(firstEvent.start_time);
-      const dateOnly = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+
+      // Use the actual start time but round to the nearest 30-minute slot for display
+      const displayStart = new Date(startDate);
+      const minutes = displayStart.getMinutes();
+      displayStart.setMinutes(minutes < 30 ? 0 : 30, 0, 0);
+
+      // Create a 30-minute duration for the display event
+      const displayEnd = new Date(displayStart.getTime() + 30 * 60 * 1000);
 
       return {
-        id: `grey-${dateKey}`,
+        id: `grey-${timeSlotKey}`,
         title: `${events.length} event${events.length > 1 ? 's' : ''}`,
-        start: dateOnly,
-        allDay: true,
+        start: displayStart.toISOString(),
+        end: displayEnd.toISOString(),
+        allDay: false,
         extendedProps: {
           isGreyEvent: true,
-          eventCount: events.length
+          eventCount: events.length,
+          originalEvents: events
         },
         backgroundColor: '#e0e0e0',
         borderColor: '#bdbdbd',
