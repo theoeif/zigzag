@@ -4,14 +4,15 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack } from '@mui/material';
-import { CalendarToday, Download, Link, Close, Info } from '@mui/icons-material';
+import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { CalendarToday, Download, Link, Close, Info, Group, Person } from '@mui/icons-material';
 import { fetchEvents, createEvent, patchEvent, deleteEvent } from '../../api/api';
 import CreateEventForm from '../Project/CreateEventForm';
 import EditEventForm from '../Project/EditEventForm';
 import EventView from '../EventViewMap/EventView/EventView';
 import EventDetailsSection from '../Project/EventDetailsSection';
 import CircleMembersPopup from '../Project/CircleMembersPopup';
+import CircleSelector from './CircleSelector';
 import styles from './CalendarView.module.css';
 import Header from '../Header/Header';
 
@@ -20,6 +21,7 @@ const CalendarView = () => {
 
   // State management
   const [events, setEvents] = useState([]);
+  const [greyEvents, setGreyEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -33,6 +35,9 @@ const CalendarView = () => {
   const [circleMembersData, setCircleMembersData] = useState(null);
   const [listMonths, setListMonths] = useState(1);
   const [activeView, setActiveView] = useState('dayGridMonth');
+  const [calendarMode, setCalendarMode] = useState('my'); // 'my' or 'circle'
+  const [selectedCircles, setSelectedCircles] = useState([]);
+  const [circleError, setCircleError] = useState(null);
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -223,6 +228,69 @@ const CalendarView = () => {
     setShowCircleMembers(true);
   };
 
+  // Handle calendar mode toggle
+  const handleModeChange = (event, newMode) => {
+    if (newMode !== null) {
+      setCalendarMode(newMode);
+      if (newMode === 'my') {
+        setGreyEvents([]);
+        setSelectedCircles([]);
+        setCircleError(null);
+      }
+    }
+  };
+
+  // Handle circle selection changes
+  const handleCirclesChange = (newSelectedCircles) => {
+    setSelectedCircles(newSelectedCircles);
+  };
+
+  // Handle grey events changes
+  const handleGreyEventsChange = (newGreyEvents) => {
+    setGreyEvents(newGreyEvents);
+  };
+
+  // Handle circle errors
+  const handleCircleError = (error) => {
+    setCircleError(error);
+  };
+
+  // Convert grey events to FullCalendar format
+  const convertGreyEventsToCalendar = (greyEventsData) => {
+    if (!greyEventsData || greyEventsData.length === 0) return [];
+
+    // Group events by date to show density
+    const eventsByDate = {};
+    greyEventsData.forEach(event => {
+      const dateKey = new Date(event.start_time).toDateString();
+      if (!eventsByDate[dateKey]) {
+        eventsByDate[dateKey] = [];
+      }
+      eventsByDate[dateKey].push(event);
+    });
+
+    // Create calendar events for each date with event count
+    return Object.entries(eventsByDate).map(([dateKey, events]) => {
+      const firstEvent = events[0];
+      const startDate = new Date(firstEvent.start_time);
+      const dateOnly = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+
+      return {
+        id: `grey-${dateKey}`,
+        title: `${events.length} event${events.length > 1 ? 's' : ''}`,
+        start: dateOnly,
+        allDay: true,
+        extendedProps: {
+          isGreyEvent: true,
+          eventCount: events.length
+        },
+        backgroundColor: '#e0e0e0',
+        borderColor: '#bdbdbd',
+        textColor: '#666666'
+      };
+    });
+  };
+
   // Export functionality
   const handleDownloadICS = () => {
     const token = localStorage.getItem('access_token');
@@ -246,6 +314,19 @@ const CalendarView = () => {
   };
 
   const renderEventContent = (eventInfo) => {
+    // Handle grey events (circle calendar mode)
+    if (eventInfo.event.extendedProps.isGreyEvent) {
+      const eventCount = eventInfo.event.extendedProps.eventCount || 1;
+      return (
+        <div className={styles.greyEventContent}>
+          <span className={styles.greyEventText}>
+            {eventCount} event{eventCount > 1 ? 's' : ''}
+          </span>
+        </div>
+      );
+    }
+
+    // Handle regular events (my calendar mode)
     const endIso = eventInfo.event.extendedProps.originalEnd;
     const endLabel = (() => {
       if (!endIso) return '';
@@ -287,14 +368,47 @@ const CalendarView = () => {
     );
   };
 
+  // Prepare events for calendar display
+  const displayEvents = calendarMode === 'my' ? events : convertGreyEventsToCalendar(greyEvents);
+
   return (
     <div className={styles.calendarContainer}>
       <Header />
+
+      {/* Circle Selector Sidebar */}
+      {calendarMode === 'circle' && (
+        <CircleSelector
+          selectedCircles={selectedCircles}
+          onCirclesChange={handleCirclesChange}
+          onGreyEventsChange={handleGreyEventsChange}
+          onError={handleCircleError}
+        />
+      )}
+
       {/* Calendar Header with Export Options */}
-      <Box className={styles.calendarHeader}>
-        <Typography variant="h5" className={styles.calendarTitle}>
-          Calendrier
-        </Typography>
+      <Box className={`${styles.calendarHeader} ${calendarMode === 'circle' ? styles.calendarHeaderWithSidebar : ''}`}>
+        <Box className={styles.headerLeft}>
+          <Typography variant="h5" className={styles.calendarTitle}>
+            Calendrier
+          </Typography>
+
+          {/* Calendar Mode Toggle */}
+          <ToggleButtonGroup
+            value={calendarMode}
+            exclusive
+            onChange={handleModeChange}
+            size="small"
+            className={styles.modeToggle}
+          >
+            <ToggleButton value="my" startIcon={<Person />}>
+              Mon Calendrier
+            </ToggleButton>
+            <ToggleButton value="circle" startIcon={<Group />}>
+              Calendrier des Cercles
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
         <Stack direction="row" spacing={1}>
           <Tooltip title="Télécharger le fichier .ics">
             <Button
@@ -325,7 +439,7 @@ const CalendarView = () => {
       </Box>
 
       {/* FullCalendar Component */}
-      <div className={styles.calendarWrapper}>
+      <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' ? styles.calendarWrapperWithSidebar : ''}`}>
         {activeView === 'myList' && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
             <Button size="small" variant={listMonths === 1 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(1)}>1M</Button>
@@ -343,20 +457,20 @@ const CalendarView = () => {
             right: 'dayGridMonth,timeGridWeek,myList'
           }}
           locale="fr"
-          events={events}
-          dateClick={handleDateClick}
-          eventClick={handleEventClick}
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
+          events={displayEvents}
+          dateClick={calendarMode === 'my' ? handleDateClick : undefined}
+          eventClick={calendarMode === 'my' ? handleEventClick : undefined}
+          eventDrop={calendarMode === 'my' ? handleEventDrop : undefined}
+          eventResize={calendarMode === 'my' ? handleEventResize : undefined}
           eventContent={renderEventContent}
           height="auto"
           dayMaxEvents={3}
           moreLinkClick="popover"
           moreLinkClassNames={'zz-more-link'}
-          editable={true}
-          droppable={true}
-          selectable={true}
-          selectMirror={true}
+          editable={calendarMode === 'my'}
+          droppable={calendarMode === 'my'}
+          selectable={calendarMode === 'my'}
+          selectMirror={calendarMode === 'my'}
           weekends={true}
           nowIndicator={true}
           slotEventOverlap={false}

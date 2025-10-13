@@ -1,0 +1,131 @@
+.container {
+  width: 280px;
+  height: 100vh;
+  background: #f8f9fa;
+  border-right: 1px solid #e0e0e0;
+  padding: 16px;
+  overflow-y: auto;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  gap: 12px;
+}
+
+.loadingText {
+  color: #666;
+}
+
+.searchField {
+  margin-bottom: 12px;
+}
+
+.searchIcon {
+  color: #666;
+  margin-right: 8px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.actionButtons button {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  min-width: auto;
+}
+
+.divider {
+  margin: 8px 0;
+}
+
+.circleList {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.circleItem {
+  width: 100%;
+  margin: 0;
+  padding: 4px 0;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.circleItem:hover {
+  background-color: #f0f0f0;
+}
+
+.circleItem .MuiFormControlLabel-label {
+  font-size: 0.875rem;
+  color: #333;
+}
+
+.noResults {
+  text-align: center;
+  color: #666;
+  padding: 16px;
+  font-style: italic;
+}
+
+.statusContainer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.memberCount {
+  color: #666;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 8px;
+  background: #e8f5e8;
+  border-radius: 4px;
+  border: 1px solid #c8e6c9;
+}
+
+.alert {
+  margin: 0;
+}
+
+.alert .MuiAlert-message {
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .circleList {
+    max-height: 200px;
+  }
+}

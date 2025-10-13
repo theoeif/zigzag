@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: column;
   background-color: #f8f9fa;
+  position: relative;
 }
 
 @supports (padding: env(safe-area-inset-top)) {
@@ -502,4 +503,85 @@
 
 .eventDetailsButton:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Circle Calendar Styles */
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calendarHeaderWithSidebar {
+  margin-left: 280px;
+}
+
+.calendarWrapperWithSidebar {
+  margin-left: 280px;
+}
+
+.modeToggle {
+  align-self: flex-start;
+}
+
+.modeToggle .MuiToggleButton-root {
+  font-size: 0.875rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.modeToggle .MuiToggleButton-root.Mui-selected {
+  background-color: #1976d2;
+  color: white;
+}
+
+.modeToggle .MuiToggleButton-root:not(.Mui-selected) {
+  background-color: #f5f5f5;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+/* Grey Events */
+.greyEventContent {
+  padding: 2px 4px;
+  text-align: center;
+  width: 100%;
+}
+
+.greyEventText {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Error Container */
+.errorContainer {
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.errorContainer .MuiTypography-root {
+  font-size: 0.875rem;
+  color: #d32f2f;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .calendarHeaderWithSidebar,
+  .calendarWrapperWithSidebar {
+    margin-left: 0;
+  }
+
+  .headerLeft {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .modeToggle {
+    align-self: center;
+  }
 }
