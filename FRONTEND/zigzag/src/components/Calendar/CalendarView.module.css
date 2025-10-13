@@ -841,7 +841,7 @@
   .bottomButtons {
     flex-wrap: wrap;
     gap: 8px;
-    justify-content: center;
+    justify-content: flex-end;
   }
 
   .bottomButtons .MuiButton-root {
