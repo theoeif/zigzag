@@ -209,18 +209,25 @@ const CalendarView = () => {
 
   const handleEventCreated = (newEvent) => {
     setShowCreateForm(false);
-    loadEvents(); // Refresh calendar
+    if (calendarMode === 'my') {
+      loadEvents(); // Refresh personal calendar
+    }
+    // In circle mode, we don't need to refresh grey events since they're read-only
   };
 
   const handleEventUpdated = (updatedEvent) => {
     setShowEditForm(false);
     setShowEventView(false);
-    loadEvents(); // Refresh calendar
+    if (calendarMode === 'my') {
+      loadEvents(); // Refresh personal calendar
+    }
   };
 
   const handleEventDeleted = () => {
     setShowEventView(false);
-    loadEvents(); // Refresh calendar
+    if (calendarMode === 'my') {
+      loadEvents(); // Refresh personal calendar
+    }
   };
 
   const handleViewCircleMembers = (circleId, circleName) => {
@@ -458,7 +465,7 @@ const CalendarView = () => {
           }}
           locale="fr"
           events={displayEvents}
-          dateClick={calendarMode === 'my' ? handleDateClick : undefined}
+          dateClick={handleDateClick}
           eventClick={calendarMode === 'my' ? handleEventClick : undefined}
           eventDrop={calendarMode === 'my' ? handleEventDrop : undefined}
           eventResize={calendarMode === 'my' ? handleEventResize : undefined}

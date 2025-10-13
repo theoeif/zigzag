@@ -1,14 +1,21 @@
 .container {
   width: 280px;
-  height: 100vh;
+  height: calc(100vh - 60px);
   background: #f8f9fa;
   border-right: 1px solid #e0e0e0;
   padding: 16px;
   overflow-y: auto;
   position: fixed;
   left: 0;
-  top: 0;
+  top: 60px;
   z-index: 1000;
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  .container {
+    top: calc(60px + env(safe-area-inset-top));
+    height: calc(100vh - (60px + env(safe-area-inset-top)));
+  }
 }
 
 .title {
