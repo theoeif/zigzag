@@ -16,6 +16,7 @@ import {
   FaLink,
   FaUsers,
   FaUserFriends,
+  FaCircle,
   // See more icon to navigate to project page
   FaInfoCircle
 } from "react-icons/fa";
@@ -78,6 +79,7 @@ const styles = {
   },
   title: {
     fontSize: "1.5rem",
+    marginTop: "-5px",
     marginBottom: "15px",
     color: "#333",
     paddingRight: "80px", // Make room for the date badge
@@ -788,7 +790,7 @@ const EventView = ({
                         ...styles.detailIcon,
                         color: addressHovered ? "#2196F3" : "#40916c"
                       }} />
-                      <span><strong>Where:</strong> {event.address.address_line}</span>
+                      <span> {event.address.address_line}</span>
                     </div>
                   )}
 
@@ -804,7 +806,15 @@ const EventView = ({
                   {/* Participants */}
                   {event.circles && event.circles.length > 0 && (
                     <div style={styles.participantsRow}>
-                      <strong>Cercles:</strong>
+                      <div style={{
+                        ...styles.detailIcon,
+                        marginRight: "8px",
+                        width: "12px",
+                        height: "18px",
+                        borderRadius: "50%",
+                        border: "2px solid #40916c",
+                        backgroundColor: "transparent"
+                      }} />
                       <div style={styles.circlesContainer}>
                         {event.circles.map((circle, index) => (
                           <div
@@ -922,15 +932,26 @@ const EventView = ({
                   ) : null}
                 </div>
 
-                {/* View on map button */}
-                <div style={{display: "flex", justifyContent: "center", marginTop: "15px"}}>
-                  <button
-                    style={{...styles.button, ...styles.secondaryButton}}
-                    onClick={handleViewOnMap}
-                  >
-                    View on Map
-                  </button>
-                </div>
+                {/* View on map button - only show for direct link access, not modal mode */}
+                {!isModalMode && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: "20px",
+                    right: "20px"
+                  }}>
+                    <button
+                      style={{
+                        ...styles.button,
+                        ...styles.secondaryButton,
+                        padding: "8px 12px",
+                        fontSize: "0.9rem"
+                      }}
+                      onClick={handleViewOnMap}
+                    >
+                      View on Map
+                    </button>
+                  </div>
+                )}
               </>
             }
           </div>
@@ -1020,7 +1041,15 @@ const EventView = ({
                 {/* Participants */}
                 {event.circles && event.circles.length > 0 && (
                   <div style={styles.participantsRow}>
-                    <strong>Participants:</strong>
+                    <div style={{
+                      ...styles.detailIcon,
+                      marginRight: "8px",
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "50%",
+                      border: "2px solid #40916c",
+                      backgroundColor: "transparent"
+                    }} />
                     <div style={styles.circlesContainer}>
                       {event.circles.map((circle, index) => (
                         <div
@@ -1065,8 +1094,6 @@ const EventView = ({
                   </div>
                 </div>
               )}
-
-              {/* WhatsApp link removed */}
 
               {/* Bottom buttons - share link and view members on left, participate on right */}
               <div style={styles.bottomButtons}>
