@@ -4,8 +4,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { CalendarToday, Download, Link, Close, Info, Group, Person } from '@mui/icons-material';
+import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack } from '@mui/material';
+import { CalendarToday, Download, Link, Close, Info } from '@mui/icons-material';
 import { fetchEvents, createEvent, patchEvent, deleteEvent } from '../../api/api';
 import CreateEventForm from '../Project/CreateEventForm';
 import EditEventForm from '../Project/EditEventForm';
@@ -38,11 +38,43 @@ const CalendarView = () => {
   const [calendarMode, setCalendarMode] = useState('my'); // 'my' or 'circle'
   const [selectedCircles, setSelectedCircles] = useState([]);
   const [circleError, setCircleError] = useState(null);
+  const [showCircleSelector, setShowCircleSelector] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Fetch events on component mount.
   useEffect(() => {
     loadEvents();
   }, []);
+
+  // Check if mobile and handle resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Handle click outside to close mobile menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobile && showCircleSelector) {
+        const sidebar = document.querySelector('[data-circle-selector]');
+
+        if (sidebar && !sidebar.contains(event.target)) {
+          setShowCircleSelector(false);
+        }
+      }
+    };
+
+    if (isMobile && showCircleSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isMobile, showCircleSelector]);
 
   const loadEvents = async () => {
     try {
@@ -243,6 +275,11 @@ const CalendarView = () => {
         setGreyEvents([]);
         setSelectedCircles([]);
         setCircleError(null);
+        setShowCircleSelector(false);
+      } else {
+        if (isMobile) {
+          setShowCircleSelector(true);
+        }
       }
     }
   };
@@ -382,67 +419,34 @@ const CalendarView = () => {
     <div className={styles.calendarContainer}>
       <Header />
 
-      {/* Circle Selector Sidebar */}
-      {calendarMode === 'circle' && (
-        <CircleSelector
-          selectedCircles={selectedCircles}
-          onCirclesChange={handleCirclesChange}
-          onGreyEventsChange={handleGreyEventsChange}
-          onError={handleCircleError}
-        />
-      )}
+        {/* Circle Selector Sidebar */}
+        {calendarMode === 'circle' && (
+          <div data-circle-selector>
+            <CircleSelector
+              selectedCircles={selectedCircles}
+              onCirclesChange={handleCirclesChange}
+              onGreyEventsChange={handleGreyEventsChange}
+              onError={handleCircleError}
+              isVisible={showCircleSelector}
+              onClose={() => setShowCircleSelector(false)}
+            />
+          </div>
+        )}
 
-      {/* Calendar Header with Export Options */}
+
+      {/* Calendar Header with Schedule Button */}
       <Box className={`${styles.calendarHeader} ${calendarMode === 'circle' ? styles.calendarHeaderWithSidebar : ''}`}>
-        <Box className={styles.headerLeft}>
-          <Typography variant="h5" className={styles.calendarTitle}>
-            Calendrier
-          </Typography>
-
-          {/* Calendar Mode Toggle */}
-          <ToggleButtonGroup
-            value={calendarMode}
-            exclusive
-            onChange={handleModeChange}
+        {/* Schedule Button - Show when not in circle mode OR when in circle mode but sidebar is closed */}
+        <Box className={`${styles.headerTop} ${calendarMode === 'circle' && showCircleSelector ? styles.headerTopHidden : ''}`}>
+          <Button
+            variant={calendarMode === 'circle' ? 'contained' : 'outlined'}
+            onClick={() => handleModeChange(null, calendarMode === 'my' ? 'circle' : 'my')}
             size="small"
-            className={styles.modeToggle}
+            className={styles.scheduleButton}
           >
-            <ToggleButton value="my" startIcon={<Person />}>
-              Mon Calendrier
-            </ToggleButton>
-            <ToggleButton value="circle" startIcon={<Group />}>
-              Calendrier des Cercles
-            </ToggleButton>
-          </ToggleButtonGroup>
+            Planning
+          </Button>
         </Box>
-
-        <Stack direction="row" spacing={1}>
-          <Tooltip title="Télécharger le fichier .ics">
-            <Button
-              variant="outlined"
-              startIcon={<Download />}
-              onClick={handleDownloadICS}
-              className={styles.exportButton}
-            >
-              Télécharger
-            </Button>
-          </Tooltip>
-          <Tooltip title="S'abonner au calendrier">
-            <Button
-              variant="contained"
-              startIcon={<Link />}
-              onClick={handleSubscribeToCalendar}
-              className={styles.subscribeButton}
-            >
-              S'abonner
-            </Button>
-          </Tooltip>
-          <Tooltip title="Instructions d'export">
-            <IconButton onClick={() => setShowExportModal(true)}>
-              <Info />
-            </IconButton>
-          </Tooltip>
-        </Stack>
       </Box>
 
       {/* FullCalendar Component */}
@@ -513,6 +517,39 @@ const CalendarView = () => {
           className={styles.fullCalendar}
         />
       </div>
+
+      {/* Bottom Section: Title and Export Buttons */}
+      <Box className={styles.calendarTitleBottom}>
+        <Stack direction="row" spacing={1} className={styles.bottomButtons}>
+          <Tooltip title="Télécharger le fichier .ics">
+            <Button
+              variant="outlined"
+              startIcon={<Download />}
+              onClick={handleDownloadICS}
+              className={styles.exportButton}
+              size="small"
+            >
+              Télécharger
+            </Button>
+          </Tooltip>
+          <Tooltip title="S'abonner au calendrier">
+            <Button
+              variant="contained"
+              startIcon={<Link />}
+              onClick={handleSubscribeToCalendar}
+              className={styles.subscribeButton}
+              size="small"
+            >
+              S'abonner
+            </Button>
+          </Tooltip>
+          <Tooltip title="Instructions d'export">
+            <IconButton onClick={() => setShowExportModal(true)} size="small">
+              <Info />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Box>
 
       {/* Create Event Form Modal */}
       {showCreateForm && (
