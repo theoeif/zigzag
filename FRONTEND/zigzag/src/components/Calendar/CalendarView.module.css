@@ -568,6 +568,21 @@
   color: #d32f2f;
 }
 
+/* Info Container */
+.infoContainer {
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.infoText {
+  font-size: 0.875rem;
+  color: #1976d2;
+  text-align: center;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .calendarHeaderWithSidebar,

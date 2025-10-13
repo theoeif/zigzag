@@ -102,14 +102,6 @@ const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, 
 
   return (
     <Box className={styles.container}>
-      <Typography variant="h6" className={styles.title}>
-        Circle Calendar
-      </Typography>
-
-      <Typography variant="body2" className={styles.subtitle}>
-        Select circles to view aggregated availability
-      </Typography>
-
       {/* Search */}
       <TextField
         fullWidth
