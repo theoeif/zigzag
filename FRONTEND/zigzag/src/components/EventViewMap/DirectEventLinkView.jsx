@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import EventView from "./EventView/EventView";
 import { fetchDirectEvent } from "../../api/api";
 import { AuthContext } from "../../contexts/AuthProvider";
+import { MapContext } from "../../contexts/MapContext";
 
 // Direct event link view - handles event data fetching and map centering
 const DirectEventLinkView = () => {
@@ -10,6 +11,7 @@ const DirectEventLinkView = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isConnected, isLoading } = useContext(AuthContext);
+  const { setMapState } = useContext(MapContext);
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,20 +46,36 @@ const DirectEventLinkView = () => {
 
   const isModalMode = location.state?.background;
 
-  const handleClose = () => {
-    if (isModalMode) {
-      // Modal mode: go back to background map
-      navigate(-1);
-    } else {
-      // Direct link mode: navigate to home map centered on event
-      const mapState = location.state?.mapState || {
+  // Update MapContext when event data loads (for direct link access)
+  useEffect(() => {
+    if (eventData && !isModalMode) {
+      // Only update MapContext for direct link access, not modal mode
+      setMapState({
         center: {
-          lat: eventData?.lat || eventData?.address?.latitude,
-          lng: eventData?.lng || eventData?.address?.longitude
+          lat: eventData.lat || eventData.address?.latitude,
+          lng: eventData.lng || eventData.address?.longitude
         },
         zoom: 15
-      };
-      navigate("/", { state: { mapState } });
+      });
+    }
+  }, [eventData, isModalMode, setMapState]);
+
+  const handleClose = () => {
+    if (isModalMode) {
+      // Modal mode: go back to background map (MapContext already has correct position)
+      navigate(-1);
+    } else {
+      // Direct link mode: update MapContext with event coordinates and navigate to home
+      if (eventData) {
+        setMapState({
+          center: {
+            lat: eventData.lat || eventData.address?.latitude,
+            lng: eventData.lng || eventData.address?.longitude
+          },
+          zoom: 15
+        });
+      }
+      navigate("/");
     }
   };
 
@@ -132,7 +150,6 @@ const DirectEventLinkView = () => {
       onClose={handleClose}
       initialData={eventData}
       originalMapState={originalMapState}
-      isModalMode={isModalMode}
     />
   );
 };

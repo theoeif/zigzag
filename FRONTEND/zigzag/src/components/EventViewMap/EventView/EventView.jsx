@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
+import { MapContext } from "../../../contexts/MapContext";
 import {
   fetchDirectEvent,
   acceptInvitation,
@@ -348,14 +349,17 @@ const EventView = ({
   displayMode = 'fullpage',
   onClose,
   initialData = null,
-  originalMapState = null,
-  isModalMode = false
+  originalMapState = null
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { setMapState } = useContext(MapContext);
   const inviteToken = searchParams.get('invite');
   const { isConnected } = useContext(AuthContext);
+
+  // Derive modal mode from displayMode and location state
+  const isModalMode = displayMode === 'fullpage' && location.state?.background;
 
   // State
   const [event, setEvent] = useState(initialData || null);
@@ -549,7 +553,7 @@ const EventView = ({
 
 
   const handleViewOnMap = () => {
-    // Pass the event location as state to maintain zoom and center when navigating to map
+    // Update MapContext with event coordinates and navigate to map
     if (event && (
       (event.lat && event.lng) ||
       (event.address && event.address.latitude && event.address.longitude)
@@ -557,21 +561,16 @@ const EventView = ({
       const lat = event.lat || (event.address && event.address.latitude);
       const lng = event.lng || (event.address && event.address.longitude);
 
-      // If we have an original map state, use it as the base and update with event coordinates
-      const mapState = originalMapState ? {
-        ...originalMapState,
+      // Update MapContext with event coordinates
+      setMapState({
         center: { lat, lng },
         zoom: 15
-      } : {
-        center: { lat, lng },
-        zoom: 15
-      };
-
-      navigate('/', {
-        state: { mapState }
       });
+
+      navigate("/");
     } else {
-      navigate('/');
+      // Fallback to home page if no coordinates
+      navigate("/");
     }
   };
 
