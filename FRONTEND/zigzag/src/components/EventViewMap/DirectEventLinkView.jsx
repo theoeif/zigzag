@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import EventView from "./EventView/EventView";
 import { fetchDirectEvent } from "../../api/api";
 import { AuthContext } from "../../contexts/AuthProvider";
+import { MapContext } from "../../contexts/MapContext";
 
 // Direct event link view - handles event data fetching and map centering
 const DirectEventLinkView = () => {
@@ -10,6 +11,7 @@ const DirectEventLinkView = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isConnected, isLoading } = useContext(AuthContext);
+  const { setMapState } = useContext(MapContext);
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,18 +44,37 @@ const DirectEventLinkView = () => {
     loadEventData();
   }, [id, isConnected, isLoading]);
 
-  const handleClose = () => {
-    // Check if we came from a marker click (will have mapState in location.state)
-    const mapState = location.state?.mapState;
+  const isModalMode = location.state?.background;
 
-    if (mapState) {
-      // If we have map state, navigate back to home with preserved state
-      navigate("/", { state: { mapState } });
-    } else if (window.history.length > 1) {
-      // Use history.back() to avoid refresh and maintain previous state
-      window.history.back();
+  // Update MapContext when event data loads (for direct link access)
+  useEffect(() => {
+    if (eventData && !isModalMode) {
+      // Only update MapContext for direct link access, not modal mode
+      setMapState({
+        center: {
+          lat: eventData.lat || eventData.address?.latitude,
+          lng: eventData.lng || eventData.address?.longitude
+        },
+        zoom: 15
+      });
+    }
+  }, [eventData, isModalMode, setMapState]);
+
+  const handleClose = () => {
+    if (isModalMode) {
+      // Modal mode: go back to background map (MapContext already has correct position)
+      navigate(-1);
     } else {
-      // Fallback to home if no history
+      // Direct link mode: update MapContext with event coordinates and navigate to home
+      if (eventData) {
+        setMapState({
+          center: {
+            lat: eventData.lat || eventData.address?.latitude,
+            lng: eventData.lng || eventData.address?.longitude
+          },
+          zoom: 15
+        });
+      }
       navigate("/");
     }
   };

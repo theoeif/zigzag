@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
+import { MapContext } from "../../../contexts/MapContext";
 import {
   fetchDirectEvent,
   acceptInvitation,
@@ -15,6 +16,7 @@ import {
   FaLink,
   FaUsers,
   FaUserFriends,
+  FaCircle,
   // See more icon to navigate to project page
   FaInfoCircle
 } from "react-icons/fa";
@@ -77,6 +79,7 @@ const styles = {
   },
   title: {
     fontSize: "1.5rem",
+    marginTop: "-5px",
     marginBottom: "15px",
     color: "#333",
     paddingRight: "80px", // Make room for the date badge
@@ -353,8 +356,12 @@ const EventView = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { setMapState } = useContext(MapContext);
   const inviteToken = searchParams.get('invite');
   const { isConnected } = useContext(AuthContext);
+
+  // Derive modal mode from displayMode and location state
+  const isModalMode = displayMode === 'fullpage' && location.state?.background;
 
   // State
   const [event, setEvent] = useState(initialData || null);
@@ -548,7 +555,7 @@ const EventView = ({
 
 
   const handleViewOnMap = () => {
-    // Pass the event location as state to maintain zoom and center when navigating to map
+    // Update MapContext with event coordinates and navigate to map
     if (event && (
       (event.lat && event.lng) ||
       (event.address && event.address.latitude && event.address.longitude)
@@ -556,21 +563,16 @@ const EventView = ({
       const lat = event.lat || (event.address && event.address.latitude);
       const lng = event.lng || (event.address && event.address.longitude);
 
-      // If we have an original map state, use it as the base and update with event coordinates
-      const mapState = originalMapState ? {
-        ...originalMapState,
+      // Update MapContext with event coordinates
+      setMapState({
         center: { lat, lng },
         zoom: 15
-      } : {
-        center: { lat, lng },
-        zoom: 15
-      };
-
-      navigate('/', {
-        state: { mapState }
       });
+
+      navigate("/");
     } else {
-      navigate('/');
+      // Fallback to home page if no coordinates
+      navigate("/");
     }
   };
 
@@ -721,19 +723,27 @@ const EventView = ({
   if (displayMode === 'fullpage') {
     return (
       <div style={styles.fullpage.container}>
-        {/* Map as background */}
-        <div style={styles.fullpage.mapContainer}>
-          <MarkersMap
-            eventCoordinates={event ? {
-              lat: event.lat || (event.address && event.address.latitude),
-              lng: event.lng || (event.address && event.address.longitude)
-            } : null}
-          />
-        </div>
+        {/* Only render map for direct link access, not modal mode */}
+        {!isModalMode && (
+          <div style={styles.fullpage.mapContainer}>
+            <MarkersMap
+              eventCoordinates={event ? {
+                lat: event.lat || (event.address && event.address.latitude),
+                lng: event.lng || (event.address && event.address.longitude)
+              } : null}
+            />
+          </div>
+        )}
 
         {/* Event info overlay */}
-        <div style={styles.fullpage.overlay}>
-          <div style={styles.card}>
+        <div
+          style={styles.fullpage.overlay}
+          onClick={isModalMode ? onClose : undefined}
+        >
+          <div
+            style={styles.card}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Date display in right corner with click interaction */}
             <div
               style={{
@@ -780,7 +790,7 @@ const EventView = ({
                         ...styles.detailIcon,
                         color: addressHovered ? "#2196F3" : "#40916c"
                       }} />
-                      <span><strong>Where:</strong> {event.address.address_line}</span>
+                      <span> {event.address.address_line}</span>
                     </div>
                   )}
 
@@ -791,12 +801,18 @@ const EventView = ({
                     </div>
                   )}
 
-                  {/* Public/private and friends-of-friends indicators removed */}
-
                   {/* Participants */}
                   {event.circles && event.circles.length > 0 && (
                     <div style={styles.participantsRow}>
-                      <strong>Cercles:</strong>
+                      <div style={{
+                        ...styles.detailIcon,
+                        marginRight: "8px",
+                        width: "12px",
+                        height: "18px",
+                        borderRadius: "50%",
+                        border: "2px solid #40916c",
+                        backgroundColor: "transparent"
+                      }} />
                       <div style={styles.circlesContainer}>
                         {event.circles.map((circle, index) => (
                           <div
@@ -841,8 +857,6 @@ const EventView = ({
                     </div>
                   </div>
                 )}
-
-                {/* WhatsApp link removed */}
 
                 {/* Bottom buttons - share link and view members on left, participate on right */}
                 <div style={styles.bottomButtons}>
@@ -914,15 +928,26 @@ const EventView = ({
                   ) : null}
                 </div>
 
-                {/* View on map button */}
-                <div style={{display: "flex", justifyContent: "center", marginTop: "15px"}}>
-                  <button
-                    style={{...styles.button, ...styles.secondaryButton}}
-                    onClick={handleViewOnMap}
-                  >
-                    View on Map
-                  </button>
-                </div>
+                {/* View on map button - only show for direct link access, not modal mode */}
+                {!isModalMode && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: "20px",
+                    right: "20px"
+                  }}>
+                    <button
+                      style={{
+                        ...styles.button,
+                        ...styles.secondaryButton,
+                        padding: "8px 12px",
+                        fontSize: "0.9rem"
+                      }}
+                      onClick={handleViewOnMap}
+                    >
+                      View on Map
+                    </button>
+                  </div>
+                )}
               </>
             }
           </div>
@@ -1007,12 +1032,18 @@ const EventView = ({
                   </div>
                 )}
 
-                {/* Public/private and friends-of-friends indicators removed */}
-
                 {/* Participants */}
                 {event.circles && event.circles.length > 0 && (
                   <div style={styles.participantsRow}>
-                    <strong>Participants:</strong>
+                    <div style={{
+                      ...styles.detailIcon,
+                      marginRight: "8px",
+                      width: "12px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      border: "2px solid #40916c",
+                      backgroundColor: "transparent"
+                    }} />
                     <div style={styles.circlesContainer}>
                       {event.circles.map((circle, index) => (
                         <div
@@ -1057,8 +1088,6 @@ const EventView = ({
                   </div>
                 </div>
               )}
-
-              {/* WhatsApp link removed */}
 
               {/* Bottom buttons - share link and view members on left, participate on right */}
               <div style={styles.bottomButtons}>

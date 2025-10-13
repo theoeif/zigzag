@@ -51,10 +51,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     const start = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 1);
-    console.log('MarkersMap: Initial timeframe set:', {
-      start: start.toLocaleDateString(),
-      end: end.toLocaleDateString()
-    });
     return { start, end };
   });
 
@@ -159,25 +155,14 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const mapRef = useRef(null);
 
   // Get mapState from context and navigation state
-  const { mapState: contextMapState } = useContext(MapContext);
+  const { mapState: contextMapState, setMapState } = useContext(MapContext);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get mapState from navigation state (for direct navigation from events)
-  const navigationMapState = location.state?.mapState;
+  // Use only MapContext for map state management
+  // Navigation state is only used for passing data, not for map positioning
+  const mapState = contextMapState;
 
-  // Use navigation state if available, otherwise use context state
-  const mapState = navigationMapState || contextMapState;
-
-  // Debug logging
-  // console.log("MarkersMap: mapState sources:", {
-  //   navigationMapState,
-  //   contextMapState,
-  //   finalMapState: mapState,
-  //   locationState: location.state,
-  //   locationPathname: location.pathname,
-  //   historyLength: window.history.length
-  // });
 
   /**
    * Handle zoom level changes to determine when to show/hide close markers
@@ -743,13 +728,14 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
 
         marker.on("click", () => {
-          console.log('MarkersMap: Close project marker clicked:', {
-            id: markerData.id,
-            title: markerData.title,
-            coordinates: { lat: markerData.lat, lng: markerData.lng }
+          // Update MapContext BEFORE navigating
+          setMapState({
+            center: { lat: markerData.lat, lng: markerData.lng },
+            zoom: 15
           });
           navigate(`/event/${markerData.id}`, {
             state: {
+              background: location,  // Tells App.jsx to keep map mounted
               mapState: {
                 center: { lat: markerData.lat, lng: markerData.lng },
                 zoom: 15
@@ -799,13 +785,15 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
 
         marker.on("click", () => {
-          console.log('MarkersMap: Normal project marker clicked:', {
-            id: markerData.id,
-            title: markerData.title,
-            coordinates: { lat: markerData.lat, lng: markerData.lng }
+          // Update MapContext BEFORE navigating so background map has correct coordinates
+          setMapState({
+            center: { lat: markerData.lat, lng: markerData.lng },
+            zoom: 15
           });
+
           navigate(`/event/${markerData.id}`, {
             state: {
+              background: location,  // Tells App.jsx to keep map mounted
               mapState: {
                 center: { lat: markerData.lat, lng: markerData.lng },
                 zoom: 15
@@ -870,6 +858,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
         marker.on("click", () => {
           if (markerData.user_id) {
+            // Update MapContext BEFORE navigating so background map has correct coordinates
+            setMapState({
+              center: { lat: markerData.lat, lng: markerData.lng },
+              zoom: 15
+            });
+
             navigate(`/friend/${markerData.user_id}`, {
               state: {
                 background: location,
@@ -936,6 +930,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
         marker.on("click", () => {
           if (markerData.user_id) {
+            // Update MapContext BEFORE navigating so background map has correct coordinates
+            setMapState({
+              center: { lat: markerData.lat, lng: markerData.lng },
+              zoom: 15
+            });
+
             navigate(`/friend/${markerData.user_id}`, {
               state: {
                 background: location,
@@ -1098,15 +1098,15 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Update map view when mapState changes.
   useEffect(() => {
     if (mapRef.current && mapState) {
-      const lat = mapState.lat || mapState.center?.lat;
-      const lng = mapState.lng || mapState.center?.lng;
+      // Use MapContext coordinates directly
+      const lat = mapState.center?.lat || mapState.lat;
+      const lng = mapState.center?.lng || mapState.lng;
       const zoom = mapState.zoom || 15;
       if (lat && lng) {
-        console.log("MarkersMap: Updating map view from mapState:", { lat, lng, zoom });
         mapRef.current.setView([lat, lng], zoom);
       }
     }
-  }, [mapState, navigationMapState]);
+  }, [mapState]);
 
   // Update map view when selectedLocation changes.
   useEffect(() => {
@@ -1121,14 +1121,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
    * Expects an object with { start: Date, end: Date }.
    */
   const handleTimelineTimeChange = useCallback((range) => {
-    console.log('MarkersMap: Timeline time change received:', {
-      start: range.start,
-      end: range.end,
-      startString: range.start.toLocaleDateString(),
-      endString: range.end.toLocaleDateString(),
-      timelineInitialized
-    });
-
     // Mark timeline as initialized when user interacts with it
     if (!timelineInitialized) {
       setTimelineInitialized(true);
@@ -1143,7 +1135,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Initialize timeline on mount
   useEffect(() => {
     if (!timelineInitialized) {
-      console.log('MarkersMap: Initializing timeline with default timeframe');
       setTimelineInitialized(true);
     }
   }, [timelineInitialized]);
@@ -1160,7 +1151,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Center map on event coordinates when provided (but don't affect timeline)
   useEffect(() => {
     if (eventCoordinates && mapRef.current && eventCoordinates.lat && eventCoordinates.lng) {
-      console.log('MarkersMap: Centering map on event coordinates:', eventCoordinates);
       // Only center the map view, don't trigger any timeline updates
       mapRef.current.setView([eventCoordinates.lat, eventCoordinates.lng], 15);
     }
