@@ -376,6 +376,7 @@ const CalendarView = () => {
     // Handle grey events (circle calendar mode)
     if (eventInfo.event.extendedProps.isGreyEvent) {
       const eventCount = eventInfo.event.extendedProps.eventCount || 1;
+
       return (
         <div className={styles.greyEventContent}>
           <span className={styles.greyEventText}>
