@@ -115,12 +115,7 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           ) : (
             <>
               <div className={styles.memberCountProject}>
-                <span>{members.length} invité{members.length !== 1 ? 's' : ''}</span>
-                {isMultiCircle && (
-                  <span className={styles.circleGroupLabel}>
-                    de {circleIds.length} cercles
-                  </span>
-                )}
+                <span>{members.length} invité{members.length !== 1 ? 's' : ''} de tes cercles</span>
               </div>
               <ul className={styles.membersListProject}>
                 {members.map((member, index) => (
