@@ -33,6 +33,13 @@ const App = () => {
         <Route path="/event/:id" element={<DirectEventLinkView />} />
       </Routes>
 
+      {/* Modal routes - rendered when background state exists */}
+      {state.background && (
+        <Routes>
+          <Route path="/event/:id" element={<DirectEventLinkView />} />
+        </Routes>
+      )}
+
     </>
   );
 };

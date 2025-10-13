@@ -750,6 +750,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           });
           navigate(`/event/${markerData.id}`, {
             state: {
+              background: location,  // Tells App.jsx to keep map mounted
               mapState: {
                 center: { lat: markerData.lat, lng: markerData.lng },
                 zoom: 15
@@ -806,6 +807,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           });
           navigate(`/event/${markerData.id}`, {
             state: {
+              background: location,  // Tells App.jsx to keep map mounted
               mapState: {
                 center: { lat: markerData.lat, lng: markerData.lng },
                 zoom: 15
