@@ -847,3 +847,26 @@ export const generateEventShareToken = async (eventId) => {
     throw error;
   }
 };
+
+// Fetch grey events for selected circles (privacy-protected)
+export const fetchGreyEvents = async (circleIds) => {
+  try {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      token = await refreshAccessToken();
+      if (!token) throw new Error('Authentication required');
+    }
+
+    // Convert circleIds to query parameters
+    const queryParams = circleIds.map(id => `circle_ids=${id}`).join('&');
+    const response = await axios.get(
+      `${API_BASE_URL}events/circles/grey-events/?${queryParams}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching grey events:', error);
+    throw error;
+  }
+};
