@@ -18,12 +18,10 @@ import Header from "./Header/Header";
 import LeftMenu from "./LeftMenu/LeftMenu";
 import FilterMenu from "./FilterMenu/FilterMenu";
 import Map from "./Map/Map";
-import TimelineBar from "./TimelineBar/TimelineBar";
-import TimelineBarMobile from "./TimelineBar/TimelineBarMobile";
-import TimelineToggle from "./TimelineBar/TimelineToggle";
 import { AuthContext } from "../contexts/AuthProvider";
 import { MapContext } from "../contexts/MapContext.jsx";
 import CreateEventForm from "./Project/CreateEventForm";
+import MapControls from "./MapControls/MapControls";
 
 const MarkersMap = ({ eventCoordinates = null }) => {
   const isBackground = !!eventCoordinates;
@@ -38,12 +36,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const [showProjects, setShowProjects] = useState(true);
   const [showFriendLocations, setShowFriendLocations] = useState(true);
 
-
-  // Timeline visibility state - default to visible
-  const [showTimelineBar, setShowTimelineBar] = useState(true);
-
-  // Track if timeline has been initialized to prevent resets
-  const [timelineInitialized, setTimelineInitialized] = useState(false);
 
   // Single source of truth for timeframe
   const [timeframe, setTimeframe] = useState(() => {
@@ -177,10 +169,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     // This hook is maintained for future zoom-based optimizations
   }, []);
 
-  // Simple toggle function - only affects visibility
-  const toggleTimelineVisibility = () => {
-    setShowTimelineBar(prev => !prev);
-  };
 
   /**
    * Initialize the map.
@@ -1117,27 +1105,16 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   }, [selectedLocation]);
 
   /**
-   * Callback from TimelineBar to update the filtering timeframe.
+   * Callback to update the filtering timeframe.
    * Expects an object with { start: Date, end: Date }.
    */
   const handleTimelineTimeChange = useCallback((range) => {
-    // Mark timeline as initialized when user interacts with it
-    if (!timelineInitialized) {
-      setTimelineInitialized(true);
-    }
-
     setTimeframe({
       start: new Date(range.start),
       end: new Date(range.end)
     });
-  }, [timelineInitialized]);
+  }, []);
 
-  // Initialize timeline on mount
-  useEffect(() => {
-    if (!timelineInitialized) {
-      setTimelineInitialized(true);
-    }
-  }, [timelineInitialized]);
 
   // Fetch friend locations when component mounts
   useEffect(() => {
@@ -1185,33 +1162,15 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         isLeftMenuOpen={!isBackground && isLeftMenuOpen}
         initializeMap={initializeMap}
       >
-        {/* Only render TimelineBar when visible and not in background mode */}
-        {!isBackground && showTimelineBar && (
-          isSmallScreen ? (
-            <TimelineBarMobile
-              onTimeChange={handleTimelineTimeChange}
-              initialRange={timeframe}
-              inProjectView={false}
-              onCreateEventClick={() => setShowCreateForm(true)}
-            />
-          ) : (
-            <TimelineBar
-              onTimeChange={handleTimelineTimeChange}
-              initialRange={timeframe}
-              inProjectView={false}
-              onCreateEventClick={() => setShowCreateForm(true)}
-            />
-          )
-        )}
       </Map>
 
-      {/* Simple toggle button */}
-      {!isBackground && (
-        <TimelineToggle
-          isVisible={showTimelineBar}
-          onToggle={toggleTimelineVisibility}
-        />
-      )}
+      {/* Map Controls - Create Project and Date Range Picker */}
+      <MapControls
+        timeframe={timeframe}
+        onTimeChange={handleTimelineTimeChange}
+        onCreateProject={() => setShowCreateForm(true)}
+        isBackground={isBackground}
+      />
 
       {/* Create Event Form modal */}
       {!isBackground && showCreateForm && (

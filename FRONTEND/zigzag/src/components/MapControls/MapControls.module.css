@@ -1,0 +1,255 @@
+/* MapControls.module.css */
+
+.container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.containerMobile {
+  bottom: 10px;
+  left: 10px;
+  gap: 8px;
+}
+
+.controlsWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #f8fffe 0%, #f0fdf4 100%);
+  border: 1px solid rgba(64, 145, 108, 0.2);
+  border-radius: 32px;
+  padding: 8px 16px;
+  box-shadow: 0 4px 12px rgba(64, 145, 108, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.controlsWrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+  border-radius: 32px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.controlsWrapperMobile {
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 28px;
+}
+
+.controlsWrapper:hover {
+  background: linear-gradient(135deg, #e8f5e8 0%, #d1fae5 100%);
+  box-shadow: 0 6px 20px rgba(64, 145, 108, 0.25);
+  border-color: rgba(64, 145, 108, 0.3);
+}
+
+.controlsWrapper:hover::before {
+  opacity: 1;
+}
+
+.createButton {
+  background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 300;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(64, 145, 108, 0.3);
+  position: relative;
+  overflow: hidden;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.createButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.createButtonMobile {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+}
+
+.createButton:hover {
+  background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+  box-shadow: 0 4px 16px rgba(64, 145, 108, 0.4);
+  animation: none;
+}
+
+
+.createButton:hover::before {
+  opacity: 1;
+}
+
+.createButton:active {
+  transform: scale(0.98) translateY(0);
+  box-shadow: 0 2px 8px rgba(64, 145, 108, 0.3);
+}
+
+/* Subtle breathing animation */
+@keyframes breathe {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(64, 145, 108, 0.3);
+  }
+  50% {
+    box-shadow: 0 3px 12px rgba(64, 145, 108, 0.4);
+  }
+}
+
+.dateButton {
+  background-color: transparent;
+  border: none;
+  color: #2d6a4f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.dateButton:hover {
+  background-color: rgba(64, 145, 108, 0.1);
+  color: #1b4332;
+}
+
+.dateButtonMobile {
+  gap: 6px;
+  font-size: 0.75rem;
+  padding: 4px 6px;
+}
+
+.dateText {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.dateTextMobile {
+  font-size: 0.7rem;
+}
+
+.popover {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  min-width: 250px;
+  margin-bottom: 4px;
+}
+
+.popoverMobile {
+  padding: 12px;
+  min-width: 200px;
+}
+
+.inputGroup {
+  margin-bottom: 12px;
+}
+
+.inputGroup:last-of-type {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.resetButton {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.resetButton:hover {
+  background-color: #f5f5f5;
+}
+
+.applyButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #40916c;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.applyButton:hover {
+  background-color: #2d6a4f;
+}
+
+.applyButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.applyButton:disabled:hover {
+  background-color: #ccc;
+}
