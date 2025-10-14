@@ -1,7 +1,6 @@
 import React from 'react';
 import { MapContainer } from 'react-leaflet';
 import '../../index.css'
-import TimelineBar from "../TimelineBar/TimelineBar";
 
 const Map = ({ isFilterOpen, isLeftMenuOpen, initializeMap, children }) => {
   // Determine screen width once at render time
