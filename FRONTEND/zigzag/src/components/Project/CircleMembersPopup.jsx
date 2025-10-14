@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaUserAlt, FaUserFriends, FaTimes } from 'react-icons/fa';
 import styles from './Project.module.css';
-import { fetchCircleMembers } from '../../api/api';
+import { fetchCircleMembers, fetchCircles } from '../../api/api';
 
 // Component now only accepts an array of circle IDs
 const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
@@ -22,8 +22,28 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           throw new Error("No circle IDs provided");
         }
 
-        // Fetch members using the array of circle IDs
-        const membersData = await fetchCircleMembers(circleIds);
+        // Fetch user's accessible circles
+        const userCircles = await fetchCircles(); // existing API call
+        if (!userCircles || !Array.isArray(userCircles)) {
+          throw new Error("Failed to fetch user circles");
+        }
+
+        // Extract IDs of circles user belongs to
+        const accessibleCircleIds = userCircles.map(c => c.id);
+
+        // Filter requested circles to only accessible ones
+        const filteredCircleIds = circleIds.filter(id =>
+          accessibleCircleIds.includes(id)
+        );
+
+        if (filteredCircleIds.length === 0) {
+          setMembers([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch members using filtered circle IDs
+        const membersData = await fetchCircleMembers(filteredCircleIds);
 
         if (Array.isArray(membersData)) {
           setMembers(membersData);
@@ -90,17 +110,12 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           ) : members.length === 0 ? (
             <div className={styles.noMembersContainerProject}>
               <FaUserAlt className={styles.noMembersIcon} />
-              <p>Aucun invité trouvé dans {isMultiCircle ? 'ces cercles' : 'ce cercle'}</p>
+              <p>Tu ne fais pas partie de {isMultiCircle ? 'ces cercles' : 'ce cercle'}</p>
             </div>
           ) : (
             <>
               <div className={styles.memberCountProject}>
-                <span>{members.length} invité{members.length !== 1 ? 's' : ''}</span>
-                {isMultiCircle && (
-                  <span className={styles.circleGroupLabel}>
-                    de {circleIds.length} cercles
-                  </span>
-                )}
+                <span>{members.length} invité{members.length !== 1 ? 's' : ''} de tes cercles</span>
               </div>
               <ul className={styles.membersListProject}>
                 {members.map((member, index) => (

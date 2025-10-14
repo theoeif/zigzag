@@ -15,6 +15,7 @@ from .views import (
     ProfileByUserView,
     ICalDownloadView,
     ICalFeedView,
+    CircleGreyEventsView,
 )
 
 # ViewSet mappings
@@ -51,6 +52,7 @@ urlpatterns = [
     path('circles/<int:id>/add_members/', CircleViewSet.as_view({'post': 'add_members'}), name='circle-add-members'),
     path('circles/<int:id>/remove_members/', CircleViewSet.as_view({'post': 'remove_members'}), name='circle-remove-members'),
     path('circles/members/', MultiCircleMembersView.as_view(), name='multi_circle_members'),
+    path('circles/grey-events/', CircleGreyEventsView.as_view(), name='circle-grey-events'),
     path('tags/', TagListView.as_view(), name='tag-list'),
     path('my/locations/', MyLocationsView.as_view(), name='my-locations'),
     path('users/', FriendsListView.as_view(), name='users-list'),
