@@ -189,3 +189,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class GreyEventSerializer(serializers.ModelSerializer):
+    """Serializer for grey events - only exposes temporal information for privacy."""
+
+    class Meta:
+        model = Event
+        fields = ['start_time', 'end_time']

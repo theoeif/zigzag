@@ -12,6 +12,8 @@ import EditEventForm from '../Project/EditEventForm';
 import EventView from '../EventViewMap/EventView/EventView';
 import EventDetailsSection from '../Project/EventDetailsSection';
 import CircleMembersPopup from '../Project/CircleMembersPopup';
+import CircleSelector from './CircleSelector';
+import LeftMenu from '../LeftMenu/LeftMenu';
 import styles from './CalendarView.module.css';
 import Header from '../Header/Header';
 
@@ -20,6 +22,7 @@ const CalendarView = () => {
 
   // State management
   const [events, setEvents] = useState([]);
+  const [greyEvents, setGreyEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -33,11 +36,60 @@ const CalendarView = () => {
   const [circleMembersData, setCircleMembersData] = useState(null);
   const [listMonths, setListMonths] = useState(1);
   const [activeView, setActiveView] = useState('dayGridMonth');
+  const [calendarMode, setCalendarMode] = useState('my'); // 'my' or 'circle'
+  const [selectedCircles, setSelectedCircles] = useState([]);
+  const [circleError, setCircleError] = useState(null);
+  const [showCircleSelector, setShowCircleSelector] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
 
   // Fetch events on component mount.
   useEffect(() => {
     loadEvents();
   }, []);
+
+  // Check if mobile and handle resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Handle click outside to close mobile menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobile && showCircleSelector) {
+        const sidebar = document.querySelector('[data-circle-selector]');
+
+        if (sidebar && !sidebar.contains(event.target)) {
+          setShowCircleSelector(false);
+        }
+      }
+    };
+
+    if (isMobile && showCircleSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isMobile, showCircleSelector]);
+
+  // Handle click outside to close left menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInside = event.target.closest(".left-menu") || event.target.closest(".left-menu-icon");
+      if (!isClickInside) setIsLeftMenuOpen(false);
+    };
+
+    if (isLeftMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [isLeftMenuOpen]);
 
   const loadEvents = async () => {
     try {
@@ -204,23 +256,115 @@ const CalendarView = () => {
 
   const handleEventCreated = (newEvent) => {
     setShowCreateForm(false);
-    loadEvents(); // Refresh calendar
+    if (calendarMode === 'my') {
+      loadEvents(); // Refresh personal calendar
+    }
+    // In circle mode, we don't need to refresh grey events since they're read-only
   };
 
   const handleEventUpdated = (updatedEvent) => {
     setShowEditForm(false);
     setShowEventView(false);
-    loadEvents(); // Refresh calendar
+    if (calendarMode === 'my') {
+      loadEvents(); // Refresh personal calendar
+    }
   };
 
   const handleEventDeleted = () => {
     setShowEventView(false);
-    loadEvents(); // Refresh calendar
+    if (calendarMode === 'my') {
+      loadEvents(); // Refresh personal calendar
+    }
   };
 
   const handleViewCircleMembers = (circleId, circleName) => {
     setCircleMembersData({ circleId, circleName });
     setShowCircleMembers(true);
+  };
+
+  // Handle calendar mode toggle
+  const handleModeChange = (event, newMode) => {
+    if (newMode !== null) {
+      setCalendarMode(newMode);
+      if (newMode === 'my') {
+        setGreyEvents([]);
+        setSelectedCircles([]);
+        setCircleError(null);
+        setShowCircleSelector(false);
+      } else {
+        if (isMobile) {
+          setShowCircleSelector(true);
+        }
+      }
+    }
+  };
+
+  // Handle circle selection changes
+  const handleCirclesChange = (newSelectedCircles) => {
+    setSelectedCircles(newSelectedCircles);
+  };
+
+  // Handle grey events changes
+  const handleGreyEventsChange = (newGreyEvents) => {
+    setGreyEvents(newGreyEvents);
+  };
+
+  // Handle circle errors
+  const handleCircleError = (error) => {
+    setCircleError(error);
+  };
+
+  // Convert grey events to FullCalendar format
+  const convertGreyEventsToCalendar = (greyEventsData) => {
+    if (!greyEventsData || greyEventsData.length === 0) return [];
+
+    // Group events by 30-minute time slots to reduce clutter while maintaining time accuracy
+    const eventsByTimeSlot = {};
+    greyEventsData.forEach(event => {
+      const startDate = new Date(event.start_time);
+      const endDate = event.end_time ? new Date(event.end_time) : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+      // Create a 30-minute time slot key for better grouping
+      const hour = startDate.getHours();
+      const minute = startDate.getMinutes();
+      const slotMinute = minute < 30 ? '00' : '30';
+      const timeSlotKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}-${String(hour).padStart(2, '0')}-${slotMinute}`;
+
+      if (!eventsByTimeSlot[timeSlotKey]) {
+        eventsByTimeSlot[timeSlotKey] = [];
+      }
+      eventsByTimeSlot[timeSlotKey].push(event);
+    });
+
+    // Create calendar events for each time slot with event count
+    return Object.entries(eventsByTimeSlot).map(([timeSlotKey, events]) => {
+      const firstEvent = events[0];
+      const startDate = new Date(firstEvent.start_time);
+
+      // Use the actual start time but round to the nearest 30-minute slot for display
+      const displayStart = new Date(startDate);
+      const minutes = displayStart.getMinutes();
+      displayStart.setMinutes(minutes < 30 ? 0 : 30, 0, 0);
+
+      // Create a 30-minute duration for the display event
+      const displayEnd = new Date(displayStart.getTime() + 30 * 60 * 1000);
+
+      return {
+        id: `grey-${timeSlotKey}`,
+        title: `${events.length} event${events.length > 1 ? 's' : ''}`,
+        start: displayStart.toISOString(),
+        end: displayEnd.toISOString(),
+        allDay: false,
+        extendedProps: {
+          isGreyEvent: true,
+          eventCount: events.length,
+          originalEvents: events
+        },
+        backgroundColor: '#e0e0e0',
+        borderColor: '#bdbdbd',
+        textColor: '#666666'
+      };
+    });
   };
 
   // Export functionality
@@ -246,6 +390,20 @@ const CalendarView = () => {
   };
 
   const renderEventContent = (eventInfo) => {
+    // Handle grey events (circle calendar mode)
+    if (eventInfo.event.extendedProps.isGreyEvent) {
+      const eventCount = eventInfo.event.extendedProps.eventCount || 1;
+
+      return (
+        <div className={styles.greyEventContent}>
+          <span className={styles.greyEventText}>
+            {eventCount} event{eventCount > 1 ? 's' : ''}
+          </span>
+        </div>
+      );
+    }
+
+    // Handle regular events (my calendar mode)
     const endIso = eventInfo.event.extendedProps.originalEnd;
     const endLabel = (() => {
       if (!endIso) return '';
@@ -287,45 +445,53 @@ const CalendarView = () => {
     );
   };
 
+  // Prepare events for calendar display
+  const displayEvents = calendarMode === 'my' ? events : convertGreyEventsToCalendar(greyEvents);
+
   return (
     <div className={styles.calendarContainer}>
-      <Header />
-      {/* Calendar Header with Export Options */}
-      <Box className={styles.calendarHeader}>
-        <Typography variant="h5" className={styles.calendarTitle}>
-          Calendrier
-        </Typography>
-        <Stack direction="row" spacing={1}>
-          <Tooltip title="Télécharger le fichier .ics">
-            <Button
-              variant="outlined"
-              startIcon={<Download />}
-              onClick={handleDownloadICS}
-              className={styles.exportButton}
-            >
-              Télécharger
-            </Button>
-          </Tooltip>
-          <Tooltip title="S'abonner au calendrier">
-            <Button
-              variant="contained"
-              startIcon={<Link />}
-              onClick={handleSubscribeToCalendar}
-              className={styles.subscribeButton}
-            >
-              S'abonner
-            </Button>
-          </Tooltip>
-          <Tooltip title="Instructions d'export">
-            <IconButton onClick={() => setShowExportModal(true)}>
-              <Info />
-            </IconButton>
-          </Tooltip>
-        </Stack>
+      <Header
+        toggleLeftMenu={() => setIsLeftMenuOpen(!isLeftMenuOpen)}
+      />
+
+      {isLeftMenuOpen && (
+        <div className="left-menu">
+          <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />
+        </div>
+      )}
+
+        {/* Circle Selector Sidebar */}
+        {calendarMode === 'circle' && (
+          <div data-circle-selector>
+            <CircleSelector
+              selectedCircles={selectedCircles}
+              onCirclesChange={handleCirclesChange}
+              onGreyEventsChange={handleGreyEventsChange}
+              onError={handleCircleError}
+              isVisible={showCircleSelector}
+              onClose={() => setShowCircleSelector(false)}
+            />
+          </div>
+        )}
+
+
+      {/* Calendar Header with Schedule Button */}
+      <Box className={`${styles.calendarHeader} ${calendarMode === 'circle' ? styles.calendarHeaderWithSidebar : ''}`}>
+        {/* Schedule Button - Show when not in circle mode OR when in circle mode but sidebar is closed */}
+        <Box className={`${styles.headerTop} ${calendarMode === 'circle' && showCircleSelector ? styles.headerTopHidden : ''}`}>
+          <Button
+            variant={calendarMode === 'circle' ? 'contained' : 'outlined'}
+            onClick={() => handleModeChange(null, calendarMode === 'my' ? 'circle' : 'my')}
+            size="small"
+            className={styles.scheduleButton}
+          >
+            Planning
+          </Button>
+        </Box>
       </Box>
 
       {/* FullCalendar Component */}
-      <div className={styles.calendarWrapper}>
+      <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' ? styles.calendarWrapperWithSidebar : ''}`}>
         {activeView === 'myList' && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
             <Button size="small" variant={listMonths === 1 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(1)}>1M</Button>
@@ -343,20 +509,20 @@ const CalendarView = () => {
             right: 'dayGridMonth,timeGridWeek,myList'
           }}
           locale="fr"
-          events={events}
+          events={displayEvents}
           dateClick={handleDateClick}
-          eventClick={handleEventClick}
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
+          eventClick={calendarMode === 'my' ? handleEventClick : undefined}
+          eventDrop={calendarMode === 'my' ? handleEventDrop : undefined}
+          eventResize={calendarMode === 'my' ? handleEventResize : undefined}
           eventContent={renderEventContent}
           height="auto"
           dayMaxEvents={3}
           moreLinkClick="popover"
           moreLinkClassNames={'zz-more-link'}
-          editable={true}
-          droppable={true}
-          selectable={true}
-          selectMirror={true}
+          editable={calendarMode === 'my'}
+          droppable={calendarMode === 'my'}
+          selectable={calendarMode === 'my'}
+          selectMirror={calendarMode === 'my'}
           weekends={true}
           nowIndicator={true}
           slotEventOverlap={false}
@@ -392,6 +558,39 @@ const CalendarView = () => {
           className={styles.fullCalendar}
         />
       </div>
+
+      {/* Bottom Section: Title and Export Buttons */}
+      <Box className={styles.calendarTitleBottom}>
+        <Stack direction="row" spacing={1} className={styles.bottomButtons}>
+          <Tooltip title="Télécharger le fichier .ics">
+            <Button
+              variant="outlined"
+              startIcon={<Download />}
+              onClick={handleDownloadICS}
+              className={styles.exportButton}
+              size="small"
+            >
+              Télécharger
+            </Button>
+          </Tooltip>
+          <Tooltip title="S'abonner au calendrier">
+            <Button
+              variant="contained"
+              startIcon={<Link />}
+              onClick={handleSubscribeToCalendar}
+              className={styles.subscribeButton}
+              size="small"
+            >
+              S'abonner
+            </Button>
+          </Tooltip>
+          <Tooltip title="Instructions d'export">
+            <IconButton onClick={() => setShowExportModal(true)} size="small">
+              <Info />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Box>
 
       {/* Create Event Form Modal */}
       {showCreateForm && (

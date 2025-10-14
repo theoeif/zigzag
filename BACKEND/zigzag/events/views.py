@@ -9,6 +9,7 @@ from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.conf import settings
 from icalendar import Calendar, Event as ICalEvent
 
 from .models import (
@@ -29,6 +30,7 @@ from .serializers import (
     TagSerializer,
     ProfileSerializer,
     UserProfileSerializer,
+    GreyEventSerializer,
 )
 
 
@@ -471,7 +473,13 @@ class MultiCircleMembersView(APIView):
         circle_ids = request.data.get("circle_ids", [])
         if not circle_ids:
             return Response({"error": "No circle IDs provided."}, status=status.HTTP_400_BAD_REQUEST)
-        circles = Circle.objects.filter(id__in=circle_ids)
+
+        # Filter circles to only those the user is a member of or created
+        user = request.user
+        circles = Circle.objects.filter(
+            Q(id__in=circle_ids) & (Q(creator=user) | Q(members=user))
+        ).distinct()
+
         found_ids = set(str(c.id) for c in circles)
         missing_ids = set(str(cid) for cid in circle_ids) - found_ids
         if missing_ids:
@@ -798,3 +806,51 @@ class ICalFeedView(APIView):
         response['Access-Control-Allow-Headers'] = 'Content-Type'
 
         return response
+
+
+class CircleGreyEventsView(APIView):
+    """
+    Return grey events (only temporal information) for selected circles.
+    Privacy protection: only shows when total unique members >= threshold.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        circle_ids = request.query_params.getlist('circle_ids')
+        if not circle_ids:
+            return Response({"error": "No circle IDs provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.user
+
+        # Validate user is member of all requested circles
+        circles = Circle.objects.filter(
+            Q(id__in=circle_ids) & (Q(creator=user) | Q(members=user))
+        ).distinct()
+
+        found_ids = set(str(c.id) for c in circles)
+        missing_ids = set(str(cid) for cid in circle_ids) - found_ids
+        if missing_ids:
+            return Response({"error": f"Circles not found or access denied: {', '.join(sorted(missing_ids))}"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Count total unique members across selected circles
+        unique_member_ids = circles.values_list("members__id", flat=True).distinct()
+        total_members = len(unique_member_ids)
+
+        min_members = getattr(settings, 'CIRCLE_CALENDAR_MIN_MEMBERS', 15)
+        if total_members < min_members:
+            return Response({
+                "error": f"Not enough members to display events. Need at least {min_members} members."
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        # Get all events from selected circles (only temporal data)
+        events = Event.objects.filter(circles__in=circles).distinct()
+
+        # Serialize only temporal information
+        serializer = GreyEventSerializer(events, many=True)
+
+        return Response({
+            "grey_events": serializer.data,
+            "total_members": total_members,
+            "selected_circles": len(circles)
+        }, status=status.HTTP_200_OK)
