@@ -14,19 +14,22 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
+      },
       manifest: {
-        name: 'Maps App',
-        short_name: 'Maps',
+        name: 'ZigZag',
+        short_name: 'ZigZag',
         description: 'A map-based application',
         theme_color: '#ffffff',
         icons: [
           {
-            src: '/vite.svg',
+            src: '/metallic_zigzag_logo_simple.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
           },
           {
-            src: '/vite.svg',
+            src: '/metallic_zigzag_logo_simple.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
           },

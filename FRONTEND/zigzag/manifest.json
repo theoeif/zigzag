@@ -1,20 +1,20 @@
 {
-    "short_name": "Mapsssss",
-    "name": "Maps App",
+    "short_name": "ZigZag",
+    "name": "ZigZag",
     "icons": [
       {
-        "src": "/marker.png",
-        "type": "image/png",
+        "src": "/metallic_zigzag_logo_simple.svg",
+        "type": "image/svg+xml",
         "sizes": "192x192"
       },
       {
-        "src": "/marker.png",
-        "type": "image/png",
+        "src": "/metallic_zigzag_logo_simple.svg",
+        "type": "image/svg+xml",
         "sizes": "512x512"
       },
       {
-        "src": "/marker.png",
-        "type": "image/png",
+        "src": "/metallic_zigzag_logo_simple.svg",
+        "type": "image/svg+xml",
         "sizes": "1024x1024"
       }
     ],
