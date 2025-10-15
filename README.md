@@ -23,6 +23,25 @@ Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
 
 ### Backend (Django)
 
+1. Copy environment template and configure:
+
+```bash
+cd BACKEND/zigzag
+cp env.example .env
+```
+
+2. Edit `.env` and fill in your actual values (especially SECRET_KEY and database password):
+
+```bash
+SECRET_KEY=your-django-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=192.168.1.13,127.0.0.1
+POSTGRES_PASSWORD=your-database-password-here
+# ... other variables
+```
+
+3. Install dependencies:
+
 ```bash
 cd BACKEND
 uv sync
@@ -41,14 +60,22 @@ You can then open the admin dashboard at <http://127.0.0.1:8000/admin/> and type
 
 ## Frontend
 
-Prerequsites:
+Prerequisites:
 
-Duplicate `FRONTEND/zigzag/src/config.example.js` rename it with `FRONTEND/zigzag/src/config.js` (to have it ignored by `git`) and replace the following fields with your proper API key :
+1. Copy environment template and fill in your API keys:
 
 ```bash
-export const OPEN_CAGE_API_KEY = "geocoding api OpenCage" (gratuit);
-export const OPENCAGE_SEARCH_TOKEN = "Location autosuggest OpenCage" (payant);
-export const MAPTILER_API_KEY = "https://cloud.maptiler.com/ vector style" (gratuit);
+cd FRONTEND/zigzag
+cp env.example .env
+```
+
+2. Edit `.env` and replace the placeholder values with your actual API keys:
+
+```bash
+VITE_API_BASE_URL=http://127.0.0.1:8000/api/
+VITE_OPEN_CAGE_API_KEY=your-opencage-key-here
+VITE_OPENCAGE_SEARCH_TOKEN=your-opencage-search-token-here
+VITE_MAPTILER_API_KEY=your-maptiler-key-here
 ```
 
 Setup:
