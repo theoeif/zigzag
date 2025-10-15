@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import styles from './Project.module.css';
 import EventDetailsSection from './EventDetailsSection';
+import { downloadSingleEventICal } from '../../api/api';
 
 const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
@@ -120,6 +121,20 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     } catch (error) {
       console.error("Error copying share link:", error);
       alert("Échec de la copie du lien. Veuillez réessayer.");
+    }
+  };
+
+  // Add event to calendar by downloading iCal file
+  const handleAddToCalendar = async () => {
+    try {
+      // Download the iCal file for this specific event only
+      await downloadSingleEventICal(event);
+
+      // Show success message
+      alert("À ouvrir dans votre calendrier !");
+    } catch (error) {
+      console.error("Error adding event to calendar:", error);
+      alert("Erreur lors de l'ajout au calendrier. Veuillez réessayer.");
     }
   };
 
@@ -447,6 +462,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             className={styles.actionButtonProject}
             aria-label="Add to calendar"
             title="Add to calendar"
+            onClick={handleAddToCalendar}
           >
             <FaCalendarPlus />
           </button>

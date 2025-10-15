@@ -14,7 +14,6 @@ from .views import (
     FriendsListView,
     ProfileByUserView,
     ICalDownloadView,
-    ICalFeedView,
     CircleGreyEventsView,
 )
 
@@ -67,5 +66,4 @@ urlpatterns = [
 
     # iCal export endpoints
     path('ical/download/', ICalDownloadView.as_view(), name='ical-download'),
-    path('ical/feed/', ICalFeedView.as_view(), name='ical-feed'),
 ]
