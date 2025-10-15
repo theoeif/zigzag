@@ -932,25 +932,23 @@ export const downloadSingleEventICal = async (event) => {
       return new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
 
-    const startDate = formatDate(event.start_time);
-    const endDate = formatDate(new Date(new Date(event.start_time).getTime() + 2 * 60 * 60 * 1000)); // +2 hours if no end time
-
     const eventTitle = event.title || 'Untitled Event';
     const eventDescription = event.description || '';
     const eventLocation = (() => {
       if (!event.address) return '';
-
+      
       const parts = [];
       if (event.address.address_line) parts.push(event.address.address_line);
       if (event.address.city) parts.push(event.address.city);
-
+      
       return parts.join(', ');
     })();
 
-    // Generate unique ID for the event
-    const eventId = `zigzag-${event.id}@zigzag.com`;
+    // Generate unique IDs for the events
+    const eventId1 = `zigzag-${event.id}-start@zigzag.com`;
+    const eventId2 = `zigzag-${event.id}-end@zigzag.com`;
     const now = formatDate(new Date());
-
+    
     // Create a safe filename from the event title
     const createSafeFilename = (title, eventId) => {
       // Remove or replace characters that are not safe for filenames
@@ -959,29 +957,48 @@ export const downloadSingleEventICal = async (event) => {
         .replace(/\s+/g, '-') // Replace spaces with hyphens
         .substring(0, 50) // Limit length to 50 characters
         .trim();
-
+      
       // Fallback to event ID if title is empty or only special characters
       const filename = safeTitle || `event-${eventId}`;
-
+      
       return `zigzag-${filename}.ics`;
     };
-
-    // Create iCal content
+    
+    // Create two events: one for start_time and one for end_time
+    const createEvent = (startTime, endTime, uid, summary) => {
+      const startDate = formatDate(startTime);
+      const endDate = formatDate(endTime);
+      
+      return `BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${now}
+DTSTART:${startDate}
+DTEND:${endDate}
+SUMMARY:${summary}
+DESCRIPTION:${eventDescription.replace(/\n/g, '\\n')}
+LOCATION:${eventLocation}
+STATUS:CONFIRMED
+END:VEVENT`;
+    };
+    
+    // Create iCal content with two events
     const icalContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//ZIGZAG//Events//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-BEGIN:VEVENT
-UID:${eventId}
-DTSTAMP:${now}
-DTSTART:${startDate}
-DTEND:${endDate}
-SUMMARY:${eventTitle}
-DESCRIPTION:${eventDescription.replace(/\n/g, '\\n')}
-LOCATION:${eventLocation}
-STATUS:CONFIRMED
-END:VEVENT
+${createEvent(
+  event.start_time,
+  new Date(new Date(event.start_time).getTime() + 2 * 60 * 60 * 1000),
+  eventId1,
+  `${eventTitle} (Début)`
+)}
+${event.end_time ? createEvent(
+  event.end_time,
+  new Date(new Date(event.end_time).getTime() + 2 * 60 * 60 * 1000),
+  eventId2,
+  `${eventTitle} (Fin)`
+) : ''}
 END:VCALENDAR`;
 
     // Create blob and download
