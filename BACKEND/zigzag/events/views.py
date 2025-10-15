@@ -687,39 +687,60 @@ class ICalDownloadView(APIView):
         cal.add('x-wr-calname', f'ZIGZAG Events - {user.username}')
         cal.add('x-wr-timezone', 'Europe/Paris')
 
-        # Add events to calendar
+        # Add events to calendar - create dual events for each event
         for event in events:
-            vevent = ICalEvent()
-            vevent.add('summary', event.title)
-            vevent.add('dtstart', event.start_time)
-
-            if event.end_time:
-                vevent.add('dtend', event.end_time)
-            else:
-                # If no end time, set to start time + 2 hours
-                from datetime import timedelta
-                end_time = event.start_time + timedelta(hours=2)
+            from datetime import timedelta
+            
+            # Helper function to create a calendar event
+            def create_calendar_event(start_time, end_time, uid, summary):
+                vevent = ICalEvent()
+                vevent.add('summary', summary)
+                vevent.add('dtstart', start_time)
                 vevent.add('dtend', end_time)
 
-            if event.description:
-                vevent.add('description', event.description)
+                if event.description:
+                    vevent.add('description', event.description)
 
-            if event.address:
-                location_parts = [event.address.address_line]
-                if event.address.city:
-                    location_parts.append(event.address.city)
-                vevent.add('location', ', '.join(location_parts))
+                if event.address:
+                    location_parts = []
+                    if event.address.address_line:
+                        location_parts.append(event.address.address_line)
+                    if event.address.city:
+                        location_parts.append(event.address.city)
+                    if location_parts:
+                        vevent.add('location', ', '.join(location_parts))
 
-            # Add circles as categories
-            if event.circles.exists():
-                categories = [circle.name for circle in event.circles.all()]
-                vevent.add('categories', categories)
+                # Add circles as categories
+                if event.circles.exists():
+                    categories = [circle.name for circle in event.circles.all()]
+                    vevent.add('categories', categories)
 
-            vevent.add('uid', f'zigzag-{event.id}@zigzag.com')
-            vevent.add('created', event.created_at)
-            vevent.add('last-modified', event.updated_at)
+                vevent.add('uid', uid)
+                vevent.add('created', event.created_at)
+                vevent.add('last-modified', event.updated_at)
+                
+                return vevent
 
-            cal.add_component(vevent)
+            # Create first event (start time)
+            start_end_time = event.start_time + timedelta(hours=2)
+            start_event = create_calendar_event(
+                event.start_time,
+                start_end_time,
+                f'zigzag-{event.id}-start@zigzag.com',
+                f'{event.title} (Début)'
+            )
+            cal.add_component(start_event)
+
+            # Create second event (end time) - only if end_time exists
+            if event.end_time:
+                end_end_time = event.end_time + timedelta(hours=2)
+                end_event = create_calendar_event(
+                    event.end_time,
+                    end_end_time,
+                    f'zigzag-{event.id}-end@zigzag.com',
+                    f'{event.title} (Fin)'
+                )
+                cal.add_component(end_event)
 
         # Generate response
         response = HttpResponse(cal.to_ical(), content_type='text/calendar; charset=utf-8')
