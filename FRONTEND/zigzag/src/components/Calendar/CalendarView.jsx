@@ -5,8 +5,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack } from '@mui/material';
-import { CalendarToday, Download, Link, Close, Info } from '@mui/icons-material';
-import { fetchEvents, createEvent, patchEvent, deleteEvent } from '../../api/api';
+import { CalendarToday, Download, Close, Info } from '@mui/icons-material';
+import { fetchEvents, createEvent, patchEvent, deleteEvent, downloadICalFile } from '../../api/api';
 import CreateEventForm from '../Project/CreateEventForm';
 import EditEventForm from '../Project/EditEventForm';
 import EventView from '../EventViewMap/EventView/EventView';
@@ -368,25 +368,14 @@ const CalendarView = () => {
   };
 
   // Export functionality
-  const handleDownloadICS = () => {
-    const token = localStorage.getItem('access_token');
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-    const downloadUrl = `${baseUrl}/api/events/ical/download/?token=${token}`;
-    window.open(downloadUrl, '_blank');
-  };
-
-  const handleSubscribeToCalendar = () => {
-    const token = localStorage.getItem('access_token');
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-    const feedUrl = `webcal://${baseUrl.replace(/^https?:\/\//, '')}/api/events/ical/feed/?token=${token}`;
-
-    // Copy to clipboard
-    navigator.clipboard.writeText(feedUrl).then(() => {
-      alert('URL de souscription copiée ! Collez-la dans Calendrier → Fichier → Nouvelle souscription de calendrier');
-    }).catch(() => {
-      // Fallback: show URL in prompt
-      prompt('Copiez cette URL et collez-la dans votre application de calendrier:', feedUrl);
-    });
+  const handleDownloadICS = async () => {
+    try {
+      const circleIds = selectedCircles.map(c => c.id);
+      await downloadICalFile(circleIds);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Erreur lors du téléchargement');
+    }
   };
 
   const renderEventContent = (eventInfo) => {
@@ -573,17 +562,6 @@ const CalendarView = () => {
               Télécharger
             </Button>
           </Tooltip>
-          <Tooltip title="S'abonner au calendrier">
-            <Button
-              variant="contained"
-              startIcon={<Link />}
-              onClick={handleSubscribeToCalendar}
-              className={styles.subscribeButton}
-              size="small"
-            >
-              S'abonner
-            </Button>
-          </Tooltip>
           <Tooltip title="Instructions d'export">
             <IconButton onClick={() => setShowExportModal(true)} size="small">
               <Info />
@@ -674,30 +652,33 @@ const CalendarView = () => {
           </Box>
 
           <Box className={styles.modalBody}>
-            <Typography variant="h6" gutterBottom>📥 Téléchargement (Statique)</Typography>
+            <Typography variant="h6" gutterBottom>📥 Téléchargement du calendrier</Typography>
             <Typography paragraph>
-              Cliquez sur "Télécharger" pour obtenir un fichier .ics que vous pouvez importer une seule fois.
-              Les événements ne se mettront pas à jour automatiquement.
-            </Typography>
-
-            <Typography variant="h6" gutterBottom>🔄 S'abonner (Synchronisation)</Typography>
-            <Typography paragraph>
-              Cliquez sur "S'abonner" pour obtenir une URL de souscription. Collez cette URL dans votre application de calendrier :
+              Cliquez sur "Télécharger" pour obtenir un fichier .ics que vous pouvez importer dans votre application de calendrier.
             </Typography>
 
             <Typography variant="subtitle2" gutterBottom>📱 Apple Calendar (macOS/iOS):</Typography>
             <Typography component="div" className={styles.instructions}>
               1. Ouvrez Calendrier<br/>
-              2. Fichier → Nouvelle souscription de calendrier<br/>
-              3. Collez l'URL et cliquez sur "S'abonner"<br/>
-              4. Les événements se mettront à jour automatiquement
+              2. Fichier → Importer<br/>
+              3. Sélectionnez le fichier .ics téléchargé<br/>
+              4. Les événements seront importés dans votre calendrier
             </Typography>
 
             <Typography variant="subtitle2" gutterBottom>🌐 Google Calendar:</Typography>
             <Typography component="div" className={styles.instructions}>
               1. Ouvrez Google Calendar<br/>
-              2. À gauche, cliquez sur "+" → "À partir d'une URL"<br/>
-              3. Collez l'URL et cliquez sur "Ajouter le calendrier"
+              2. À gauche, cliquez sur "+" → "Importer"<br/>
+              3. Sélectionnez le fichier .ics téléchargé<br/>
+              4. Cliquez sur "Importer"
+            </Typography>
+
+            <Typography variant="subtitle2" gutterBottom>📧 Outlook:</Typography>
+            <Typography component="div" className={styles.instructions}>
+              1. Ouvrez Outlook<br/>
+              2. Fichier → Ouvrir et exporter → Importer/Exporter<br/>
+              3. Sélectionnez "Importer un fichier iCalendar (.ics) ou vCalendar (.vcs)"<br/>
+              4. Sélectionnez le fichier .ics téléchargé
             </Typography>
           </Box>
         </Box>
