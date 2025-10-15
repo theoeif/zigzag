@@ -1,8 +1,5 @@
 import axios from "axios";
-
-// API Base URL - easily changeable
-//const API_BASE_URL = "http://192.168.1.13:8000/api/";
-const API_BASE_URL = "http://127.0.0.1:8000/api/";
+import { API_BASE_URL } from "../config";
 
 // Single in-flight refresh promise to throttle concurrent refreshes
 let refreshPromise = null;
