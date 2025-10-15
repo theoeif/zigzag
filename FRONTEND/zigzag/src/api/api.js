@@ -870,3 +870,137 @@ export const fetchGreyEvents = async (circleIds) => {
     throw error;
   }
 };
+
+// iCal export function
+export const downloadICalFile = async (circleIds = []) => {
+  try {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      token = await refreshAccessToken();
+      if (!token) throw new Error('Authentication required');
+    }
+
+    // Build query params for circle filtering
+    const params = new URLSearchParams();
+    circleIds.forEach(id => params.append('circles', id));
+
+    const url = `${API_BASE_URL}events/ical/download/${params.toString() ? '?' + params.toString() : ''}`;
+
+    // Use fetch to get the file with proper authentication
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Get the blob data
+    const blob = await response.blob();
+
+    // Create a temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'zigzag-events.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Clean up the object URL
+    URL.revokeObjectURL(link.href);
+
+    return true;
+  } catch (error) {
+    console.error('Error downloading iCal file:', error);
+    throw error;
+  }
+};
+
+// Single event iCal download function
+export const downloadSingleEventICal = async (event) => {
+  try {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      token = await refreshAccessToken();
+      if (!token) throw new Error('Authentication required');
+    }
+
+    // Create a simple iCal content for a single event
+    const formatDate = (date) => {
+      return new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const startDate = formatDate(event.start_time);
+    const endDate = formatDate(new Date(new Date(event.start_time).getTime() + 2 * 60 * 60 * 1000)); // +2 hours if no end time
+
+    const eventTitle = event.title || 'Untitled Event';
+    const eventDescription = event.description || '';
+    const eventLocation = (() => {
+      if (!event.address) return '';
+
+      const parts = [];
+      if (event.address.address_line) parts.push(event.address.address_line);
+      if (event.address.city) parts.push(event.address.city);
+
+      return parts.join(', ');
+    })();
+
+    // Generate unique ID for the event
+    const eventId = `zigzag-${event.id}@zigzag.com`;
+    const now = formatDate(new Date());
+
+    // Create a safe filename from the event title
+    const createSafeFilename = (title, eventId) => {
+      // Remove or replace characters that are not safe for filenames
+      const safeTitle = title
+        .replace(/[<>:"/\\|?*]/g, '') // Remove invalid filename characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .substring(0, 50) // Limit length to 50 characters
+        .trim();
+
+      // Fallback to event ID if title is empty or only special characters
+      const filename = safeTitle || `event-${eventId}`;
+
+      return `zigzag-${filename}.ics`;
+    };
+
+    // Create iCal content
+    const icalContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ZIGZAG//Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:${eventId}
+DTSTAMP:${now}
+DTSTART:${startDate}
+DTEND:${endDate}
+SUMMARY:${eventTitle}
+DESCRIPTION:${eventDescription.replace(/\n/g, '\\n')}
+LOCATION:${eventLocation}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
+
+    // Create blob and download
+    const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+
+    // Create a temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = createSafeFilename(event.title, event.id);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Clean up the object URL
+    URL.revokeObjectURL(link.href);
+
+    return true;
+  } catch (error) {
+    console.error('Error downloading single event iCal file:', error);
+    throw error;
+  }
+};
