@@ -2,11 +2,7 @@
 
 # required token to make the app works
 config.js
-
-# Environment variables
 .env
-BACKEND/zigzag/.env
-FRONTEND/zigzag/.env
 
 # external libraries
 # External NODE libraries
@@ -14,7 +10,6 @@ node_modules/
 package-lock.json
 
 # External PYTHON libraries
-venv/
 .venv/
 
 # Computer dependencies
@@ -28,6 +23,8 @@ ingest_venv/
 # db
 migrations/
 
+# Tempo
+Tempo/
 
 # capacitor
 dist/
