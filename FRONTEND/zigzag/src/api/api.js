@@ -1018,3 +1018,14 @@ END:VCALENDAR`;
     throw error;
   }
 };
+
+// Password change function
+export const changePassword = async (passwordData) => {
+  try {
+    const response = await axios.post(API_BASE_URL + "events/change-password/", passwordData);
+    return response.data;
+  } catch (error) {
+    console.error("Password change error:", error.response?.data || error.message);
+    throw error;
+  }
+};

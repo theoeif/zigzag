@@ -31,6 +31,7 @@ from .serializers import (
     ProfileSerializer,
     UserProfileSerializer,
     GreyEventSerializer,
+    ChangePasswordSerializer,
 )
 
 
@@ -343,12 +344,24 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         elif request.method == 'PATCH':
-            profile_data = request.data.get('profile', {})
-            serializer = self.get_serializer(profile, data=profile_data, partial=True)
+            # Use UserProfileSerializer to handle both user and profile updates
+            serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-
-            # Return the full user profile after update
+            
+            # Handle profile nested data
+            profile_data = request.data.get('profile', {})
+            if profile_data:
+                profile = request.user.profile
+                profile_serializer = ProfileSerializer(profile, data=profile_data, partial=True)
+                profile_serializer.is_valid(raise_exception=True)
+                profile_serializer.save()
+            
+            # Handle user-level fields (like username)
+            if 'username' in request.data:
+                request.user.username = request.data['username']
+                request.user.save()
+            
+            # Return updated user profile
             user_serializer = UserProfileSerializer(request.user)
             return Response(user_serializer.data)
 
@@ -589,6 +602,36 @@ class RegisterView(generics.CreateAPIView):
             "refresh": str(refresh),
             "username": user.username,
         }, status=status.HTTP_201_CREATED)
+
+class ChangePasswordView(APIView):
+    """
+    View to change user password with old password verification
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            old_password = serializer.validated_data['old_password']
+            new_password = serializer.validated_data['new_password']
+            
+            # Verify old password
+            if not request.user.check_password(old_password):
+                return Response(
+                    {'error': 'Le mot de passe actuel est incorrect.'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Update password
+            request.user.set_password(new_password)
+            request.user.save()
+            
+            return Response(
+                {'message': 'Mot de passe mis à jour avec succès.'}, 
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TagListView(generics.ListAPIView):
     queryset = Tag.objects.all()

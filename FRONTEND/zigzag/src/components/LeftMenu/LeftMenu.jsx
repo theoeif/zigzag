@@ -28,7 +28,8 @@ const LeftMenu = ({ closeMenu }) => {
     calendar: null,
     "create-account": null,
     login: null,
-    disconnect: null
+    disconnect: null,
+    settings: null
   });
 
   // Get active button from localStorage - moved outside of useState to ensure it's always current
@@ -172,6 +173,8 @@ const LeftMenu = ({ closeMenu }) => {
       currentActive = "create-account";
     } else if (path === "/login") {
       currentActive = "login";
+    } else if (path === "/settings") {
+      currentActive = "settings";
     }
 
     if (currentActive) {
@@ -377,6 +380,18 @@ const LeftMenu = ({ closeMenu }) => {
               ref={el => buttonRefs.current.disconnect = el}
             >
               Déconnexion
+            </button>
+          </div>
+        )}
+        
+        {isConnected && (
+          <div className="menu-btn-group" style={{ marginTop: '10px' }}>
+            <button
+              className={getButtonClass("settings")}
+              onClick={() => handleNavigation("/settings", "settings")}
+              ref={el => buttonRefs.current.settings = el}
+            >
+              Paramètres
             </button>
           </div>
         )}

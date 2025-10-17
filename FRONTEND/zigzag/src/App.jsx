@@ -9,6 +9,7 @@ import Project from "./components/Project/Project";
 import DirectEventLinkView from './components/EventViewMap/DirectEventLinkView.jsx';
 import MainCircles from "./components/Circles/MainCircles";
 import CalendarView from "./components/Calendar/CalendarView";
+import Settings from "./components/Settings/Settings";
 import Callback from './contexts/Callback';
 
 const App = () => {
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/events" element={<Project />} />
         <Route path="/circles" element={<MainCircles />} />
         <Route path="/calendar" element={<CalendarView />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/event/:id" element={<DirectEventLinkView />} />
       </Routes>
 

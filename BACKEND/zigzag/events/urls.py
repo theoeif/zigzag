@@ -15,6 +15,7 @@ from .views import (
     ProfileByUserView,
     ICalDownloadView,
     CircleGreyEventsView,
+    ChangePasswordView,
 )
 
 # ViewSet mappings
@@ -66,4 +67,7 @@ urlpatterns = [
 
     # iCal export endpoints
     path('ical/download/', ICalDownloadView.as_view(), name='ical-download'),
+    
+    # Password change endpoint
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 ]
