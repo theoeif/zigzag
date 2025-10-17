@@ -872,6 +872,12 @@ input:checked + .slider:before {
   transform: translateY(-2px);
 }
 
+.menu-btn.settings:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+}
+
 /* Touch ripple effect for better mobile feedback */
 @keyframes ripple {
   0% {
