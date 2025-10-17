@@ -225,6 +225,32 @@ Seul le créateur devrait être autorisé à changer le nom du Cercle. Sinon —
 
   const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
 
+  // Close left menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isLeftMenuOpen) {
+        const leftMenu = document.querySelector('.left-menu');
+        const header = document.querySelector('.header');
+        
+        // Check if click is outside the left menu and not on the header (which contains the menu toggle)
+        if (leftMenu && !leftMenu.contains(event.target) && 
+            header && !header.contains(event.target)) {
+          setIsLeftMenuOpen(false);
+        }
+      }
+    };
+
+    if (isLeftMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isLeftMenuOpen]);
+
   return (
     <div className={styles.settingsPage}>
       <Header toggleLeftMenu={toggleLeftMenu} />
