@@ -234,7 +234,8 @@ const LeftMenu = ({ closeMenu }) => {
 
   // Get button class for animation states
   const getButtonClass = (buttonKey) => {
-    return `menu-btn ${activeButton === buttonKey ? "menu-btn-active" : ""} ${clickingButton === buttonKey ? "menu-btn-clicking" : ""}`;
+    const baseClass = buttonKey === "settings" ? "menu-btn settings" : "menu-btn";
+    return `${baseClass} ${activeButton === buttonKey ? "menu-btn-active" : ""} ${clickingButton === buttonKey ? "menu-btn-clicking" : ""}`;
   };
 
   const handleSearch = (e) => {
@@ -372,17 +373,7 @@ const LeftMenu = ({ closeMenu }) => {
               Connexion
             </button>
           </div>
-        ) : (
-          <div className="menu-btn-group">
-            <button
-              className={`menu-btn disconnect ${clickingButton === "disconnect" ? "menu-btn-clicking" : ""}`}
-              onClick={handleDisconnect}
-              ref={el => buttonRefs.current.disconnect = el}
-            >
-              Déconnexion
-            </button>
-          </div>
-        )}
+        ) : null}
         
         {isConnected && (
           <div className="menu-btn-group" style={{ marginTop: '10px' }}>
@@ -392,6 +383,18 @@ const LeftMenu = ({ closeMenu }) => {
               ref={el => buttonRefs.current.settings = el}
             >
               Paramètres
+            </button>
+          </div>
+        )}
+        
+        {isConnected && (
+          <div className="menu-btn-group" style={{ marginTop: '10px' }}>
+            <button
+              className={`menu-btn disconnect ${clickingButton === "disconnect" ? "menu-btn-clicking" : ""}`}
+              onClick={handleDisconnect}
+              ref={el => buttonRefs.current.disconnect = el}
+            >
+              Déconnexion
             </button>
           </div>
         )}
