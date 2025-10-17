@@ -37,7 +37,6 @@ const Profile = () => {
     Saturday: { start: null, end: null },
     Sunday: { start: null, end: null },
   });
-  const [remoteDaysCount, setRemoteDaysCount] = useState(2);
   const [remoteDays, setRemoteDays] = useState({
     Monday: false,
     Tuesday: false,
@@ -68,7 +67,6 @@ const Profile = () => {
           setProfileData(profileResponse);
           // Update local state with profile data
           setTimetable(profileResponse.profile.timetable || timetable);
-          setRemoteDaysCount(profileResponse.profile.remote_days_count || 2);
           setRemoteDays(profileResponse.profile.remote_days || remoteDays);
           setLookingFor(profileResponse.profile.looking_for || "");
         }
@@ -93,7 +91,6 @@ const Profile = () => {
       const profileUpdateData = {
         profile: {
           timetable,
-          remote_days_count: remoteDaysCount,
           remote_days: remoteDays,
           looking_for: lookingFor
         }
@@ -180,11 +177,6 @@ const Profile = () => {
     <div className={styles.profilePage}>
       <Header toggleLeftMenu={toggleLeftMenu} />
 
-      <div className={styles.manageButtonContainer}>
-        <button onClick={() => setIsManageMode(!isManageMode)} className={styles.manageButton}>
-          <FaCog /> Gérer
-        </button>
-      </div>
 
       {errorMessage && (
         <div className={styles.errorBanner}>
@@ -202,7 +194,12 @@ const Profile = () => {
       <div className={styles.sectionsContainer}>
         {/* Address Section */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Mes localisations</h2>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Mes localisations</h2>
+            <button onClick={() => setIsManageMode(!isManageMode)} className={styles.manageButton}>
+              <FaCog /> Gérer
+            </button>
+          </div>
           <div className={styles.addressList}>
             {addresses.map(addr => (
               <AddressItem
@@ -236,7 +233,6 @@ const Profile = () => {
 
         <ProofileItem
           timetable={timetable}
-          remoteDaysCount={remoteDaysCount}
           remoteDays={remoteDays}
           lookingFor={lookingFor}
           readOnly={false}
@@ -248,7 +244,6 @@ const Profile = () => {
           onChangeEndTime={(val) => setEndTime(val)}
           onSaveTimeRange={handleTimeRangeSave}
           onCancelSelectDay={() => setSelectedDay(null)}
-          onChangeRemoteDaysCount={(e) => setRemoteDaysCount(Math.max(0, Math.min(7, parseInt(e.target.value, 10))))}
           onToggleRemoteDay={handleRemoteDayClick}
           onChangeLookingFor={(val) => setLookingFor(val)}
         />
