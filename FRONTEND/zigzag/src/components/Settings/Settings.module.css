@@ -101,18 +101,20 @@
 .usernameEditContainer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 12px 16px;
   background-color: #ffffff;
   border: 2px solid #3b82f6;
   border-radius: 8px;
-  flex-wrap: wrap;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .usernameInput {
   flex: 1;
-  min-width: 200px;
+  min-width: 150px;
   padding: 8px 12px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -134,54 +136,63 @@
 }
 
 .usernameActions {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
+  display: flex !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+  align-items: center !important;
 }
 
-.saveButton, .cancelButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.8rem;
+.usernameSaveButton, .usernameCancelButton {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 32px !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-size: 0.7rem !important;
+  opacity: 0.8 !important;
+  min-width: 40px !important;
+  min-height: 32px !important;
+  flex-shrink: 0 !important;
 }
 
-.saveButton {
-  background-color: #10b981;
-  color: white;
+.usernameSaveButton {
+  background-color: #10b981 !important;
+  color: white !important;
 }
 
-.saveButton:hover:not(:disabled) {
-  background-color: #059669;
-  transform: translateY(-1px);
+.usernameSaveButton:hover:not(:disabled) {
+  background-color: #059669 !important;
+  opacity: 1 !important;
+  transform: translateY(-1px) !important;
 }
 
-.saveButton:disabled {
-  background-color: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
+.usernameSaveButton:disabled {
+  background-color: #9ca3af !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  opacity: 0.5 !important;
 }
 
-.cancelButton {
-  background-color: #ef4444;
-  color: white;
+.usernameCancelButton {
+  background-color: #ef4444 !important;
+  color: white !important;
 }
 
-.cancelButton:hover:not(:disabled) {
-  background-color: #dc2626;
-  transform: translateY(-1px);
+.usernameCancelButton:hover:not(:disabled) {
+  background-color: #dc2626 !important;
+  opacity: 1 !important;
+  transform: translateY(-1px) !important;
 }
 
-.cancelButton:disabled {
-  background-color: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
+.usernameCancelButton:disabled {
+  background-color: #9ca3af !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  opacity: 0.5 !important;
 }
 
 .lockButton {

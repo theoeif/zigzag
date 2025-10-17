@@ -289,7 +289,7 @@ Seul le créateur devrait être autorisé à changer le nom du Cercle. Sinon —
                       type="button"
                       onClick={handleUsernameSave}
                       disabled={isLoading || !!usernameError}
-                      className={styles.saveButton}
+                      className={styles.usernameSaveButton}
                     >
                       <FaCheck />
                     </button>
@@ -297,7 +297,7 @@ Seul le créateur devrait être autorisé à changer le nom du Cercle. Sinon —
                       type="button"
                       onClick={handleUsernameCancel}
                       disabled={isLoading}
-                      className={styles.cancelButton}
+                      className={styles.usernameCancelButton}
                     >
                       <FaTimes />
                     </button>
