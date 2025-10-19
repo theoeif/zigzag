@@ -4,8 +4,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack } from '@mui/material';
-import { CalendarToday, Download, Close, Info } from '@mui/icons-material';
+import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack, Menu, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { CalendarToday, Download, Close, Info, ArrowDropDown } from '@mui/icons-material';
 import { fetchEvents, createEvent, patchEvent, deleteEvent, downloadICalFile } from '../../api/api';
 import CreateEventForm from '../Project/CreateEventForm';
 import EditEventForm from '../Project/EditEventForm';
@@ -42,6 +42,10 @@ const CalendarView = () => {
   const [showCircleSelector, setShowCircleSelector] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
+  const [viewMenuAnchor, setViewMenuAnchor] = useState(null);
+  const [selectedView, setSelectedView] = useState('dayGridMonth');
+  const [listAnchorDate, setListAnchorDate] = useState(new Date());
+  const [mobileTitle, setMobileTitle] = useState('Calendrier');
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -51,7 +55,8 @@ const CalendarView = () => {
   // Check if mobile and handle resize
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
     };
 
     checkMobile();
@@ -187,18 +192,40 @@ const CalendarView = () => {
   };
 
   const getMonthAlignedRange = (anchorDate, monthCount) => {
-    const base = new Date(anchorDate);
+    // Use listAnchorDate for stable list view ranges
+    const base = new Date(listAnchorDate);
     const start = new Date(base.getFullYear(), base.getMonth(), 1);
-    const end = new Date(start);
-    end.setMonth(end.getMonth() + monthCount);
+    const end = new Date(base.getFullYear(), base.getMonth() + monthCount, 1);
     return { start, end };
   };
 
   const handleChangeListMonths = (months) => {
     setListMonths(months);
+    const newAnchor = new Date();
+    setListAnchorDate(newAnchor); // Reset to current month
+    
+    // Update mobile title for new period
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const startMonth = monthNames[newAnchor.getMonth()];
+    const startYear = newAnchor.getFullYear();
+    const endDate = new Date(newAnchor);
+    endDate.setMonth(endDate.getMonth() + months - 1);
+    const endMonth = monthNames[endDate.getMonth()];
+    const endYear = endDate.getFullYear();
+    
+    if (months === 1) {
+      setMobileTitle(`${startMonth} ${startYear}`);
+    } else if (startYear === endYear) {
+      setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+    } else {
+      setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+    }
+    
     const api = calendarRef.current?.getApi?.();
     if (api) {
       api.changeView('myList');
+      api.gotoDate(newAnchor);
     }
   };
 
@@ -312,6 +339,119 @@ const CalendarView = () => {
   // Handle circle errors
   const handleCircleError = (error) => {
     setCircleError(error);
+  };
+
+  // Handle view menu
+  const handleViewMenuOpen = (event) => {
+    setViewMenuAnchor(event.currentTarget);
+  };
+
+  const handleViewMenuClose = () => {
+    setViewMenuAnchor(null);
+  };
+
+  const handleMobileNavPrev = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      // Navigate backward by the list period
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() - listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      
+      // Update mobile title for list view
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const startMonth = monthNames[newDate.getMonth()];
+      const startYear = newDate.getFullYear();
+      const endDate = new Date(newDate);
+      endDate.setMonth(endDate.getMonth() + listMonths - 1);
+      const endMonth = monthNames[endDate.getMonth()];
+      const endYear = endDate.getFullYear();
+      
+      if (listMonths === 1) {
+        setMobileTitle(`${startMonth} ${startYear}`);
+      } else if (startYear === endYear) {
+        setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      } else {
+        setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      }
+    } else {
+      api.prev();
+      // Title will be updated by datesSet callback
+    }
+  };
+
+  const handleMobileNavNext = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      // Navigate forward by the list period
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() + listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      
+      // Update mobile title for list view
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const startMonth = monthNames[newDate.getMonth()];
+      const startYear = newDate.getFullYear();
+      const endDate = new Date(newDate);
+      endDate.setMonth(endDate.getMonth() + listMonths - 1);
+      const endMonth = monthNames[endDate.getMonth()];
+      const endYear = endDate.getFullYear();
+      
+      if (listMonths === 1) {
+        setMobileTitle(`${startMonth} ${startYear}`);
+      } else if (startYear === endYear) {
+        setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      } else {
+        setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      }
+    } else {
+      api.next();
+      // Title will be updated by datesSet callback
+    }
+  };
+
+  const handleViewChange = (viewType) => {
+    setSelectedView(viewType);
+    if (viewType === 'myList') {
+      const newAnchor = new Date();
+      setListAnchorDate(newAnchor); // Reset to current month
+      
+      // Set initial mobile title for list view
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const startMonth = monthNames[newAnchor.getMonth()];
+      const startYear = newAnchor.getFullYear();
+      const endDate = new Date(newAnchor);
+      endDate.setMonth(endDate.getMonth() + listMonths - 1);
+      const endMonth = monthNames[endDate.getMonth()];
+      const endYear = endDate.getFullYear();
+      
+      if (listMonths === 1) {
+        setMobileTitle(`${startMonth} ${startYear}`);
+      } else if (startYear === endYear) {
+        setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      } else {
+        setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      }
+    }
+    const api = calendarRef.current?.getApi?.();
+    if (api) {
+      if (viewType === 'myList') {
+        api.changeView('myList');
+        api.gotoDate(new Date());
+      } else {
+        api.changeView(viewType);
+      }
+    }
+    handleViewMenuClose();
   };
 
   // Convert grey events to FullCalendar format
@@ -479,6 +619,54 @@ const CalendarView = () => {
         </Box>
       </Box>
 
+      {/* Mobile Custom Header */}
+      {isMobile && (
+        <Box className={styles.mobileHeader}>
+          <Box className={styles.mobileHeaderTop}>
+            <Button
+              size="small"
+              onClick={handleMobileNavPrev}
+            >
+              ‹
+            </Button>
+            <Typography variant="h6" className={styles.mobileTitle}>
+              {mobileTitle}
+            </Typography>
+            <Button
+              size="small"
+              onClick={handleMobileNavNext}
+            >
+              ›
+            </Button>
+          </Box>
+          
+          <Box className={styles.mobileHeaderBottom}>
+            <Button
+              size="small"
+              onClick={() => {
+                const api = calendarRef.current?.getApi?.();
+                if (api) api.today();
+              }}
+              className={styles.todayButton}
+            >
+              Aujourd'hui {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+            </Button>
+            
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleViewMenuOpen}
+              endIcon={<ArrowDropDown />}
+              className={styles.viewDropdownButton}
+            >
+              {selectedView === 'dayGridMonth' ? 'Mois' : 
+               selectedView === 'timeGridWeek' ? 'Semaine' : 
+               selectedView === 'myList' ? 'Liste' : 'Vue'}
+            </Button>
+          </Box>
+        </Box>
+      )}
+
       {/* FullCalendar Component */}
       <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' ? styles.calendarWrapperWithSidebar : ''}`}>
         {activeView === 'myList' && (
@@ -492,7 +680,7 @@ const CalendarView = () => {
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
           initialView="dayGridMonth"
-          headerToolbar={{
+          headerToolbar={isMobile ? false : {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,myList'
@@ -529,7 +717,15 @@ const CalendarView = () => {
             month: 'Mois',
             list: 'Liste'
           }}
-          datesSet={(arg) => setActiveView(arg.view.type)}
+          datesSet={(arg) => {
+            setActiveView(arg.view.type);
+            setSelectedView(arg.view.type);
+            
+            // Update mobile title for non-list views
+            if (arg.view.type !== 'myList') {
+              setMobileTitle(arg.view.title);
+            }
+          }}
           views={{
             myList: {
               type: 'list',
@@ -547,6 +743,24 @@ const CalendarView = () => {
           className={styles.fullCalendar}
         />
       </div>
+
+      {/* View Dropdown Menu */}
+      <Menu
+        anchorEl={viewMenuAnchor}
+        open={Boolean(viewMenuAnchor)}
+        onClose={handleViewMenuClose}
+        className={styles.viewMenu}
+      >
+        <MenuItem onClick={() => handleViewChange('dayGridMonth')}>
+          Mois
+        </MenuItem>
+        <MenuItem onClick={() => handleViewChange('timeGridWeek')}>
+          Semaine
+        </MenuItem>
+        <MenuItem onClick={() => handleViewChange('myList')}>
+          Liste
+        </MenuItem>
+      </Menu>
 
       {/* Bottom Section: Title and Export Buttons */}
       <Box className={styles.calendarTitleBottom}>
