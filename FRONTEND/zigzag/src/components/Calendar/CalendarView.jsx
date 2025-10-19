@@ -43,9 +43,17 @@ const CalendarView = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [viewMenuAnchor, setViewMenuAnchor] = useState(null);
-  const [selectedView, setSelectedView] = useState('dayGridMonth');
+  const [selectedView, setSelectedView] = useState('myList');
   const [listAnchorDate, setListAnchorDate] = useState(new Date());
-  const [mobileTitle, setMobileTitle] = useState('Calendrier');
+  const [mobileTitle, setMobileTitle] = useState(() => {
+    // Set initial title for list view (1 month by default)
+    const now = new Date();
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const month = monthNames[now.getMonth()];
+    const year = now.getFullYear();
+    return `${month} ${year}`;
+  });
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -659,9 +667,9 @@ const CalendarView = () => {
               endIcon={<ArrowDropDown />}
               className={styles.viewDropdownButton}
             >
-              {selectedView === 'dayGridMonth' ? 'Mois' : 
-               selectedView === 'timeGridWeek' ? 'Semaine' : 
-               selectedView === 'myList' ? 'Liste' : 'Vue'}
+              {selectedView === 'myList' ? 'Liste' : 
+               selectedView === 'dayGridMonth' ? 'Mois' : 
+               selectedView === 'timeGridWeek' ? 'Semaine' : 'Vue'}
             </Button>
           </Box>
         </Box>
@@ -679,11 +687,11 @@ const CalendarView = () => {
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
+          initialView="myList"
           headerToolbar={isMobile ? false : {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,myList'
+            right: 'myList,dayGridMonth,timeGridWeek'
           }}
           locale="fr"
           events={displayEvents}
@@ -751,14 +759,14 @@ const CalendarView = () => {
         onClose={handleViewMenuClose}
         className={styles.viewMenu}
       >
+        <MenuItem onClick={() => handleViewChange('myList')}>
+          Liste
+        </MenuItem>
         <MenuItem onClick={() => handleViewChange('dayGridMonth')}>
           Mois
         </MenuItem>
         <MenuItem onClick={() => handleViewChange('timeGridWeek')}>
           Semaine
-        </MenuItem>
-        <MenuItem onClick={() => handleViewChange('myList')}>
-          Liste
         </MenuItem>
       </Menu>
 
