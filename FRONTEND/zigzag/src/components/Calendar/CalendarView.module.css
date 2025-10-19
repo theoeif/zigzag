@@ -950,11 +950,108 @@
   }
 }
 
+/* Mobile Custom Header */
+.mobileHeader {
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 10;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mobileHeaderTop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.mobileTitle {
+  color: #40916c;
+  font-weight: 600;
+  font-size: 1.25rem;
+  text-align: center;
+  margin: 0 16px;
+}
+
+.mobileHeaderTop button {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  color: #40916c !important;
+  border: none !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mobileHeaderBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.todayButton {
+  color: #666 !important;
+  border-color: #ddd !important;
+  text-transform: none !important;
+  font-size: 0.8rem !important;
+  padding: 4px 8px !important;
+}
+
+.viewDropdownButton {
+  color: #40916c !important;
+  border-color: #40916c !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  min-width: 100px !important;
+}
+
+.viewMenu {
+  margin-top: 8px;
+}
+
+.viewMenu .MuiMenuItem-root {
+  font-size: 0.9rem;
+  padding: 8px 16px;
+}
+
 /* Mobile styles - floating Schedule button */
 @media (max-width: 768px) {
   .calendarHeaderWithSidebar,
   .calendarWrapperWithSidebar {
     margin-left: 0;
+  }
+
+  /* Ensure mobile header is visible */
+  .mobileHeader {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background-color: white !important;
+    border: 1px solid #e0e0e0 !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+  }
+
+  .mobileHeaderTop,
+  .mobileHeaderBottom {
+    display: flex !important;
+    visibility: visible !important;
+  }
+
+  .mobileTitle {
+    display: block !important;
+    visibility: visible !important;
   }
 
   .headerTop {
