@@ -239,22 +239,6 @@
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Override FullCalendar CSS Variables */
-:global(.fc) {
-  --fc-border-color: #e0e0e0;
-  --fc-button-bg-color: #40916c;
-  --fc-button-border-color: #40916c;
-  --fc-button-hover-bg-color: #2d6a4f;
-  --fc-button-hover-border-color: #2d6a4f;
-  --fc-button-active-bg-color: #1b4332;
-  --fc-button-active-border-color: #1b4332;
-  --fc-today-bg-color: rgba(64, 145, 108, 0.1);
-  --fc-event-bg-color: #40916c;
-  --fc-event-border-color: #40916c;
-  --fc-highlight-color: rgba(64, 145, 108, 0.1);
-  --fc-more-link-bg-color: #40916c;
-  --fc-more-link-border-color: #40916c;
-}
 
 /* Custom Event Styling */
 .eventContent {
@@ -620,15 +604,129 @@
   }
 }
 
-/* Dark mode support (if needed) */
-@media (prefers-color-scheme: dark) {
+/* Force light mode for calendar - override dark mode media query */
+.fullCalendar {
+  background-color: white !important;
+}
+
+/* Override FullCalendar's root CSS variables for light mode */
+:root {
+  --fc-border-color: #e0e0e0 !important;
+  --fc-today-bg-color: rgba(64, 145, 108, 0.1) !important;
+  --fc-event-bg-color: #40916c !important;
+  --fc-event-border-color: #40916c !important;
+  --fc-highlight-color: rgba(64, 145, 108, 0.1) !important;
+  --fc-more-link-bg-color: #40916c !important;
+  --fc-more-link-border-color: #40916c !important;
+  --fc-button-bg-color: #40916c !important;
+  --fc-button-border-color: #40916c !important;
+  --fc-button-hover-bg-color: #2d6a4f !important;
+  --fc-button-hover-border-color: #2d6a4f !important;
+  --fc-button-active-bg-color: #1b4332 !important;
+  --fc-button-active-border-color: #1b4332 !important;
+}
+
+/* Force toolbar to be completely white */
+:global(.fc-toolbar) {
+  background-color: white !important;
+  border: none !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+:global(.fc-header-toolbar) {
+  background-color: white !important;
+  border: none !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+:global(.fc-toolbar-title) {
+  color: #40916c !important;
+  background-color: white !important;
+}
+
+/* Override specific FullCalendar elements that might be causing dark bands */
+:global(.fc-scrollgrid) {
+  background-color: white !important;
+  border: 1px solid #e0e0e0 !important;
+}
+
+:global(.fc-scrollgrid-sync-table) {
+  background-color: white !important;
+}
+
+:global(.fc-scrollgrid-sync-table tr) {
+  background-color: white !important;
+}
+
+:global(.fc-scrollgrid-sync-table td) {
+  background-color: white !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* Column headers (days of week) */
+:global(.fc-col-header-cell) {
+  background-color: white !important;
+  color: #333 !important;
+  border-color: #e0e0e0 !important;
+}
+
+:global(.fc-col-header-cell-cushion) {
+  background-color: white !important;
+  color: #333 !important;
+}
+
+/* Day grid cells */
+:global(.fc-daygrid-day) {
+  background-color: white !important;
+  border-color: #e0e0e0 !important;
+}
+
+:global(.fc-daygrid-day-number) {
+  color: #333 !important;
+  background-color: white !important;
+}
+
+/* Time grid elements */
+:global(.fc-timegrid-slot) {
+  background-color: white !important;
+  border-color: #f0f0f0 !important;
+}
+
+:global(.fc-timegrid-slot-label) {
+  color: #666 !important;
+  background-color: white !important;
+}
+
+:global(.fc-timegrid-axis) {
+  background-color: white !important;
+}
+
+:global(.fc-timegrid-axis-cushion) {
+  background-color: white !important;
+  color: #666 !important;
+}
+
+/* Remove any dark backgrounds from table elements */
+:global(.fc table) {
+  background-color: white !important;
+}
+
+:global(.fc table tr) {
+  background-color: white !important;
+}
+
+:global(.fc table td) {
+  background-color: white !important;
+}
+
+@media (prefers-color-scheme: light) {
   .calendarContainer {
-    background-color: #1a1a1a;
+    background-color: #f8f9fa !important;
   }
 
   .calendarHeader {
-    background-color: #2d2d2d;
-    border-bottom-color: #404040;
+    background-color: white !important; /* Force light header */
+    border-bottom-color: #e0e0e0 !important; /* Force light border */
   }
 
   .calendarTitle {
@@ -636,23 +734,117 @@
   }
 
   .fullCalendar {
-    background-color: #2d2d2d;
+    background-color: white !important;
   }
 
+  /* Override FullCalendar's root CSS variables for light mode */
+  :root {
+    --fc-border-color: #e0e0e0 !important;
+    --fc-today-bg-color: rgba(64, 145, 108, 0.1) !important;
+    --fc-event-bg-color: #40916c !important;
+    --fc-event-border-color: #40916c !important;
+    --fc-highlight-color: rgba(64, 145, 108, 0.1) !important;
+    --fc-more-link-bg-color: #40916c !important;
+    --fc-more-link-border-color: #40916c !important;
+    --fc-button-bg-color: #40916c !important;
+    --fc-button-border-color: #40916c !important;
+    --fc-button-hover-bg-color: #2d6a4f !important;
+    --fc-button-hover-border-color: #2d6a4f !important;
+    --fc-button-active-bg-color: #1b4332 !important;
+    --fc-button-active-border-color: #1b4332 !important;
+  }
+
+  /* Force toolbar to be completely white */
+  :global(.fc-toolbar) {
+    background-color: white !important;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+  }
+
+  :global(.fc-header-toolbar) {
+    background-color: white !important;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+  }
+
+  :global(.fc-toolbar-title) {
+    color: #40916c !important;
+    background-color: white !important;
+  }
+
+  /* Override specific FullCalendar elements that might be causing dark bands */
+  :global(.fc-scrollgrid) {
+    background-color: white !important;
+    border: 1px solid #e0e0e0 !important;
+  }
+
+  :global(.fc-scrollgrid-sync-table) {
+    background-color: white !important;
+  }
+
+  :global(.fc-scrollgrid-sync-table tr) {
+    background-color: white !important;
+  }
+
+  :global(.fc-scrollgrid-sync-table td) {
+    background-color: white !important;
+    border-color: #e0e0e0 !important;
+  }
+
+  /* Column headers (days of week) */
+  :global(.fc-col-header-cell) {
+    background-color: white !important;
+    color: #333 !important;
+    border-color: #e0e0e0 !important;
+  }
+
+  :global(.fc-col-header-cell-cushion) {
+    background-color: white !important;
+    color: #333 !important;
+  }
+
+  /* Day grid cells */
   :global(.fc-daygrid-day) {
-    border-color: #404040;
+    background-color: white !important;
+    border-color: #e0e0e0 !important;
   }
 
   :global(.fc-daygrid-day-number) {
-    color: #e0e0e0;
+    color: #333 !important;
+    background-color: white !important;
   }
 
+  /* Time grid elements */
   :global(.fc-timegrid-slot) {
-    border-color: #404040;
+    background-color: white !important;
+    border-color: #f0f0f0 !important;
   }
 
   :global(.fc-timegrid-slot-label) {
-    color: #a0a0a0;
+    color: #666 !important;
+    background-color: white !important;
+  }
+
+  :global(.fc-timegrid-axis) {
+    background-color: white !important;
+  }
+
+  :global(.fc-timegrid-axis-cushion) {
+    background-color: white !important;
+    color: #666 !important;
+  }
+
+  /* Remove any dark backgrounds from table elements */
+  :global(.fc table) {
+    background-color: white !important;
+  }
+
+  :global(.fc table tr) {
+    background-color: white !important;
+  }
+
+  :global(.fc table td) {
+    background-color: white !important;
   }
 }
 
