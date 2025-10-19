@@ -54,6 +54,14 @@ const CalendarView = () => {
     const year = now.getFullYear();
     return `${month} ${year}`;
   });
+  const [webTitle, setWebTitle] = useState(() => {
+    const now = new Date();
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const month = monthNames[now.getMonth()];
+    const year = now.getFullYear();
+    return `${month} ${year}`;
+  });
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -207,6 +215,26 @@ const CalendarView = () => {
     return { start, end };
   };
 
+  const updateWebTitle = (date, months) => {
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const startMonth = monthNames[date.getMonth()];
+    const startYear = date.getFullYear();
+    const endDate = new Date(date);
+    endDate.setMonth(endDate.getMonth() + months - 1);
+    const endMonth = monthNames[endDate.getMonth()];
+    const endYear = endDate.getFullYear();
+    
+    if (months === 1) {
+      setWebTitle(`${startMonth} ${startYear}`);
+    } else if (startYear === endYear) {
+      setWebTitle(`${startMonth} - ${endMonth} ${startYear}`);
+    } else {
+      setWebTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+    }
+  };
+
+
   const handleChangeListMonths = (months) => {
     setListMonths(months);
     const newAnchor = new Date();
@@ -224,10 +252,13 @@ const CalendarView = () => {
     
     if (months === 1) {
       setMobileTitle(`${startMonth} ${startYear}`);
+      setWebTitle(`${startMonth} ${startYear}`);
     } else if (startYear === endYear) {
       setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      setWebTitle(`${startMonth} - ${endMonth} ${startYear}`);
     } else {
       setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      setWebTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
     }
     
     const api = calendarRef.current?.getApi?.();
@@ -426,6 +457,42 @@ const CalendarView = () => {
     }
   };
 
+  const handleWebNavPrev = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() - listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      updateWebTitle(newDate, listMonths);
+    } else {
+      api.prev();
+    }
+  };
+
+  const handleWebNavNext = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() + listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      updateWebTitle(newDate, listMonths);
+    } else {
+      api.next();
+    }
+  };
+
+  const handleTodayClick = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (api) api.today();
+  };
+
+
   const handleViewChange = (viewType) => {
     setSelectedView(viewType);
     if (viewType === 'myList') {
@@ -444,10 +511,13 @@ const CalendarView = () => {
       
       if (listMonths === 1) {
         setMobileTitle(`${startMonth} ${startYear}`);
+        setWebTitle(`${startMonth} ${startYear}`);
       } else if (startYear === endYear) {
         setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+        setWebTitle(`${startMonth} - ${endMonth} ${startYear}`);
       } else {
         setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+        setWebTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
       }
     }
     const api = calendarRef.current?.getApi?.();
@@ -627,6 +697,27 @@ const CalendarView = () => {
         </Box>
       </Box>
 
+      {/* Web Custom Header */}
+      {!isMobile && (
+        <Box className={styles.webHeader}>
+          <Box className={styles.webHeaderLeft}>
+            <Button onClick={handleWebNavPrev}>‹</Button>
+            <Typography variant="h4" className={styles.webTitle}>{webTitle}</Typography>
+            <Button onClick={handleWebNavNext}>›</Button>
+          </Box>
+          <Box className={styles.webHeaderRight}>
+            <Button onClick={handleTodayClick} className={styles.todayButton}>
+              Aujourd'hui {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+            </Button>
+            <Button onClick={handleViewMenuOpen} endIcon={<ArrowDropDown />} className={styles.viewDropdownButton}>
+              {selectedView === 'myList' ? 'Liste' : 
+               selectedView === 'dayGridMonth' ? 'Mois' : 
+               selectedView === 'timeGridWeek' ? 'Semaine' : 'Vue'}
+            </Button>
+          </Box>
+        </Box>
+      )}
+
       {/* Mobile Custom Header */}
       {isMobile && (
         <Box className={styles.mobileHeader}>
@@ -688,11 +779,7 @@ const CalendarView = () => {
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
           initialView="myList"
-          headerToolbar={isMobile ? false : {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'myList,dayGridMonth,timeGridWeek'
-          }}
+          headerToolbar={false}
           locale="fr"
           events={displayEvents}
           dateClick={handleDateClick}
@@ -723,15 +810,17 @@ const CalendarView = () => {
           buttonText={{
             today: `Aujourd'hui ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`,
             month: 'Mois',
+            week: 'Semaine',
             list: 'Liste'
           }}
           datesSet={(arg) => {
             setActiveView(arg.view.type);
             setSelectedView(arg.view.type);
             
-            // Update mobile title for non-list views
+            // Update titles for non-list views
             if (arg.view.type !== 'myList') {
               setMobileTitle(arg.view.title);
+              setWebTitle(arg.view.title);
             }
           }}
           views={{
