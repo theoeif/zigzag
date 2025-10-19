@@ -1138,3 +1138,72 @@
     padding: 4px 8px !important;
   }
 }
+
+/* Web Custom Header */
+.webHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.webHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.webHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.webHeaderLeft button {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  color: #40916c !important;
+  border: none !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.webHeaderLeft button:hover {
+  background-color: rgba(64, 145, 108, 0.1) !important;
+}
+
+.webTitle {
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: #40916c !important;
+  margin: 0 !important;
+  white-space: nowrap;
+}
+
+.webHeader .todayButton {
+  color: #666 !important;
+  background-color: #f5f5f5 !important;
+  border: 1px solid #ddd !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+}
+
+.webHeader .todayButton:hover {
+  background-color: #e9e9e9 !important;
+}
+
+.webHeader .viewDropdownButton {
+  text-transform: none !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+}
