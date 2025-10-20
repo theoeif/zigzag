@@ -5,6 +5,7 @@
   border-right: 1px solid #e0e0e0;
   padding: 16px;
   overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
   position: fixed;
   left: 0;
   top: 60px;
@@ -71,6 +72,7 @@
 .circleList {
   max-height: 400px;
   overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
   margin-bottom: 16px;
 }
 
@@ -100,8 +102,8 @@
 
 .statusContainer {
   margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  padding-top: 0px;
+  border-top: none;
 }
 
 .memberCount {
@@ -151,12 +153,28 @@
 
 /* Validate Button Container */
 .validateButtonContainer {
-  position: sticky;
+  position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
   background-color: white;
   padding: 16px;
   border-top: 1px solid #e0e0e0;
-  margin-top: auto;
+  z-index: 1001;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Mobile specific positioning */
+@media (max-width: 768px) {
+  .validateButtonContainer {
+    justify-content: flex-start; /* Ensure left alignment on mobile */
+    padding: 12px 16px; /* Slightly smaller padding on mobile */
+  }
+  
+  .validateButton {
+    max-width: 120px; /* Limit button width on mobile */
+  }
 }
 
 .validateButton {
