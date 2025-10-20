@@ -540,7 +540,20 @@ const Project = ({ projectId }) => {
         )}
         {/* Render Your Projects */}
         <div>
-          {!isMobile && <h3 className={styles.h3Project}>Mes projets</h3>}
+          {!isMobile ? (
+            <div className={styles.sectionHeaderProject}>
+              <h3 className={styles.h3Project}>Mes projets</h3>
+              <div className={styles.headerRightProject}>
+                <button
+                  onClick={toggleManageMode}
+                  className={`${styles.manageButtonProject} ${isManageMode ? styles.activeProject : ''}`}
+                  data-button-type="project-edit"
+                >
+                  <FaEdit /> Modifier
+                </button>
+              </div>
+            </div>
+          ) : null}
           {(isMobile ? filteredEvents : capToTwoRows(filteredEvents)).length === 0 ? (
             <p>Vous n'avez pas encore créé de projets.</p>
           ) : (!isMobile && (
@@ -571,15 +584,17 @@ const Project = ({ projectId }) => {
         <div>
           <div className={styles.sectionHeaderProject}>
             {!isMobile && <h3 className={styles.h3Project}>Projets invités</h3>}
-            <div className={styles.headerLeftProject}>
-              <button
-                onClick={toggleManageMode}
-                className={`${styles.manageButtonProject} ${styles.manageButtonMobileProject} ${isManageMode ? styles.activeProject : ''}`}
-                data-button-type="project-edit"
-              >
-                <FaEdit /> Modifier
-              </button>
-            </div>
+            {isMobile && (
+              <div className={styles.headerLeftProject}>
+                <button
+                  onClick={toggleManageMode}
+                  className={`${styles.manageButtonProject} ${styles.manageButtonMobileProject} ${isManageMode ? styles.activeProject : ''}`}
+                  data-button-type="project-edit"
+                >
+                  <FaEdit /> Modifier
+                </button>
+              </div>
+            )}
             <div className={styles.headerRightProject}>
               <div className={styles.filterContainerProject}>
                 <FaFilter />
