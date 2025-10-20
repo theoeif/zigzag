@@ -1380,9 +1380,9 @@ body.modal-open {
 
 /* Ensure Edit button styling is preserved */
 button.manageButtonProject {
-  background-color: #e6f2ff !important;
+  background-color: #f0f6ff !important; /* paler blue */
   color: #0066cc !important;
-  border: 1px solid rgba(0,102,204,0.2) !important;
+  border: 1px solid rgba(0,102,204,0.12) !important; /* softer border */
   border-radius: 8px !important;
   padding: 8px 12px !important; /* align container size closer to filter */
   font-weight: 500 !important;
@@ -1391,14 +1391,14 @@ button.manageButtonProject {
   display: inline-flex !important;
   align-items: center !important;
   gap: 8px !important;
-  min-width: unset !important;
+  min-width: 150px !important; /* slightly wider than filter */
   justify-content: center !important;
   height: 36px !important;
   font-size: 14px !important;
 }
 
 button.manageButtonProject:hover {
-  background-color: #cce4ff !important;
+  background-color: #e3efff !important; /* paler hover */
   box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
 }
 
@@ -1707,6 +1707,8 @@ button.manageButtonProject.activeProject {
   border-radius: 8px;
   border: 1px solid rgba(64, 145, 108, 0.15);
   transition: all 0.2s ease;
+  height: 36px; /* match manage button height */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* match manage button shadow */
 }
 
 .filterContainerProject:hover {
