@@ -17,7 +17,6 @@ from .models import (
     Circle,
     Address,
     UserAddress,
-    EventInvitation,
     Tag,
     Profile,
 )
@@ -25,7 +24,6 @@ from .serializers import (
     EventSerializer,
     AddressSerializer,
     UserAddressSerializer,
-    EventInvitationSerializer,
     RegisterSerializer,
     TagSerializer,
     ProfileSerializer,
@@ -518,82 +516,6 @@ class MultiCircleMembersView(APIView):
         return Response(data)
 
 
-class EventInvitationViewSet(viewsets.ModelViewSet):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    serializer_class = EventInvitationSerializer
-
-    def get_queryset(self):
-        return EventInvitation.objects.filter(event__creator=self.request.user)
-
-    def perform_create(self, serializer):
-        event_id = self.request.data.get("event")
-        event = get_object_or_404(Event, id=event_id)
-        if event.creator != self.request.user:
-            raise PermissionDenied("Only the event creator can send invitations")
-        serializer.save(event=event)
-
-
-class VerifyInvitationView(APIView):
-    authentication_classes = []
-    permission_classes = []
-
-    def get(self, request):
-        token = request.query_params.get("token")
-        if not token:
-            return Response({"error": "No invitation token provided"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            invitation = EventInvitation.objects.get(token=token)
-            return Response({
-                "valid": True,
-                "event_id": str(invitation.event.id),
-                "event_title": invitation.event.title,
-            })
-        except EventInvitation.DoesNotExist:
-            return Response({"valid": False, "error": "Invalid invitation"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class AcceptInvitationView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        token = request.data.get("token")
-        if not token:
-            return Response({"error": "No invitation token provided"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            invitation = EventInvitation.objects.get(token=token)
-            if not invitation.accepted:
-                invitation.accepted = True
-                invitation.accepted_at = invitation.accepted_at or invitation.created_at
-                invitation.save(update_fields=["accepted", "accepted_at"])
-
-            event = invitation.event
-            event.participants.get_or_create(user=request.user)
-            return Response({
-                "success": True,
-                "event_id": str(event.id),
-                "is_participant": True,
-            })
-        except EventInvitation.DoesNotExist:
-            return Response({"error": "Invalid invitation token"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class EventShareTokenView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        event_id = request.data.get("event")
-        if not event_id:
-            return Response({"error": "No event ID provided"}, status=status.HTTP_400_BAD_REQUEST)
-        event = get_object_or_404(Event, id=event_id)
-        if event.creator != request.user:
-            raise PermissionDenied("Only the event creator can generate share tokens")
-        if event.shareable_link is False:
-            return Response({"error": "The host has disabled link sharing for this event"}, status=status.HTTP_403_FORBIDDEN)
-        invitation = EventInvitation.objects.create(event=event, email=f"share_{request.user.username}@example.com")
-        return Response({"token": str(invitation.token), "invitation_link": invitation.invitation_link})
 
 # from django_ratelimit.decorators import ratelimit
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -672,6 +594,7 @@ class MyLocationsView(APIView):
                 continue
             results.append({
                 "user_id_str": str(user.id),
+                "username": user.username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "label": ua.label or "",

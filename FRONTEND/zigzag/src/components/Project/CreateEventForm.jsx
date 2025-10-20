@@ -386,7 +386,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       >
         <div className={styles.modalHeaderProject}>
           <div className={styles.popupTitleWrapper}>
-            <h3 className={styles.modalTitleProject}>Créer un nouveau projet</h3>
+            <h3 className={styles.modalTitleProject}>Nouveau projet</h3>
           </div>
           <button onClick={onClose} className={styles.closeButtonProject}>✕</button>
         </div>
