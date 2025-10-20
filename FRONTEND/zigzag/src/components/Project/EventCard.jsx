@@ -357,7 +357,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             {event.event_shared && (
               <span
                 className={styles.sharedEventBadgeProject}
-                title="Événement partagé - tous les membres des cercles peuvent modifier"
+                title="Événement partagé - tous les membres des cercles peuvent modifier la date et la description"
                 style={{
                   backgroundColor: '#40916c',
                   color: 'white',
