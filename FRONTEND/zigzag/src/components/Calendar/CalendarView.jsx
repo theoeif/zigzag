@@ -701,15 +701,19 @@ const CalendarView = () => {
       {!isMobile && (
         <Box className={styles.webHeader}>
           <Box className={styles.webHeaderLeft}>
+            <Button
+              size="small"
+              onClick={handleTodayClick} className={`${styles.todayButton} ${styles.webHeaderLeftButton}`}>
+              Aujourd'hui {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+            </Button>
+          </Box>
+          <Box className={styles.webHeaderCenter}>
             <Button onClick={handleWebNavPrev}>‹</Button>
-            <Typography variant="h4" className={styles.webTitle}>{webTitle}</Typography>
+            <Typography variant="h6" className={styles.webTitle}>{webTitle}</Typography>
             <Button onClick={handleWebNavNext}>›</Button>
           </Box>
           <Box className={styles.webHeaderRight}>
-            <Button onClick={handleTodayClick} className={styles.todayButton}>
-              Aujourd'hui {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
-            </Button>
-            <Button onClick={handleViewMenuOpen} endIcon={<ArrowDropDown />} className={styles.viewDropdownButton}>
+            <Button onClick={handleViewMenuOpen} endIcon={<ArrowDropDown />} className={`${styles.viewDropdownButton} ${styles.webHeaderRightButton}`}>
               {selectedView === 'myList' ? 'Liste' : 
                selectedView === 'dayGridMonth' ? 'Mois' : 
                selectedView === 'timeGridWeek' ? 'Semaine' : 'Vue'}

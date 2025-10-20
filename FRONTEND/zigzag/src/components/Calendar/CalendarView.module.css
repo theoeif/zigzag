@@ -1155,12 +1155,82 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 150px; /* fixed width to stabilize layout */
 }
 
 .webHeaderRight {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100px; /* fixed width to give more room */
+}
+
+.webHeaderLeftButton {
+  width: 100%;
+  justify-content: flex-start !important;
+}
+
+/* Ensure normal typography/padding on the left Today button */
+.webHeaderLeftButton.MuiButton-root,
+.webHeader .webHeaderLeftButton.todayButton,
+.webHeader .webHeaderLeftButton.todayButton.MuiButton-root {
+  font-size: 0.875rem !important;
+  padding: 6px 12px !important;
+  min-height: 32px !important;
+  line-height: 1.4 !important;
+}
+
+/* Override any Material-UI button text styles */
+.webHeader .webHeaderLeftButton .MuiButton-label,
+.webHeader .webHeaderLeftButton .MuiButton-startIcon,
+.webHeader .webHeaderLeftButton .MuiButton-endIcon {
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+}
+
+.webHeaderRightButton {
+  width: 100%;
+  justify-content: flex-end !important;
+}
+
+/* Constrain dropdown menu paper width */
+.viewMenu .MuiMenu-paper {
+  min-width: 140px !important;
+  max-width: 200px !important;
+}
+.viewMenu .MuiPaper-root.MuiMenu-paper {
+  min-width: 140px !important;
+  max-width: 200px !important;
+}
+.viewMenu .MuiList-root {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.webHeaderCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.webHeaderCenter button {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  color: #40916c !important;
+  border: none !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.webHeaderCenter button:hover {
+  background-color: rgba(64, 145, 108, 0.1) !important;
 }
 
 .webHeaderLeft button {
@@ -1182,7 +1252,7 @@
 }
 
 .webTitle {
-  font-size: 1.75rem !important;
+  font-size: 1.4rem !important;
   font-weight: 700 !important;
   color: #40916c !important;
   margin: 0 !important;
