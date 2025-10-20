@@ -538,7 +538,7 @@ const Project = ({ projectId }) => {
         <div>
           <div className={styles.sectionHeaderProject}>
             {!isMobile && <h3 className={styles.h3Project}>Projets invités</h3>}
-            <div className={styles.headerRightProject}>
+            <div className={styles.headerLeftProject}>
               <button
                 onClick={toggleManageMode}
                 className={`${styles.manageButtonProject} ${styles.manageButtonMobileProject} ${isManageMode ? styles.activeProject : ''}`}
@@ -546,6 +546,8 @@ const Project = ({ projectId }) => {
               >
                 <FaEdit /> Modifier
               </button>
+            </div>
+            <div className={styles.headerRightProject}>
               <div className={styles.filterContainerProject}>
                 <FaFilter />
                 <select
