@@ -23,6 +23,9 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
   // Add a state to track if the address should be removed
   const [removeAddress, setRemoveAddress] = useState(false);
 
+  // State for date validation
+  const [dateError, setDateError] = useState("");
+
   // Clean up edit mode when component unmounts
   useEffect(() => {
     return () => {
@@ -31,9 +34,50 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     };
   }, [setEditMode, setIsManageMode]);
 
+  // Validate that end date is not earlier than start date
+  const validateDates = (startDate, endDate) => {
+    if (!startDate || !endDate) return true;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      setDateError("La date de fin ne peut pas être antérieure à la date de début");
+      return false;
+    } else {
+      setDateError("");
+      return true;
+    }
+  };
+
+  // Re-validate anytime either date changes
+  useEffect(() => {
+    if (formData.start_time && formData.end_time) {
+      validateDates(formData.start_time, formData.end_time);
+    } else {
+      // No end date means no error to show
+      setDateError("");
+    }
+  }, [formData.start_time, formData.end_time]);
+
   const handleInputChange = (e) => {
     const { name, type } = e.target;
     const value = type === 'checkbox' ? e.target.checked : e.target.value;
+
+    // Special handling for end_time
+    if (name === 'end_time') {
+      // If user cleared the end date, clear any date error and update state
+      if (!value) {
+        setDateError("");
+        setFormData(prev => ({ ...prev, [name]: "" }));
+        return;
+      }
+
+      // For full date-time values, validate
+      if (formData.start_time) {
+        validateDates(formData.start_time, value);
+      }
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -154,6 +198,11 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
         // If address was modified and localized, use the localized address
         updatedFields.address = { ...localizedAddress };
       }
+    }
+
+    // Validate dates before submission
+    if (formData.end_time && !validateDates(formData.start_time, formData.end_time)) {
+      return; // Don't submit if dates are invalid
     }
 
     // Handle dates only when allowed (shared before and still shared)
@@ -399,8 +448,13 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                       name="end_time"
                       value={formData.end_time}
                       onChange={handleInputChange}
-                      className={styles.formInputProject}
+                      className={`${styles.formInputProject} ${dateError ? styles.inputErrorProject : ''}`}
                     />
+                    {dateError && (
+                      <p style={{ color: '#d32f2f', fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                        {dateError}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
