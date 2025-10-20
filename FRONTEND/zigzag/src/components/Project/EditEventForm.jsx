@@ -145,13 +145,15 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
       updatedFields.event_shared = formData.event_shared;
     }
 
-    // Handle address based on modified state
-    if (removeAddress) {
-      // If address was removed, set it to null
-      updatedFields.address = null;
-    } else if (addressModified && localizedAddress) {
-      // If address was modified and localized, use the localized address
-      updatedFields.address = { ...localizedAddress };
+    // Handle address based on modified state (creator only)
+    if (isCreator) {
+      if (removeAddress) {
+        // If address was removed, set it to null
+        updatedFields.address = null;
+      } else if (addressModified && localizedAddress) {
+        // If address was modified and localized, use the localized address
+        updatedFields.address = { ...localizedAddress };
+      }
     }
 
     // Handle dates only when allowed (shared before and still shared)
@@ -238,62 +240,64 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             />
           </div>
 
-          <div className={styles.formGroupProject}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label className={styles.formLabelProject}>Adresse :</label>
-              <button
-                type="button"
-                onClick={handleClearAddress}
-                className={styles.clearButtonProject}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#666',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer'
-                }}
-              >
-                Effacer
-              </button>
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <textarea
-                name="address_line"
-                value={formData.address_line}
-                onChange={handleInputChange}
-                className={styles.formTextareaProjectNoResize}
-                style={{ flexGrow: 1 }}
-                placeholder="Saisir l'adresse ou laisser vide pour supprimer"
-              />
-              <button
-                type="button"
-                onClick={handleLocalizeAddress}
-                className={styles.localizeButtonProject}
-                disabled={!formData.address_line || removeAddress}
-                style={{
-                  minWidth: '100px',
-                  backgroundColor: '#40916c',
-                  color: 'white',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  border: 'none',
-                  cursor: formData.address_line && !removeAddress ? 'pointer' : 'not-allowed',
-                  opacity: formData.address_line && !removeAddress ? 1 : 0.7
-                }}
-              >
-                Localiser
-              </button>
-            </div>
+          {isCreator && (
+            <div className={styles.formGroupProject}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className={styles.formLabelProject}>Adresse :</label>
+                <button
+                  type="button"
+                  onClick={handleClearAddress}
+                  className={styles.clearButtonProject}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#666',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Effacer
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <textarea
+                  name="address_line"
+                  value={formData.address_line}
+                  onChange={handleInputChange}
+                  className={styles.formTextareaProjectNoResize}
+                  style={{ flexGrow: 1 }}
+                  placeholder="Saisir l'adresse ou laisser vide pour supprimer"
+                />
+                <button
+                  type="button"
+                  onClick={handleLocalizeAddress}
+                  className={styles.localizeButtonProject}
+                  disabled={!formData.address_line || removeAddress}
+                  style={{
+                    minWidth: '100px',
+                    backgroundColor: '#40916c',
+                    color: 'white',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    border: 'none',
+                    cursor: formData.address_line && !removeAddress ? 'pointer' : 'not-allowed',
+                    opacity: formData.address_line && !removeAddress ? 1 : 0.7
+                  }}
+                >
+                  Localiser
+                </button>
+              </div>
 
-            {formData.address_line && addressModified && !localizedAddress && !removeAddress && (
-              <p className={styles.warningTextProject}>Adresse modifiée - nécessite une localisation</p>
-            )}
-            {removeAddress && (
-              <p style={{ fontSize: '0.9rem', color: '#2d6a4f', marginTop: '5px' }}>
-                L'adresse sera supprimée lors de la mise à jour de l'événement
-              </p>
-            )}
-          </div>
+              {formData.address_line && addressModified && !localizedAddress && !removeAddress && (
+                <p className={styles.warningTextProject}>Adresse modifiée - nécessite une localisation</p>
+              )}
+              {removeAddress && (
+                <p style={{ fontSize: '0.9rem', color: '#2d6a4f', marginTop: '5px' }}>
+                  L'adresse sera supprimée lors de la mise à jour de l'événement
+                </p>
+              )}
+            </div>
+          )}
 
           {localizeError && <p className={styles.errorMessageProject}>{localizeError}</p>}
 
