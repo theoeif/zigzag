@@ -178,7 +178,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
           backgroundColor: 'white',
           borderBottom: '1px solid #eee',
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           alignItems: 'center',
           padding: '15px 20px',
           borderTopLeftRadius: '12px',
@@ -186,9 +186,9 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         }}
       >
         <div className={styles.popupTitleWrapper}>
-          <h3 className={styles.modalTitleProject}>Détails du projet : {event.title}</h3>
+          <h3 className={styles.modalTitleProject} style={{ margin: 0, textAlign: 'center', width: '100%' }}>{event.title}</h3>
         </div>
-        <button onClick={onClose} className={styles.closeButtonProjectEnhanced}>
+        <button onClick={onClose} className={styles.closeButtonProject} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
           ✕
         </button>
       </div>
