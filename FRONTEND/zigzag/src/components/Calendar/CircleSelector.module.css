@@ -148,3 +148,32 @@
     overflow-y: auto;
   }
 }
+
+/* Validate Button Container */
+.validateButtonContainer {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+  margin-top: auto;
+}
+
+.validateButton {
+  background-color: #40916c !important;
+  color: white !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+}
+
+.validateButton:hover {
+  background-color: #2d6a4f !important;
+}
+
+.validateButton:disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+}
