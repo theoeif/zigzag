@@ -489,7 +489,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           )}
 
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Date de début :</label>
+            <label className={styles.formLabelProject}>Début :</label>
             <input
               type="datetime-local"
               name="start_time"
@@ -498,11 +498,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               className={styles.formInputProject}
               required
             />
-            <small style={{ color: '#666', fontStyle: 'italic' }}>Ajouter l'heure si nécessaire</small>
+            <small style={{ color: '#666', fontStyle: 'italic' }}>Ajuster l'heure si nécessaire</small>
           </div>
 
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Date de fin :</label>
+            <label className={styles.formLabelProject}>Fin :</label>
             <input
               type="datetime-local"
               name="end_time"
@@ -525,7 +525,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             <fieldset
               className={styles.fieldsetGroupProject}
             >
-              <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
+              <legend className={styles.fieldsetLegendProject}>Cercles :</legend>
 
             {/* Container for the 'Select All' button */}
             <div className={styles.selectAllContainerProject}>
@@ -582,7 +582,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           <fieldset
             className={styles.fieldsetGroupProject}
           >
-            <legend className={styles.fieldsetLegendProject}>Options de partage :</legend>
+            <legend className={styles.fieldsetLegendProject}>Partage :</legend>
 
             <div className={styles.checkboxContainerProject}>
               <input
