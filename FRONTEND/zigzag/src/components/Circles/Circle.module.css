@@ -1,6 +1,9 @@
 /* ==================== */
 /*     Profile Styles   */
 /* ==================== */
+* {
+  font-family: system-ui, -apple-system, sans-serif;
+}
 
 /* Overall page layout */
 .profilePage {
@@ -10,9 +13,6 @@
   background-color: #f0fdf4; /* Soft green background */
   min-height: 100vh;
 }
-
-
-
 
 /* File: components/Circles/Circle.module.css */
 .profilePage {
