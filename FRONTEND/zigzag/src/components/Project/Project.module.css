@@ -2642,6 +2642,59 @@ button.manageButtonProject.activeProject {
   }
 }
 
+/* Mobile tabs (discreet pill design) */
+.contentWithPaddingProject .tabsBarProject {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.contentWithPaddingProject .tabsGroupProject {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.contentWithPaddingProject .tabProject {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #444;
+  border-radius: 999px;
+}
+
+.contentWithPaddingProject .tabProject:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #222;
+}
+
+.contentWithPaddingProject .tabActiveProject {
+  background: #ffffff;
+  color: #111;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.manageButtonMobileProject {
+  font-size: 13px;
+  padding: 6px 10px;
+}
+
+@media (min-width: 501px) {
+  .tabsBarProject { display: none; }
+}
+
+@media (max-width: 500px) {
+  /* Keep section header visible on mobile so we can place Modifier there */
+  .sectionHeaderProject { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+  .headerRightProject { display: inline-flex; align-items: center; gap: 10px; }
+}
+
 /* Global FAB Add Button (applies to all screen sizes) */
 .addEventButtonProject {
   position: fixed;
