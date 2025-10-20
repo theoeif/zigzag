@@ -471,22 +471,7 @@ const Project = ({ projectId }) => {
                 )}
               </div>
             )}
-            <div className={styles.tabsBarProject}>
-              <div className={styles.tabsGroupProject}>
-                <button
-                  className={`${styles.tabProject} ${activeTab === 'mine' ? styles.tabActiveProject : ''}`}
-                  onClick={() => setActiveTab('mine')}
-                >
-                  Mes projets
-                </button>
-                <button
-                  className={`${styles.tabProject} ${activeTab === 'invited' ? styles.tabActiveProject : ''}`}
-                  onClick={() => setActiveTab('invited')}
-                >
-                  Projets invités
-                </button>
-              </div>
-            </div>
+            {/* Tabs removed from mobile header per request */}
           </div>
         )}
 
