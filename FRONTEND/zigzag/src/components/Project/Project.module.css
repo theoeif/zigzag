@@ -2699,6 +2699,16 @@ button.manageButtonProject.activeProject {
 .sectionHeaderProject { display: flex; align-items: center; gap: 12px; justify-content: space-between; width: 100%; }
 .headerLeftProject { display: inline-flex; align-items: center; gap: 10px; justify-content: flex-start; }
 .headerRightProject { display: inline-flex; align-items: center; gap: 10px; justify-content: flex-end; margin-left: auto; }
+
+  /* Hide H2 title; mobile header layout */
+  .h2Project { display: none; }
+  .mobileHeaderProject { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .dateRangeMobileWrapProject { display: flex; justify-content: flex-start; }
+
+  /* Enlarge switch */
+  .contentWithPaddingProject .tabsBarProject { width: 100%; justify-content: center; border-bottom: none; }
+  .contentWithPaddingProject .tabsGroupProject { font-size: 18px; left: 0; }
+  .contentWithPaddingProject .tabProject { padding: 12px 16px; font-size: 18px; }
 }
 
 /* Global FAB Add Button (applies to all screen sizes) */

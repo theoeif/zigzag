@@ -411,36 +411,84 @@ const Project = ({ projectId }) => {
 
       {/* Main content section with proper spacing */}
       <div className={styles.mainContentSectionProject}>
-        <h2 className={styles.h2Project}>
-         Projets
-          {/* Date Range Selector */}
-          {!editingEvent && (
-            <div className={styles.dateRangeBarProject} ref={datePopoverRef}>
-              <button
-                className={styles.dateRangeButtonProject}
-                onClick={() => setIsDatePopoverOpen(v => !v)}
-              >
-                {`${draftStart} → ${draftEnd}`}
-              </button>
-              {isDatePopoverOpen && (
-                <div className={styles.dateRangePopoverProject}>
-                  <label>
-                    Début
-                    <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
-                  </label>
-                  <label>
-                    Fin
-                    <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
-                  </label>
-                  <div className={styles.dateRangeActionsProject}>
-                    <button onClick={resetRange}>Réinitialiser</button>
-                    <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+        {!isMobile && (
+          <h2 className={styles.h2Project}>
+            Projets
+            {!editingEvent && (
+              <div className={styles.dateRangeBarProject} ref={datePopoverRef}>
+                <button
+                  className={styles.dateRangeButtonProject}
+                  onClick={() => setIsDatePopoverOpen(v => !v)}
+                >
+                  {`${draftStart} → ${draftEnd}`}
+                </button>
+                {isDatePopoverOpen && (
+                  <div className={styles.dateRangePopoverProject}>
+                    <label>
+                      Début
+                      <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
+                    </label>
+                    <label>
+                      Fin
+                      <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
+                    </label>
+                    <div className={styles.dateRangeActionsProject}>
+                      <button onClick={resetRange}>Réinitialiser</button>
+                      <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            )}
+          </h2>
+        )}
+
+        {isMobile && (
+          <div className={styles.mobileHeaderProject}>
+            {!editingEvent && (
+              <div className={styles.dateRangeMobileWrapProject} ref={datePopoverRef}>
+                <button
+                  className={styles.dateRangeButtonProject}
+                  onClick={() => setIsDatePopoverOpen(v => !v)}
+                >
+                  {`${draftStart} → ${draftEnd}`}
+                </button>
+                {isDatePopoverOpen && (
+                  <div className={styles.dateRangePopoverProject}>
+                    <label>
+                      Début
+                      <input type="date" value={draftStart} max={draftEnd} onChange={e => setDraftStart(e.target.value)} />
+                    </label>
+                    <label>
+                      Fin
+                      <input type="date" value={draftEnd} min={draftStart} onChange={e => setDraftEnd(e.target.value)} />
+                    </label>
+                    <div className={styles.dateRangeActionsProject}>
+                      <button onClick={resetRange}>Réinitialiser</button>
+                      <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className={styles.tabsBarProject}>
+              <div className={styles.tabsGroupProject}>
+                <button
+                  className={`${styles.tabProject} ${activeTab === 'mine' ? styles.tabActiveProject : ''}`}
+                  onClick={() => setActiveTab('mine')}
+                >
+                  Mes projets
+                </button>
+                <button
+                  className={`${styles.tabProject} ${activeTab === 'invited' ? styles.tabActiveProject : ''}`}
+                  onClick={() => setActiveTab('invited')}
+                >
+                  Projets invités
+                </button>
+              </div>
             </div>
-          )}
-        </h2>
+          </div>
+        )}
 
         {/* Action buttons - stacked vertically */}
         <div className={styles.actionButtonsContainerProject}>
