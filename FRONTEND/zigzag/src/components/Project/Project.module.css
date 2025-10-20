@@ -529,6 +529,11 @@ body.modal-open {
   font-size: 1rem;
 }
 
+.inputErrorProject {
+  border-color: #d32f2f !important;
+  box-shadow: 0 0 0 1px #d32f2f;
+}
+
 .formTextareaProject {
   resize: vertical; /* allow expanding */
   min-height: 80px; /* wider/ taller area */

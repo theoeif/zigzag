@@ -128,6 +128,16 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     }
   }, [formData.start_time, endDateManuallyChanged]);
 
+  // Re-validate anytime either date changes
+  useEffect(() => {
+    if (formData.start_time && formData.end_time) {
+      validateDates(formData.start_time, formData.end_time);
+    } else {
+      // No end date means no error to show
+      setDateError("");
+    }
+  }, [formData.start_time, formData.end_time]);
+
   // Validate that end date is not earlier than start date
   const validateDates = (startDate, endDate) => {
     if (!startDate || !endDate) return true;
@@ -165,6 +175,13 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     // Special handling for end_time
     if (name === 'end_time') {
       setEndDateManuallyChanged(true);
+
+      // If user cleared the end date, clear any date error and update state
+      if (!value) {
+        setDateError("");
+        setFormData(prev => ({ ...prev, [name]: "" }));
+        return;
+      }
 
       // If user only enters a date (YYYY-MM-DD) without time
       if (value.length === 10 || !value.includes('T')) {
