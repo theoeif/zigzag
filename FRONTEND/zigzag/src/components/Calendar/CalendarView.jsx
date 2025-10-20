@@ -779,6 +779,7 @@ const CalendarView = () => {
             <Button size="small" variant={listMonths === 6 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(6)}>6M</Button>
           </div>
         )}
+        <div className={styles.fullCalendar}>
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
@@ -841,8 +842,8 @@ const CalendarView = () => {
             // User selected an interval (start/end)
             console.log('selected interval:', info.start, info.end);
           }}
-          classNames={styles.fullCalendar}
         />
+        </div>
       </div>
 
       {/* View Dropdown Menu */}
