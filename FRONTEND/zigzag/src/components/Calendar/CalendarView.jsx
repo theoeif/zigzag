@@ -84,20 +84,87 @@ const CalendarView = () => {
   // Handle click outside to close mobile menu
   useEffect(() => {
     const handleClickOutside = (event) => {
+      console.log('📱 Mobile click outside handler triggered:', {
+        isMobile,
+        showCircleSelector,
+        target: event.target,
+        targetClass: event.target.className
+      });
+
       if (isMobile && showCircleSelector) {
         const sidebar = document.querySelector('[data-circle-selector]');
 
+        console.log('📱 Mobile elements found:', {
+          sidebar: !!sidebar,
+          sidebarContains: sidebar ? sidebar.contains(event.target) : false
+        });
+
         if (sidebar && !sidebar.contains(event.target)) {
+          console.log('✅ Mobile: Clicking outside - closing menu only');
           setShowCircleSelector(false);
+          // Don't deactivate Planning mode - just close the menu
+        } else {
+          console.log('❌ Mobile: Click was inside sidebar - not closing');
         }
+      } else {
+        console.log('❌ Mobile: Conditions not met for click outside handler');
       }
     };
 
     if (isMobile && showCircleSelector) {
+      console.log('🎯 Adding click outside listener for mobile');
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () => {
+        console.log('🎯 Removing click outside listener for mobile');
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     }
   }, [isMobile, showCircleSelector]);
+
+  // Handle click outside for web - close menu only
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      console.log('🔍 Click outside handler triggered:', {
+        isMobile,
+        calendarMode,
+        showCircleSelector,
+        target: event.target,
+        targetClass: event.target.className
+      });
+
+      if (!isMobile && calendarMode === 'circle' && showCircleSelector) {
+        const sidebar = document.querySelector('[data-circle-selector]');
+        const calendarHeader = document.querySelector(`.${styles.calendarHeader}`);
+
+        console.log('🔍 Elements found:', {
+          sidebar: !!sidebar,
+          calendarHeader: !!calendarHeader,
+          sidebarContains: sidebar ? sidebar.contains(event.target) : false,
+          headerContains: calendarHeader ? calendarHeader.contains(event.target) : false
+        });
+
+        if (sidebar && !sidebar.contains(event.target) && 
+            calendarHeader && !calendarHeader.contains(event.target)) {
+          console.log('✅ Clicking outside - closing menu only');
+          setShowCircleSelector(false);
+          // Don't deactivate Planning mode - just close the menu
+        } else {
+          console.log('❌ Click was inside sidebar or header - not closing');
+        }
+      } else {
+        console.log('❌ Conditions not met for click outside handler');
+      }
+    };
+
+    if (!isMobile && calendarMode === 'circle' && showCircleSelector) {
+      console.log('🎯 Adding click outside listener for web');
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        console.log('🎯 Removing click outside listener for web');
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isMobile, calendarMode, showCircleSelector]);
 
   // Handle click outside to close left menu
   useEffect(() => {
@@ -270,6 +337,18 @@ const CalendarView = () => {
 
   // Event handlers
   const handleDateClick = (info) => {
+    // Prevent opening CreateEventForm when in Planning mode
+    if (calendarMode === 'circle') {
+      console.log('🚫 Calendar cell click blocked - in Planning mode', {
+        calendarMode,
+        showCircleSelector
+      });
+      return;
+    }
+    console.log('✅ Calendar cell click allowed', {
+      calendarMode,
+      showCircleSelector
+    });
     setSelectedDate(info.dateStr);
     setShowCreateForm(true);
   };
@@ -359,9 +438,8 @@ const CalendarView = () => {
         setCircleError(null);
         setShowCircleSelector(false);
       } else {
-        if (isMobile) {
-          setShowCircleSelector(true);
-        }
+        // Always show circle selector when entering circle mode
+        setShowCircleSelector(true);
       }
     }
   };
@@ -379,6 +457,14 @@ const CalendarView = () => {
   // Handle circle errors
   const handleCircleError = (error) => {
     setCircleError(error);
+  };
+
+  // Handle validation of circle selection
+  const handleValidateCircles = () => {
+    // Close the circle selector (works for both mobile and web)
+    setShowCircleSelector(false);
+    // Planning mode is now confirmed/active
+    // The grey events will remain visible as they're already loaded
   };
 
   // Handle view menu
@@ -669,7 +755,7 @@ const CalendarView = () => {
       )}
 
         {/* Circle Selector Sidebar */}
-        {calendarMode === 'circle' && (
+        {calendarMode === 'circle' && showCircleSelector && (
           <div data-circle-selector>
             <CircleSelector
               selectedCircles={selectedCircles}
@@ -678,23 +764,37 @@ const CalendarView = () => {
               onError={handleCircleError}
               isVisible={showCircleSelector}
               onClose={() => setShowCircleSelector(false)}
+              onValidate={handleValidateCircles}
             />
           </div>
         )}
 
 
       {/* Calendar Header with Schedule Button */}
-      <Box className={`${styles.calendarHeader} ${calendarMode === 'circle' ? styles.calendarHeaderWithSidebar : ''}`}>
-        {/* Schedule Button - Show when not in circle mode OR when in circle mode but sidebar is closed */}
-        <Box className={`${styles.headerTop} ${calendarMode === 'circle' && showCircleSelector ? styles.headerTopHidden : ''}`}>
-          <Button
-            variant={calendarMode === 'circle' ? 'contained' : 'outlined'}
-            onClick={() => handleModeChange(null, calendarMode === 'my' ? 'circle' : 'my')}
-            size="small"
-            className={styles.scheduleButton}
-          >
-            Planning
-          </Button>
+      <Box className={`${styles.calendarHeader} ${calendarMode === 'circle' && showCircleSelector ? styles.calendarHeaderWithSidebar : ''}`}>
+        {/* Calendar Mode Button */}
+        <Box className={styles.headerTop}>
+          {calendarMode === 'my' ? (
+            <Button
+              variant="outlined"
+              onClick={() => handleModeChange(null, 'circle')}
+              size="small"
+              className={styles.scheduleButton}
+            >
+              Planning
+            </Button>
+          ) : (
+            !isMobile && (
+              <Button
+                variant="contained"
+                onClick={() => handleModeChange(null, 'my')}
+                size="small"
+                className={styles.scheduleButton}
+              >
+                Mon Calendrier
+              </Button>
+            )
+          )}
         </Box>
       </Box>
 
@@ -772,7 +872,7 @@ const CalendarView = () => {
       )}
 
       {/* FullCalendar Component */}
-      <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' ? styles.calendarWrapperWithSidebar : ''}`}>
+      <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' && showCircleSelector ? styles.calendarWrapperWithSidebar : ''}`}>
         {activeView === 'myList' && (
           <div className={isMobile ? styles.periodButtonsContainerMobile : styles.periodButtonsContainerWeb}>
             <Button size="small" variant={listMonths === 1 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(1)}>1M</Button>
