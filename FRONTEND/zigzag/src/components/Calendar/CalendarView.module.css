@@ -1170,6 +1170,34 @@
   justify-content: flex-start !important;
 }
 
+/* Period Buttons Container - Mobile */
+.periodButtonsContainerMobile {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+  width: 200px; /* Good width for mobile */
+  margin-left: auto; /* Push to the right */
+}
+
+/* Period Buttons Container - Web */
+.periodButtonsContainerWeb {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  margin-top: -15px;
+  width: 10px; /* Much smaller width for web */
+  margin-right: auto; /* Push to the right */
+}
+
+.periodButtonsContainerWeb .MuiButton-root {
+  min-width: 20px !important;
+  width: 20px !important;
+  padding: 2px 4px !important;
+  font-size: 0.7rem !important;
+}
+
 /* Ensure normal typography/padding on the left Today button */
 .webHeaderLeftButton.MuiButton-root,
 .webHeader .webHeaderLeftButton.todayButton,

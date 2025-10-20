@@ -773,7 +773,7 @@ const CalendarView = () => {
       {/* FullCalendar Component */}
       <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' ? styles.calendarWrapperWithSidebar : ''}`}>
         {activeView === 'myList' && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
+          <div className={isMobile ? styles.periodButtonsContainerMobile : styles.periodButtonsContainerWeb}>
             <Button size="small" variant={listMonths === 1 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(1)}>1M</Button>
             <Button size="small" variant={listMonths === 2 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(2)}>2M</Button>
             <Button size="small" variant={listMonths === 6 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(6)}>6M</Button>
@@ -841,7 +841,7 @@ const CalendarView = () => {
             // User selected an interval (start/end)
             console.log('selected interval:', info.start, info.end);
           }}
-          className={styles.fullCalendar}
+          classNames={styles.fullCalendar}
         />
       </div>
 
