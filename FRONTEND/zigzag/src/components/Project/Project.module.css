@@ -924,6 +924,7 @@ body.modal-open {
   flex-direction: column;
   gap: 10px;
   min-width: 260px;
+  z-index: 3000; /* above tabs switch */
 }
 
 .dateRangePopoverProject label {
