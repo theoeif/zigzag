@@ -4,7 +4,7 @@
 
 /* Overall page layout */
 .profilePageProject {
-  padding-top: 40px;
+  padding-top: 40px; /* reduce top padding on mobile */
   padding-bottom: 20px;
   font-family: system-ui, -apple-system, sans-serif;
   background-color: #f0fdf4; /* Soft green background */
@@ -23,7 +23,7 @@
 
 /* Main content section wrapper */
 .mainContentSectionProject {
-  margin-top: 50px;
+  margin-top: 50px; /* reduce gap under main header on mobile */
   width: 100%;
 }
 
@@ -1381,16 +1381,16 @@ body.modal-open {
 button.manageButtonProject {
   background-color: #e6f2ff !important;
   color: #0066cc !important;
-  border: none !important;
-  border-radius: 6px !important;
-  padding: 8px 16px !important;
+  border: 1px solid rgba(0,102,204,0.2) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important; /* align container size closer to filter */
   font-weight: 500 !important;
   cursor: pointer !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
   gap: 8px !important;
-  min-width: 140px !important;
+  min-width: unset !important;
   justify-content: center !important;
   height: 36px !important;
   font-size: 14px !important;
@@ -1714,7 +1714,7 @@ button.manageButtonProject.activeProject {
 
 .filterContainerProject svg {
   color: #40916c;
-  font-size: 0.9rem;
+  font-size: 14px; /* match manage button icon */
 }
 
 .filterSelectProject {
@@ -2646,10 +2646,11 @@ button.manageButtonProject.activeProject {
 .contentWithPaddingProject .tabsBarProject {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start; /* align switch to the left */
   gap: 12px;
   padding: 8px 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: none; /* remove lines below */
+  position: relative;
 }
 
 .contentWithPaddingProject .tabsGroupProject {
@@ -2658,6 +2659,8 @@ button.manageButtonProject.activeProject {
   border-radius: 999px;
   padding: 4px;
   gap: 4px;
+  position: relative;
+  left: -20px; /* slight negative to nudge switch further left */
 }
 
 .contentWithPaddingProject .tabProject {
@@ -2690,16 +2693,19 @@ button.manageButtonProject.activeProject {
 }
 
 @media (max-width: 500px) {
+  .profilePageProject { padding-top: 16px; }
+  .mainContentSectionProject { margin-top: 16px; }
   /* Keep section header visible on mobile so we can place Modifier there */
-  .sectionHeaderProject { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
-  .headerRightProject { display: inline-flex; align-items: center; gap: 10px; }
+.sectionHeaderProject { display: flex; align-items: center; gap: 12px; justify-content: space-between; width: 100%; }
+.headerLeftProject { display: inline-flex; align-items: center; gap: 10px; justify-content: flex-start; }
+.headerRightProject { display: inline-flex; align-items: center; gap: 10px; justify-content: flex-end; margin-left: auto; }
 }
 
 /* Global FAB Add Button (applies to all screen sizes) */
 .addEventButtonProject {
   position: fixed;
-  bottom: 16px;
-  left: 16px;
+  bottom: 10px; /* lower to bottom corner */
+  left: 10px;
   width: 56px;
   height: 56px;
   border-radius: 50%;
