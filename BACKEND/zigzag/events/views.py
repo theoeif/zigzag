@@ -147,8 +147,15 @@ class EventViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
-        # Support clearing address explicitly with null
+        # Forbid any address changes by non-creators
+        if not user_is_creator:
+            if "address" in request.data or address_data is not None:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Support clearing address explicitly with null (creator only)
         if "address" in request.data and request.data.get("address") is None:
+            if not user_is_creator:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
             event.address = None
 
         if address_data:
@@ -216,8 +223,15 @@ class EventViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
-        # Support clearing address explicitly with null
+        # Forbid any address changes by non-creators
+        if not user_is_creator:
+            if "address" in request.data or address_data is not None:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Support clearing address explicitly with null (creator only)
         if "address" in request.data and request.data.get("address") is None:
+            if not user_is_creator:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
             event.address = None
 
         if address_data and isinstance(address_data, dict):

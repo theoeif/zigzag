@@ -188,7 +188,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     }
 
     // Pass all circle IDs to the parent handler
-    onViewCircleMembers(allCircleIds, "Participants du projet");
+    onViewCircleMembers(allCircleIds, "Participants");
   };
 
   // Helper to safely render circles
