@@ -714,15 +714,8 @@ export const fetchMyLocations = async () => {
 };
 
 // New function to fetch public event data even without authentication
-export const fetchDirectEvent = async (eventId, inviteToken = null) => {
+export const fetchDirectEvent = async (eventId) => {
   try {
-    // Build the URL - first try the regular event endpoint which now supports public access
-    let url = `${API_BASE_URL}events/event/${eventId}/`;
-    if (inviteToken) {
-      // If we have an invite token, use the public-event endpoint which supports invitation tokens
-      url = `${API_BASE_URL}events/public-event/${eventId}/?invite=${inviteToken}`;
-    } // in a V2
-
     // Get auth headers if available, but don't require them
     const headers = {};
     const token = localStorage.getItem("access_token");
@@ -730,34 +723,8 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    try {
-      const response = await axios.get(url, { headers });
-      return response.data;
-    } catch (error) {
-      // If we get a 403 response from the regular endpoint
-      if (error.response && error.response.status === 403) {
-        // If we don't have an invite token, try the public endpoint
-        if (!inviteToken) {
-          try {
-            const directEventResponse = await axios.get(
-              `${API_BASE_URL}events/event/${eventId}/`,
-              { headers }
-            );
-            return directEventResponse.data;
-          } catch (directEventError) {
-            // If the public endpoint also returns a 403, return that limited data
-            if (directEventError.response && directEventError.response.status === 403) {
-              return directEventError.response.data;
-            }
-            throw directEventError;
-          }
-        }
-
-        // Return the limited data from the original 403 response
-        return error.response.data;
-      }
-      throw error;
-    }
+    const response = await axios.get(`${API_BASE_URL}events/event/${eventId}/`, { headers });
+    return response.data;
   } catch (error) {
     console.error('Error fetching direct event:', error);
     // If we have response data with an error message, return it instead of throwing
@@ -768,82 +735,6 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
   }
 };
 
-// Verify an invitation token : TODO : link sharing invite token
-export const verifyInvitation = async (token) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}events/verify-invitation/?token=${token}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error verifying invitation:', error);
-    return { valid: false };
-  }
-};
-
-// Create event invitations
-export const createEventInvitation = async (eventId, email) => {
-  try {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      const newToken = await refreshAccessToken();
-      if (!newToken) throw new Error('Authentication required');
-    }
-
-    const response = await axios.post(
-      `${API_BASE_URL}events/invitations/`,
-      { event: eventId, email },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error creating invitation:', error);
-    throw error;
-  }
-};
-
-// Accept an invitation
-export const acceptInvitation = async (token) => {
-  try {
-    const authToken = localStorage.getItem("access_token");
-    if (!authToken) {
-      const newToken = await refreshAccessToken();
-      if (!newToken) throw new Error('Authentication required');
-    }
-
-    const response = await axios.post(
-      `${API_BASE_URL}events/accept-invitation/`,
-      { token },
-      { headers: { Authorization: `Bearer ${authToken}` } }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error accepting invitation:', error);
-    throw error;
-  }
-};
-
-// Generate share token for an event : TODO : for inviteing people ti events
-export const generateEventShareToken = async (eventId) => {
-  try {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      const newToken = await refreshAccessToken();
-      if (!newToken) throw new Error('Authentication required');
-    }
-
-    const response = await axios.post(
-      `${API_BASE_URL}events/event-share-token/`,
-      { event: eventId },
-      { headers: { Authorization: `Bearer ${token || newToken}` } }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error generating share token:', error);
-    throw error;
-  }
-};
 
 // Fetch grey events for selected circles (privacy-protected)
 export const fetchGreyEvents = async (circleIds) => {

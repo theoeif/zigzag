@@ -3,9 +3,7 @@ import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
 import { MapContext } from "../../../contexts/MapContext";
 import {
-  fetchDirectEvent,
-  acceptInvitation,
-  createEventInvitation
+  fetchDirectEvent
 } from "../../../api/api";
 import MarkersMap from "../../MarkersMap";
 import CircleMembersPopup from "../../Project/CircleMembersPopup";
@@ -164,14 +162,6 @@ const styles = {
     color: "red",
     marginBottom: "15px",
   },
-  invitationBanner: {
-    backgroundColor: "#e3f2fd",
-    borderRadius: "4px",
-    padding: "10px",
-    marginBottom: "15px",
-    borderLeft: "4px solid #2196F3",
-    fontSize: "0.9rem"
-  },
   tagsContainer: {
     display: "flex",
     flexWrap: "wrap",
@@ -253,8 +243,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "36px",
-    height: "36px",
+    width: "44px",
+    height: "44px",
     backgroundColor: "#f1f1f1",
     border: "none",
     borderRadius: "4px",
@@ -266,8 +256,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "36px",
-    height: "36px",
+    width: "44px",
+    height: "44px",
     backgroundColor: "#40916c",
     border: "none",
     borderRadius: "4px",
@@ -357,7 +347,6 @@ const EventView = ({
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { setMapState } = useContext(MapContext);
-  const inviteToken = searchParams.get('invite');
   const { isConnected } = useContext(AuthContext);
 
   // Derive modal mode from displayMode and location state
@@ -382,13 +371,8 @@ const EventView = ({
   // Event details modal state
   const [showEventDetails, setShowEventDetails] = useState(false);
 
-  // Sharing and invitations
+  // Sharing
   const [isCreator, setIsCreator] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteSent, setInviteSent] = useState(false);
-  const [inviteError, setInviteError] = useState(null);
-
-  // Invitation verification removed as public/private distinction is no longer used
 
   // Fetch event data
   useEffect(() => {
@@ -396,9 +380,8 @@ const EventView = ({
       const loadEvent = async () => {
         try {
           setLoading(true);
-          const eventData = await fetchDirectEvent(eventId, inviteToken);
+          const eventData = await fetchDirectEvent(eventId);
           setEvent(eventData);
-
 
           // Check if current user is the creator
           const currentUsername = localStorage.getItem("username");
@@ -424,7 +407,7 @@ const EventView = ({
       setShareUrl(`http://localhost:5173/event/${eventId}`);
       setLoading(false);
     }
-  }, [eventId, inviteToken, isConnected, initialData]);
+  }, [eventId, isConnected, initialData]);
 
   // Format functions from EventCard
   const formatFullDate = (dateString) => {
@@ -531,27 +514,9 @@ const EventView = ({
   // Event handlers
   const handleLogin = () => {
     // Redirect to login with return path
-    navigate(`/login?redirect=${encodeURIComponent(`/event/${eventId}${inviteToken ? `?invite=${inviteToken}` : ''}`)}`);
+    navigate(`/login?redirect=${encodeURIComponent(`/event/${eventId}`)}`);
   };
 
-  const handleAcceptInvitation = async () => {
-    if (!isConnected) {
-      handleLogin();
-      return;
-    }
-
-    try {
-      const result = await acceptInvitation(inviteToken);
-      if (result.success) {
-        // Reload the event data
-        const eventData = await fetchDirectEvent(eventId, inviteToken);
-        setEvent(eventData);
-      }
-    } catch (err) {
-      console.error("Error accepting invitation:", err);
-      setError("Failed to accept invitation. Please try again.");
-    }
-  };
 
 
   const handleViewOnMap = () => {
@@ -576,22 +541,6 @@ const EventView = ({
     }
   };
 
-  const handleInvite = async () => {
-    if (!inviteEmail || !inviteEmail.includes('@')) {
-      setInviteError("Please enter a valid email address");
-      return;
-    }
-
-    try {
-      setInviteError(null);
-      await createEventInvitation(eventId, inviteEmail);
-      setInviteSent(true);
-      setInviteEmail('');
-      setTimeout(() => setInviteSent(false), 3000); // Clear success message after 3 seconds
-    } catch (err) {
-      setInviteError('Failed to send invitation. Please try again.');
-    }
-  };
 
   const handleShareEvent = async () => {
     try {
@@ -765,12 +714,6 @@ const EventView = ({
 
             <h2 style={styles.title}>{event.title}</h2>
 
-            {/* Invitation banner */}
-            {inviteToken && (
-              <div style={styles.invitationBanner}>
-                <p>You have been invited to this event. {!isConnected && "Please log in to accept the invitation."}</p>
-              </div>
-            )}
 
             {
               // Full event view
@@ -910,22 +853,15 @@ const EventView = ({
                     </div>
                   )}
 
-                  {/* Accept invitation button */}
-                  {isConnected && inviteToken ? (
-                    <button
-                      style={{...styles.button, ...styles.primaryButton}}
-                      onClick={handleAcceptInvitation}
-                    >
-                      Accept Invitation
-                    </button>
-                  ) : !isConnected ? (
+                  {/* Login button for non-connected users */}
+                  {!isConnected && (
                     <button
                       style={{...styles.button, ...styles.primaryButton}}
                       onClick={handleLogin}
                     >
                       Log in to participate
                     </button>
-                  ) : null}
+                  )}
                 </div>
 
                 {/* View on map button - only show for direct link access, not modal mode */}
@@ -1141,15 +1077,6 @@ const EventView = ({
                   </div>
                 )}
 
-                {/* Accept invitation button */}
-                {isConnected && inviteToken && (
-                  <button
-                    onClick={handleAcceptInvitation}
-                    style={{...styles.button, ...styles.primaryButton}}
-                  >
-                    Accept Invitation
-                  </button>
-                )}
               </div>
 
               {/* Close button */}

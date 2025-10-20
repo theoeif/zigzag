@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from .models import User, UserAddress, Address, Tag, Circle, Event, EventParticipation, EventInvitation
+from .models import User, UserAddress, Address, Tag, Circle, Event
 
 # Unregister default Group to avoid confusion since you don’t use it directly
 admin.site.unregister(Group)
@@ -61,13 +61,7 @@ admin.site.register(Circle)
 
 # ----- EVENT ADMIN -----
 
-class EventParticipationInline(admin.TabularInline):
-    model = EventParticipation
-    extra = 0
-    readonly_fields = ('user',)
-
 class EventAdmin(admin.ModelAdmin):
-    inlines = [EventParticipationInline]
     list_display = ['title', 'creator', 'get_address', 'get_lat', 'get_lng']
     search_fields = ['title', 'description', 'address__address_line']
     list_filter = ['created_at']
@@ -85,5 +79,3 @@ class EventAdmin(admin.ModelAdmin):
     get_lng.short_description = 'Longitude'
 
 admin.site.register(Event, EventAdmin)
-admin.site.register(EventParticipation)
-admin.site.register(EventInvitation)

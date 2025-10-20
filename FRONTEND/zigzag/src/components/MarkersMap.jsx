@@ -432,6 +432,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           return {
             id: uniqueId,
             user_id: location.user_id_str, // Changed from user_id to user_id_str
+            username: location.username,
             title: name,
             lat: parseFloat(location.lat),
             lng: parseFloat(location.lng),
@@ -844,25 +845,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           offset: [0, -10],
         });
 
-        marker.on("click", () => {
-          if (markerData.user_id) {
-            // Update MapContext BEFORE navigating so background map has correct coordinates
-            setMapState({
-              center: { lat: markerData.lat, lng: markerData.lng },
-              zoom: 15
-            });
-
-            navigate(`/friend/${markerData.user_id}`, {
-              state: {
-                background: location,
-                mapState: {
-                  center: { lat: markerData.lat, lng: markerData.lng },
-                  zoom: 15
-                },
-              },
-            });
-          }
-        });
+        // Friend marker click functionality removed
 
         // When showing only friends and clustering is on, put close markers in the main friend cluster group
         // This allows close and normal friend markers to merge into a single cluster
@@ -916,25 +899,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           offset: [0, -10],
         });
 
-        marker.on("click", () => {
-          if (markerData.user_id) {
-            // Update MapContext BEFORE navigating so background map has correct coordinates
-            setMapState({
-              center: { lat: markerData.lat, lng: markerData.lng },
-              zoom: 15
-            });
-
-            navigate(`/friend/${markerData.user_id}`, {
-              state: {
-                background: location,
-                mapState: {
-                  center: { lat: markerData.lat, lng: markerData.lng },
-                  zoom: 15
-                },
-              },
-            });
-          }
-        });
+        // Friend marker click functionality removed
 
         // Make this exactly match the project marker logic for clustering
         if (useClusteringForNormal) {
