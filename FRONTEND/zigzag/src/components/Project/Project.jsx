@@ -150,6 +150,20 @@ const Project = ({ projectId }) => {
     }
   }, [projects]);
 
+  // Viewport tracking to derive mobile status and grid columns
+  const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  const isMobile = viewportWidth <= 500;
+  const numColumns = viewportWidth >= 1024 ? 3 : viewportWidth >= 500 ? 2 : 1;
+  const capToTwoRows = (arr) => (isMobile ? arr : arr.slice(0, numColumns * 2));
+
+  // Mobile tabs state (ignored on web where both sections are shown)
+  const [activeTab, setActiveTab] = useState('mine'); // 'mine' | 'invited'
+
   // Filter events based on timeline selection - this should run only when events or timeRange actually change
   useEffect(() => {
     if (!events || events.length === 0) return;
@@ -439,13 +453,6 @@ const Project = ({ projectId }) => {
           >
             <FaPlus /> Ajouter un projet
           </button>
-          <button
-            onClick={toggleManageMode}
-            className={`${styles.manageButtonProject} ${isManageMode ? styles.activeProject : ''}`}
-            data-button-type="project-edit"
-          >
-            <FaEdit /> Modifier
-          </button>
         </div>
       </div>
 
@@ -479,14 +486,33 @@ const Project = ({ projectId }) => {
 
       {/* Content with padding to avoid TimelineBar overlap */}
       <div className={styles.contentWithPaddingProject}>
+        {/* Mobile tabs bar */}
+        {isMobile && (
+          <div className={styles.tabsBarProject}>
+            <div className={styles.tabsGroupProject}>
+              <button
+                className={`${styles.tabProject} ${activeTab === 'mine' ? styles.tabActiveProject : ''}`}
+                onClick={() => setActiveTab('mine')}
+              >
+                Mes projets
+              </button>
+              <button
+                className={`${styles.tabProject} ${activeTab === 'invited' ? styles.tabActiveProject : ''}`}
+                onClick={() => setActiveTab('invited')}
+              >
+                Projets invités
+              </button>
+            </div>
+          </div>
+        )}
         {/* Render Your Projects */}
         <div>
-          <h3 className={styles.h3Project}>Mes projets</h3>
-          {filteredEvents.length === 0 ? (
+          {!isMobile && <h3 className={styles.h3Project}>Mes projets</h3>}
+          {(isMobile ? filteredEvents : capToTwoRows(filteredEvents)).length === 0 ? (
             <p>Vous n'avez pas encore créé de projets.</p>
-          ) : (
+          ) : (!isMobile && (
             <div className={styles.eventsGridProject}>
-              {filteredEvents.map((event) => {
+              {capToTwoRows(filteredEvents).map((event) => {
                 const shouldAutoOpen = autoOpenEventId === event.id;
                 return (
                   <EventCard
@@ -503,7 +529,7 @@ const Project = ({ projectId }) => {
                 );
               })}
             </div>
-          )}
+          ))}
         </div>
 
         <div className={styles.dividerProject}></div>
@@ -511,36 +537,67 @@ const Project = ({ projectId }) => {
         {/* Friends Events with Filter */}
         <div>
           <div className={styles.sectionHeaderProject}>
-            <h3 className={styles.h3Project}>Projets invités</h3>
-            <div className={styles.filterContainerProject}>
-              <FaFilter />
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className={styles.filterSelectProject}
+            {!isMobile && <h3 className={styles.h3Project}>Projets invités</h3>}
+            <div className={styles.headerRightProject}>
+              <button
+                onClick={toggleManageMode}
+                className={`${styles.manageButtonProject} ${styles.manageButtonMobileProject} ${isManageMode ? styles.activeProject : ''}`}
+                data-button-type="project-edit"
               >
-                <option value="recent">Plus récents</option>
-                <option value="old">Plus anciens</option>
-              </select>
+                <FaEdit /> Modifier
+              </button>
+              <div className={styles.filterContainerProject}>
+                <FaFilter />
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className={styles.filterSelectProject}
+                >
+                  <option value="recent">Plus récents</option>
+                  <option value="old">Plus anciens</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          {otherProjects.length === 0 ? (
+          {getFilteredFriendsEvents().length === 0 ? (
             <p>Vous ne faites partie d'aucun projet pour le moment.</p>
-          ) : (
+          ) : (!isMobile && (
             <div className={styles.eventsGridProject}>
-              {filteredFriendsEvents.length === 0 ? (
-                <p>Aucun événement d'ami ne correspond à la période sélectionnée.</p>
-              ) : (
-                getFilteredFriendsEvents().map((event) => {
+              {capToTwoRows(getFilteredFriendsEvents()).map((event) => {
+                const shouldAutoOpen = autoOpenEventId === event.id;
+                // Allow editing if event is shared AND user is in manage mode
+                const canEdit = event.event_shared && isManageMode;
+                return (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    isManageMode={canEdit} // Allow editing of shared events only in manage mode
+                    onDelete={handleDeleteEvent}
+                    onEdit={handleEditEvent}
+                    onViewCircleMembers={handleViewCircleMembers}
+                    onDetailsToggle={handleDetailsToggle}
+                    autoOpen={shouldAutoOpen}
+                    onAutoOpened={() => setAutoOpenEventId(null)}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile conditional content rendering */}
+        {isMobile && (
+          <div>
+            {activeTab === 'mine' ? (
+              <div className={styles.eventsGridProject}>
+                {filteredEvents.map((event) => {
                   const shouldAutoOpen = autoOpenEventId === event.id;
-                  // Allow editing if event is shared AND user is in manage mode
-                  const canEdit = event.event_shared && isManageMode;
                   return (
                     <EventCard
                       key={event.id}
                       event={event}
-                      isManageMode={canEdit} // Allow editing of shared events only in manage mode
+                      isManageMode={isManageMode}
                       onDelete={handleDeleteEvent}
                       onEdit={handleEditEvent}
                       onViewCircleMembers={handleViewCircleMembers}
@@ -549,11 +606,31 @@ const Project = ({ projectId }) => {
                       onAutoOpened={() => setAutoOpenEventId(null)}
                     />
                   );
-                })
-              )}
-            </div>
-          )}
-        </div>
+                })}
+              </div>
+            ) : (
+              <div className={styles.eventsGridProject}>
+                {getFilteredFriendsEvents().map((event) => {
+                  const shouldAutoOpen = autoOpenEventId === event.id;
+                  const canEdit = event.event_shared && isManageMode;
+                  return (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      isManageMode={canEdit}
+                      onDelete={handleDeleteEvent}
+                      onEdit={handleEditEvent}
+                      onViewCircleMembers={handleViewCircleMembers}
+                      onDetailsToggle={handleDetailsToggle}
+                      autoOpen={shouldAutoOpen}
+                      onAutoOpened={() => setAutoOpenEventId(null)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
 
       </div>
