@@ -1148,7 +1148,6 @@
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .webHeaderLeft {
@@ -1185,7 +1184,7 @@
   display: flex;
   justify-content: flex-start;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 15px;
   margin-top: -15px;
   width: 10px; /* Much smaller width for web */
   margin-right: auto; /* Push to the right */
