@@ -344,7 +344,8 @@ const CalendarView = () => {
   };
 
   const handleViewCircleMembers = (circleId, circleName) => {
-    setCircleMembersData({ circleId, circleName });
+    const ids = circleId != null ? [circleId] : [];
+    setCircleMembersData({ circleIds: ids, circleName });
     setShowCircleMembers(true);
   };
 
@@ -947,7 +948,7 @@ const CalendarView = () => {
       {/* Circle Members Popup */}
       {showCircleMembers && circleMembersData && (
         <CircleMembersPopup
-          circleId={circleMembersData.circleId}
+          circleIds={circleMembersData.circleIds || []}
           circleName={circleMembersData.circleName}
           onClose={() => setShowCircleMembers(false)}
         />

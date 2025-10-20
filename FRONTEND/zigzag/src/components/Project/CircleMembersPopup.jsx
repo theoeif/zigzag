@@ -18,8 +18,11 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
       setError(null);
 
       try {
-        if (!circleIds.length) {
-          throw new Error("No circle IDs provided");
+        if (!Array.isArray(circleIds) || circleIds.length === 0) {
+          setMembers([]);
+          setLoading(false);
+          setError('Aucun cercle sélectionné');
+          return;
         }
 
         // Fetch user's accessible circles
@@ -32,9 +35,8 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
         const accessibleCircleIds = userCircles.map(c => c.id);
 
         // Filter requested circles to only accessible ones
-        const filteredCircleIds = circleIds.filter(id =>
-          accessibleCircleIds.includes(id)
-        );
+        const uniqueRequested = [...new Set(circleIds)];
+        const filteredCircleIds = uniqueRequested.filter(id => accessibleCircleIds.includes(id));
 
         if (filteredCircleIds.length === 0) {
           setMembers([]);
@@ -115,7 +117,7 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           ) : (
             <>
               <div className={styles.memberCountProject}>
-                <span>{members.length} invité{members.length !== 1 ? 's' : ''} de tes cercles</span>
+                <span>{members.length} invité{members.length !== 1 ? 's' : ''} de mes cercles</span>
               </div>
               <ul className={styles.membersListProject}>
                 {members.map((member, index) => (

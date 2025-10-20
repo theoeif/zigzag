@@ -1332,3 +1332,17 @@
   text-decoration-thickness: 2px;
   color: #40916c !important;
 }
+
+/* Mobile: hide event titles in Month (daygrid) view for compact display */
+@media (max-width: 768px) {
+  /* Hide default FullCalendar daygrid event title containers */
+  .fullCalendar :global(.fc-daygrid .fc-event .fc-event-title),
+  .fullCalendar :global(.fc-daygrid .fc-event .fc-event-title-container) {
+    display: none !important;
+  }
+
+  /* Hide custom-rendered event titles used by our eventContent in daygrid */
+  .fullCalendar :global(.fc-daygrid) .eventTitle {
+    display: none !important;
+  }
+}
