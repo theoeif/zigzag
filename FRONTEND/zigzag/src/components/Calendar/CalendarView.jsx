@@ -84,39 +84,20 @@ const CalendarView = () => {
   // Handle click outside to close mobile menu
   useEffect(() => {
     const handleClickOutside = (event) => {
-      console.log('📱 Mobile click outside handler triggered:', {
-        isMobile,
-        showCircleSelector,
-        target: event.target,
-        targetClass: event.target.className
-      });
-
       if (isMobile && showCircleSelector) {
         const sidebar = document.querySelector('[data-circle-selector]');
 
-        console.log('📱 Mobile elements found:', {
-          sidebar: !!sidebar,
-          sidebarContains: sidebar ? sidebar.contains(event.target) : false
-        });
-
         if (sidebar && !sidebar.contains(event.target)) {
-          console.log('✅ Mobile: Clicking outside - closing menu only');
           setShowCircleSelector(false);
           // Don't change calendarMode - keep Planning mode active
           // Don't clear selectedCircles or greyEvents
-        } else {
-          console.log('❌ Mobile: Click was inside sidebar - not closing');
         }
-      } else {
-        console.log('❌ Mobile: Conditions not met for click outside handler');
       }
     };
 
     if (isMobile && showCircleSelector) {
-      console.log('🎯 Adding click outside listener for mobile');
       document.addEventListener('mousedown', handleClickOutside);
       return () => {
-        console.log('🎯 Removing click outside listener for mobile');
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
@@ -125,44 +106,22 @@ const CalendarView = () => {
   // Handle click outside for web - close menu only
   useEffect(() => {
     const handleClickOutside = (event) => {
-      console.log('🔍 Click outside handler triggered:', {
-        isMobile,
-        calendarMode,
-        showCircleSelector,
-        target: event.target,
-        targetClass: event.target.className
-      });
-
       if (!isMobile && calendarMode === 'circle' && showCircleSelector) {
         const sidebar = document.querySelector('[data-circle-selector]');
         const calendarHeader = document.querySelector(`.${styles.calendarHeader}`);
 
-        console.log('🔍 Elements found:', {
-          sidebar: !!sidebar,
-          calendarHeader: !!calendarHeader,
-          sidebarContains: sidebar ? sidebar.contains(event.target) : false,
-          headerContains: calendarHeader ? calendarHeader.contains(event.target) : false
-        });
-
         if (sidebar && !sidebar.contains(event.target) && 
             calendarHeader && !calendarHeader.contains(event.target)) {
-          console.log('✅ Clicking outside - closing menu only');
           setShowCircleSelector(false);
           // Don't change calendarMode - keep Planning mode active
           // Don't clear selectedCircles or greyEvents
-        } else {
-          console.log('❌ Click was inside sidebar or header - not closing');
         }
-      } else {
-        console.log('❌ Conditions not met for click outside handler');
       }
     };
 
     if (!isMobile && calendarMode === 'circle' && showCircleSelector) {
-      console.log('🎯 Adding click outside listener for web');
       document.addEventListener('mousedown', handleClickOutside);
       return () => {
-        console.log('🎯 Removing click outside listener for web');
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
@@ -341,16 +300,8 @@ const CalendarView = () => {
   const handleDateClick = (info) => {
     // Prevent opening CreateEventForm when in Planning mode
     if (calendarMode === 'circle') {
-      console.log('🚫 Calendar cell click blocked - in Planning mode', {
-        calendarMode,
-        showCircleSelector
-      });
       return;
     }
-    console.log('✅ Calendar cell click allowed', {
-      calendarMode,
-      showCircleSelector
-    });
     setSelectedDate(info.dateStr);
     setShowCreateForm(true);
   };

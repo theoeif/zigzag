@@ -153,27 +153,41 @@
 
 /* Validate Button Container */
 .validateButtonContainer {
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 0;
-  right: 0;
   background-color: white;
   padding: 16px;
   border-top: 1px solid #e0e0e0;
-  z-index: 1001;
+  margin-top: auto;
   display: flex;
   justify-content: flex-start;
 }
 
-/* Mobile specific positioning */
+/* Web specific positioning - close to circle list */
+@media (min-width: 769px) {
+  .validateButtonContainer {
+    position: sticky;
+    bottom: 0;
+    margin-top: 16px;
+    padding: 12px 0;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+/* Mobile specific positioning - fixed at bottom */
 @media (max-width: 768px) {
   .validateButtonContainer {
-    justify-content: flex-start; /* Ensure left alignment on mobile */
-    padding: 12px 16px; /* Slightly smaller padding on mobile */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    justify-content: flex-start;
+    padding: 12px 16px;
   }
   
   .validateButton {
-    max-width: 120px; /* Limit button width on mobile */
+    max-width: 120px;
   }
 }
 
