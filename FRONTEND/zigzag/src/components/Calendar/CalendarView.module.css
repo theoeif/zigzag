@@ -612,7 +612,7 @@
 /* Override FullCalendar's root CSS variables for light mode */
 :root {
   --fc-border-color: #e0e0e0 !important;
-  --fc-today-bg-color: rgba(64, 145, 108, 0.1) !important;
+  --fc-today-bg-color: rgba(64, 145, 108, 0.05) !important; /* match hover light green */
   --fc-event-bg-color: #40916c !important;
   --fc-event-border-color: #40916c !important;
   --fc-highlight-color: rgba(64, 145, 108, 0.1) !important;
@@ -740,7 +740,7 @@
   /* Override FullCalendar's root CSS variables for light mode */
   :root {
     --fc-border-color: #e0e0e0 !important;
-    --fc-today-bg-color: rgba(64, 145, 108, 0.1) !important;
+    --fc-today-bg-color: rgba(64, 145, 108, 0.05) !important; /* match hover light green */
     --fc-event-bg-color: #40916c !important;
     --fc-event-border-color: #40916c !important;
     --fc-highlight-color: rgba(64, 145, 108, 0.1) !important;
@@ -1303,4 +1303,32 @@
   text-transform: none !important;
   font-weight: 500 !important;
   padding: 8px 16px !important;
+}
+
+/* Ensure FullCalendar uses our font and allow styling inside */
+.fullCalendar :global(.fc) {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Underline "today" and remove white overlay in Month view */
+.fullCalendar :global(.fc .fc-daygrid-day.fc-day-today) {
+  background-color: rgba(64, 145, 108, 0.05) !important; /* light green like hover */
+}
+.fullCalendar :global(.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number) {
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 2px;
+  color: #40916c !important;
+}
+
+/* Underline "today" and remove white overlay in List view */
+.fullCalendar :global(.fc-theme-standard .fc-list-day.fc-day-today .fc-list-day-cushion) {
+  background: rgba(64, 145, 108, 0.05) !important; /* light green like hover */
+}
+.fullCalendar :global(.fc .fc-list-day.fc-day-today .fc-list-day-text),
+.fullCalendar :global(.fc .fc-list-day.fc-day-today .fc-list-day-side-text) {
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 2px;
+  color: #40916c !important;
 }
