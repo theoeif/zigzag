@@ -102,7 +102,8 @@ const CalendarView = () => {
         if (sidebar && !sidebar.contains(event.target)) {
           console.log('✅ Mobile: Clicking outside - closing menu only');
           setShowCircleSelector(false);
-          // Don't deactivate Planning mode - just close the menu
+          // Don't change calendarMode - keep Planning mode active
+          // Don't clear selectedCircles or greyEvents
         } else {
           console.log('❌ Mobile: Click was inside sidebar - not closing');
         }
@@ -147,7 +148,8 @@ const CalendarView = () => {
             calendarHeader && !calendarHeader.contains(event.target)) {
           console.log('✅ Clicking outside - closing menu only');
           setShowCircleSelector(false);
-          // Don't deactivate Planning mode - just close the menu
+          // Don't change calendarMode - keep Planning mode active
+          // Don't clear selectedCircles or greyEvents
         } else {
           console.log('❌ Click was inside sidebar or header - not closing');
         }
@@ -784,7 +786,8 @@ const CalendarView = () => {
               Planning
             </Button>
           ) : (
-            !isMobile && (
+            // Show "Mon Calendrier" button when in Planning mode but menu is closed
+            !showCircleSelector && (
               <Button
                 variant="contained"
                 onClick={() => handleModeChange(null, 'my')}
