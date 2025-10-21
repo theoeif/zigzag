@@ -45,14 +45,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const [showFriendLocations, setShowFriendLocations] = useState(true);
 
 
-  // Single source of truth for timeframe
-  const [timeframe, setTimeframe] = useState(() => {
-    // Default: current date to current date + 1 month (one month range)
-    const start = new Date();
-    const end = new Date();
-    end.setMonth(end.getMonth() + 1);
-    return { start, end };
-  });
+  // Timeframe is now managed by MapContext
 
   // Refs to track previous filter states for auto-untoggling
   const prevShowProjectsRef = useRef(showProjects);
@@ -154,14 +147,15 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const individualMarkersRef = useRef([]);
   const mapRef = useRef(null);
 
-  // Get mapState from context and navigation state
-  const { mapState: contextMapState, setMapState } = useContext(MapContext);
+  // Get mapState and timeframe from context and navigation state
+  const { mapState: contextMapState, setMapState, timeframe: contextTimeframe, setTimeframe: setContextTimeframe } = useContext(MapContext);
   const navigate = useNavigate();
   // const location = useLocation();
 
   // Use only MapContext for map state management
   // Navigation state is only used for passing data, not for map positioning
   const mapState = contextMapState;
+  const timeframe = contextTimeframe;
 
 
   /**
@@ -1082,11 +1076,62 @@ const MarkersMap = ({ eventCoordinates = null }) => {
    * Expects an object with { start: Date, end: Date }.
    */
   const handleTimelineTimeChange = useCallback((range) => {
-    setTimeframe({
+    setContextTimeframe({
       start: new Date(range.start),
       end: new Date(range.end)
     });
-  }, []);
+  }, [setContextTimeframe]);
+
+
+  // Save map state when component unmounts
+  useEffect(() => {
+    return () => {
+      // Cleanup function - runs when component unmounts
+      if (mapRef.current) {
+        const currentCenter = mapRef.current.getCenter();
+        const currentZoom = mapRef.current.getZoom();
+        
+        // Save current map state to MapContext
+        setMapState({
+          center: { 
+            lat: currentCenter.lat, 
+            lng: currentCenter.lng 
+          },
+          zoom: currentZoom
+        });
+        
+      }
+    };
+  }, [setMapState]);
+
+  // Save map state on map movements
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const saveMapState = () => {
+      const currentCenter = mapRef.current.getCenter();
+      const currentZoom = mapRef.current.getZoom();
+      
+      setMapState({
+        center: { 
+          lat: currentCenter.lat, 
+          lng: currentCenter.lng 
+        },
+        zoom: currentZoom
+      });
+    };
+
+    // Save state when user stops moving the map
+    const map = mapRef.current;
+    map.on('moveend', saveMapState);
+    map.on('zoomend', saveMapState);
+
+    // Cleanup event listeners
+    return () => {
+      map.off('moveend', saveMapState);
+      map.off('zoomend', saveMapState);
+    };
+  }, [setMapState]);
 
 
   // Fetch friend locations when component mounts
@@ -1163,9 +1208,49 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       {!isBackground && showCreateForm && (
         <CreateEventForm
           projectId={null}
-          onEventCreated={() => {
+          onEventCreated={(createdEvent) => {
             setShowCreateForm(false);
             refreshMarkersForSelectedTags();
+            
+            // Handle spatiotemporal navigation for events created from MarkersMap
+            if (createdEvent && createdEvent.lat && createdEvent.lng) {
+              // Update map location to the new event
+              setMapState({
+                center: { lat: createdEvent.lat, lng: createdEvent.lng },
+                zoom: 15
+              });
+              
+              // Update timeframe to include the new event's dates
+              if (createdEvent.start_date && createdEvent.end_date) {
+                const eventStart = new Date(createdEvent.start_date);
+                const eventEnd = new Date(createdEvent.end_date);
+                
+                // Check if event dates fall outside current timeframe
+                const currentStart = new Date(timeframe.start);
+                const currentEnd = new Date(timeframe.end);
+                
+                let newStart = currentStart;
+                let newEnd = currentEnd;
+                
+                // Expand timeframe if event is outside current range
+                if (eventStart < currentStart) {
+                  newStart = new Date(eventStart);
+                  newStart.setDate(newStart.getDate() - 7); // Add 1 week padding
+                }
+                if (eventEnd > currentEnd) {
+                  newEnd = new Date(eventEnd);
+                  newEnd.setDate(newEnd.getDate() + 7); // Add 1 week padding
+                }
+                
+                // Only update if timeframe actually changed
+                if (newStart.getTime() !== currentStart.getTime() || newEnd.getTime() !== currentEnd.getTime()) {
+                  setContextTimeframe({
+                    start: newStart,
+                    end: newEnd
+                  });
+                }
+              }
+            }
           }}
           onClose={() => setShowCreateForm(false)}
         />
