@@ -13,6 +13,7 @@
     "@algolia/autocomplete-js": "^1.17.9",
     "@algolia/autocomplete-theme-classic": "^1.17.9",
     "@capacitor-community/date-picker": "^7.1.0",
+    "@capacitor/app": "^7.1.0",
     "@capacitor/filesystem": "^7.1.4",
     "@capacitor/ios": "^7.4.3",
     "@capacitor/share": "^7.0.2",
