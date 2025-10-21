@@ -2,6 +2,9 @@
   "appId": "com.zigzagunique.app",
   "appName": "zigzag",
   "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
   "plugins": {
     "StatusBar": {
       "overlaysWebView": false,

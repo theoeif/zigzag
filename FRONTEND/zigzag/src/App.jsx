@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter as Router, useLocation, Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, useLocation, Route, Routes, useNavigate } from "react-router-dom";
 import MarkersMap from "./components/MarkersMap";
 import AccountCreation from "./components/Login/AccountCreation";
 import Login from "./components/Login/Login.jsx";
@@ -11,13 +11,25 @@ import MainCircles from "./components/Circles/MainCircles";
 import CalendarView from "./components/Calendar/CalendarView";
 import Settings from "./components/Settings/Settings";
 import Callback from './contexts/Callback';
+import { initDeepLinking, removeDeepLinkListener } from './utils/deepLinkHandler';
 
 const App = () => {
-
-  // Get the current location so we can check if a modal should be shown
   const location = useLocation();
+  const navigate = useNavigate();
   // If a modal was opened from a background location, it will be stored here.
   const state = location.state || {};
+
+  // Initialize deep linking when app starts
+  useEffect(() => {
+    console.log('App: Initializing deep linking');
+    initDeepLinking(navigate);
+
+    // Cleanup on unmount
+    return () => {
+      console.log('App: Cleaning up deep link listeners');
+      removeDeepLinkListener();
+    };
+  }, [navigate]);
 
   return (
     <>

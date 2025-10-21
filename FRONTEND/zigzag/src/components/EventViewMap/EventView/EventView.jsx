@@ -537,7 +537,14 @@ const EventView = ({
         zoom: 15
       });
 
-      navigate("/");
+      // Navigate to map with event ID in state
+      navigate("/", {
+        state: {
+          fromEvent: true,
+          eventId: eventId, // Pass the event ID
+          eventCoordinates: { lat, lng }
+        }
+      });
     } else {
       // Fallback to home page if no coordinates
       navigate("/");
