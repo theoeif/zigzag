@@ -5,6 +5,7 @@ import { MapContext } from "../../../contexts/MapContext";
 import {
   fetchDirectEvent
 } from "../../../api/api";
+import { FRONTEND_URL } from "../../../config";
 import MarkersMap from "../../MarkersMap";
 import CircleMembersPopup from "../../Project/CircleMembersPopup";
 import EventDetailsSection from "../../Project/EventDetailsSection";
@@ -391,7 +392,7 @@ const EventView = ({
           setIsCreator(eventData.creator === currentUsername);
 
           // Set share URL
-          setShareUrl(`http://localhost:5173/event/${eventId}`);
+          setShareUrl(`${FRONTEND_URL}/event/${eventId}`);
           setError(null);
         } catch (err) {
           console.error("Error loading event:", err);
@@ -407,7 +408,7 @@ const EventView = ({
       setEvent(initialData);
       const currentUsername = localStorage.getItem("username");
       setIsCreator(initialData.creator === currentUsername);
-      setShareUrl(`http://localhost:5173/event/${eventId}`);
+      setShareUrl(`${FRONTEND_URL}/event/${eventId}`);
       setLoading(false);
     }
   }, [eventId, isConnected, initialData]);
