@@ -4,10 +4,6 @@ from .views import (
     CircleViewSet,
     UserAddressViewSet,
     MultiCircleMembersView,
-    EventInvitationViewSet,
-    VerifyInvitationView,
-    AcceptInvitationView,
-    EventShareTokenView,
     TagListView,
     MyLocationsView,
     ProfileViewSet,
@@ -15,6 +11,7 @@ from .views import (
     ProfileByUserView,
     ICalDownloadView,
     CircleGreyEventsView,
+    ChangePasswordView,
 )
 
 # ViewSet mappings
@@ -57,13 +54,10 @@ urlpatterns = [
     path('users/', FriendsListView.as_view(), name='users-list'),
 
 
-    # Invitation endpoints
-    path('invitations/', EventInvitationViewSet.as_view({'get': 'list', 'post': 'create'}), name='invitation-list'),
-    path('invitations/<int:pk>/', EventInvitationViewSet.as_view({'get': 'retrieve', 'delete': 'destroy'}), name='invitation-detail'),
-    path('verify-invitation/', VerifyInvitationView.as_view(), name='verify-invitation'),
-    path('accept-invitation/', AcceptInvitationView.as_view(), name='accept-invitation'),
-    path('event-share-token/', EventShareTokenView.as_view(), name='event-share-token'),
 
     # iCal export endpoints
     path('ical/download/', ICalDownloadView.as_view(), name='ical-download'),
+    
+    # Password change endpoint
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 ]

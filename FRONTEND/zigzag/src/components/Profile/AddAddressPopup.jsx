@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { OPEN_CAGE_API_KEY } from '../../config';
 import { Box, Typography, TextField, Button, IconButton, Tooltip } from '@mui/material';
@@ -14,6 +14,41 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [localizedAddress, setLocalizedAddress] = useState(null);
   const [isLocalizing, setIsLocalizing] = useState(false);
+
+  // Prevent body scrolling when modal is open
+  useEffect(() => {
+    // Store original overflow value
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    
+    // Prevent scrolling
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    
+    // Prevent scroll on the modal overlay
+    const handleWheel = (e) => {
+      e.preventDefault();
+    };
+    
+    const handleTouchMove = (e) => {
+      e.preventDefault();
+    };
+    
+    document.addEventListener('wheel', handleWheel, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    
+    return () => {
+      // Restore original styles
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.width = '';
+      
+      // Remove event listeners
+      document.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
 
   const handleLocalizeAddress = async () => {
     if (!newAddress.trim()) {
@@ -79,8 +114,23 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
     onClose();
   };
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleOverlayWheel = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className={styles.modalOverlay}>
+    <div 
+      className={styles.modalOverlay}
+      onClick={handleOverlayClick}
+      onWheel={handleOverlayWheel}
+    >
       <Box
         className={styles.addressPopup}
         sx={{
@@ -89,8 +139,11 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
           width: '90%',
           maxWidth: '500px',
+          maxHeight: '85vh',
           overflow: 'hidden',
-          position: 'relative'
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         {/* Header */}
@@ -105,7 +158,7 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Ajouter une nouvelle adresse
+            Ajout d'un lieu
           </Typography>
           <IconButton
             aria-label="close"
@@ -120,7 +173,13 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
         </Box>
 
         {/* Content */}
-        <Box sx={{ padding: '24px' }}>
+        <Box sx={{ 
+          padding: '24px',
+          flex: 1,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
           {/* Address Input */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
@@ -142,6 +201,8 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
                 disabled={isLocalizing || !newAddress.trim()}
                 sx={{
                   bgcolor: '#40916c',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  textTransform: 'none',
                   '&:hover': {
                     bgcolor: '#2d6a4f',
                   }
@@ -244,11 +305,26 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
           </Typography>
 
           {/* Action Buttons */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            gap: 2, 
+            mt: 'auto',
+            pt: 2,
+            borderTop: '1px solid #eee',
+            backgroundColor: 'white',
+            position: 'sticky',
+            bottom: 0
+          }}>
             <Button
               variant="outlined"
               onClick={onClose}
-              sx={{ borderColor: '#999', color: '#666' }}
+              sx={{ 
+                borderColor: '#999', 
+                color: '#666',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                textTransform: 'none'
+              }}
             >
               Annuler
             </Button>
@@ -258,6 +334,8 @@ const AddAddressPopup = ({ onClose, onAddAddress }) => {
               disabled={!localizedAddress}
               sx={{
                 bgcolor: '#40916c',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                textTransform: 'none',
                 '&:hover': {
                   bgcolor: '#2d6a4f',
                 },

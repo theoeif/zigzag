@@ -119,35 +119,3 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
-
-    @property
-    def participants_count(self):
-        return self.participants.count()
-
-
-class EventParticipation(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='participants')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_participations')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('event', 'user')
-
-    def __str__(self):
-        return f"{self.user.username} participating in {self.event.title}"
-
-
-class EventInvitation(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='invitations')
-    email = models.EmailField()
-    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    accepted = models.BooleanField(default=False)
-    accepted_at = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Invitation for {self.event.title} to {self.email}"
-
-    @property
-    def invitation_link(self):
-        return f"http://localhost:5173/event/{self.event.id}?invite={self.token}"

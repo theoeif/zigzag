@@ -867,9 +867,24 @@ input:checked + .slider:before {
 }
 
 .menu-btn.disconnect:hover {
-  background: #fee2e2;
-  border-color: #fca5a5;
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
   transform: translateY(-2px);
+  color: #ef4444 !important;
+  box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.15) !important;
+}
+
+.menu-btn.settings {
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.menu-btn.settings:hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  transform: translateY(-2px);
+  color: #374151 !important;
+  box-shadow: 0 4px 12px -2px rgba(107, 114, 128, 0.15) !important;
 }
 
 /* Touch ripple effect for better mobile feedback */

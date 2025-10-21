@@ -28,7 +28,8 @@ const LeftMenu = ({ closeMenu }) => {
     calendar: null,
     "create-account": null,
     login: null,
-    disconnect: null
+    disconnect: null,
+    settings: null
   });
 
   // Get active button from localStorage - moved outside of useState to ensure it's always current
@@ -172,6 +173,8 @@ const LeftMenu = ({ closeMenu }) => {
       currentActive = "create-account";
     } else if (path === "/login") {
       currentActive = "login";
+    } else if (path === "/settings") {
+      currentActive = "settings";
     }
 
     if (currentActive) {
@@ -231,7 +234,8 @@ const LeftMenu = ({ closeMenu }) => {
 
   // Get button class for animation states
   const getButtonClass = (buttonKey) => {
-    return `menu-btn ${activeButton === buttonKey ? "menu-btn-active" : ""} ${clickingButton === buttonKey ? "menu-btn-clicking" : ""}`;
+    const baseClass = buttonKey === "settings" ? "menu-btn settings" : "menu-btn";
+    return `${baseClass} ${activeButton === buttonKey ? "menu-btn-active" : ""} ${clickingButton === buttonKey ? "menu-btn-clicking" : ""}`;
   };
 
   const handleSearch = (e) => {
@@ -369,8 +373,22 @@ const LeftMenu = ({ closeMenu }) => {
               Connexion
             </button>
           </div>
-        ) : (
-          <div className="menu-btn-group">
+        ) : null}
+        
+        {isConnected && (
+          <div className="menu-btn-group" style={{ marginTop: '10px' }}>
+            <button
+              className={getButtonClass("settings")}
+              onClick={() => handleNavigation("/settings", "settings")}
+              ref={el => buttonRefs.current.settings = el}
+            >
+              Paramètres
+            </button>
+          </div>
+        )}
+        
+        {isConnected && (
+          <div className="menu-btn-group" style={{ marginTop: '10px' }}>
             <button
               className={`menu-btn disconnect ${clickingButton === "disconnect" ? "menu-btn-clicking" : ""}`}
               onClick={handleDisconnect}

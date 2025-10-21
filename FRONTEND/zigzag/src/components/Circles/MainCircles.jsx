@@ -130,7 +130,7 @@ const MainCircles = () => {
           )}
 
           {selectedUser ? (
-            <UserProfileView userId={selectedUser.id} onBack={handleBackToCircles} />
+            <UserProfileView userId={selectedUser} />
           ) : (
             <CircleDetailsView
               circle={selectedCircle}

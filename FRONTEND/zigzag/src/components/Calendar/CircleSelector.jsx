@@ -14,7 +14,7 @@ import { Search, SelectAll, ClearAll } from '@mui/icons-material';
 import { fetchCircles, fetchGreyEvents } from '../../api/api';
 import styles from './CircleSelector.module.css';
 
-const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, onError, isVisible, onClose }) => {
+const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, onError, isVisible, onClose, onValidate }) => {
   const [circles, setCircles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -175,6 +175,19 @@ const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, 
           ) : null}
         </Box>
       )}
+
+      {/* Validate Button */}
+      <Box className={styles.validateButtonContainer}>
+        <Button
+          variant="contained"
+          onClick={onValidate}
+          className={styles.validateButton}
+          disabled={selectedCircles.length === 0}
+          fullWidth
+        >
+          Valider
+        </Button>
+      </Box>
     </Box>
   );
 };

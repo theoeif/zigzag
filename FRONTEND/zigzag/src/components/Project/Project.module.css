@@ -4,7 +4,7 @@
 
 /* Overall page layout */
 .profilePageProject {
-  padding-top: 40px;
+  padding-top: 40px; /* reduce top padding on mobile */
   padding-bottom: 20px;
   font-family: system-ui, -apple-system, sans-serif;
   background-color: #f0fdf4; /* Soft green background */
@@ -23,7 +23,7 @@
 
 /* Main content section wrapper */
 .mainContentSectionProject {
-  margin-top: 50px;
+  margin-top: 50px; /* reduce gap under main header on mobile */
   width: 100%;
 }
 
@@ -529,6 +529,11 @@ body.modal-open {
   font-size: 1rem;
 }
 
+.inputErrorProject {
+  border-color: #d32f2f !important;
+  box-shadow: 0 0 0 1px #d32f2f;
+}
+
 .formTextareaProject {
   resize: vertical; /* allow expanding */
   min-height: 80px; /* wider/ taller area */
@@ -924,6 +929,7 @@ body.modal-open {
   flex-direction: column;
   gap: 10px;
   min-width: 260px;
+  z-index: 3000; /* above tabs switch */
 }
 
 .dateRangePopoverProject label {
@@ -1379,25 +1385,25 @@ body.modal-open {
 
 /* Ensure Edit button styling is preserved */
 button.manageButtonProject {
-  background-color: #e6f2ff !important;
+  background-color: #f0f6ff !important; /* paler blue */
   color: #0066cc !important;
-  border: none !important;
-  border-radius: 6px !important;
-  padding: 8px 16px !important;
+  border: 1px solid rgba(0,102,204,0.12) !important; /* softer border */
+  border-radius: 8px !important;
+  padding: 8px 12px !important; /* align container size closer to filter */
   font-weight: 500 !important;
   cursor: pointer !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
   gap: 8px !important;
-  min-width: 140px !important;
+  min-width: 150px !important; /* slightly wider than filter */
   justify-content: center !important;
   height: 36px !important;
   font-size: 14px !important;
 }
 
 button.manageButtonProject:hover {
-  background-color: #cce4ff !important;
+  background-color: #e3efff !important; /* paler hover */
   box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
 }
 
@@ -1706,6 +1712,8 @@ button.manageButtonProject.activeProject {
   border-radius: 8px;
   border: 1px solid rgba(64, 145, 108, 0.15);
   transition: all 0.2s ease;
+  height: 36px; /* match manage button height */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* match manage button shadow */
 }
 
 .filterContainerProject:hover {
@@ -1714,7 +1722,7 @@ button.manageButtonProject.activeProject {
 
 .filterContainerProject svg {
   color: #40916c;
-  font-size: 0.9rem;
+  font-size: 14px; /* match manage button icon */
 }
 
 .filterSelectProject {
@@ -2642,11 +2650,80 @@ button.manageButtonProject.activeProject {
   }
 }
 
+/* Mobile tabs (discreet pill design) */
+.contentWithPaddingProject .tabsBarProject {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* align switch to the left */
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: none; /* remove lines below */
+  position: relative;
+}
+
+.contentWithPaddingProject .tabsGroupProject {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+  position: relative;
+  left: -20px; /* slight negative to nudge switch further left */
+}
+
+.contentWithPaddingProject .tabProject {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #444;
+  border-radius: 999px;
+}
+
+.contentWithPaddingProject .tabProject:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #222;
+}
+
+.contentWithPaddingProject .tabActiveProject {
+  background: #ffffff;
+  color: #111;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.manageButtonMobileProject {
+  font-size: 13px;
+  padding: 6px 10px;
+}
+
+@media (min-width: 501px) {
+  .tabsBarProject { display: none; }
+}
+
+@media (max-width: 500px) {
+  .profilePageProject { padding-top: 16px; }
+  .mainContentSectionProject { margin-top: 16px; }
+  /* Keep section header visible on mobile so we can place Modifier there */
+.sectionHeaderProject { display: flex; align-items: center; gap: 12px; justify-content: space-between; width: 100%; }
+.headerLeftProject { display: inline-flex; align-items: center; gap: 10px; justify-content: flex-start; }
+.headerRightProject { display: inline-flex; align-items: center; gap: 10px; justify-content: flex-end; margin-left: auto; }
+
+  /* Hide H2 title; mobile header layout */
+  .h2Project { display: none; }
+  .mobileHeaderProject { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .dateRangeMobileWrapProject { display: flex; justify-content: flex-start; }
+
+  /* Enlarge switch */
+  .contentWithPaddingProject .tabsBarProject { width: 100%; justify-content: center; border-bottom: none; }
+  .contentWithPaddingProject .tabsGroupProject { font-size: 18px; left: 0; }
+  .contentWithPaddingProject .tabProject { padding: 12px 16px; font-size: 18px; }
+}
+
 /* Global FAB Add Button (applies to all screen sizes) */
 .addEventButtonProject {
   position: fixed;
-  bottom: 16px;
-  left: 16px;
+  bottom: 10px; /* lower to bottom corner */
+  left: 10px;
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -2670,6 +2747,15 @@ button.manageButtonProject.activeProject {
 .addEventButtonProject:hover {
   background-color: #2d6a4f;
   box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* Web/Desktop placement: move the + button to bottom-right on wider screens */
+@media (min-width: 501px) {
+  .addEventButtonProject {
+    left:  40px;
+    right: auto;
+    bottom: 20px;
+  }
 }
 
 .h2ProjectHeader {

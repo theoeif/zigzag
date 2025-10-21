@@ -23,6 +23,9 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
   // Add a state to track if the address should be removed
   const [removeAddress, setRemoveAddress] = useState(false);
 
+  // State for date validation
+  const [dateError, setDateError] = useState("");
+
   // Clean up edit mode when component unmounts
   useEffect(() => {
     return () => {
@@ -31,9 +34,50 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     };
   }, [setEditMode, setIsManageMode]);
 
+  // Validate that end date is not earlier than start date
+  const validateDates = (startDate, endDate) => {
+    if (!startDate || !endDate) return true;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      setDateError("La date de fin ne peut pas être antérieure à la date de début");
+      return false;
+    } else {
+      setDateError("");
+      return true;
+    }
+  };
+
+  // Re-validate anytime either date changes
+  useEffect(() => {
+    if (formData.start_time && formData.end_time) {
+      validateDates(formData.start_time, formData.end_time);
+    } else {
+      // No end date means no error to show
+      setDateError("");
+    }
+  }, [formData.start_time, formData.end_time]);
+
   const handleInputChange = (e) => {
     const { name, type } = e.target;
     const value = type === 'checkbox' ? e.target.checked : e.target.value;
+
+    // Special handling for end_time
+    if (name === 'end_time') {
+      // If user cleared the end date, clear any date error and update state
+      if (!value) {
+        setDateError("");
+        setFormData(prev => ({ ...prev, [name]: "" }));
+        return;
+      }
+
+      // For full date-time values, validate
+      if (formData.start_time) {
+        validateDates(formData.start_time, value);
+      }
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -145,13 +189,20 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
       updatedFields.event_shared = formData.event_shared;
     }
 
-    // Handle address based on modified state
-    if (removeAddress) {
-      // If address was removed, set it to null
-      updatedFields.address = null;
-    } else if (addressModified && localizedAddress) {
-      // If address was modified and localized, use the localized address
-      updatedFields.address = { ...localizedAddress };
+    // Handle address based on modified state (creator only)
+    if (isCreator) {
+      if (removeAddress) {
+        // If address was removed, set it to null
+        updatedFields.address = null;
+      } else if (addressModified && localizedAddress) {
+        // If address was modified and localized, use the localized address
+        updatedFields.address = { ...localizedAddress };
+      }
+    }
+
+    // Validate dates before submission
+    if (formData.end_time && !validateDates(formData.start_time, formData.end_time)) {
+      return; // Don't submit if dates are invalid
     }
 
     // Handle dates only when allowed (shared before and still shared)
@@ -238,62 +289,64 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             />
           </div>
 
-          <div className={styles.formGroupProject}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label className={styles.formLabelProject}>Adresse :</label>
-              <button
-                type="button"
-                onClick={handleClearAddress}
-                className={styles.clearButtonProject}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#666',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer'
-                }}
-              >
-                Effacer
-              </button>
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <textarea
-                name="address_line"
-                value={formData.address_line}
-                onChange={handleInputChange}
-                className={styles.formTextareaProjectNoResize}
-                style={{ flexGrow: 1 }}
-                placeholder="Saisir l'adresse ou laisser vide pour supprimer"
-              />
-              <button
-                type="button"
-                onClick={handleLocalizeAddress}
-                className={styles.localizeButtonProject}
-                disabled={!formData.address_line || removeAddress}
-                style={{
-                  minWidth: '100px',
-                  backgroundColor: '#40916c',
-                  color: 'white',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  border: 'none',
-                  cursor: formData.address_line && !removeAddress ? 'pointer' : 'not-allowed',
-                  opacity: formData.address_line && !removeAddress ? 1 : 0.7
-                }}
-              >
-                Localiser
-              </button>
-            </div>
+          {isCreator && (
+            <div className={styles.formGroupProject}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className={styles.formLabelProject}>Adresse :</label>
+                <button
+                  type="button"
+                  onClick={handleClearAddress}
+                  className={styles.clearButtonProject}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#666',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Effacer
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <textarea
+                  name="address_line"
+                  value={formData.address_line}
+                  onChange={handleInputChange}
+                  className={styles.formTextareaProjectNoResize}
+                  style={{ flexGrow: 1 }}
+                  placeholder="Saisir l'adresse ou laisser vide pour supprimer"
+                />
+                <button
+                  type="button"
+                  onClick={handleLocalizeAddress}
+                  className={styles.localizeButtonProject}
+                  disabled={!formData.address_line || removeAddress}
+                  style={{
+                    minWidth: '100px',
+                    backgroundColor: '#40916c',
+                    color: 'white',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    border: 'none',
+                    cursor: formData.address_line && !removeAddress ? 'pointer' : 'not-allowed',
+                    opacity: formData.address_line && !removeAddress ? 1 : 0.7
+                  }}
+                >
+                  Localiser
+                </button>
+              </div>
 
-            {formData.address_line && addressModified && !localizedAddress && !removeAddress && (
-              <p className={styles.warningTextProject}>Adresse modifiée - nécessite une localisation</p>
-            )}
-            {removeAddress && (
-              <p style={{ fontSize: '0.9rem', color: '#2d6a4f', marginTop: '5px' }}>
-                L'adresse sera supprimée lors de la mise à jour de l'événement
-              </p>
-            )}
-          </div>
+              {formData.address_line && addressModified && !localizedAddress && !removeAddress && (
+                <p className={styles.warningTextProject}>Adresse modifiée - nécessite une localisation</p>
+              )}
+              {removeAddress && (
+                <p style={{ fontSize: '0.9rem', color: '#2d6a4f', marginTop: '5px' }}>
+                  L'adresse sera supprimée lors de la mise à jour de l'événement
+                </p>
+              )}
+            </div>
+          )}
 
           {localizeError && <p className={styles.errorMessageProject}>{localizeError}</p>}
 
@@ -360,7 +413,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                     </svg>
                     <div className={styles.tooltipProject}>
-                      Tous les membres des cercles peuvent modifier la description et l'adresse
+                      Tous les membres des cercles peuvent modifier la description et la date
                     </div>
                   </div>
                 </label>
@@ -395,8 +448,13 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                       name="end_time"
                       value={formData.end_time}
                       onChange={handleInputChange}
-                      className={styles.formInputProject}
+                      className={`${styles.formInputProject} ${dateError ? styles.inputErrorProject : ''}`}
                     />
+                    {dateError && (
+                      <p style={{ color: '#d32f2f', fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                        {dateError}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

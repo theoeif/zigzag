@@ -17,7 +17,6 @@ from .models import (
     Circle,
     Address,
     UserAddress,
-    EventInvitation,
     Tag,
     Profile,
 )
@@ -25,12 +24,12 @@ from .serializers import (
     EventSerializer,
     AddressSerializer,
     UserAddressSerializer,
-    EventInvitationSerializer,
     RegisterSerializer,
     TagSerializer,
     ProfileSerializer,
     UserProfileSerializer,
     GreyEventSerializer,
+    ChangePasswordSerializer,
 )
 
 
@@ -146,8 +145,15 @@ class EventViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
-        # Support clearing address explicitly with null
+        # Forbid any address changes by non-creators
+        if not user_is_creator:
+            if "address" in request.data or address_data is not None:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Support clearing address explicitly with null (creator only)
         if "address" in request.data and request.data.get("address") is None:
+            if not user_is_creator:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
             event.address = None
 
         if address_data:
@@ -215,8 +221,15 @@ class EventViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
-        # Support clearing address explicitly with null
+        # Forbid any address changes by non-creators
+        if not user_is_creator:
+            if "address" in request.data or address_data is not None:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Support clearing address explicitly with null (creator only)
         if "address" in request.data and request.data.get("address") is None:
+            if not user_is_creator:
+                return Response({"detail": "Only the creator can modify the address."}, status=status.HTTP_403_FORBIDDEN)
             event.address = None
 
         if address_data and isinstance(address_data, dict):
@@ -343,12 +356,24 @@ class ProfileViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         elif request.method == 'PATCH':
-            profile_data = request.data.get('profile', {})
-            serializer = self.get_serializer(profile, data=profile_data, partial=True)
+            # Use UserProfileSerializer to handle both user and profile updates
+            serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-
-            # Return the full user profile after update
+            
+            # Handle profile nested data
+            profile_data = request.data.get('profile', {})
+            if profile_data:
+                profile = request.user.profile
+                profile_serializer = ProfileSerializer(profile, data=profile_data, partial=True)
+                profile_serializer.is_valid(raise_exception=True)
+                profile_serializer.save()
+            
+            # Handle user-level fields (like username)
+            if 'username' in request.data:
+                request.user.username = request.data['username']
+                request.user.save()
+            
+            # Return updated user profile
             user_serializer = UserProfileSerializer(request.user)
             return Response(user_serializer.data)
 
@@ -491,82 +516,6 @@ class MultiCircleMembersView(APIView):
         return Response(data)
 
 
-class EventInvitationViewSet(viewsets.ModelViewSet):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    serializer_class = EventInvitationSerializer
-
-    def get_queryset(self):
-        return EventInvitation.objects.filter(event__creator=self.request.user)
-
-    def perform_create(self, serializer):
-        event_id = self.request.data.get("event")
-        event = get_object_or_404(Event, id=event_id)
-        if event.creator != self.request.user:
-            raise PermissionDenied("Only the event creator can send invitations")
-        serializer.save(event=event)
-
-
-class VerifyInvitationView(APIView):
-    authentication_classes = []
-    permission_classes = []
-
-    def get(self, request):
-        token = request.query_params.get("token")
-        if not token:
-            return Response({"error": "No invitation token provided"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            invitation = EventInvitation.objects.get(token=token)
-            return Response({
-                "valid": True,
-                "event_id": str(invitation.event.id),
-                "event_title": invitation.event.title,
-            })
-        except EventInvitation.DoesNotExist:
-            return Response({"valid": False, "error": "Invalid invitation"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class AcceptInvitationView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        token = request.data.get("token")
-        if not token:
-            return Response({"error": "No invitation token provided"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            invitation = EventInvitation.objects.get(token=token)
-            if not invitation.accepted:
-                invitation.accepted = True
-                invitation.accepted_at = invitation.accepted_at or invitation.created_at
-                invitation.save(update_fields=["accepted", "accepted_at"])
-
-            event = invitation.event
-            event.participants.get_or_create(user=request.user)
-            return Response({
-                "success": True,
-                "event_id": str(event.id),
-                "is_participant": True,
-            })
-        except EventInvitation.DoesNotExist:
-            return Response({"error": "Invalid invitation token"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class EventShareTokenView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        event_id = request.data.get("event")
-        if not event_id:
-            return Response({"error": "No event ID provided"}, status=status.HTTP_400_BAD_REQUEST)
-        event = get_object_or_404(Event, id=event_id)
-        if event.creator != request.user:
-            raise PermissionDenied("Only the event creator can generate share tokens")
-        if event.shareable_link is False:
-            return Response({"error": "The host has disabled link sharing for this event"}, status=status.HTTP_403_FORBIDDEN)
-        invitation = EventInvitation.objects.create(event=event, email=f"share_{request.user.username}@example.com")
-        return Response({"token": str(invitation.token), "invitation_link": invitation.invitation_link})
 
 # from django_ratelimit.decorators import ratelimit
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -589,6 +538,36 @@ class RegisterView(generics.CreateAPIView):
             "refresh": str(refresh),
             "username": user.username,
         }, status=status.HTTP_201_CREATED)
+
+class ChangePasswordView(APIView):
+    """
+    View to change user password with old password verification
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            old_password = serializer.validated_data['old_password']
+            new_password = serializer.validated_data['new_password']
+            
+            # Verify old password
+            if not request.user.check_password(old_password):
+                return Response(
+                    {'error': 'Le mot de passe actuel est incorrect.'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Update password
+            request.user.set_password(new_password)
+            request.user.save()
+            
+            return Response(
+                {'message': 'Mot de passe mis à jour avec succès.'}, 
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TagListView(generics.ListAPIView):
     queryset = Tag.objects.all()
@@ -615,6 +594,7 @@ class MyLocationsView(APIView):
                 continue
             results.append({
                 "user_id_str": str(user.id),
+                "username": user.username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "label": ua.label or "",
@@ -687,39 +667,60 @@ class ICalDownloadView(APIView):
         cal.add('x-wr-calname', f'ZIGZAG Events - {user.username}')
         cal.add('x-wr-timezone', 'Europe/Paris')
 
-        # Add events to calendar
+        # Add events to calendar - create dual events for each event
         for event in events:
-            vevent = ICalEvent()
-            vevent.add('summary', event.title)
-            vevent.add('dtstart', event.start_time)
-
-            if event.end_time:
-                vevent.add('dtend', event.end_time)
-            else:
-                # If no end time, set to start time + 2 hours
-                from datetime import timedelta
-                end_time = event.start_time + timedelta(hours=2)
+            from datetime import timedelta
+            
+            # Helper function to create a calendar event
+            def create_calendar_event(start_time, end_time, uid, summary):
+                vevent = ICalEvent()
+                vevent.add('summary', summary)
+                vevent.add('dtstart', start_time)
                 vevent.add('dtend', end_time)
 
-            if event.description:
-                vevent.add('description', event.description)
+                if event.description:
+                    vevent.add('description', event.description)
 
-            if event.address:
-                location_parts = [event.address.address_line]
-                if event.address.city:
-                    location_parts.append(event.address.city)
-                vevent.add('location', ', '.join(location_parts))
+                if event.address:
+                    location_parts = []
+                    if event.address.address_line:
+                        location_parts.append(event.address.address_line)
+                    if event.address.city:
+                        location_parts.append(event.address.city)
+                    if location_parts:
+                        vevent.add('location', ', '.join(location_parts))
 
-            # Add circles as categories
-            if event.circles.exists():
-                categories = [circle.name for circle in event.circles.all()]
-                vevent.add('categories', categories)
+                # Add circles as categories
+                if event.circles.exists():
+                    categories = [circle.name for circle in event.circles.all()]
+                    vevent.add('categories', categories)
 
-            vevent.add('uid', f'zigzag-{event.id}@zigzag.com')
-            vevent.add('created', event.created_at)
-            vevent.add('last-modified', event.updated_at)
+                vevent.add('uid', uid)
+                vevent.add('created', event.created_at)
+                vevent.add('last-modified', event.updated_at)
+                
+                return vevent
 
-            cal.add_component(vevent)
+            # Create first event (start time)
+            start_end_time = event.start_time + timedelta(hours=2)
+            start_event = create_calendar_event(
+                event.start_time,
+                start_end_time,
+                f'zigzag-{event.id}-start@zigzag.com',
+                f'{event.title} (Début)'
+            )
+            cal.add_component(start_event)
+
+            # Create second event (end time) - only if end_time exists
+            if event.end_time:
+                end_end_time = event.end_time + timedelta(hours=2)
+                end_event = create_calendar_event(
+                    event.end_time,
+                    end_end_time,
+                    f'zigzag-{event.id}-end@zigzag.com',
+                    f'{event.title} (Fin)'
+                )
+                cal.add_component(end_event)
 
         # Generate response
         response = HttpResponse(cal.to_ical(), content_type='text/calendar; charset=utf-8')

@@ -1,8 +1,8 @@
 import axios from "axios";
-
-// API Base URL - easily changeable
-//const API_BASE_URL = "http://192.168.1.13:8000/api/";
-const API_BASE_URL = "http://127.0.0.1:8000/api/";
+import { API_BASE_URL } from "../config";
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 // Single in-flight refresh promise to throttle concurrent refreshes
 let refreshPromise = null;
@@ -717,15 +717,8 @@ export const fetchMyLocations = async () => {
 };
 
 // New function to fetch public event data even without authentication
-export const fetchDirectEvent = async (eventId, inviteToken = null) => {
+export const fetchDirectEvent = async (eventId) => {
   try {
-    // Build the URL - first try the regular event endpoint which now supports public access
-    let url = `${API_BASE_URL}events/event/${eventId}/`;
-    if (inviteToken) {
-      // If we have an invite token, use the public-event endpoint which supports invitation tokens
-      url = `${API_BASE_URL}events/public-event/${eventId}/?invite=${inviteToken}`;
-    } // in a V2
-
     // Get auth headers if available, but don't require them
     const headers = {};
     const token = localStorage.getItem("access_token");
@@ -733,34 +726,8 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    try {
-      const response = await axios.get(url, { headers });
-      return response.data;
-    } catch (error) {
-      // If we get a 403 response from the regular endpoint
-      if (error.response && error.response.status === 403) {
-        // If we don't have an invite token, try the public endpoint
-        if (!inviteToken) {
-          try {
-            const directEventResponse = await axios.get(
-              `${API_BASE_URL}events/event/${eventId}/`,
-              { headers }
-            );
-            return directEventResponse.data;
-          } catch (directEventError) {
-            // If the public endpoint also returns a 403, return that limited data
-            if (directEventError.response && directEventError.response.status === 403) {
-              return directEventError.response.data;
-            }
-            throw directEventError;
-          }
-        }
-
-        // Return the limited data from the original 403 response
-        return error.response.data;
-      }
-      throw error;
-    }
+    const response = await axios.get(`${API_BASE_URL}events/event/${eventId}/`, { headers });
+    return response.data;
   } catch (error) {
     console.error('Error fetching direct event:', error);
     // If we have response data with an error message, return it instead of throwing
@@ -771,82 +738,6 @@ export const fetchDirectEvent = async (eventId, inviteToken = null) => {
   }
 };
 
-// Verify an invitation token : TODO : link sharing invite token
-export const verifyInvitation = async (token) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}events/verify-invitation/?token=${token}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error verifying invitation:', error);
-    return { valid: false };
-  }
-};
-
-// Create event invitations
-export const createEventInvitation = async (eventId, email) => {
-  try {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      const newToken = await refreshAccessToken();
-      if (!newToken) throw new Error('Authentication required');
-    }
-
-    const response = await axios.post(
-      `${API_BASE_URL}events/invitations/`,
-      { event: eventId, email },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error creating invitation:', error);
-    throw error;
-  }
-};
-
-// Accept an invitation
-export const acceptInvitation = async (token) => {
-  try {
-    const authToken = localStorage.getItem("access_token");
-    if (!authToken) {
-      const newToken = await refreshAccessToken();
-      if (!newToken) throw new Error('Authentication required');
-    }
-
-    const response = await axios.post(
-      `${API_BASE_URL}events/accept-invitation/`,
-      { token },
-      { headers: { Authorization: `Bearer ${authToken}` } }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error accepting invitation:', error);
-    throw error;
-  }
-};
-
-// Generate share token for an event : TODO : for inviteing people ti events
-export const generateEventShareToken = async (eventId) => {
-  try {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      const newToken = await refreshAccessToken();
-      if (!newToken) throw new Error('Authentication required');
-    }
-
-    const response = await axios.post(
-      `${API_BASE_URL}events/event-share-token/`,
-      { event: eventId },
-      { headers: { Authorization: `Bearer ${token || newToken}` } }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error generating share token:', error);
-    throw error;
-  }
-};
 
 // Fetch grey events for selected circles (privacy-protected)
 export const fetchGreyEvents = async (circleIds) => {
@@ -900,16 +791,49 @@ export const downloadICalFile = async (circleIds = []) => {
     // Get the blob data
     const blob = await response.blob();
 
-    // Create a temporary link and trigger download
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'zigzag-events.ics';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (Capacitor.isNativePlatform()) {
+      // MOBILE: Use Capacitor Share API
+      const arrayBuffer = await blob.arrayBuffer();
+      const base64Data = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const fileName = `zigzag-events-${new Date().toISOString().split('T')[0]}.ics`;
+      
+      // First save to a temporary location
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8,
+      });
 
-    // Clean up the object URL
-    URL.revokeObjectURL(link.href);
+      // Get the file URI
+      const fileUri = await Filesystem.getUri({
+        directory: Directory.Cache,
+        path: fileName,
+      });
+
+      // Share the file - this opens the native share sheet
+      await Share.share({
+        title: 'Exporter le calendrier',
+        text: 'Calendrier ZIGZAG',
+        url: fileUri.uri,
+        dialogTitle: 'Choisir une application',
+      });
+
+      // Clean up the temporary file
+      await Filesystem.deleteFile({
+        directory: Directory.Cache,
+        path: fileName,
+      });
+    } else {
+      // WEB: Use traditional web download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'zigzag-events.ics';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }
 
     return true;
   } catch (error) {
@@ -932,25 +856,23 @@ export const downloadSingleEventICal = async (event) => {
       return new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
 
-    const startDate = formatDate(event.start_time);
-    const endDate = formatDate(new Date(new Date(event.start_time).getTime() + 2 * 60 * 60 * 1000)); // +2 hours if no end time
-
     const eventTitle = event.title || 'Untitled Event';
     const eventDescription = event.description || '';
     const eventLocation = (() => {
       if (!event.address) return '';
-
+      
       const parts = [];
       if (event.address.address_line) parts.push(event.address.address_line);
       if (event.address.city) parts.push(event.address.city);
-
+      
       return parts.join(', ');
     })();
 
-    // Generate unique ID for the event
-    const eventId = `zigzag-${event.id}@zigzag.com`;
+    // Generate unique IDs for the events
+    const eventId1 = `zigzag-${event.id}-start@zigzag.com`;
+    const eventId2 = `zigzag-${event.id}-end@zigzag.com`;
     const now = formatDate(new Date());
-
+    
     // Create a safe filename from the event title
     const createSafeFilename = (title, eventId) => {
       // Remove or replace characters that are not safe for filenames
@@ -959,48 +881,109 @@ export const downloadSingleEventICal = async (event) => {
         .replace(/\s+/g, '-') // Replace spaces with hyphens
         .substring(0, 50) // Limit length to 50 characters
         .trim();
-
+      
       // Fallback to event ID if title is empty or only special characters
       const filename = safeTitle || `event-${eventId}`;
-
+      
       return `zigzag-${filename}.ics`;
     };
-
-    // Create iCal content
+    
+    // Create two events: one for start_time and one for end_time
+    const createEvent = (startTime, endTime, uid, summary) => {
+      const startDate = formatDate(startTime);
+      const endDate = formatDate(endTime);
+      
+      return `BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${now}
+DTSTART:${startDate}
+DTEND:${endDate}
+SUMMARY:${summary}
+DESCRIPTION:${eventDescription.replace(/\n/g, '\\n')}
+LOCATION:${eventLocation}
+STATUS:CONFIRMED
+END:VEVENT`;
+    };
+    
+    // Create iCal content with two events
     const icalContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//ZIGZAG//Events//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-BEGIN:VEVENT
-UID:${eventId}
-DTSTAMP:${now}
-DTSTART:${startDate}
-DTEND:${endDate}
-SUMMARY:${eventTitle}
-DESCRIPTION:${eventDescription.replace(/\n/g, '\\n')}
-LOCATION:${eventLocation}
-STATUS:CONFIRMED
-END:VEVENT
+${createEvent(
+  event.start_time,
+  new Date(new Date(event.start_time).getTime() + 2 * 60 * 60 * 1000),
+  eventId1,
+  `${eventTitle} (Début)`
+)}
+${event.end_time ? createEvent(
+  event.end_time,
+  new Date(new Date(event.end_time).getTime() + 2 * 60 * 60 * 1000),
+  eventId2,
+  `${eventTitle} (Fin)`
+) : ''}
 END:VCALENDAR`;
 
-    // Create blob and download
-    const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+    if (Capacitor.isNativePlatform()) {
+      // MOBILE: Use Capacitor Share API
+      const fileName = createSafeFilename(event.title, event.id);
+      
+      // First save to a temporary location
+      await Filesystem.writeFile({
+        path: fileName,
+        data: icalContent,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8,
+      });
 
-    // Create a temporary link and trigger download
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = createSafeFilename(event.title, event.id);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Get the file URI
+      const fileUri = await Filesystem.getUri({
+        directory: Directory.Cache,
+        path: fileName,
+      });
 
-    // Clean up the object URL
-    URL.revokeObjectURL(link.href);
+      // Share the file - this opens the native share sheet
+      await Share.share({
+        title: 'Ajouter au calendrier',
+        text: `Événement: ${event.title}`,
+        url: fileUri.uri,
+        dialogTitle: 'Choisir une application',
+      });
+
+      // Clean up the temporary file
+      await Filesystem.deleteFile({
+        directory: Directory.Cache,
+        path: fileName,
+      });
+    } else {
+      // WEB: Use traditional web download
+      const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = createSafeFilename(event.title, event.id);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      
+      alert("À ouvrir dans votre calendrier !");
+    }
 
     return true;
   } catch (error) {
     console.error('Error downloading single event iCal file:', error);
+    throw error;
+  }
+};
+
+// Password change function
+export const changePassword = async (passwordData) => {
+  try {
+    const response = await axios.post(API_BASE_URL + "events/change-password/", passwordData);
+    return response.data;
+  } catch (error) {
+    console.error("Password change error:", error.response?.data || error.message);
     throw error;
   }
 };
