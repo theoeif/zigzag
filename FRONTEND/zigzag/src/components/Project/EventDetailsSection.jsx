@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   FaMapMarkerAlt, FaClock, FaCalendarAlt, FaLink, FaUsers, FaDirections
 } from "react-icons/fa";
+import { FRONTEND_URL } from '../../config';
 import styles from './Project.module.css';
 
 const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) => {
@@ -41,10 +42,45 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         alert("L'hôte a désactivé le partage de lien pour cet événement");
         return;
       }
-      const shareUrl = event.public_link || `http://localhost:5173/event/${event.id}`;
-      await navigator.clipboard.writeText(shareUrl);
-      setUrlCopied(true);
-      setTimeout(() => setUrlCopied(false), 2000);
+      
+      const shareUrl = `${FRONTEND_URL}/event/${event.id}`;
+
+      // Try modern clipboard API first (works on HTTPS and secure contexts)
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          setUrlCopied(true);
+          setTimeout(() => setUrlCopied(false), 2000);
+          return;
+        } catch (clipboardError) {
+          console.log("Clipboard API failed, trying fallback:", clipboardError);
+        }
+      }
+
+      // Fallback for mobile browsers and non-HTTPS contexts
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      textArea.style.opacity = '0';
+      textArea.style.pointerEvents = 'none';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          setUrlCopied(true);
+          setTimeout(() => setUrlCopied(false), 2000);
+        } else {
+          throw new Error('execCommand failed');
+        }
+      } finally {
+        document.body.removeChild(textArea);
+      }
+
     } catch (error) {
       console.error("Error copying share link:", error);
       alert("Échec de la copie du lien. Veuillez réessayer.");
@@ -155,15 +191,15 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
     <div
       style={{
         position: 'fixed',
-        top: '50%',
+        top: '10vh',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translateX(-50%)',
         zIndex: 1000,
         backgroundColor: 'white',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
         borderRadius: '12px',
         padding: '0',
-        width: '80%',
+        width: '90%',
         maxWidth: '500px',
         maxHeight: '80vh',
         overflowY: 'auto'
@@ -193,14 +229,13 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         </button>
       </div>
 
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '15px' }}>
         {/* Location with map */}
         {event.address && event.address.latitude && event.address.longitude && (
           <div style={{
             marginBottom: '15px',
             borderRadius: '8px',
-            overflow: 'hidden',
-            border: '1px solid #ddd'
+            overflow: 'hidden'
           }}>
             <div style={{
               height: '150px',
@@ -231,13 +266,13 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
           </div>
         )}
 
-        <div className={styles.fullDescriptionProject}>
+        <div className={styles.fullDescriptionProject} style={{ marginBottom: '10px' }}>
           <strong>Description</strong>
           <p>{event.description || "Aucune description fournie pour cet événement."}</p>
         </div>
 
         {/* Additional details with icons */}
-        <div className={styles.detailsGridProject}>
+        <div style={{ marginBottom: '10px' }}>
           <div className={styles.detailItemProject}>
             <FaCalendarAlt />
             <span><strong>Début :</strong> {formatFullDate(event.start_time)}</span>
@@ -253,36 +288,32 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
           {/* Copy link button */}
           {event.shareable_link !== false && (event.public_link || event.id) && (
             <div className={styles.detailItemProject}>
-              <div style={{ position: 'relative' }}>
-                <button
-                  onClick={copyEventLinkFromDetails}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: '#40916c',
-                    transition: 'all 0.2s ease',
-                    fontSize: '14px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#f0f7f4';
-                    e.target.style.transform = 'scale(1.05)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                    e.target.style.transform = 'scale(1)';
-                  }}
-                  title="Copier le lien"
-                >
-                  <FaLink style={{ fontSize: '16px' }} />
-                  <span><strong>{urlCopied ? 'Lien copié !' : 'Lien de partage'}</strong></span>
-                </button>
-              </div>
+              <FaLink style={{ fontSize: '1.1rem', color: '#40916c', minWidth: '20px', flexShrink: 0 }} />
+              <button
+                onClick={copyEventLinkFromDetails}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0',
+                  color: '#40916c',
+                  transition: 'all 0.2s ease',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f0f7f4';
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.transform = 'scale(1)';
+                }}
+                title="Copier le lien"
+              >
+                <span><strong>{urlCopied ? 'Lien copié !' : 'Lien de partage'}</strong></span>
+              </button>
             </div>
           )}
         </div>
@@ -295,8 +326,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '10px',
-                borderBottom: '1px solid #eee',
+                marginBottom: '8px',
                 paddingBottom: '5px'
               }}>
                 <h4 style={{ margin: '5px 0', fontSize: '1rem' }}>Cercles et invités :</h4>
@@ -315,8 +345,8 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: '8px',
-                margin: '10px 0'
+                gap: '6px',
+                margin: '8px 0'
               }}>
                 {/* Display either first 3 circles or all circles based on showCirclesDropdown */}
                 {(showCirclesDropdown ? circleData : circleData.slice(0, 3)).map((circle, index) => (

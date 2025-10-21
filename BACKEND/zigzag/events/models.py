@@ -52,11 +52,11 @@ class Profile(models.Model):
 
 
 class Address(models.Model):
-    address_line = models.CharField(max_length=255)
+    address_line = models.CharField(max_length=500)
     city = models.CharField(max_length=100, blank=True, null=True)
     state = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
-    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    postal_code = models.CharField(max_length=30, blank=True, null=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
