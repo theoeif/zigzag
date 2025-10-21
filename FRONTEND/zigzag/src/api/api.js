@@ -1,5 +1,8 @@
 import axios from "axios";
 import { API_BASE_URL } from "../config";
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 // Single in-flight refresh promise to throttle concurrent refreshes
 let refreshPromise = null;
@@ -788,16 +791,49 @@ export const downloadICalFile = async (circleIds = []) => {
     // Get the blob data
     const blob = await response.blob();
 
-    // Create a temporary link and trigger download
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'zigzag-events.ics';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (Capacitor.isNativePlatform()) {
+      // MOBILE: Use Capacitor Share API
+      const arrayBuffer = await blob.arrayBuffer();
+      const base64Data = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const fileName = `zigzag-events-${new Date().toISOString().split('T')[0]}.ics`;
+      
+      // First save to a temporary location
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8,
+      });
 
-    // Clean up the object URL
-    URL.revokeObjectURL(link.href);
+      // Get the file URI
+      const fileUri = await Filesystem.getUri({
+        directory: Directory.Cache,
+        path: fileName,
+      });
+
+      // Share the file - this opens the native share sheet
+      await Share.share({
+        title: 'Exporter le calendrier',
+        text: 'Calendrier ZIGZAG',
+        url: fileUri.uri,
+        dialogTitle: 'Choisir une application',
+      });
+
+      // Clean up the temporary file
+      await Filesystem.deleteFile({
+        directory: Directory.Cache,
+        path: fileName,
+      });
+    } else {
+      // WEB: Use traditional web download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'zigzag-events.ics';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }
 
     return true;
   } catch (error) {
@@ -889,19 +925,50 @@ ${event.end_time ? createEvent(
 ) : ''}
 END:VCALENDAR`;
 
-    // Create blob and download
-    const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+    if (Capacitor.isNativePlatform()) {
+      // MOBILE: Use Capacitor Share API
+      const fileName = createSafeFilename(event.title, event.id);
+      
+      // First save to a temporary location
+      await Filesystem.writeFile({
+        path: fileName,
+        data: icalContent,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8,
+      });
 
-    // Create a temporary link and trigger download
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = createSafeFilename(event.title, event.id);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Get the file URI
+      const fileUri = await Filesystem.getUri({
+        directory: Directory.Cache,
+        path: fileName,
+      });
 
-    // Clean up the object URL
-    URL.revokeObjectURL(link.href);
+      // Share the file - this opens the native share sheet
+      await Share.share({
+        title: 'Ajouter au calendrier',
+        text: `Événement: ${event.title}`,
+        url: fileUri.uri,
+        dialogTitle: 'Choisir une application',
+      });
+
+      // Clean up the temporary file
+      await Filesystem.deleteFile({
+        directory: Directory.Cache,
+        path: fileName,
+      });
+    } else {
+      // WEB: Use traditional web download
+      const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = createSafeFilename(event.title, event.id);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      
+      alert("À ouvrir dans votre calendrier !");
+    }
 
     return true;
   } catch (error) {
