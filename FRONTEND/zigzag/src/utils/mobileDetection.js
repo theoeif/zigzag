@@ -10,8 +10,9 @@ export const isInCapacitorApp = () => {
 
 export const isInWebView = () => {
   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-  // Check for ZIGZAG-WebView identifier or generic WebView indicators
-  return userAgent.includes('ZIGZAG-WebView') || userAgent.includes('wv');
+  // Only check for our specific ZIGZAG-WebView identifier
+  // Remove the generic 'wv' check as it's too broad and matches regular mobile browsers
+  return userAgent.includes('ZIGZAG-WebView');
 };
 
 export const getDevicePlatform = () => {

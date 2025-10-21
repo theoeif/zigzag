@@ -5,6 +5,7 @@ import {
   FaLink, FaUsers, FaUserFriends, FaCalendarAlt, FaDirections,
   FaCaretDown, FaCaretRight, FaInfoCircle
 } from "react-icons/fa";
+import { FRONTEND_URL } from '../../config';
 import styles from './Project.module.css';
 import EventDetailsSection from './EventDetailsSection';
 import { downloadSingleEventICal } from '../../api/api';
@@ -115,9 +116,43 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         alert("L'hôte a désactivé le partage de lien pour cet événement");
         return;
       }
-      const shareUrl = event.public_link || `http://localhost:5173/event/${event.id}`;
-      await navigator.clipboard.writeText(shareUrl);
-      alert("Lien copié");
+      
+      const shareUrl = `${FRONTEND_URL}/event/${event.id}`;
+
+      // Try modern clipboard API first (works on HTTPS and secure contexts)
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert("Lien copié");
+          return;
+        } catch (clipboardError) {
+          console.log("Clipboard API failed, trying fallback:", clipboardError);
+        }
+      }
+
+      // Fallback for mobile browsers and non-HTTPS contexts
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      textArea.style.opacity = '0';
+      textArea.style.pointerEvents = 'none';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          alert("Lien copié");
+        } else {
+          throw new Error('execCommand failed');
+        }
+      } finally {
+        document.body.removeChild(textArea);
+      }
+
     } catch (error) {
       console.error("Error copying share link:", error);
       alert("Échec de la copie du lien. Veuillez réessayer.");

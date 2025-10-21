@@ -8,8 +8,17 @@ export const MapProvider = ({ children }) => {
     zoom: 12,
   });
 
+  // Timeframe state for global timeframe management
+  const [timeframe, setTimeframe] = useState(() => {
+    // Default: current date to current date + 1 month (one month range)
+    const start = new Date();
+    const end = new Date();
+    end.setMonth(end.getMonth() + 1);
+    return { start, end };
+  });
+
   return (
-    <MapContext.Provider value={{ mapState, setMapState }}>
+    <MapContext.Provider value={{ mapState, setMapState, timeframe, setTimeframe }}>
       {children}
     </MapContext.Provider>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
 import { FaTrashAlt, FaCog, FaEdit, FaMapMarkerAlt, FaClock, FaWhatsapp, FaGlobe, FaUser, FaChevronUp, FaChevronDown, FaShare, FaCalendarPlus, FaBookmark, FaLink, FaUsers, FaFilter, FaPlus, FaUserFriends, FaCalendarAlt } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import Header from '../Header/Header';
@@ -163,6 +163,19 @@ const Project = ({ projectId }) => {
 
   // Mobile tabs state (ignored on web where both sections are shown)
   const [activeTab, setActiveTab] = useState('mine'); // 'mine' | 'invited'
+
+  // Optimized tab click handlers to prevent unnecessary re-renders
+  const handleTabMine = useCallback(() => {
+    if (activeTab !== 'mine') {
+      setActiveTab('mine');
+    }
+  }, [activeTab]);
+
+  const handleTabInvited = useCallback(() => {
+    if (activeTab !== 'invited') {
+      setActiveTab('invited');
+    }
+  }, [activeTab]);
 
   // Filter events based on timeline selection - this should run only when events or timeRange actually change
   useEffect(() => {
@@ -525,13 +538,13 @@ const Project = ({ projectId }) => {
             <div className={styles.tabsGroupProject}>
               <button
                 className={`${styles.tabProject} ${activeTab === 'mine' ? styles.tabActiveProject : ''}`}
-                onClick={() => setActiveTab('mine')}
+                onClick={handleTabMine}
               >
                 Mes projets
               </button>
               <button
                 className={`${styles.tabProject} ${activeTab === 'invited' ? styles.tabActiveProject : ''}`}
-                onClick={() => setActiveTab('invited')}
+                onClick={handleTabInvited}
               >
                 Projets invités
               </button>
