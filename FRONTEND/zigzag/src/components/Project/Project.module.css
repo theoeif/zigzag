@@ -1287,27 +1287,28 @@ body.modal-open {
 
 /* Detail Items */
 .detailsGridProject {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin: 20px 0;
-  padding: 16px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .detailItemProject {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
+  padding: 4px 0;
 }
 
 .detailItemProject svg {
   color: #40916c;
   font-size: 1.1rem;
   min-width: 20px;
+  flex-shrink: 0;
 }
 
 .detailItemProject span, .detailItemProject a {
@@ -1330,13 +1331,14 @@ body.modal-open {
 .allCirclesSectionProject {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .allCirclesProject h4, .allTagsProject h4 {
   font-size: 1rem;
   color: #555;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   font-weight: 600;
 }
 
