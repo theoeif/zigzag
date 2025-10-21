@@ -1023,12 +1023,36 @@ const CalendarView = () => {
           </Box>
 
           <Box className={styles.modalBody}>
-            <Typography variant="h6" gutterBottom>📥 Téléchargement du calendrier</Typography>
+            <Typography variant="h6" gutterBottom>📱 Sur mobile (iOS/Android)</Typography>
             <Typography paragraph>
-              Cliquez sur "Télécharger" pour obtenir un fichier .ics que vous pouvez importer dans votre application de calendrier.
+              Cliquez sur "Télécharger" pour ouvrir le menu de partage natif de votre appareil.
+            </Typography>
+            <Typography component="div" className={styles.instructions}>
+              1. Cliquez sur "Télécharger"<br/>
+              2. Le menu de partage s'ouvre<br/>
+              3. Choisissez votre application de calendrier (Calendrier, Google Calendar, etc.)<br/>
+              4. Les événements seront automatiquement ajoutés à votre calendrier
             </Typography>
 
-            <Typography variant="subtitle2" gutterBottom>📱 Apple Calendar (macOS/iOS):</Typography>
+            <Typography variant="body2" style={{ 
+              marginTop: '15px', 
+              padding: '10px', 
+              backgroundColor: '#fff3cd', 
+              border: '1px solid #ffeaa7', 
+              borderRadius: '4px',
+              color: '#856404'
+            }}>
+              ⚠️ <strong>Note importante :</strong> Apple ne permet pas de choisir manuellement l'importation dans l'app Calendrier. 
+              Elle apparaîtra dans les suggestions en fonction de la fréquence d'utilisation. 
+              Si Calendrier n'apparaît pas, essayez Google Calendar ou partagez d'abord vers l'app Fichiers.
+            </Typography>
+
+            <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>💻 Sur ordinateur</Typography>
+            <Typography paragraph>
+              Le fichier .ics sera téléchargé dans votre dossier Téléchargements.
+            </Typography>
+
+            <Typography variant="subtitle2" gutterBottom>📱 Apple Calendar (macOS):</Typography>
             <Typography component="div" className={styles.instructions}>
               1. Ouvrez Calendrier<br/>
               2. Fichier → Importer<br/>

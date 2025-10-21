@@ -482,7 +482,9 @@
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
-  overflow-y: auto;
+  overflow: hidden; /* Hide scrollbar corners */
+  display: flex;
+  flex-direction: column;
 }
 
 .modalHeader {
@@ -495,6 +497,33 @@
 
 .modalBody {
   padding: 20px 24px 24px 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Custom scrollbar for modal body */
+.modalBody::-webkit-scrollbar {
+  width: 14px;
+}
+
+.modalBody::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+
+.modalBody::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  border: 1px solid #f1f1f1;
+}
+
+.modalBody::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .instructions {
@@ -561,6 +590,7 @@
   .modalContent {
     width: 95%;
     margin: 16px;
+    max-height: 85vh;
   }
 
   .modalHeader {
@@ -569,6 +599,8 @@
 
   .modalBody {
     padding: 16px 20px 20px 20px;
+    /* Mobile scrollbar adjustments */
+    scrollbar-width: thin;
   }
 }
 
