@@ -2,6 +2,8 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "../../api/api";
 import { AuthContext } from "../../contexts/AuthProvider";
+import { shouldShowAppBanner } from "../../utils/mobileDetection";
+import AppRedirectBanner from "../AppRedirectBanner/AppRedirectBanner";
 import styles from "./Login.module.css"; // Import the CSS Module
 
 // SVG Eye Icons
@@ -24,12 +26,16 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showAppBanner, setShowAppBanner] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { setIsConnected } = useContext(AuthContext);
 
   // Extract redirect URL from query parameter if it exists
   const [redirectPath, setRedirectPath] = useState("/");
+  
+  // Extract event ID from redirect path if it's an event URL
+  const [eventId, setEventId] = useState(null);
 
   useEffect(() => {
     // Parse query parameters to check if there's a redirect path
@@ -37,6 +43,16 @@ const Login = () => {
     const redirect = queryParams.get('redirect');
     if (redirect) {
       setRedirectPath(redirect);
+      
+      // Check if the redirect path is an event URL and extract event ID
+      const eventMatch = redirect.match(/\/event\/([0-9a-fA-F-]+)/);
+      if (eventMatch && eventMatch[1]) {
+        setEventId(eventMatch[1]);
+        // Show banner if user is accessing an event via direct link
+        if (shouldShowAppBanner()) {
+          setShowAppBanner(true);
+        }
+      }
     }
   }, [location.search]);
 
@@ -85,6 +101,12 @@ const Login = () => {
 
   return (
     <div className={styles.container}>
+      {showAppBanner && eventId && (
+        <AppRedirectBanner 
+          eventId={eventId}
+          onClose={() => setShowAppBanner(false)}
+        />
+      )}
       <div className={styles.formContainer}>
         <h2 className={styles.title}>Login</h2>
 
