@@ -229,14 +229,13 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         </button>
       </div>
 
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '15px' }}>
         {/* Location with map */}
         {event.address && event.address.latitude && event.address.longitude && (
           <div style={{
             marginBottom: '15px',
             borderRadius: '8px',
-            overflow: 'hidden',
-            border: '1px solid #ddd'
+            overflow: 'hidden'
           }}>
             <div style={{
               height: '150px',
@@ -267,13 +266,13 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
           </div>
         )}
 
-        <div className={styles.fullDescriptionProject}>
+        <div className={styles.fullDescriptionProject} style={{ marginBottom: '10px' }}>
           <strong>Description</strong>
           <p>{event.description || "Aucune description fournie pour cet événement."}</p>
         </div>
 
         {/* Additional details with icons */}
-        <div className={styles.detailsGridProject}>
+        <div style={{ marginBottom: '10px' }}>
           <div className={styles.detailItemProject}>
             <FaCalendarAlt />
             <span><strong>Début :</strong> {formatFullDate(event.start_time)}</span>
@@ -289,36 +288,32 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
           {/* Copy link button */}
           {event.shareable_link !== false && (event.public_link || event.id) && (
             <div className={styles.detailItemProject}>
-              <div style={{ position: 'relative' }}>
-                <button
-                  onClick={copyEventLinkFromDetails}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: '#40916c',
-                    transition: 'all 0.2s ease',
-                    fontSize: '14px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#f0f7f4';
-                    e.target.style.transform = 'scale(1.05)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                    e.target.style.transform = 'scale(1)';
-                  }}
-                  title="Copier le lien"
-                >
-                  <FaLink style={{ fontSize: '16px' }} />
-                  <span><strong>{urlCopied ? 'Lien copié !' : 'Lien de partage'}</strong></span>
-                </button>
-              </div>
+              <FaLink style={{ fontSize: '1.1rem', color: '#40916c', minWidth: '20px', flexShrink: 0 }} />
+              <button
+                onClick={copyEventLinkFromDetails}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0',
+                  color: '#40916c',
+                  transition: 'all 0.2s ease',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f0f7f4';
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.transform = 'scale(1)';
+                }}
+                title="Copier le lien"
+              >
+                <span><strong>{urlCopied ? 'Lien copié !' : 'Lien de partage'}</strong></span>
+              </button>
             </div>
           )}
         </div>
@@ -331,8 +326,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '10px',
-                borderBottom: '1px solid #eee',
+                marginBottom: '8px',
                 paddingBottom: '5px'
               }}>
                 <h4 style={{ margin: '5px 0', fontSize: '1rem' }}>Cercles et invités :</h4>
@@ -351,8 +345,8 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: '8px',
-                margin: '10px 0'
+                gap: '6px',
+                margin: '8px 0'
               }}>
                 {/* Display either first 3 circles or all circles based on showCirclesDropdown */}
                 {(showCirclesDropdown ? circleData : circleData.slice(0, 3)).map((circle, index) => (
