@@ -818,6 +818,105 @@
 }
 
 /* ==================== */
+/*   User Profile View  */
+/* ==================== */
+
+.userProfileContainer {
+  position: relative;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f0fdf4;
+  width: 100%;
+}
+
+.profileHeader {
+  margin-top: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.profileTitle {
+  font-size: 2rem;
+  color: #1b4332;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.profileSubtitle {
+  font-size: 1.1rem;
+  color: #2d6a4f;
+  margin: 0;
+  font-weight: 400;
+}
+
+.profileContent {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(64, 145, 108, 0.1);
+  width: 100%;
+  max-width: none;
+}
+
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: white;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(64, 145, 108, 0.1);
+  width: 100%;
+}
+
+.loadingContainer p,
+.errorContainer p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.errorContainer p {
+  color: #d32f2f;
+}
+
+/* Mobile styles for UserProfileView */
+@media (max-width: 768px) {
+  .userProfileContainer {
+    padding: 10px;
+    width: 100%;
+  }
+  
+  .profileHeader {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .profileTitle {
+    font-size: 1.5rem;
+  }
+  
+  .profileSubtitle {
+    font-size: 1rem;
+  }
+  
+  .profileContent {
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .loadingContainer,
+  .errorContainer {
+    margin-top: 10px;
+    width: 100%;
+  }
+}
+
+/* ==================== */
 /*    Add Circle Modal  */
 /* ==================== */
 
@@ -839,7 +938,7 @@
   background: white;
   border-radius: 12px;
   width: 90%;
-  max-width: 500px;
+  max-width: 450px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
@@ -849,14 +948,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 16px 20px;
   background-color: #f0fdf4;
   border-bottom: 1px solid rgba(64, 145, 108, 0.15);
 }
 
 .modalHeader h2 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: #1b4332;
   font-weight: 600;
 }
@@ -879,18 +978,18 @@
 }
 
 .formGroup {
-  margin-bottom: 20px;
-  padding: 0 24px;
+  margin-bottom: 16px;
+  padding: 0 20px;
 }
 
 .inputLabel {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .inputIcon {
@@ -899,10 +998,10 @@
 
 .textInput {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid #d3e4cd;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
 }
 
@@ -958,8 +1057,8 @@
 .tagsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .tag {
@@ -967,8 +1066,8 @@
   border: 1px solid #e0e0e0;
   color: #333;
   border-radius: 16px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  padding: 6px 12px;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -1002,7 +1101,7 @@
 .modalActions {
   display: flex;
   justify-content: flex-end;
-  padding: 16px 24px;
+  padding: 12px 20px;
   background-color: #f8f9fa;
   border-top: 1px solid #e9ecef;
 }
@@ -1012,10 +1111,11 @@
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 12px 20px;
+  padding: 10px 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 0.9rem;
 }
 
 .createButton:hover:not(:disabled) {
@@ -1202,6 +1302,11 @@
     height: 100%;
   }
 
+  .modalOverlay {
+    z-index: 9999;
+    padding: 0;
+  }
+
   .modalHeader h2 {
     font-size: 1.2rem;
   }
@@ -1209,5 +1314,44 @@
   .circleItem {
     padding: 8px;
     font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .modalOverlay {
+    padding: 20px;
+    align-items: flex-start;
+    justify-content: center;
+    top: 60px; /* Position below header */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(100vh - 60px); /* Adjust height for available space */
+  }
+  
+  .modalContent {
+    width: 95%;
+    max-width: 400px;
+    height: auto;
+    max-height: calc(100vh - 100px); /* Account for header and padding */
+    border-radius: 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modalHeader {
+    padding: 12px 16px;
+    flex-shrink: 0;
+  }
+  
+  .modalContent .formGroup {
+    flex-shrink: 0;
+  }
+  
+  .modalActions {
+    margin-top: auto;
+    padding: 8px 16px;
+    flex-shrink: 0;
   }
 }
