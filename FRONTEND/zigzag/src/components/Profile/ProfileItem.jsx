@@ -3,7 +3,6 @@ import styles from "./Profile.module.css";
 
 const ProofileItem = ({
   timetable,
-  remoteDaysCount,
   remoteDays,
   lookingFor,
   readOnly = false,
@@ -15,12 +14,33 @@ const ProofileItem = ({
   onChangeEndTime,
   onSaveTimeRange,
   onCancelSelectDay,
-  onChangeRemoteDaysCount,
   onToggleRemoteDay,
   onChangeLookingFor,
 }) => {
   // Define the correct order of days starting with Monday
   const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  
+  // French day names mapping
+  const frenchDays = {
+    'Monday': 'Lundi',
+    'Tuesday': 'Mardi', 
+    'Wednesday': 'Mercredi',
+    'Thursday': 'Jeudi',
+    'Friday': 'Vendredi',
+    'Saturday': 'Samedi',
+    'Sunday': 'Dimanche'
+  };
+  
+  // French day abbreviations for remote work
+  const frenchDayAbbr = {
+    'Monday': 'Lun',
+    'Tuesday': 'Mar',
+    'Wednesday': 'Mer',
+    'Thursday': 'Jeu',
+    'Friday': 'Ven',
+    'Saturday': 'Sam',
+    'Sunday': 'Dim'
+  };
 
   return (
     <>
@@ -28,16 +48,16 @@ const ProofileItem = ({
         <h2 className={styles.sectionTitle}>Disponibilité</h2>
 
         <div className={styles.subSection}>
-          <h3 className={styles.subTitle}>Emploi du temps</h3>
+          <h3 className={styles.subTitle}>Libre sous réserve</h3>
           <div className={styles.timetable}>
             {dayOrder.map((day) => (
               <div
                 key={day}
-                className={styles.timetableDay}
+                className={`${styles.timetableDay} ${day === 'Sunday' ? styles.sunday : ''}`}
                 onClick={readOnly ? undefined : () => onSelectDay && onSelectDay(day)}
                 style={{ cursor: readOnly ? "default" : "pointer" }}
               >
-                <h4>{day}</h4>
+                <h4>{frenchDays[day]}</h4>
                 <p>
                   {timetable[day]?.start
                     ? `${timetable[day].start} - ${timetable[day].end}`
@@ -51,7 +71,7 @@ const ProofileItem = ({
         {!readOnly && selectedDay && (
           <div className={styles.timeRangePickerModal}>
             <div className={styles.timeRangePicker}>
-              <h4>Définir les heures pour {selectedDay}</h4>
+              <h4>Définir les heures pour {frenchDays[selectedDay]}</h4>
               <input
                 type="time"
                 value={startTime}
@@ -73,27 +93,14 @@ const ProofileItem = ({
         <div className={styles.subSection}>
           <h3 className={styles.subTitle}>Télétravail</h3>
           <div className={styles.remoteWorkSection}>
-            <label className={styles.remoteDaysLabel}>
-              <span>Jours de télétravail / Semaine :</span>
-              <input
-                type="number"
-                value={remoteDaysCount}
-                onChange={readOnly ? undefined : (e) => onChangeRemoteDaysCount && onChangeRemoteDaysCount(e)}
-                min="0"
-                max="7"
-                className={styles.remoteDaysInput}
-                disabled={!readOnly && selectedDay !== null}
-                readOnly={readOnly}
-              />
-            </label>
             <div className={styles.remoteDaysBar}>
               {dayOrder.map((day) => (
                 <div
                   key={day}
-                  className={`${styles.remoteDay} ${remoteDays[day] ? styles.active : ""} ${!readOnly && selectedDay !== null ? styles.disabled : ""}`}
+                  className={`${styles.remoteDay} ${day === 'Sunday' ? styles.sunday : ''} ${remoteDays[day] ? styles.active : ""} ${!readOnly && selectedDay !== null ? styles.disabled : ""}`}
                   onClick={readOnly ? undefined : () => onToggleRemoteDay && onToggleRemoteDay(day)}
                 >
-                  {day.slice(0, 3)}
+                  {frenchDayAbbr[day]}
                 </div>
               ))}
             </div>

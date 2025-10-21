@@ -128,6 +128,16 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     }
   }, [formData.start_time, endDateManuallyChanged]);
 
+  // Re-validate anytime either date changes
+  useEffect(() => {
+    if (formData.start_time && formData.end_time) {
+      validateDates(formData.start_time, formData.end_time);
+    } else {
+      // No end date means no error to show
+      setDateError("");
+    }
+  }, [formData.start_time, formData.end_time]);
+
   // Validate that end date is not earlier than start date
   const validateDates = (startDate, endDate) => {
     if (!startDate || !endDate) return true;
@@ -165,6 +175,13 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     // Special handling for end_time
     if (name === 'end_time') {
       setEndDateManuallyChanged(true);
+
+      // If user cleared the end date, clear any date error and update state
+      if (!value) {
+        setDateError("");
+        setFormData(prev => ({ ...prev, [name]: "" }));
+        return;
+      }
 
       // If user only enters a date (YYYY-MM-DD) without time
       if (value.length === 10 || !value.includes('T')) {
@@ -369,7 +386,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       >
         <div className={styles.modalHeaderProject}>
           <div className={styles.popupTitleWrapper}>
-            <h3 className={styles.modalTitleProject}>Créer un nouveau projet</h3>
+            <h3 className={styles.modalTitleProject}>Nouveau projet</h3>
           </div>
           <button onClick={onClose} className={styles.closeButtonProject}>✕</button>
         </div>
@@ -489,7 +506,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           )}
 
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Date de début :</label>
+            <label className={styles.formLabelProject}>Début :</label>
             <input
               type="datetime-local"
               name="start_time"
@@ -498,11 +515,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               className={styles.formInputProject}
               required
             />
-            <small style={{ color: '#666', fontStyle: 'italic' }}>Ajouter l'heure si nécessaire</small>
+            <small style={{ color: '#666', fontStyle: 'italic' }}>Ajuster l'heure si nécessaire</small>
           </div>
 
           <div className={styles.formGroupProject}>
-            <label className={styles.formLabelProject}>Date de fin :</label>
+            <label className={styles.formLabelProject}>Fin :</label>
             <input
               type="datetime-local"
               name="end_time"
@@ -525,7 +542,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
             <fieldset
               className={styles.fieldsetGroupProject}
             >
-              <legend className={styles.fieldsetLegendProject}>Sélectionner les cercles :</legend>
+              <legend className={styles.fieldsetLegendProject}>Cercles :</legend>
 
             {/* Container for the 'Select All' button */}
             <div className={styles.selectAllContainerProject}>
@@ -582,7 +599,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           <fieldset
             className={styles.fieldsetGroupProject}
           >
-            <legend className={styles.fieldsetLegendProject}>Options de partage :</legend>
+            <legend className={styles.fieldsetLegendProject}>Partage :</legend>
 
             <div className={styles.checkboxContainerProject}>
               <input
@@ -600,7 +617,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                   </svg>
                   <div className={styles.tooltipProject}>
-                    Tous les membres des cercles peuvent modifier la description et l'adresse
+                    Tous les membres des cercles peuvent modifier la description et la date
                   </div>
                 </div>
               </label>

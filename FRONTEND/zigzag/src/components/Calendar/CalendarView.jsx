@@ -4,8 +4,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack } from '@mui/material';
-import { CalendarToday, Download, Close, Info } from '@mui/icons-material';
+import { Button, Box, IconButton, Tooltip, Modal, Typography, Chip, Stack, Menu, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { CalendarToday, Download, Close, Info, ArrowDropDown } from '@mui/icons-material';
 import { fetchEvents, createEvent, patchEvent, deleteEvent, downloadICalFile } from '../../api/api';
 import CreateEventForm from '../Project/CreateEventForm';
 import EditEventForm from '../Project/EditEventForm';
@@ -42,6 +42,26 @@ const CalendarView = () => {
   const [showCircleSelector, setShowCircleSelector] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
+  const [viewMenuAnchor, setViewMenuAnchor] = useState(null);
+  const [selectedView, setSelectedView] = useState('myList');
+  const [listAnchorDate, setListAnchorDate] = useState(new Date());
+  const [mobileTitle, setMobileTitle] = useState(() => {
+    // Set initial title for list view (1 month by default)
+    const now = new Date();
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const month = monthNames[now.getMonth()];
+    const year = now.getFullYear();
+    return `${month} ${year}`;
+  });
+  const [webTitle, setWebTitle] = useState(() => {
+    const now = new Date();
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const month = monthNames[now.getMonth()];
+    const year = now.getFullYear();
+    return `${month} ${year}`;
+  });
 
   // Fetch events on component mount.
   useEffect(() => {
@@ -51,7 +71,8 @@ const CalendarView = () => {
   // Check if mobile and handle resize
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
     };
 
     checkMobile();
@@ -68,15 +89,43 @@ const CalendarView = () => {
 
         if (sidebar && !sidebar.contains(event.target)) {
           setShowCircleSelector(false);
+          // Don't change calendarMode - keep Planning mode active
+          // Don't clear selectedCircles or greyEvents
         }
       }
     };
 
     if (isMobile && showCircleSelector) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     }
   }, [isMobile, showCircleSelector]);
+
+  // Handle click outside for web - close menu only
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!isMobile && calendarMode === 'circle' && showCircleSelector) {
+        const sidebar = document.querySelector('[data-circle-selector]');
+        const calendarHeader = document.querySelector(`.${styles.calendarHeader}`);
+
+        if (sidebar && !sidebar.contains(event.target) && 
+            calendarHeader && !calendarHeader.contains(event.target)) {
+          setShowCircleSelector(false);
+          // Don't change calendarMode - keep Planning mode active
+          // Don't clear selectedCircles or greyEvents
+        }
+      }
+    };
+
+    if (!isMobile && calendarMode === 'circle' && showCircleSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isMobile, calendarMode, showCircleSelector]);
 
   // Handle click outside to close left menu
   useEffect(() => {
@@ -187,23 +236,72 @@ const CalendarView = () => {
   };
 
   const getMonthAlignedRange = (anchorDate, monthCount) => {
-    const base = new Date(anchorDate);
+    // Use listAnchorDate for stable list view ranges
+    const base = new Date(listAnchorDate);
     const start = new Date(base.getFullYear(), base.getMonth(), 1);
-    const end = new Date(start);
-    end.setMonth(end.getMonth() + monthCount);
+    const end = new Date(base.getFullYear(), base.getMonth() + monthCount, 1);
     return { start, end };
   };
 
+  const updateWebTitle = (date, months) => {
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const startMonth = monthNames[date.getMonth()];
+    const startYear = date.getFullYear();
+    const endDate = new Date(date);
+    endDate.setMonth(endDate.getMonth() + months - 1);
+    const endMonth = monthNames[endDate.getMonth()];
+    const endYear = endDate.getFullYear();
+    
+    if (months === 1) {
+      setWebTitle(`${startMonth} ${startYear}`);
+    } else if (startYear === endYear) {
+      setWebTitle(`${startMonth} - ${endMonth} ${startYear}`);
+    } else {
+      setWebTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+    }
+  };
+
+
   const handleChangeListMonths = (months) => {
     setListMonths(months);
+    const newAnchor = new Date();
+    setListAnchorDate(newAnchor); // Reset to current month
+    
+    // Update mobile title for new period
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const startMonth = monthNames[newAnchor.getMonth()];
+    const startYear = newAnchor.getFullYear();
+    const endDate = new Date(newAnchor);
+    endDate.setMonth(endDate.getMonth() + months - 1);
+    const endMonth = monthNames[endDate.getMonth()];
+    const endYear = endDate.getFullYear();
+    
+    if (months === 1) {
+      setMobileTitle(`${startMonth} ${startYear}`);
+      setWebTitle(`${startMonth} ${startYear}`);
+    } else if (startYear === endYear) {
+      setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      setWebTitle(`${startMonth} - ${endMonth} ${startYear}`);
+    } else {
+      setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      setWebTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+    }
+    
     const api = calendarRef.current?.getApi?.();
     if (api) {
       api.changeView('myList');
+      api.gotoDate(newAnchor);
     }
   };
 
   // Event handlers
   const handleDateClick = (info) => {
+    // Prevent opening CreateEventForm when in Planning mode
+    if (calendarMode === 'circle') {
+      return;
+    }
     setSelectedDate(info.dateStr);
     setShowCreateForm(true);
   };
@@ -278,7 +376,8 @@ const CalendarView = () => {
   };
 
   const handleViewCircleMembers = (circleId, circleName) => {
-    setCircleMembersData({ circleId, circleName });
+    const ids = circleId != null ? [circleId] : [];
+    setCircleMembersData({ circleIds: ids, circleName });
     setShowCircleMembers(true);
   };
 
@@ -292,9 +391,8 @@ const CalendarView = () => {
         setCircleError(null);
         setShowCircleSelector(false);
       } else {
-        if (isMobile) {
-          setShowCircleSelector(true);
-        }
+        // Always show circle selector when entering circle mode
+        setShowCircleSelector(true);
       }
     }
   };
@@ -312,6 +410,166 @@ const CalendarView = () => {
   // Handle circle errors
   const handleCircleError = (error) => {
     setCircleError(error);
+  };
+
+  // Handle validation of circle selection
+  const handleValidateCircles = () => {
+    // Close the circle selector (works for both mobile and web)
+    setShowCircleSelector(false);
+    // Planning mode is now confirmed/active
+    // The grey events will remain visible as they're already loaded
+  };
+
+  // Handle view menu
+  const handleViewMenuOpen = (event) => {
+    setViewMenuAnchor(event.currentTarget);
+  };
+
+  const handleViewMenuClose = () => {
+    setViewMenuAnchor(null);
+  };
+
+  const handleMobileNavPrev = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      // Navigate backward by the list period
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() - listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      
+      // Update mobile title for list view
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const startMonth = monthNames[newDate.getMonth()];
+      const startYear = newDate.getFullYear();
+      const endDate = new Date(newDate);
+      endDate.setMonth(endDate.getMonth() + listMonths - 1);
+      const endMonth = monthNames[endDate.getMonth()];
+      const endYear = endDate.getFullYear();
+      
+      if (listMonths === 1) {
+        setMobileTitle(`${startMonth} ${startYear}`);
+      } else if (startYear === endYear) {
+        setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      } else {
+        setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      }
+    } else {
+      api.prev();
+      // Title will be updated by datesSet callback
+    }
+  };
+
+  const handleMobileNavNext = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      // Navigate forward by the list period
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() + listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      
+      // Update mobile title for list view
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const startMonth = monthNames[newDate.getMonth()];
+      const startYear = newDate.getFullYear();
+      const endDate = new Date(newDate);
+      endDate.setMonth(endDate.getMonth() + listMonths - 1);
+      const endMonth = monthNames[endDate.getMonth()];
+      const endYear = endDate.getFullYear();
+      
+      if (listMonths === 1) {
+        setMobileTitle(`${startMonth} ${startYear}`);
+      } else if (startYear === endYear) {
+        setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      } else {
+        setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      }
+    } else {
+      api.next();
+      // Title will be updated by datesSet callback
+    }
+  };
+
+  const handleWebNavPrev = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() - listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      updateWebTitle(newDate, listMonths);
+    } else {
+      api.prev();
+    }
+  };
+
+  const handleWebNavNext = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (!api) return;
+    
+    if (activeView === 'myList') {
+      const newDate = new Date(listAnchorDate);
+      newDate.setMonth(newDate.getMonth() + listMonths);
+      setListAnchorDate(newDate);
+      api.gotoDate(newDate);
+      updateWebTitle(newDate, listMonths);
+    } else {
+      api.next();
+    }
+  };
+
+  const handleTodayClick = () => {
+    const api = calendarRef.current?.getApi?.();
+    if (api) api.today();
+  };
+
+
+  const handleViewChange = (viewType) => {
+    setSelectedView(viewType);
+    if (viewType === 'myList') {
+      const newAnchor = new Date();
+      setListAnchorDate(newAnchor); // Reset to current month
+      
+      // Set initial mobile title for list view
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const startMonth = monthNames[newAnchor.getMonth()];
+      const startYear = newAnchor.getFullYear();
+      const endDate = new Date(newAnchor);
+      endDate.setMonth(endDate.getMonth() + listMonths - 1);
+      const endMonth = monthNames[endDate.getMonth()];
+      const endYear = endDate.getFullYear();
+      
+      if (listMonths === 1) {
+        setMobileTitle(`${startMonth} ${startYear}`);
+        setWebTitle(`${startMonth} ${startYear}`);
+      } else if (startYear === endYear) {
+        setMobileTitle(`${startMonth} - ${endMonth} ${startYear}`);
+        setWebTitle(`${startMonth} - ${endMonth} ${startYear}`);
+      } else {
+        setMobileTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+        setWebTitle(`${startMonth} ${startYear} - ${endMonth} ${endYear}`);
+      }
+    }
+    const api = calendarRef.current?.getApi?.();
+    if (api) {
+      if (viewType === 'myList') {
+        api.changeView('myList');
+        api.gotoDate(new Date());
+      } else {
+        api.changeView(viewType);
+      }
+    }
+    handleViewMenuClose();
   };
 
   // Convert grey events to FullCalendar format
@@ -450,7 +708,7 @@ const CalendarView = () => {
       )}
 
         {/* Circle Selector Sidebar */}
-        {calendarMode === 'circle' && (
+        {calendarMode === 'circle' && showCircleSelector && (
           <div data-circle-selector>
             <CircleSelector
               selectedCircles={selectedCircles}
@@ -459,44 +717,129 @@ const CalendarView = () => {
               onError={handleCircleError}
               isVisible={showCircleSelector}
               onClose={() => setShowCircleSelector(false)}
+              onValidate={handleValidateCircles}
             />
           </div>
         )}
 
 
       {/* Calendar Header with Schedule Button */}
-      <Box className={`${styles.calendarHeader} ${calendarMode === 'circle' ? styles.calendarHeaderWithSidebar : ''}`}>
-        {/* Schedule Button - Show when not in circle mode OR when in circle mode but sidebar is closed */}
-        <Box className={`${styles.headerTop} ${calendarMode === 'circle' && showCircleSelector ? styles.headerTopHidden : ''}`}>
-          <Button
-            variant={calendarMode === 'circle' ? 'contained' : 'outlined'}
-            onClick={() => handleModeChange(null, calendarMode === 'my' ? 'circle' : 'my')}
-            size="small"
-            className={styles.scheduleButton}
-          >
-            Planning
-          </Button>
+      <Box className={`${styles.calendarHeader} ${calendarMode === 'circle' && showCircleSelector ? styles.calendarHeaderWithSidebar : ''}`}>
+        {/* Calendar Mode Button */}
+        <Box className={styles.headerTop}>
+          {calendarMode === 'my' ? (
+            <Button
+              variant="outlined"
+              onClick={() => handleModeChange(null, 'circle')}
+              size="small"
+              className={styles.scheduleButton}
+            >
+              Planning
+            </Button>
+          ) : (
+            // Show "Mon Calendrier" button when in Planning mode but menu is closed
+            !showCircleSelector && (
+              <Button
+                variant="contained"
+                onClick={() => handleModeChange(null, 'my')}
+                size="small"
+                className={styles.scheduleButton}
+              >
+                Mon Calendrier
+              </Button>
+            )
+          )}
         </Box>
       </Box>
 
+      {/* Web Custom Header */}
+      {!isMobile && (
+        <Box className={styles.webHeader}>
+          <Box className={styles.webHeaderLeft}>
+            <Button
+              size="small"
+              onClick={handleTodayClick} className={`${styles.todayButton} ${styles.webHeaderLeftButton}`}>
+              Aujourd'hui {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+            </Button>
+          </Box>
+          <Box className={styles.webHeaderCenter}>
+            <Button onClick={handleWebNavPrev}>‹</Button>
+            <Typography variant="h6" className={styles.webTitle}>{webTitle}</Typography>
+            <Button onClick={handleWebNavNext}>›</Button>
+          </Box>
+          <Box className={styles.webHeaderRight}>
+            <Button onClick={handleViewMenuOpen} endIcon={<ArrowDropDown />} className={`${styles.viewDropdownButton} ${styles.webHeaderRightButton}`}>
+              {selectedView === 'myList' ? 'Liste' : 
+               selectedView === 'dayGridMonth' ? 'Mois' : 
+               selectedView === 'timeGridWeek' ? 'Semaine' : 'Vue'}
+            </Button>
+          </Box>
+        </Box>
+      )}
+
+      {/* Mobile Custom Header */}
+      {isMobile && (
+        <Box className={styles.mobileHeader}>
+          <Box className={styles.mobileHeaderTop}>
+            <Button
+              size="small"
+              onClick={handleMobileNavPrev}
+            >
+              ‹
+            </Button>
+            <Typography variant="h6" className={styles.mobileTitle}>
+              {mobileTitle}
+            </Typography>
+            <Button
+              size="small"
+              onClick={handleMobileNavNext}
+            >
+              ›
+            </Button>
+          </Box>
+          
+          <Box className={styles.mobileHeaderBottom}>
+            <Button
+              size="small"
+              onClick={() => {
+                const api = calendarRef.current?.getApi?.();
+                if (api) api.today();
+              }}
+              className={styles.todayButton}
+            >
+              Aujourd'hui {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+            </Button>
+            
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleViewMenuOpen}
+              endIcon={<ArrowDropDown />}
+              className={styles.viewDropdownButton}
+            >
+              {selectedView === 'myList' ? 'Liste' : 
+               selectedView === 'dayGridMonth' ? 'Mois' : 
+               selectedView === 'timeGridWeek' ? 'Semaine' : 'Vue'}
+            </Button>
+          </Box>
+        </Box>
+      )}
+
       {/* FullCalendar Component */}
-      <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' ? styles.calendarWrapperWithSidebar : ''}`}>
+      <div className={`${styles.calendarWrapper} ${calendarMode === 'circle' && showCircleSelector ? styles.calendarWrapperWithSidebar : ''}`}>
         {activeView === 'myList' && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
+          <div className={isMobile ? styles.periodButtonsContainerMobile : styles.periodButtonsContainerWeb}>
             <Button size="small" variant={listMonths === 1 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(1)}>1M</Button>
             <Button size="small" variant={listMonths === 2 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(2)}>2M</Button>
             <Button size="small" variant={listMonths === 6 ? 'contained' : 'outlined'} onClick={() => handleChangeListMonths(6)}>6M</Button>
           </div>
         )}
+        <div className={styles.fullCalendar}>
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,myList'
-          }}
+          initialView="myList"
+          headerToolbar={false}
           locale="fr"
           events={displayEvents}
           dateClick={handleDateClick}
@@ -527,9 +870,19 @@ const CalendarView = () => {
           buttonText={{
             today: `Aujourd'hui ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`,
             month: 'Mois',
+            week: 'Semaine',
             list: 'Liste'
           }}
-          datesSet={(arg) => setActiveView(arg.view.type)}
+          datesSet={(arg) => {
+            setActiveView(arg.view.type);
+            setSelectedView(arg.view.type);
+            
+            // Update titles for non-list views
+            if (arg.view.type !== 'myList') {
+              setMobileTitle(arg.view.title);
+              setWebTitle(arg.view.title);
+            }
+          }}
           views={{
             myList: {
               type: 'list',
@@ -544,9 +897,27 @@ const CalendarView = () => {
             // User selected an interval (start/end)
             console.log('selected interval:', info.start, info.end);
           }}
-          className={styles.fullCalendar}
         />
+        </div>
       </div>
+
+      {/* View Dropdown Menu */}
+      <Menu
+        anchorEl={viewMenuAnchor}
+        open={Boolean(viewMenuAnchor)}
+        onClose={handleViewMenuClose}
+        className={styles.viewMenu}
+      >
+        <MenuItem onClick={() => handleViewChange('myList')}>
+          Liste
+        </MenuItem>
+        <MenuItem onClick={() => handleViewChange('dayGridMonth')}>
+          Mois
+        </MenuItem>
+        <MenuItem onClick={() => handleViewChange('timeGridWeek')}>
+          Semaine
+        </MenuItem>
+      </Menu>
 
       {/* Bottom Section: Title and Export Buttons */}
       <Box className={styles.calendarTitleBottom}>
@@ -631,7 +1002,7 @@ const CalendarView = () => {
       {/* Circle Members Popup */}
       {showCircleMembers && circleMembersData && (
         <CircleMembersPopup
-          circleId={circleMembersData.circleId}
+          circleIds={circleMembersData.circleIds || []}
           circleName={circleMembersData.circleName}
           onClose={() => setShowCircleMembers(false)}
         />
@@ -652,12 +1023,36 @@ const CalendarView = () => {
           </Box>
 
           <Box className={styles.modalBody}>
-            <Typography variant="h6" gutterBottom>📥 Téléchargement du calendrier</Typography>
+            <Typography variant="h6" gutterBottom>📱 Sur mobile (iOS/Android)</Typography>
             <Typography paragraph>
-              Cliquez sur "Télécharger" pour obtenir un fichier .ics que vous pouvez importer dans votre application de calendrier.
+              Cliquez sur "Télécharger" pour ouvrir le menu de partage natif de votre appareil.
+            </Typography>
+            <Typography component="div" className={styles.instructions}>
+              1. Cliquez sur "Télécharger"<br/>
+              2. Le menu de partage s'ouvre<br/>
+              3. Choisissez votre application de calendrier (Calendrier, Google Calendar, etc.)<br/>
+              4. Les événements seront automatiquement ajoutés à votre calendrier
             </Typography>
 
-            <Typography variant="subtitle2" gutterBottom>📱 Apple Calendar (macOS/iOS):</Typography>
+            <Typography variant="body2" style={{ 
+              marginTop: '15px', 
+              padding: '10px', 
+              backgroundColor: '#fff3cd', 
+              border: '1px solid #ffeaa7', 
+              borderRadius: '4px',
+              color: '#856404'
+            }}>
+              ⚠️ <strong>Note importante :</strong> Apple ne permet pas de choisir manuellement l'importation dans l'app Calendrier. 
+              Elle apparaîtra dans les suggestions en fonction de la fréquence d'utilisation. 
+              Si Calendrier n'apparaît pas, essayez Google Calendar ou partagez d'abord vers l'app Fichiers.
+            </Typography>
+
+            <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>💻 Sur ordinateur</Typography>
+            <Typography paragraph>
+              Le fichier .ics sera téléchargé dans votre dossier Téléchargements.
+            </Typography>
+
+            <Typography variant="subtitle2" gutterBottom>📱 Apple Calendar (macOS):</Typography>
             <Typography component="div" className={styles.instructions}>
               1. Ouvrez Calendrier<br/>
               2. Fichier → Importer<br/>

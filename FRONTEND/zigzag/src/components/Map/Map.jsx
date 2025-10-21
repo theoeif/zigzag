@@ -13,8 +13,8 @@ const Map = ({ isFilterOpen, isLeftMenuOpen, initializeMap, children }) => {
   ];
 
   // Calculate MapContainer props based on screen size
+  const mapKey = isWideScreen ? 'wide' : 'narrow';
   const mapProps = {
-    key: isWideScreen ? 'wide' : 'narrow',
     center: [48.8566, 2.3522],
     zoom: 12,
     maxZoom: 18,
@@ -42,7 +42,7 @@ const Map = ({ isFilterOpen, isLeftMenuOpen, initializeMap, children }) => {
       {(isFilterOpen || isLeftMenuOpen) && (<div className="overlay" />)}
       {children}
 
-      <MapContainer {...mapProps} />
+      <MapContainer key={mapKey} {...mapProps} />
     </div>
   );
 };

@@ -2,6 +2,7 @@
 
 # required token to make the app works
 config.js
+.env
 
 # external libraries
 # External NODE libraries
@@ -9,7 +10,6 @@ node_modules/
 package-lock.json
 
 # External PYTHON libraries
-venv/
 .venv/
 
 # Computer dependencies

@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +26,12 @@ AUTH_USER_MODEL = 'events.User'
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dza7zr!u0a@-t@_sgk9ys037ydro5*kv*d^zacgg$hx94vp#rs'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ["192.168.1.13", "127.0.0.1"]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1').split(',')
 
 
 # Application definition
@@ -64,8 +69,8 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=12),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=int(os.getenv('ACCESS_TOKEN_LIFETIME_HOURS', '12'))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(os.getenv('REFRESH_TOKEN_LIFETIME_DAYS', '30'))),
     # If you want refresh tokens to be one-time use
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
@@ -128,12 +133,7 @@ DEFAULT_DB = os.getenv('DB_DEFAULT', 'default')  # 'postgres' in production
 if DEFAULT_DB == 'postgres':
     DATABASES['default'] = DATABASES['postgres']
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vite dev server
-    "http://127.0.0.1:5173",
-    "http://192.168.1.13:8000", # Django API
-    "http://192.168.1.13:5173",  # Vite dev server
-]
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Password validation
@@ -179,3 +179,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Circle Calendar Privacy Settings
 CIRCLE_CALENDAR_MIN_MEMBERS = 3
+
+# Deep Link Configuration
+IOS_APP_STORE_URL = os.getenv('IOS_APP_STORE_URL', 'https://apps.apple.com/app/zigzag')
+ANDROID_PLAY_STORE_URL = os.getenv('ANDROID_PLAY_STORE_URL', 'https://play.google.com/store/apps/details?id=com.zigzagunique.app')
+DEEP_LINK_SCHEME = os.getenv('DEEP_LINK_SCHEME', 'zigzag://')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
