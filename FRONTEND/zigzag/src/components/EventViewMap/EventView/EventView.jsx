@@ -567,9 +567,43 @@ const EventView = ({
         setTimeout(() => setShareError(null), 3000);
         return;
       }
-      await navigator.clipboard.writeText(shareUrl);
-      setUrlCopied(true);
-      setTimeout(() => setUrlCopied(false), 2000);
+
+      // Try modern clipboard API first (works on HTTPS and secure contexts)
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          setUrlCopied(true);
+          setTimeout(() => setUrlCopied(false), 2000);
+          return;
+        } catch (clipboardError) {
+          console.log("Clipboard API failed, trying fallback:", clipboardError);
+        }
+      }
+
+      // Fallback for mobile browsers and non-HTTPS contexts
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      textArea.style.opacity = '0';
+      textArea.style.pointerEvents = 'none';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          setUrlCopied(true);
+          setTimeout(() => setUrlCopied(false), 2000);
+        } else {
+          throw new Error('execCommand failed');
+        }
+      } finally {
+        document.body.removeChild(textArea);
+      }
+
     } catch (error) {
       console.error("Error copying share link:", error);
       setShareError("Failed to copy link");
