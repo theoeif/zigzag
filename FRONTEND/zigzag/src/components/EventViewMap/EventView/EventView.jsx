@@ -243,8 +243,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "44px",
-    height: "44px",
+    width: "48px",
+    height: "48px",
     backgroundColor: "#f1f1f1",
     border: "none",
     borderRadius: "4px",
@@ -256,8 +256,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "44px",
-    height: "44px",
+    width: "48px",
+    height: "48px",
     backgroundColor: "#40916c",
     border: "none",
     borderRadius: "4px",
@@ -266,6 +266,9 @@ const styles = {
     transition: "all 0.3s ease",
     transform: "scale(1.1)",
     boxShadow: "0 0 10px rgba(64, 145, 108, 0.5)",
+  },
+  shareButtonIcon: {
+    fontSize: "16px",
   },
   copiedTooltip: {
     position: "absolute",
@@ -812,7 +815,10 @@ const EventView = ({
                       style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
                       title="Copy event link"
                     >
-                      <FaLink style={{ color: shareButtonClicked ? "white" : "inherit" }} />
+                      <FaLink style={{ 
+                        color: shareButtonClicked ? "white" : "inherit",
+                        ...styles.shareButtonIcon
+                      }} />
                     </button>
                 {urlCopied && (
                   <div style={styles.copiedTooltip}>
@@ -832,7 +838,7 @@ const EventView = ({
                         }}
                         title="View participants"
                       >
-                        <FaUsers />
+                        <FaUsers style={styles.shareButtonIcon} />
                       </button>
                     )}
 
@@ -842,7 +848,7 @@ const EventView = ({
                       style={styles.shareButton}
                       title="See more details"
                     >
-                      <FaInfoCircle />
+                      <FaInfoCircle style={styles.shareButtonIcon} />
                     </button>
                   </div>
 
@@ -1036,7 +1042,10 @@ const EventView = ({
                       style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
                       title="Copy event link"
                     >
-                      <FaLink style={{ color: shareButtonClicked ? "white" : "inherit" }} />
+                      <FaLink style={{ 
+                        color: shareButtonClicked ? "white" : "inherit",
+                        ...styles.shareButtonIcon
+                      }} />
                     </button>
                     {urlCopied && (
                       <div style={styles.copiedTooltip}>
@@ -1056,7 +1065,7 @@ const EventView = ({
                       }}
                       title="View participants"
                     >
-                      <FaUsers />
+                      <FaUsers style={styles.shareButtonIcon} />
                     </button>
                   )}
 
@@ -1066,7 +1075,7 @@ const EventView = ({
                     style={styles.shareButton}
                     title="See more details"
                   >
-                    <FaInfoCircle />
+                    <FaInfoCircle style={styles.shareButtonIcon} />
                   </button>
                 </div>
 
