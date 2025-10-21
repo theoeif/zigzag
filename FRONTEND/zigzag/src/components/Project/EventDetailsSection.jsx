@@ -191,15 +191,15 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
     <div
       style={{
         position: 'fixed',
-        top: '50%',
+        top: '10vh',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translateX(-50%)',
         zIndex: 1000,
         backgroundColor: 'white',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
         borderRadius: '12px',
         padding: '0',
-        width: '80%',
+        width: '90%',
         maxWidth: '500px',
         maxHeight: '80vh',
         overflowY: 'auto'
