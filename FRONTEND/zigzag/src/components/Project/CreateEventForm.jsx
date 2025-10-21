@@ -340,7 +340,15 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       setShowForm(false);
 
       if (onEventCreated) {
-        onEventCreated(createdEvent);
+        // Pass full event data including coordinates and dates for spatiotemporal navigation
+        const eventWithLocation = {
+          ...createdEvent,
+          lat: localizedAddress.latitude,
+          lng: localizedAddress.longitude,
+          start_date: formData.start_time,
+          end_date: formData.end_time
+        };
+        onEventCreated(eventWithLocation);
       }
 
       if (onClose) {
