@@ -138,7 +138,7 @@ if DEFAULT_DB == 'postgres':
     DATABASES['default'] = DATABASES['postgres']
 
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -189,3 +189,23 @@ IOS_APP_STORE_URL = os.getenv('VITE_IOS_APP_STORE_URL', 'https://apps.apple.com/
 ANDROID_PLAY_STORE_URL = os.getenv('VITE_ANDROID_PLAY_STORE_URL', 'https://play.google.com/store/apps/details?id=com.zigzagunique.app')
 DEEP_LINK_SCHEME = os.getenv('VITE_DEEP_LINK_SCHEME', 'zigzag://')
 FRONTEND_URL = os.getenv('VITE_FRONTEND_URL', 'http://localhost:5173')
+
+if not DEBUG:
+    # Force HTTPS
+    SECURE_SSL_REDIRECT = True
+
+    # Secure cookies
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # HTTP Strict Transport Security (HSTS)
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Additional security headers
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    # Optional: Set trusted origins for CSRF (Django 4+)
+    CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
