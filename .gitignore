@@ -1,7 +1,6 @@
 
 
 # required token to make the app works
-config.js
 .env
 
 # external libraries
