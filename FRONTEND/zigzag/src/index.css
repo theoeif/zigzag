@@ -991,6 +991,119 @@ input:checked + .slider:before {
   right: 0;
 }
 
+/* Desktop-only adjustments for left menu */
+@media (min-width: 769px) {
+  .left-menu {
+    width: 25%; /* Reduce from 30% */
+    padding: 1.2rem; /* Reduce from 1.5rem */
+  }
+  
+  .left-menu .menu-header h2 {
+    font-size: 1.2rem; /* Reduce from 1.4rem */
+  }
+  
+  .left-menu .section-header h3 {
+    font-size: 0.95rem; /* Reduce from 1.1rem */
+  }
+  
+  .left-menu .menu-btn {
+    font-size: 0.85rem; /* Reduce from 0.95rem */
+    padding: 0.65rem 0.85rem; /* Reduce from 0.75rem 1rem */
+  }
+  
+  .left-menu .menu-section {
+    padding: 1rem; /* Reduce from 1.25rem */
+  }
+  
+  .left-menu .research-bar input {
+    font-size: 0.85rem; /* Reduce from 0.95rem */
+    padding: 0.65rem; /* Reduce from 0.75rem */
+  }
+  
+  .left-menu .search-results li {
+    font-size: 0.8rem; /* Reduce from 0.9rem */
+    padding: 0.65rem; /* Reduce from 0.75rem */
+  }
+  
+  .left-menu .section-icon {
+    width: 18px; /* Reduce from 20px */
+    height: 18px;
+  }
+  
+  /* FilterMenu desktop adjustments */
+  .filter-menu {
+    width: 25%; /* Reduce from 30% */
+    padding: 1.2rem; /* Reduce from 1.5rem */
+  }
+  
+  .filter-menu .menu-header h2 {
+    font-size: 1.2rem; /* Reduce from 1.4rem */
+  }
+  
+  .filter-menu .section-header h3 {
+    font-size: 0.95rem; /* Reduce from 1.1rem */
+  }
+  
+  .filter-menu .section-icon {
+    width: 18px; /* Reduce from 20px */
+    height: 18px;
+  }
+  
+  .filter-menu .toggle-label {
+    font-size: 0.85rem; /* Reduce from 0.95rem */
+  }
+  
+  .filter-menu .tag-item {
+    padding: 0.65rem; /* Reduce from 0.75rem */
+  }
+  
+  .filter-menu .tag-label {
+    font-size: 0.8rem; /* Reduce from 0.9rem */
+  }
+  
+  .filter-menu .aa-Input {
+    font-size: 0.85rem; /* Reduce from 0.95rem */
+    padding: 0.65rem; /* Reduce from 0.75rem */
+  }
+  
+  .filter-menu .aa-Item {
+    padding: 0.65rem; /* Reduce from 0.75rem */
+    font-size: 0.8rem; /* Reduce from 0.9rem */
+  }
+  
+  .filter-menu .filter-section {
+    padding: 1rem; /* Reduce from 1.25rem */
+  }
+  
+  .filter-menu .switch {
+    width: 44px; /* Reduce from 48px */
+    height: 22px; /* Reduce from 24px */
+  }
+  
+  .filter-menu .slider:before {
+    height: 16px; /* Reduce from 18px */
+    width: 16px; /* Reduce from 18px */
+    left: 3px; /* Adjust positioning */
+    bottom: 3px; /* Adjust positioning */
+  }
+  
+  .filter-menu input:checked + .slider:before {
+    transform: translateX(22px); /* Adjust for smaller switch */
+  }
+  
+  .filter-menu .custom-checkbox {
+    width: 16px; /* Reduce from 18px */
+    height: 16px; /* Reduce from 18px */
+  }
+  
+  .filter-menu .custom-checkbox::after {
+    left: 3px; /* Adjust for smaller checkbox */
+    top: 1px; /* Adjust for smaller checkbox */
+    width: 4px; /* Reduce from 5px */
+    height: 8px; /* Reduce from 10px */
+  }
+}
+
 @media (max-width: 768px) {
   .left-menu {
     width: 66%;
