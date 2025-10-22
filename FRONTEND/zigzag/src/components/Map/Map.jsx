@@ -32,14 +32,12 @@ const Map = ({ isFilterOpen, isLeftMenuOpen, initializeMap, children }) => {
       position: 'relative',
       margin: 0,
       padding: 0,
-      filter: isFilterOpen || isLeftMenuOpen ? 'brightness(50%) blur(5px)' : 'none',
+      filter: 'none',
     }
   };
 
   return (
     <div className="map-container">
-      {/* Conditionally show overlay if filters are open */}
-      {(isFilterOpen || isLeftMenuOpen) && (<div className="overlay" />)}
       {children}
 
       <MapContainer key={mapKey} {...mapProps} />
