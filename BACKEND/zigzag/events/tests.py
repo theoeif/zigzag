@@ -36,5 +36,7 @@ def test_login_throttling():
         time.sleep(0.1)
 
 if __name__ == "__main__":
-    test_registration_throttling()
-    test_login_throttling()
+    #test_registration_throttling()
+    #test_login_throttling()
+    from django.core.management.utils import get_random_secret_key
+    print(get_random_secret_key())
