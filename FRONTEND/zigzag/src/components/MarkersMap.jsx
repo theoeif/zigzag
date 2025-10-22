@@ -1102,7 +1102,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         
       }
     };
-  }, [setMapState]);
+  }, []); // Remove setMapState from dependencies to prevent infinite loop
 
   // Save map state on map movements
   useEffect(() => {
@@ -1131,7 +1131,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       map.off('moveend', saveMapState);
       map.off('zoomend', saveMapState);
     };
-  }, [setMapState]);
+  }, []); // Remove setMapState from dependencies to prevent infinite loop
 
 
   // Fetch friend locations when component mounts
