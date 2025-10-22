@@ -63,7 +63,11 @@ RATELIMIT_ENABLE = False
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'register': os.getenv('THROTTLE_RATE_REGISTER', '10/hour'),
+        'login': os.getenv('THROTTLE_RATE_LOGIN', '10/hour'),
+    }
 }
 
 from datetime import timedelta
