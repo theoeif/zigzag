@@ -117,14 +117,20 @@ WSGI_APPLICATION = 'zigzag.wsgi.application'
 
 import os
 
+# Default to SQLite for development
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
 }
-
-DATABASES['postgres'] ={
+# Use DATABASE_URL if available (Railway, Heroku, etc.)
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    DATABASES['default'] = database_url
+else:
+    # Fallback to individual environment variables for local development
+    DATABASES['postgres'] = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'zigzag'),
         'USER': os.getenv('POSTGRES_USER', 'zigzag'),
@@ -132,10 +138,10 @@ DATABASES['postgres'] ={
         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
-
-DEFAULT_DB = os.getenv('DB_DEFAULT', 'default')  # 'postgres' in production
-if DEFAULT_DB == 'postgres':
-    DATABASES['default'] = DATABASES['postgres']
+    
+    DEFAULT_DB = os.getenv('DB_DEFAULT', 'default')  # 'postgres' in production
+    if DEFAULT_DB == 'postgres':
+        DATABASES['default'] = DATABASES['postgres']
 
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
 CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False')
