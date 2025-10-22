@@ -199,20 +199,20 @@ FRONTEND_URL = os.getenv('VITE_FRONTEND_URL', 'http://localhost:5173')
 
 if not DEBUG:
     # Force HTTPS
-    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', False)
+    # SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', False)
 
-    # Secure cookies
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # # Secure cookies
+    # SESSION_COOKIE_SECURE = True
+    # CSRF_COOKIE_SECURE = True
 
-    # HTTP Strict Transport Security (HSTS)
-    SECURE_HSTS_SECONDS = 3600
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # # HTTP Strict Transport Security (HSTS)
+    # SECURE_HSTS_SECONDS = 3600
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # SECURE_HSTS_PRELOAD = True
 
-    # Additional security headers
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
+    # # Additional security headers
+    # SECURE_BROWSER_XSS_FILTER = True
+    # SECURE_CONTENT_TYPE_NOSNIFF = True
 
-    # Optional: Set trusted origins for CSRF (Django 4+)
+    # # Optional: Set trusted origins for CSRF (Django 4+)
     CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
