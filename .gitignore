@@ -20,10 +20,6 @@ ingest_venv/
 **/.DS_Store
 
 # db
-migrations/
-
-# Tempo
-Tempo/
 
 # capacitor
 dist/
