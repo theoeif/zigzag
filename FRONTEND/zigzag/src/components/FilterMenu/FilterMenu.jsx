@@ -1,6 +1,6 @@
 import React from "react";
 import { OpenCageGeoSearchPlugin } from "@opencage/geosearch-core";
-import GeoSearch from "./GeoSearch";
+import GeoSearch from "./Geosearch";
 import "@algolia/autocomplete-theme-classic";
 import "../../index.css";
 import { OPENCAGE_SEARCH_TOKEN } from "../../config";
