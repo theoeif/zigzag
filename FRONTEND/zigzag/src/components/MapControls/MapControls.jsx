@@ -24,6 +24,17 @@ const MapControls = ({
     setDraftEnd(timeframe.end.toISOString().slice(0, 10));
   }, [timeframe.start, timeframe.end]);
 
+  // Format date for display (more readable format)
+  const formatDateForDisplay = (dateString) => {
+    const date = new Date(dateString);
+    const options = { 
+      month: 'short', 
+      day: 'numeric',
+      ...(isSmallScreen ? {} : { year: 'numeric' })
+    };
+    return date.toLocaleDateString('fr-FR', options);
+  };
+
   // Close date popover on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -68,29 +79,44 @@ const MapControls = ({
       className={`${styles.container} ${isSmallScreen ? styles.containerMobile : ''}`}
     >
       {/* Combined Create Project and Date Range Button */}
-      <div className={`${styles.controlsWrapper} ${isSmallScreen ? styles.controlsWrapperMobile : ''}`}>
+      <div 
+        className={`${styles.controlsWrapper} ${isSmallScreen ? styles.controlsWrapperMobile : ''}`}
+        onClick={() => setIsDatePopoverOpen(!isDatePopoverOpen)}
+        title="Filtrer par date"
+      >
         {/* Create Project Button */}
         <button
-          onClick={onCreateProject}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the date picker
+            onCreateProject();
+          }}
           className={`${styles.createButton} ${isSmallScreen ? styles.createButtonMobile : ''}`}
           title="Créer un projet"
         >
-          +
+          <svg 
+            width={isSmallScreen ? '16' : '18'} 
+            height={isSmallScreen ? '16' : '18'} 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
         </button>
 
-        {/* Date Range Picker Button */}
-        <button
-          onClick={() => setIsDatePopoverOpen(!isDatePopoverOpen)}
-          className={`${styles.dateButton} ${isSmallScreen ? styles.dateButtonMobile : ''}`}
-          title="Filtrer par date"
-        >
+        {/* Date Range Picker Content */}
+        <div className={`${styles.dateButton} ${isSmallScreen ? styles.dateButtonMobile : ''}`}>
           <svg xmlns="http://www.w3.org/2000/svg" width={isSmallScreen ? '14' : '16'} height={isSmallScreen ? '14' : '16'} viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
           </svg>
           <span className={`${styles.dateText} ${isSmallScreen ? styles.dateTextMobile : ''}`}>
-            {draftStart} → {draftEnd}
+            {formatDateForDisplay(draftStart)} → {formatDateForDisplay(draftEnd)}
           </span>
-        </button>
+        </div>
       </div>
 
       {/* Date Range Popover */}

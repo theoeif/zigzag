@@ -19,7 +19,7 @@ const isValidEventId = (eventId) => {
  */
 export const initDeepLinking = (navigate) => {
   // Only initialize if in Capacitor environment
-  if (!window.Capacitor || !window.Capacitor.isNativePlatform) {
+  if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
     console.log('Deep linking: Not in Capacitor app, skipping initialization');
     return;
   }
