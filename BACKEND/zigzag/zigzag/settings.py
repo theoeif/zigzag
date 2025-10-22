@@ -221,24 +221,3 @@ if not DEBUG:
 
     # # Optional: Set trusted origins for CSRF (Django 4+)
     CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
-
-# Add to settings.py for debugging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django.security.csrf': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-    },
-}
-
-# Add this for debugging
-CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
-CSRF_USE_SESSIONS = True
