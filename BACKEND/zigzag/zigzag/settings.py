@@ -178,7 +178,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Circle Calendar Privacy Settings
-CIRCLE_CALENDAR_MIN_MEMBERS = 25
+CIRCLE_CALENDAR_MIN_MEMBERS = os.getenv('CIRCLE_CALENDAR_MIN_MEMBERS')
 
 # Deep Link Configuration
 IOS_APP_STORE_URL = os.getenv('VITE_IOS_APP_STORE_URL', 'https://apps.apple.com/app/zigzag')
