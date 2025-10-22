@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useMediaQuery } from '@mui/material';
+import { useMediaQuery, IconButton } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
 import styles from './MapControls.module.css';
 
 const MapControls = ({
@@ -85,28 +86,17 @@ const MapControls = ({
         title="Filtrer par date"
       >
         {/* Create Project Button */}
-        <button
+        <IconButton
           onClick={(e) => {
             e.stopPropagation(); // Prevent triggering the date picker
             onCreateProject();
           }}
           className={`${styles.createButton} ${isSmallScreen ? styles.createButtonMobile : ''}`}
           title="Créer un projet"
+          size={isSmallScreen ? 'small' : 'medium'}
         >
-          <svg 
-            width={isSmallScreen ? '16' : '18'} 
-            height={isSmallScreen ? '16' : '18'} 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
+          <AddIcon />
+        </IconButton>
 
         {/* Date Range Picker Content */}
         <div className={`${styles.dateButton} ${isSmallScreen ? styles.dateButtonMobile : ''}`}>

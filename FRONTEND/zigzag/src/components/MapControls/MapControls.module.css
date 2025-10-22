@@ -108,12 +108,12 @@
 }
 
 .createButton {
-  background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
-  border: none;
-  color: white;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  background: linear-gradient(135deg, #40916c 0%, #52b788 100%) !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 48px !important;
+  height: 48px !important;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -126,6 +126,8 @@
   position: relative;
   overflow: hidden;
   animation: breathe 4s ease-in-out infinite;
+  min-width: 48px !important;
+  padding: 0 !important;
 }
 
 .createButton::before {
@@ -142,13 +144,14 @@
 }
 
 .createButtonMobile {
-  width: 40px;
-  height: 40px;
+  width: 44px !important;
+  height: 44px !important;
   font-size: 0;
+  min-width: 44px !important;
 }
 
 .createButton:hover {
-  background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+  background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%) !important;
   box-shadow: 0 4px 16px rgba(64, 145, 108, 0.4);
   animation: none;
 }
