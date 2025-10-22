@@ -116,6 +116,7 @@ WSGI_APPLICATION = 'zigzag.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 import os
+import dj_database_url
 
 # Default to SQLite for development
 DATABASES = {
@@ -127,7 +128,7 @@ DATABASES = {
 # Use DATABASE_URL if available (Railway, Heroku, etc.)
 database_url = os.getenv('DATABASE_URL')
 if database_url:
-    DATABASES['default'] = database_url
+    DATABASES['default'] = dj_database_url.parse(database_url)
 else:
     # Fallback to individual environment variables for local development
     DATABASES['postgres'] = {
