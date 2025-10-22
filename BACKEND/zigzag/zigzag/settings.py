@@ -202,11 +202,11 @@ FRONTEND_URL = os.getenv('VITE_FRONTEND_URL', 'http://localhost:5173')
 
 if not DEBUG:
     # Force HTTPS
-    # SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', False)
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', False)
 
     # # Secure cookies
-    # SESSION_COOKIE_SECURE = True
-    # CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
     # # HTTP Strict Transport Security (HSTS)
     # SECURE_HSTS_SECONDS = 3600
