@@ -16,6 +16,7 @@ dependencies = [
     "psycopg[binary]>=3.2.1",
     "icalendar>=5.0.11",
     "python-dotenv>=1.0.0",
+    "dj-database-url>=2.1.0",
 ]
 authors = [
   {name = "BlueMountain"},
