@@ -519,10 +519,12 @@ class MultiCircleMembersView(APIView):
 
 # from django_ratelimit.decorators import ratelimit
 from rest_framework_simplejwt.tokens import RefreshToken
+from events.throttles import RegisterThrottle, LoginThrottle
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [RegisterThrottle] if not settings.DEBUG else []
 
     # @ratelimit(key='ip', rate='5/h', block=True)  # Limit to 5 requests per hour per IP
     def post(self, request, *args, **kwargs):
@@ -780,3 +782,16 @@ class CircleGreyEventsView(APIView):
             "total_members": total_members,
             "selected_circles": len(circles)
         }, status=status.HTTP_200_OK)
+
+
+class ThrottledTokenObtainPairView(APIView):
+    """
+    Throttled version of TokenObtainPairView for login rate limiting.
+    """
+    permission_classes = [AllowAny]
+    throttle_classes = [LoginThrottle] if not settings.DEBUG else []
+
+    def post(self, request, *args, **kwargs):
+        from rest_framework_simplejwt.views import TokenObtainPairView
+        view = TokenObtainPairView.as_view()
+        return view(request._request, *args, **kwargs)

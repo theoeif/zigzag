@@ -21,7 +21,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenBlacklistView,
 )
-from events.views import RegisterView
+from events.views import RegisterView, ThrottledTokenObtainPairView
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,8 +33,8 @@ urlpatterns = [
     # customer registration for limiting bots
     path('api/register/', RegisterView.as_view(), name='register'),
 
-    # token urls
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # token urls - use throttled version in production, non-throttled in development
+    path('api/token/', ThrottledTokenObtainPairView.as_view() if not settings.DEBUG else TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # to delete refresh_token after log out
 ]
