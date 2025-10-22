@@ -18,6 +18,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "dj-database-url>=2.1.0",
     "whitenoise>=6.0.0",
+    "django-ipware>=5.0.0",
 ]
 authors = [
   {name = "BlueMountain"},
