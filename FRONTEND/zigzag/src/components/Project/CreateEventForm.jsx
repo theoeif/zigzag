@@ -619,7 +619,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 className={styles.checkboxInputProject}
               />
               <label htmlFor="event_shared" className={styles.checkboxLabelProject}>
-                Événement partagé
+                Événement ouvert
                 <div className={styles.infoIconProject}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
@@ -641,7 +641,15 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 className={styles.checkboxInputProject}
               />
               <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
-                Lien de partage
+                Lien interne
+                <div className={styles.infoIconProject}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                  </svg>
+                  <div className={styles.tooltipProject}>
+                    Lien de partage entre les membres des Cercles
+                  </div>
+                </div>
               </label>
             </div>
           </fieldset>
