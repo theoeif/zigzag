@@ -2819,7 +2819,6 @@ button.manageButtonProject.activeProject {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 13px;
-  white-space: nowrap;
   z-index: 1000;
   bottom: 125%;
   left: 50%;
@@ -2828,7 +2827,8 @@ button.manageButtonProject.activeProject {
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  max-width: 250px;
+  max-width: 450px;
+  min-width: 300px; /* Add this to force longer lines */
   white-space: normal;
   text-align: center;
 }
