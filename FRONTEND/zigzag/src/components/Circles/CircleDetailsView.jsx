@@ -165,7 +165,7 @@ const AddUsersModal = ({ open, onClose, onAdd, circle, existingMembers }) => {
           variant="contained"
           className="addUsersConfirm"
         >
-          Ajouter les Utilisateurs Sélectionnés ({selectedUsers.length})
+          Ajouter ({selectedUsers.length})
         </Button>
       </DialogActions>
     </Dialog>
