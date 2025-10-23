@@ -32,14 +32,18 @@ const Map = ({ isFilterOpen, isLeftMenuOpen, initializeMap, children }) => {
       position: 'relative',
       margin: 0,
       padding: 0,
-      filter: 'none',
+      // filter: isFilterOpen || isLeftMenuOpen ? 'brightness(50%)' : 'none',
     }
   };
 
   return (
-    <div className="map-container">
+    <div 
+    className="map-container"
+    style={{
+      filter: isFilterOpen || isLeftMenuOpen ? 'brightness(50%)' : 'none',
+    }}
+    >
       {children}
-
       <MapContainer key={mapKey} {...mapProps} />
     </div>
   );
