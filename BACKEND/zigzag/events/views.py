@@ -50,7 +50,6 @@ class EventViewSet(viewsets.ModelViewSet):
         Override get_object to handle invitation-based access.
         """
         event_id = self.kwargs.get('id')
-        user = self.request.user
         
         # First try the normal permission-based access
         try:
