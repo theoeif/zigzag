@@ -357,8 +357,8 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
 
         {/* Links section */}
         <div style={{ marginBottom: '15px' }}>
-          {/* Copy link button - only show if can't generate invite */}
-          {!canGenerateInvite && event.shareable_link !== false && (event.public_link || event.id) && (
+          {/* Copy link button - show if shareable_link is not false */}
+          {event.shareable_link !== false && (event.public_link || event.id) && (
             <div className={styles.detailItemProject} style={{ marginBottom: '8px' }}>
               <FaLink style={{ fontSize: '1.1rem', color: '#40916c', minWidth: '20px', flexShrink: 0 }} />
               <button
