@@ -385,6 +385,7 @@ ulProject li a:hover {
   justify-content: center;
   z-index: 3000; /* ensure above other UI on mobile */
   overflow: hidden; /* Prevent background scrolling */
+  padding-top: calc(60px + env(safe-area-inset-top) + 20px); /* Add space for header + safe area + margin */
 }
 
 /* Prevent body scroll when modal is open */
@@ -426,6 +427,8 @@ body.modal-open {
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
   /* Custom scrollbar styling */
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 #f1f1f1;
@@ -595,7 +598,7 @@ body.modal-open {
 /* Button Group */
 .buttonGroupProject {
   text-align: center;
-  margin-top: 12px;
+  margin-top: auto; /* Push button to bottom */
   padding: 8px 0;
   background: white;
   border-top: 1px solid #f0f0f0;
@@ -2220,7 +2223,7 @@ button.manageButtonProject.activeProject {
   /* Explicitly disable any animations or transitions */
   transition: none !important;
   animation: none !important;
-  backdrop-filter: blur(2px);
+  padding-top: calc(60px + env(safe-area-inset-top) + 20px); /* Add space for header + safe area + margin */
 }
 
 .circleMembersPopupProjectNoAnimation {
@@ -2868,6 +2871,14 @@ button.manageButtonProject.activeProject {
   gap: 8px;
 }
 
+/* Event Form Base Styles */
+.eventFormProject {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* Allow flex shrinking */
+}
+
 /* Final overrides – balanced fieldsets in the event forms */
 .eventFormProject fieldset.fieldsetGroupProject {
   padding: 8px 12px 12px !important;   /* comfortable padding */
@@ -2906,6 +2917,6 @@ button.manageButtonProject.activeProject {
 
 /* Submit area – balanced */
 .eventFormProject .buttonGroupProject {
-  margin-top: 16px !important;         /* comfortable gap above submit */
+  margin-top: auto !important;         /* Push button to bottom */
   padding: 6px 0 !important;
 }
