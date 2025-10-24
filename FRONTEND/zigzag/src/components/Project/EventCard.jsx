@@ -104,10 +104,50 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     return date.toLocaleDateString('fr-FR', { weekday: 'short' });
   };
 
-  // Toggle between showing start date and end date
+  // Check if event duration is less than 1 day
+  const isEventLessThanOneDay = () => {
+    if (!event.end_time) return false;
+    const startTime = new Date(event.start_time);
+    const endTime = new Date(event.end_time);
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const durationDays = durationMs / (1000 * 60 * 60 * 24);
+    return durationDays < 1;
+  };
+
+  // Format hour interval for short events (24-hour format, no AM/PM) - returns object for two-line display
+  const formatHourInterval = () => {
+    if (!event.end_time) return { start: '', end: '' };
+    
+    // Format time in 24-hour format without AM/PM
+    const formatTime24Hour = (dateString) => {
+      const date = new Date(dateString);
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      
+      // If both hours and minutes are 0 (midnight), don't show the time
+      if (hours === 0 && minutes === 0) {
+        return "";
+      }
+      
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    };
+    
+    const startTimeStr = formatTime24Hour(event.start_time);
+    const endTimeStr = formatTime24Hour(event.end_time);
+    
+    return { start: startTimeStr, end: endTimeStr };
+  };
+
+  // Toggle between showing start date and end date (or hour interval for short events)
   const toggleDateDisplay = () => {
     if (event.end_time) {
-      setShowEndDate(!showEndDate);
+      if (isEventLessThanOneDay()) {
+        // For events < 1 day, toggle between date and hour interval
+        setShowEndDate(!showEndDate);
+      } else {
+        // For events >= 1 day, toggle between start and end date
+        setShowEndDate(!showEndDate);
+      }
     }
   };
 
@@ -438,10 +478,25 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         onClick={toggleDateDisplay}
         title={event.end_time ? "Click to toggle date" : ""}
       >
-        <div className={styles.dayNameProject}>{getDayName(showEndDate && event.end_time ? event.end_time : event.start_time)}</div>
+        {/* Only show day name when not displaying hour interval for short events */}
+        {!(showEndDate && event.end_time && isEventLessThanOneDay()) && (
+          <div className={styles.dayNameProject}>{getDayName(showEndDate && event.end_time ? event.end_time : event.start_time)}</div>
+        )}
         <div className={styles.dateTimeCompactProject}>
           {showEndDate && event.end_time ? (
-            formatDateOnly(event.end_time)
+            isEventLessThanOneDay() ? (
+              (() => {
+                const timeInterval = formatHourInterval();
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                    {timeInterval.start && <div>{timeInterval.start}</div>}
+                    {timeInterval.end && <div>{timeInterval.end}</div>}
+                  </div>
+                );
+              })()
+            ) : (
+              formatDateOnly(event.end_time)
+            )
           ) : (
             formatDateOnly(event.start_time)
           )}
