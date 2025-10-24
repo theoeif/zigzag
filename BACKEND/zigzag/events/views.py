@@ -190,7 +190,9 @@ class EventViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, event)
 
         address_data = request.data.get("address")
-        event_data = {k: v for k, v in request.data.items() if k != "address"}  # Exclude address from event update
+        # Extract generate_invitation_link before creating event_data
+        generate_invitation_link = request.data.get("generate_invitation_link")
+        event_data = {k: v for k, v in request.data.items() if k not in ["address", "generate_invitation_link"]}  # Exclude address and generate_invitation_link from event update
 
         # Enforce field-level rules
         user_is_creator = (request.user == event.creator)
@@ -256,6 +258,54 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
+        # Handle invitation link toggle (after event is updated)
+        if generate_invitation_link is not None:
+            # Check permissions: creator OR (event shared AND user is circle member)
+            is_creator = event.creator == request.user
+            is_circle_member = False
+            if event.event_shared and event.circles.exists():
+                is_circle_member = event.circles.filter(members=request.user).exists()
+            
+            can_manage_invite = is_creator or (event.event_shared and is_circle_member)
+            
+            if not can_manage_invite:
+                return Response(
+                    {"error": "You don't have permission to manage invitation links for this event"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            if generate_invitation_link:
+                # Toggle ON: Create token and circle if they don't exist
+                if not event.invitation_token:
+                    event.invitation_token = generate_invitation_token()
+                    event.save()
+                
+                # Check if invitation circle exists
+                invitation_circle = Circle.objects.filter(
+                    is_invitation_circle=True,
+                    linked_event=event
+                ).first()
+                
+                if not invitation_circle:
+                    # Create invitation circle with default tag
+                    from .models import Tag
+                    default_tag = Tag.objects.get(id=2)
+                    invitation_circle = Circle.objects.create(
+                        name="Invités",
+                        creator=request.user,
+                        is_invitation_circle=True,
+                        linked_event=event
+                    )
+                    invitation_circle.members.add(request.user)
+                    invitation_circle.categories.add(default_tag)
+                    event.circles.add(invitation_circle)
+            
+            else:
+                # Toggle OFF: Remove token but KEEP the circle
+                if event.invitation_token:
+                    event.invitation_token = None
+                    event.save()
+
         # Return the updated event
         response_serializer = self.get_serializer(event)
         return Response(response_serializer.data)
@@ -266,7 +316,9 @@ class EventViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, event)
 
         address_data = request.data.get("address", None)
-        event_data = {k: v for k, v in request.data.items() if k != "address"}  # Exclude address from event update
+        # Extract generate_invitation_link before creating event_data
+        generate_invitation_link = request.data.get("generate_invitation_link")
+        event_data = {k: v for k, v in request.data.items() if k not in ["address", "generate_invitation_link"]}  # Exclude address and generate_invitation_link from event update
 
         # Enforce field-level rules
         user_is_creator = (request.user == event.creator)
@@ -330,6 +382,54 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(event, data=event_data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+
+        # Handle invitation link toggle (after event is updated)
+        if generate_invitation_link is not None:
+            # Check permissions: creator OR (event shared AND user is circle member)
+            is_creator = event.creator == request.user
+            is_circle_member = False
+            if event.event_shared and event.circles.exists():
+                is_circle_member = event.circles.filter(members=request.user).exists()
+            
+            can_manage_invite = is_creator or (event.event_shared and is_circle_member)
+            
+            if not can_manage_invite:
+                return Response(
+                    {"error": "You don't have permission to manage invitation links for this event"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            if generate_invitation_link:
+                # Toggle ON: Create token and circle if they don't exist
+                if not event.invitation_token:
+                    event.invitation_token = generate_invitation_token()
+                    event.save()
+                
+                # Check if invitation circle exists
+                invitation_circle = Circle.objects.filter(
+                    is_invitation_circle=True,
+                    linked_event=event
+                ).first()
+                
+                if not invitation_circle:
+                    # Create invitation circle with default tag
+                    from .models import Tag
+                    default_tag = Tag.objects.get(id=2)
+                    invitation_circle = Circle.objects.create(
+                        name="Invités",
+                        creator=request.user,
+                        is_invitation_circle=True,
+                        linked_event=event
+                    )
+                    invitation_circle.members.add(request.user)
+                    invitation_circle.categories.add(default_tag)
+                    event.circles.add(invitation_circle)
+            
+            else:
+                # Toggle OFF: Remove token but KEEP the circle
+                if event.invitation_token:
+                    event.invitation_token = None
+                    event.save()
 
         # Return the updated event with full address details
         response_serializer = self.get_serializer(event)
