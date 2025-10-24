@@ -987,3 +987,47 @@ export const changePassword = async (passwordData) => {
     throw error;
   }
 };
+
+// Generate invitation link for an event
+export const generateEventInvite = async (eventId) => {
+  try {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      token = await refreshAccessToken();
+      if (!token) throw new Error('Authentication required');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}events/event/${eventId}/generate_invite/`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error generating event invite:', error);
+    throw error;
+  }
+};
+
+// Accept invitation to join event's invitation circle
+export const acceptEventInvite = async (eventId, invitationToken) => {
+  try {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      token = await refreshAccessToken();
+      if (!token) throw new Error('Authentication required');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}events/event/${eventId}/accept_invite/`,
+      { invitation_token: invitationToken },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error accepting event invite:', error);
+    throw error;
+  }
+};

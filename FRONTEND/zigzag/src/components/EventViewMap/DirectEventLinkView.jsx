@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import EventView from "./EventView/EventView";
-import { fetchDirectEvent } from "../../api/api";
+import { fetchDirectEvent, acceptEventInvite } from "../../api/api";
 import { AuthContext } from "../../contexts/AuthProvider";
 import { MapContext } from "../../contexts/MapContext";
 
@@ -33,6 +33,20 @@ const DirectEventLinkView = () => {
         const data = await fetchDirectEvent(id);
         setEventData(data);
         setError(null);
+        
+        // Check for invitation token in URL and process it if user is authenticated
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteToken = urlParams.get('invite_token');
+        if (inviteToken && isConnected) {
+          try {
+            await acceptEventInvite(id, inviteToken);
+            console.log('Successfully joined event via invitation');
+            // Optionally show a success message or notification
+          } catch (inviteError) {
+            console.error('Error accepting invitation:', inviteError);
+            // Don't show error to user, just log it
+          }
+        }
       } catch (err) {
         console.error("DirectEventLinkView: Error loading event:", err);
         setError("Could not load this event.");

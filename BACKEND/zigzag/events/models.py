@@ -96,6 +96,10 @@ class Circle(models.Model):
     # categories for filtering circles
     categories = models.ManyToManyField(Tag, related_name='circles', blank=True)
 
+    # Invitation circle fields
+    is_invitation_circle = models.BooleanField(default=False, help_text="True if this is an invitation circle for an event")
+    linked_event = models.ForeignKey('Event', on_delete=models.CASCADE, null=True, blank=True, related_name='invitation_circles')
+
     def __str__(self):
         return self.name
 
@@ -116,6 +120,9 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     shareable_link = models.BooleanField(default=True)
     event_shared = models.BooleanField(default=False, help_text="If True, any member of associated circles can edit this event")
+    
+    # Invitation token for generating invitation links
+    invitation_token = models.CharField(max_length=64, unique=True, null=True, blank=True, help_text="Token for invitation links")
 
     def __str__(self):
         return self.title

@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import {
-  FaMapMarkerAlt, FaClock, FaCalendarAlt, FaLink, FaUsers, FaDirections
+  FaMapMarkerAlt, FaClock, FaCalendarAlt, FaLink, FaUsers, FaDirections, FaUserFriends
 } from "react-icons/fa";
 import { FRONTEND_URL } from '../../config';
+import { generateEventInvite } from '../../api/api';
 import styles from './Project.module.css';
 
 const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) => {
   const [urlCopied, setUrlCopied] = useState(false);
   const [showCirclesDropdown, setShowCirclesDropdown] = useState(false);
+  
+  // Invitation link state
+  const [invitationUrl, setInvitationUrl] = useState('');
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
+  const [invitationError, setInvitationError] = useState(null);
+  const [canGenerateInvite, setCanGenerateInvite] = useState(false);
 
   // Format date including the year, conditionally showing time
   const formatFullDate = (dateString) => {
@@ -87,6 +94,62 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
     }
   };
 
+  // Check if user can generate invitations (creator or circle member if event_shared)
+  React.useEffect(() => {
+    if (event) {
+      const currentUsername = localStorage.getItem("username");
+      const canInvite = event.creator === currentUsername || 
+        (event.event_shared && event.circles && event.circles.length > 0);
+      setCanGenerateInvite(canInvite);
+    }
+  }, [event]);
+
+  // Generate invitation link
+  const handleGenerateInvite = async () => {
+    try {
+      setInvitationError(null);
+      const response = await generateEventInvite(event.id);
+      setInvitationUrl(response.invitation_url);
+      setShowInvitationModal(true);
+    } catch (error) {
+      console.error("Error generating invitation link:", error);
+      setInvitationError("Failed to generate invitation link");
+    }
+  };
+
+  // Copy invitation link to clipboard
+  const handleCopyInviteLink = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(invitationUrl);
+        alert("Lien d'invitation copié");
+      } else {
+        // Fallback for mobile browsers and non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = invitationUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        textArea.style.opacity = '0';
+        textArea.style.pointerEvents = 'none';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        if (successful) {
+          alert("Lien d'invitation copié");
+        } else {
+          throw new Error('execCommand failed');
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (error) {
+      console.error("Error copying invitation link:", error);
+      alert("Échec de la copie du lien d'invitation");
+    }
+  };
+
   // Function to open Google Maps directly, preferably in the native app if installed
   const openGoogleMaps = (e) => {
     e.preventDefault();
@@ -155,7 +218,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
     // Now the circles data should already have id and name properties
     return event.circles.map(circle => ({
       id: circle.id,
-      name: circle.name || `Circle ${circle.id}`
+      name: circle.is_invitation_circle ? 'Cercle invités' : (circle.name || `Circle ${circle.id}`)
     }));
   };
 
@@ -170,7 +233,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
 
     // Make sure we have valid data
     const circleId = circle.id;
-    const circleName = circle.name || `Circle ${circleId}`;
+    const circleName = circle.is_invitation_circle ? 'Cercle invités' : (circle.name || `Circle ${circleId}`);
 
     // Only proceed if we have an ID
     if (circleId !== undefined && circleId !== null) {
@@ -316,6 +379,43 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
               </button>
             </div>
           )}
+
+          {/* Invitation link button */}
+          {canGenerateInvite && (
+            <div className={styles.detailItemProject}>
+              <FaUserFriends style={{ fontSize: '1.1rem', color: '#40916c', minWidth: '20px', flexShrink: 0 }} />
+              <button
+                onClick={handleGenerateInvite}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0',
+                  color: '#40916c',
+                  transition: 'all 0.2s ease',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f0f7f4';
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.transform = 'scale(1)';
+                }}
+                title="Générer un lien d'invitation"
+              >
+                <span><strong>Lien d'invitation</strong></span>
+              </button>
+              {invitationError && (
+                <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>
+                  {invitationError}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Show all circles when expanded */}
@@ -365,7 +465,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
                     }}
                   >
                     <FaUsers style={{ fontSize: '0.8rem', color: '#2d6a4f' }} />
-                    <span>{circle.name || `Circle ${circle.id}`}</span>
+                    <span>{circle.is_invitation_circle ? 'Cercle invités' : (circle.name || `Circle ${circle.id}`)}</span>
                   </div>
                 ))}
 
@@ -409,6 +509,76 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
           )}
         </div>
       </div>
+
+      {/* Invitation Link Modal */}
+      {showInvitationModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            maxWidth: '500px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }}>
+            <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>Lien d'invitation généré</h3>
+            <p style={{ margin: '0 0 15px 0', color: '#666' }}>
+              Partagez ce lien pour inviter d'autres personnes à rejoindre l'événement :
+            </p>
+            <div style={{
+              backgroundColor: '#f5f5f5',
+              padding: '10px',
+              borderRadius: '4px',
+              marginBottom: '15px',
+              wordBreak: 'break-all',
+              fontSize: '14px',
+              fontFamily: 'monospace'
+            }}>
+              {invitationUrl}
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleCopyInviteLink}
+                style={{
+                  backgroundColor: '#40916c',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Copier le lien
+              </button>
+              <button
+                onClick={() => setShowInvitationModal(false)}
+                style={{
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
