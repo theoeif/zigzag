@@ -16,7 +16,7 @@ class CustomUserAdmin(UserAdmin):
     inlines = [UserAddressInline]
     fieldsets = (
         ('Personal Info', {
-            'fields': ('username', 'first_name', 'last_name', 'email'),
+            'fields': ('username', 'password', 'first_name', 'last_name', 'email'),
         }),
         ('Friends', {'fields': ('friends_section',)}),
         ('Permissions', {
