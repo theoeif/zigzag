@@ -745,7 +745,6 @@ li {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(2px);
   overflow: hidden;
   touch-action: none;
   overscroll-behavior: contain;

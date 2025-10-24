@@ -249,20 +249,22 @@ const Profile = () => {
         />
       </div>
 
-      {/* Floating save button */}
-      <button
-        onClick={handleSaveProfile}
-        className={`${styles.saveButton} ${saveStatus ? styles[saveStatus] : ''}`}
-        disabled={saveStatus === 'saving' || saveStatus === 'saved'}
-      >
-        {saveStatus === 'saving' ? (
-          <>Sauvegarde...</>
-        ) : saveStatus === 'saved' ? (
-          <><FaCheck className={styles.checkmark} /> Sauvegardé !</>
-        ) : (
-          <><FaSave /> Sauvegarder</>
-        )}
-      </button>
+      {/* Floating save button - hidden when AddAddressPopup is open */}
+      {!showAddAddressPopup && (
+        <button
+          onClick={handleSaveProfile}
+          className={`${styles.saveButton} ${saveStatus ? styles[saveStatus] : ''}`}
+          disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+        >
+          {saveStatus === 'saving' ? (
+            <>Sauvegarde...</>
+          ) : saveStatus === 'saved' ? (
+            <><FaCheck className={styles.checkmark} /> Sauvegardé !</>
+          ) : (
+            <><FaSave /> Sauvegarder</>
+          )}
+        </button>
+      )}
     </div>
   );
 };
