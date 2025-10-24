@@ -620,8 +620,10 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 onChange={handleInputChange}
                 className={styles.checkboxInputProject}
               />
-              <label htmlFor="event_shared" className={styles.checkboxLabelProject}>
-                Événement ouvert
+              <div className={styles.checkboxLabelContainer}>
+                <label htmlFor="event_shared" className={styles.checkboxLabelProject}>
+                  Événement ouvert
+                </label>
                 <div className={styles.infoIconProject}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
@@ -630,7 +632,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                     Tous les membres des cercles peuvent modifier la description et la date
                   </div>
                 </div>
-              </label>
+              </div>
             </div>
 
             <div className={styles.checkboxContainerProject}>
@@ -642,8 +644,10 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 onChange={handleInputChange}
                 className={styles.checkboxInputProject}
               />
-              <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
-                Lien interne
+              <div className={styles.checkboxLabelContainer}>
+                <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
+                  Lien interne
+                </label>
                 <div className={styles.infoIconProject}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
@@ -652,7 +656,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                     Lien de partage entre les membres des Cercles
                   </div>
                 </div>
-              </label>
+              </div>
             </div>
 
             <div className={styles.checkboxContainerProject}>
@@ -664,17 +668,19 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 onChange={handleInputChange}
                 className={styles.checkboxInputProject}
               />
-              <label htmlFor="generate_invitation_link" className={styles.checkboxLabelProject}>
-                Lien d'invitation
+              <div className={styles.checkboxLabelContainer}>
+                <label htmlFor="generate_invitation_link" className={styles.checkboxLabelProject}>
+                  Lien d'invitation
+                </label>
                 <div className={styles.infoIconProject}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                   </svg>
                   <div className={styles.tooltipProject}>
-                    Génère un lien d'invitation pour permettre à d'autres personnes de rejoindre l'événement
+                    Génère un lien d'invitation pour des personnes externes
                   </div>
                 </div>
-              </label>
+              </div>
             </div>
           </fieldset>
 
