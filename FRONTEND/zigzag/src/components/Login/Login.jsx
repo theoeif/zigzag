@@ -182,7 +182,11 @@ const Login = () => {
           Don't have an account?{" "}
           <button
             type="button"
-            onClick={() => navigate('/create-account')}
+            onClick={() => {
+              const currentRedirect = new URLSearchParams(location.search).get('redirect');
+              const redirectParam = currentRedirect ? `?redirect=${encodeURIComponent(currentRedirect)}` : '';
+              navigate(`/create-account${redirectParam}`);
+            }}
             className={styles.signupLink}
           >
             Sign Up
