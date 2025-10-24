@@ -385,6 +385,7 @@ ulProject li a:hover {
   justify-content: center;
   z-index: 3000; /* ensure above other UI on mobile */
   overflow: hidden; /* Prevent background scrolling */
+  padding-top: calc(60px + env(safe-area-inset-top) + 20px); /* Add space for header + safe area + margin */
 }
 
 /* Prevent body scroll when modal is open */
@@ -426,6 +427,8 @@ body.modal-open {
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
   /* Custom scrollbar styling */
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 #f1f1f1;
@@ -595,7 +598,7 @@ body.modal-open {
 /* Button Group */
 .buttonGroupProject {
   text-align: center;
-  margin-top: 12px;
+  margin-top: auto; /* Push button to bottom */
   padding: 8px 0;
   background: white;
   border-top: 1px solid #f0f0f0;
@@ -679,6 +682,9 @@ body.modal-open {
 .checkboxLabelProject {
   font-size: 1rem;
   color: #333;
+  cursor: pointer;
+  flex: 1;
+  user-select: none;
 }
 
 /* Add Project Button */
@@ -1110,7 +1116,12 @@ body.modal-open {
   text-align: center;
   border: 1px solid #e9ecef;
   min-width: 100px;
+  min-height: 70px; /* Increased height to better accommodate hour interval display */
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .dayNameProject {
@@ -1125,6 +1136,17 @@ body.modal-open {
   color: #6c757d;
   white-space: nowrap;
   margin-top: 2px;
+}
+
+.dateTimeCompactProject {
+  font-size: 0.9rem;
+  color: #6c757d;
+  white-space: nowrap;
+  font-weight: bold;
+  min-height: 1.2em; /* Ensure consistent height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Main Event Info - Adjusted for bigger date badge */
@@ -2217,7 +2239,7 @@ button.manageButtonProject.activeProject {
   /* Explicitly disable any animations or transitions */
   transition: none !important;
   animation: none !important;
-  backdrop-filter: blur(2px);
+  padding-top: calc(60px + env(safe-area-inset-top) + 20px); /* Add space for header + safe area + margin */
 }
 
 .circleMembersPopupProjectNoAnimation {
@@ -2797,15 +2819,23 @@ button.manageButtonProject.activeProject {
   margin-bottom: 6px; /* keep compact below */
 }
 
+/* Container pour label + icône d'info */
+.checkboxLabelContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
 /* Info icon and tooltip styles */
 .infoIconProject {
   color: #40916c;
   font-size: 16px;
-  margin-left: 8px;
   cursor: help;
   position: relative;
   display: inline-block;
   vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .infoIconProject:hover {
@@ -2819,25 +2849,26 @@ button.manageButtonProject.activeProject {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 13px;
-  z-index: 1000;
+  z-index: 1001;
   bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: -200px;
+  transform: none;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  max-width: 450px;
-  min-width: 300px; /* Add this to force longer lines */
+  min-width : 200px;
+  max-width: 280px;
   white-space: normal;
   text-align: center;
+  pointer-events: none;
 }
 
 .tooltipProject::after {
   content: "";
   position: absolute;
   top: 100%;
-  left: 50%;
+  right: 10px; 
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
@@ -2854,6 +2885,14 @@ button.manageButtonProject.activeProject {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Event Form Base Styles */
+.eventFormProject {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* Allow flex shrinking */
 }
 
 /* Final overrides – balanced fieldsets in the event forms */
@@ -2894,6 +2933,6 @@ button.manageButtonProject.activeProject {
 
 /* Submit area – balanced */
 .eventFormProject .buttonGroupProject {
-  margin-top: 16px !important;         /* comfortable gap above submit */
+  margin-top: auto !important;         /* Push button to bottom */
   padding: 6px 0 !important;
 }

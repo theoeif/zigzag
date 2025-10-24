@@ -333,7 +333,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
 
         <div className={styles.fullDescriptionProject} style={{ marginBottom: '20px' }}>
           <strong>Description</strong>
-          <p>{event.description || "Aucune description fournie pour cet événement."}</p>
+          <div style={{ whiteSpace: 'pre-line' }}>{event.description || "Aucune description fournie pour cet événement."}</div>
         </div>
 
         {/* Dates section */}
