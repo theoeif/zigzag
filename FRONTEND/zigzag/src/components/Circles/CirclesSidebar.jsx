@@ -157,11 +157,12 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
     onSelectCircle(newCircle);
   };
 
-  // Separate circles into created by user and others
-  const createdCircles = circles.filter(circle =>
+  // Filter out invitation circles and separate into created by user and others
+  const regularCircles = circles.filter(circle => !circle.is_invitation_circle);
+  const createdCircles = regularCircles.filter(circle =>
     circle.creator === currentUser?.username
   );
-  const otherCircles = circles.filter(circle =>
+  const otherCircles = regularCircles.filter(circle =>
     circle.creator !== currentUser?.username
   );
 

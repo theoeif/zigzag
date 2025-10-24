@@ -32,8 +32,8 @@ export const initDeepLinking = (navigate) => {
     try {
       const url = event.url;
       
-      // Parse: zigzag://event/d36cf853-c4a5-4812-9b28-7738238653f5
-      const match = url.match(/^zigzag:\/\/event\/([a-f0-9-]+)$/i);
+      // Parse: zigzag://event/d36cf853-c4a5-4812-9b28-7738238653f5?invite_token=abc123
+      const match = url.match(/^zigzag:\/\/event\/([a-f0-9-]+)(\?.*)?$/i);
       
       if (match && match[1]) {
         const eventId = match[1];
@@ -42,6 +42,21 @@ export const initDeepLinking = (navigate) => {
         if (!isValidEventId(eventId)) {
           console.error('Deep linking: Invalid event ID format', eventId);
           return;
+        }
+        
+        // Extract invite_token from query string if present
+        let inviteToken = null;
+        if (match[2]) {
+          const queryString = match[2].substring(1); // Remove the '?' 
+          const urlParams = new URLSearchParams(queryString);
+          inviteToken = urlParams.get('invite_token');
+        }
+        
+        // Store invite token in sessionStorage for callback processing
+        if (inviteToken) {
+          sessionStorage.setItem('pending_invite_token', inviteToken);
+          sessionStorage.setItem('pending_event_id', eventId);
+          console.log('Deep linking: Stored invite token for processing');
         }
         
         console.log('Deep linking: Valid event ID, navigating to:', eventId);

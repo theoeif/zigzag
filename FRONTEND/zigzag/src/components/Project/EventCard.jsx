@@ -8,11 +8,17 @@ import {
 import { FRONTEND_URL } from '../../config';
 import styles from './Project.module.css';
 import EventDetailsSection from './EventDetailsSection';
-import { downloadSingleEventICal } from '../../api/api';
+import { downloadSingleEventICal, generateEventInvite } from '../../api/api';
 
 const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
+  
+  // Invitation link state
+  const [invitationUrl, setInvitationUrl] = useState('');
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
+  const [invitationError, setInvitationError] = useState(null);
+  const [canGenerateInvite, setCanGenerateInvite] = useState(false);
 
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
@@ -170,6 +176,59 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     } catch (error) {
       console.error("Error adding event to calendar:", error);
       alert("Erreur lors de l'ajout au calendrier. Veuillez réessayer.");
+    }
+  };
+
+  // Check if user can generate invitations using backend field
+  React.useEffect(() => {
+    if (event) {
+      setCanGenerateInvite(event.can_generate_invite || false);
+    }
+  }, [event]);
+
+  // Generate invitation link
+  const handleGenerateInvite = async () => {
+    try {
+      setInvitationError(null);
+      const response = await generateEventInvite(event.id);
+      setInvitationUrl(response.invitation_url);
+      setShowInvitationModal(true);
+    } catch (error) {
+      console.error("Error generating invitation link:", error);
+      setInvitationError("Échec de la génération du lien d'invitation");
+    }
+  };
+
+  // Copy invitation link to clipboard
+  const handleCopyInviteLink = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(invitationUrl);
+        alert("Lien d'invitation copié");
+      } else {
+        // Fallback for mobile browsers and non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = invitationUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        textArea.style.opacity = '0';
+        textArea.style.pointerEvents = 'none';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        if (successful) {
+          alert("Lien d'invitation copié");
+        } else {
+          throw new Error('execCommand failed');
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (error) {
+      console.error("Error copying invitation link:", error);
+      alert("Échec de la copie du lien d'invitation");
     }
   };
 
@@ -472,8 +531,8 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             <button
               onClick={() => handleViewAllCircleMembers(event, onViewCircleMembers)}
               className={styles.participantsButtonProject}
-              aria-label="View invited"
-              title="View invited"
+              aria-label="Voir les invités"
+              title="Voir les invités"
             >
               <FaUserFriends />
             </button>
@@ -485,18 +544,30 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
           {(event.shareable_link === undefined || event.shareable_link === true) && (
             <button
               className={styles.actionButtonProject}
-              aria-label="Share event link"
+              aria-label="Partager le lien de l'événement"
               onClick={shareEventLink}
-              title="Copy event link"
+              title="Copier le lien de l'événement"
             >
               <FaLink />
             </button>
           )}
 
+          {/* Invitation link button */}
+          {canGenerateInvite && (
+            <button
+              className={styles.actionButtonProject}
+              aria-label="Générer un lien d'invitation"
+              onClick={handleGenerateInvite}
+              title="Générer un lien d'invitation"
+            >
+              <FaUserFriends />
+            </button>
+          )}
+
           <button
             className={styles.actionButtonProject}
-            aria-label="Add to calendar"
-            title="Add to calendar"
+            aria-label="Ajouter au calendrier"
+            title="Ajouter au calendrier"
             onClick={handleAddToCalendar}
           >
             <FaCalendarPlus />
@@ -523,6 +594,81 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         onClose={toggleDetails}
         onViewCircleMembers={onViewCircleMembers}
       />
+
+      {/* Invitation Link Modal */}
+      {showInvitationModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            maxWidth: '500px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }}>
+            <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>Lien d'invitation généré</h3>
+            <p style={{ margin: '0 0 15px 0', color: '#666' }}>
+              Partagez ce lien pour inviter d'autres personnes à rejoindre l'événement :
+            </p>
+            <div style={{
+              backgroundColor: '#f5f5f5',
+              padding: '10px',
+              borderRadius: '4px',
+              marginBottom: '15px',
+              wordBreak: 'break-all',
+              fontSize: '14px',
+              fontFamily: 'monospace'
+            }}>
+              {invitationUrl}
+            </div>
+            {invitationError && (
+              <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginBottom: '15px' }}>
+                {invitationError}
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleCopyInviteLink}
+                style={{
+                  backgroundColor: '#40916c',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Copier le lien
+              </button>
+              <button
+                onClick={() => setShowInvitationModal(false)}
+                style={{
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

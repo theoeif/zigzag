@@ -3,7 +3,8 @@ import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
 import { MapContext } from "../../../contexts/MapContext";
 import {
-  fetchDirectEvent
+  fetchDirectEvent,
+  generateEventInvite
 } from "../../../api/api";
 import { FRONTEND_URL } from "../../../config";
 import MarkersMap from "../../MarkersMap";
@@ -284,6 +285,19 @@ const styles = {
     whiteSpace: "nowrap",
     zIndex: 1000,
   },
+  errorTooltip: {
+    position: "absolute",
+    bottom: "40px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    backgroundColor: "#e74c3c", // Red color for errors
+    color: "white",
+    padding: "5px 10px",
+    borderRadius: "4px",
+    fontSize: "0.75rem",
+    whiteSpace: "nowrap",
+    zIndex: 1000,
+  },
   shareLinkError: {
     position: "absolute",
     bottom: "40px",
@@ -375,8 +389,10 @@ const EventView = ({
   // Event details modal state
   const [showEventDetails, setShowEventDetails] = useState(false);
 
-  // Sharing
-  const [isCreator, setIsCreator] = useState(false);
+  // Invitation link state
+  const [invitationUrl, setInvitationUrl] = useState('');
+  const [invitationError, setInvitationError] = useState(null);
+  const [canGenerateInvite, setCanGenerateInvite] = useState(false);
 
   // Fetch event data
   useEffect(() => {
@@ -386,32 +402,29 @@ const EventView = ({
           setLoading(true);
           const eventData = await fetchDirectEvent(eventId);
           setEvent(eventData);
-
-          // Check if current user is the creator
-          const currentUsername = localStorage.getItem("username");
-          setIsCreator(eventData.creator === currentUsername);
-
-          // Set share URL
+          
+          // Simply use the backend-calculated permission
+          setCanGenerateInvite(eventData.can_generate_invite || false);
+          
           setShareUrl(`${FRONTEND_URL}/event/${eventId}`);
           setError(null);
         } catch (err) {
           console.error("Error loading event:", err);
-          setError("Could not load this event.");
+          setError("Impossible de charger cet événement.");
         } finally {
           setLoading(false);
         }
       };
-
       loadEvent();
     } else {
-      // Initialize with provided data
       setEvent(initialData);
-      const currentUsername = localStorage.getItem("username");
-      setIsCreator(initialData.creator === currentUsername);
+      // Use the backend-calculated permission
+      setCanGenerateInvite(initialData.can_generate_invite || false);
       setShareUrl(`${FRONTEND_URL}/event/${eventId}`);
       setLoading(false);
     }
   }, [eventId, isConnected, initialData]);
+
 
   // Format functions from EventCard
   const formatFullDate = (dateString) => {
@@ -564,7 +577,7 @@ const EventView = ({
 
       // Respect host setting to disable link sharing
       if (event && event.shareable_link === false) {
-        setShareError("The host has disabled link sharing for this event");
+        setShareError("L'hôte a désactivé le partage de lien pour cet événement");
         setTimeout(() => setShareError(null), 3000);
         return;
       }
@@ -607,8 +620,51 @@ const EventView = ({
 
     } catch (error) {
       console.error("Error copying share link:", error);
-      setShareError("Failed to copy link");
+      setShareError("Échec de la copie du lien");
       setTimeout(() => setShareError(null), 3000);
+    }
+  };
+
+  const handleGenerateInvite = async () => {
+    try {
+      setInvitationError(null);
+      const response = await generateEventInvite(eventId);
+      setInvitationUrl(response.invitation_url);
+    } catch (error) {
+      console.error("Error generating invitation link:", error);
+      setInvitationError("Échec de la génération du lien d'invitation");
+    }
+  };
+
+  const handleCopyInviteLink = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(invitationUrl);
+        alert("Lien d'invitation copié");
+      } else {
+        // Fallback for mobile browsers and non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = invitationUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        textArea.style.opacity = '0';
+        textArea.style.pointerEvents = 'none';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        if (successful) {
+          alert("Lien d'invitation copié");
+        } else {
+          throw new Error('execCommand failed');
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (error) {
+      console.error("Error copying invitation link:", error);
+      alert("Échec de la copie du lien d'invitation");
     }
   };
 
@@ -632,7 +688,7 @@ const EventView = ({
       window.open(googleMapsUrl, '_blank');
     } else {
       // If coordinates are not available, try to search by address
-      const address = event.address?.address_line || "Location not available";
+      const address = event.address?.address_line || "Emplacement non disponible";
       const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
       window.open(googleMapsSearchUrl, '_blank');
     }
@@ -672,7 +728,7 @@ const EventView = ({
     const allCircleIds = event.circles.map(circle => circle.id);
 
     setSelectedCircleIds(allCircleIds);
-    setSelectedCircleName("Paricipants");
+    setSelectedCircleName("Participants");
     setShowCircleMembers(true);
   };
 
@@ -744,7 +800,7 @@ const EventView = ({
                 ...styles.eventDateBadge
               }}
               onClick={toggleEndTimeDisplay}
-              title={event.end_time ? "Click to toggle date" : ""}
+              title={event.end_time ? "Cliquer pour changer de date" : ""}
             >
               <div style={styles.dayName}>{getDayName(showEndTime && event.end_time ? event.end_time : event.start_time)}</div>
               <div style={styles.dateTimeCompact}>
@@ -782,12 +838,6 @@ const EventView = ({
                     </div>
                   )}
 
-                  {event.creator && (
-                    <div style={styles.detailItem}>
-                      <FaUser style={styles.detailIcon} />
-                      <span><strong>Host:</strong> {event.creator}</span>
-                    </div>
-                  )}
 
                   {/* Participants */}
                   {event.circles && event.circles.length > 0 && (
@@ -855,7 +905,7 @@ const EventView = ({
                     <button
                       onClick={handleShareEvent}
                       style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
-                      title="Copy event link"
+                      title="Copier lien interne"
                     >
                       <FaLink style={{ 
                         color: shareButtonClicked ? "white" : "inherit",
@@ -869,6 +919,40 @@ const EventView = ({
                 )}
                     </div>
 
+
+                    {/* Invitation link section */}
+                    {canGenerateInvite && (
+                      <div style={{ position: "relative" }}>
+                        {!invitationUrl ? (
+                          <button
+                            onClick={(e) => {
+                              console.log("EventView: Button clicked!");
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleGenerateInvite();
+                            }}
+                            style={styles.shareButton}
+                            title="Générer un lien d'invitation"
+                          >
+                            <FaUserFriends style={styles.shareButtonIcon} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={handleCopyInviteLink}
+                            style={styles.shareButton}
+                            title="Cliquer pour copier le lien d'invitation"
+                          >
+                            <FaUserFriends style={styles.shareButtonIcon} />
+                          </button>
+                        )}
+                        {invitationError && (
+                          <div style={styles.errorTooltip}>
+                            {invitationError}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* View members button - blue like in EventCard */}
                     {event.circles && event.circles.length > 0 && (
                       <button
@@ -878,7 +962,7 @@ const EventView = ({
                           backgroundColor: "#e3f2fd",
                           color: "#2196F3"
                         }}
-                        title="View participants"
+                        title="Participants"
                       >
                         <FaUsers style={styles.shareButtonIcon} />
                       </button>
@@ -888,7 +972,7 @@ const EventView = ({
                     <button
                       onClick={handleSeeMore}
                       style={styles.shareButton}
-                      title="See more details"
+                      title="Plus d'informations"
                     >
                       <FaInfoCircle style={styles.shareButtonIcon} />
                     </button>
@@ -972,7 +1056,7 @@ const EventView = ({
               ...styles.eventDateBadge
             }}
             onClick={toggleEndTimeDisplay}
-            title={event.end_time ? "Click to toggle date" : ""}
+            title={event.end_time ? "Cliquer pour changer de date" : ""}
           >
             <div style={styles.dayName}>{getDayName(showEndTime && event.end_time ? event.end_time : event.start_time)}</div>
             <div style={styles.dateTimeCompact}>
@@ -1009,12 +1093,6 @@ const EventView = ({
                   </div>
                 )}
 
-                {event.creator && (
-                  <div style={styles.detailItem}>
-                    <FaUser style={styles.detailIcon} />
-                    <span><strong>Host:</strong> {event.creator}</span>
-                  </div>
-                )}
 
                 {/* Participants */}
                 {event.circles && event.circles.length > 0 && (
@@ -1082,7 +1160,7 @@ const EventView = ({
                     <button
                       onClick={handleShareEvent}
                       style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
-                      title="Copy event link"
+                      title="Copier lien interne"
                     >
                       <FaLink style={{ 
                         color: shareButtonClicked ? "white" : "inherit",
@@ -1096,6 +1174,40 @@ const EventView = ({
                     )}
                   </div>
 
+
+                  {/* Invitation link section */}
+                  {canGenerateInvite && (
+                    <div style={{ position: "relative" }}>
+                      {!invitationUrl ? (
+                        <button
+                          onClick={(e) => {
+                            console.log("EventView: Modal Button clicked!");
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleGenerateInvite();
+                          }}
+                          style={styles.shareButton}
+                          title="Générer un lien d'invitation"
+                        >
+                          <FaUserFriends style={styles.shareButtonIcon} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleCopyInviteLink}
+                          style={styles.shareButton}
+                          title="Cliquer pour copier le lien d'invitation"
+                        >
+                          <FaUserFriends style={styles.shareButtonIcon} />
+                        </button>
+                      )}
+                      {invitationError && (
+                        <div style={styles.errorTooltip}>
+                          {invitationError}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* View members button - blue like in EventCard */}
                   {event.circles && event.circles.length > 0 && (
                     <button
@@ -1105,7 +1217,7 @@ const EventView = ({
                         backgroundColor: "#e3f2fd",
                         color: "#2196F3"
                       }}
-                      title="View participants"
+                      title="Participants"
                     >
                       <FaUsers style={styles.shareButtonIcon} />
                     </button>
@@ -1115,7 +1227,7 @@ const EventView = ({
                   <button
                     onClick={handleSeeMore}
                     style={styles.shareButton}
-                    title="See more details"
+                    title="Plus d'informations"
                   >
                     <FaInfoCircle style={styles.shareButtonIcon} />
                   </button>
