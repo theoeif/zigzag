@@ -679,6 +679,9 @@ body.modal-open {
 .checkboxLabelProject {
   font-size: 1rem;
   color: #333;
+  cursor: pointer;
+  flex: 1;
+  user-select: none;
 }
 
 /* Add Project Button */
@@ -2797,15 +2800,23 @@ button.manageButtonProject.activeProject {
   margin-bottom: 6px; /* keep compact below */
 }
 
+/* Container pour label + icône d'info */
+.checkboxLabelContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
 /* Info icon and tooltip styles */
 .infoIconProject {
   color: #40916c;
   font-size: 16px;
-  margin-left: 8px;
   cursor: help;
   position: relative;
   display: inline-block;
   vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .infoIconProject:hover {
@@ -2819,25 +2830,26 @@ button.manageButtonProject.activeProject {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 13px;
-  z-index: 1000;
+  z-index: 1001;
   bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: -200px;
+  transform: none;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  max-width: 450px;
-  min-width: 300px; /* Add this to force longer lines */
+  min-width : 200px;
+  max-width: 280px;
   white-space: normal;
   text-align: center;
+  pointer-events: none;
 }
 
 .tooltipProject::after {
   content: "";
   position: absolute;
   top: 100%;
-  left: 50%;
+  right: 10px; 
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
