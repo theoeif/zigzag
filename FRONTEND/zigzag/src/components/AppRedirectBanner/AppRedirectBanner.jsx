@@ -10,8 +10,15 @@ const AppRedirectBanner = ({ eventId, onClose }) => {
       return;
     }
 
+    // Check for invite_token in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviteToken = urlParams.get('invite_token');
+    
     // Try to open app with custom scheme
-    const deepLink = `${DEEP_LINK_SCHEME}event/${eventId}`;
+    let deepLink = `${DEEP_LINK_SCHEME}event/${eventId}`;
+    if (inviteToken) {
+      deepLink += `?invite_token=${inviteToken}`;
+    }
     window.location.href = deepLink;
     
     // Fallback to app store if app doesn't open

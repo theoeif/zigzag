@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { register } from "../../api/api";
 import styles from "./Login.module.css";
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -30,7 +30,23 @@ const AccountCreation = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { setIsConnected } = useContext(AuthContext);
+
+  // Check for invite_token in URL and preserve it in sessionStorage
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const inviteToken = queryParams.get('invite_token');
+    if (inviteToken) {
+      sessionStorage.setItem('pending_invite_token', inviteToken);
+      // Extract event ID from current URL if it's an event URL
+      const currentPath = location.pathname;
+      const eventMatch = currentPath.match(/\/event\/([0-9a-fA-F-]+)/);
+      if (eventMatch && eventMatch[1]) {
+        sessionStorage.setItem('pending_event_id', eventMatch[1]);
+      }
+    }
+  }, [location.search, location.pathname]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
