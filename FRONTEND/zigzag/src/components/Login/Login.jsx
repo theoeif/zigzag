@@ -27,6 +27,7 @@ const Login = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showAppBanner, setShowAppBanner] = useState(false);
+  const [showForgotPasswordBubble, setShowForgotPasswordBubble] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { setIsConnected } = useContext(AuthContext);
@@ -78,6 +79,14 @@ const Login = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleForgotPassword = () => {
+    setShowForgotPasswordBubble(true);
+    // Auto-hide the bubble after 4 seconds
+    setTimeout(() => {
+      setShowForgotPasswordBubble(false);
+    }, 4000);
   };
 
   const handleSubmit = async (e) => {
@@ -175,6 +184,31 @@ const Login = () => {
             Login
           </button>
         </form>
+
+        {/* Forgot Password Link */}
+        <div className={styles.forgotPasswordContainer}>
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            className={styles.forgotPasswordLink}
+          >
+            Forgot password?
+          </button>
+          {showForgotPasswordBubble && (
+            <div className={styles.forgotPasswordBubble}>
+              <div className={styles.bubbleContent}>
+                <p>Contact admin to reset your password</p>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPasswordBubble(false)}
+                  className={styles.bubbleClose}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Social login UI removed */}
 
