@@ -79,7 +79,9 @@ class EventSerializer(serializers.ModelSerializer):
         if obj.event_shared and obj.circles.exists():
             is_circle_member = obj.circles.filter(members=request.user).exists()
         
-        return is_creator or (obj.event_shared and is_circle_member)
+        has_valid_token = obj.invitation_token and obj.invitation_token.strip()
+
+        return (is_creator or (obj.event_shared and is_circle_member)) and has_valid_token
 
 # TODO replace functionnality of circle_ids in the front as well
 # TODO change name categories to tags everywhere.

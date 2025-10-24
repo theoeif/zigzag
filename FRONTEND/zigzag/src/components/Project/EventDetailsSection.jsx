@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  FaMapMarkerAlt, FaClock, FaCalendarAlt, FaLink, FaUsers, FaDirections, FaUserFriends
+  FaMapMarkerAlt, FaClock, FaCalendarAlt, FaLink, FaUsers, FaDirections, FaUserFriends, FaPaperPlane
 } from "react-icons/fa";
 import { FRONTEND_URL } from '../../config';
 import { generateEventInvite } from '../../api/api';
@@ -15,6 +15,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
   const [showInvitationModal, setShowInvitationModal] = useState(false);
   const [invitationError, setInvitationError] = useState(null);
   const [canGenerateInvite, setCanGenerateInvite] = useState(false);
+  const [invitationCopied, setInvitationCopied] = useState(false);
 
   // Format date including the year, conditionally showing time
   const formatFullDate = (dateString) => {
@@ -94,13 +95,10 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
     }
   };
 
-  // Check if user can generate invitations (creator or circle member if event_shared)
+  // Check if user can generate invitations using backend field
   React.useEffect(() => {
     if (event) {
-      const currentUsername = localStorage.getItem("username");
-      const canInvite = event.creator === currentUsername || 
-        (event.event_shared && event.circles && event.circles.length > 0);
-      setCanGenerateInvite(canInvite);
+      setCanGenerateInvite(event.can_generate_invite || false);
     }
   }, [event]);
 
@@ -110,7 +108,42 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
       setInvitationError(null);
       const response = await generateEventInvite(event.id);
       setInvitationUrl(response.invitation_url);
-      setShowInvitationModal(true);
+      
+      // Immediately copy the link to clipboard
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(response.invitation_url);
+        } else {
+          // Fallback for mobile browsers and non-HTTPS contexts
+          const textArea = document.createElement('textarea');
+          textArea.value = response.invitation_url;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          textArea.style.opacity = '0';
+          textArea.style.pointerEvents = 'none';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          if (!successful) {
+            throw new Error('execCommand failed');
+          }
+        }
+        
+        // Show copy feedback
+        setInvitationCopied(true);
+        setTimeout(() => setInvitationCopied(false), 2000);
+        
+        // Show modal with the generated link
+        setShowInvitationModal(true);
+      } catch (copyError) {
+        console.error("Error copying invitation link:", copyError);
+        // Still show modal even if copy fails
+        setShowInvitationModal(true);
+      }
     } catch (error) {
       console.error("Error generating invitation link:", error);
       setInvitationError("Failed to generate invitation link");
@@ -122,7 +155,6 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(invitationUrl);
-        alert("Lien d'invitation copié");
       } else {
         // Fallback for mobile browsers and non-HTTPS contexts
         const textArea = document.createElement('textarea');
@@ -137,13 +169,15 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         textArea.select();
         
         const successful = document.execCommand('copy');
-        if (successful) {
-          alert("Lien d'invitation copié");
-        } else {
+        document.body.removeChild(textArea);
+        if (!successful) {
           throw new Error('execCommand failed');
         }
-        document.body.removeChild(textArea);
       }
+      
+      // Show copy feedback
+      setInvitationCopied(true);
+      setTimeout(() => setInvitationCopied(false), 2000);
     } catch (error) {
       console.error("Error copying invitation link:", error);
       alert("Échec de la copie du lien d'invitation");
@@ -329,14 +363,18 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
           </div>
         )}
 
-        <div className={styles.fullDescriptionProject} style={{ marginBottom: '10px' }}>
+        <div className={styles.fullDescriptionProject} style={{ marginBottom: '20px' }}>
           <strong>Description</strong>
           <p>{event.description || "Aucune description fournie pour cet événement."}</p>
         </div>
 
-        {/* Additional details with icons */}
-        <div style={{ marginBottom: '10px' }}>
-          <div className={styles.detailItemProject}>
+        {/* Dates section */}
+        <div style={{ 
+          marginBottom: '20px',
+          paddingBottom: '15px',
+          borderBottom: '1px solid #f0f0f0'
+        }}>
+          <div className={styles.detailItemProject} style={{ marginBottom: '12px' }}>
             <FaCalendarAlt />
             <span><strong>Début :</strong> {formatFullDate(event.start_time)}</span>
           </div>
@@ -347,10 +385,13 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
               <span><strong>Fin :</strong> {formatFullDate(event.end_time)}</span>
             </div>
           )}
+        </div>
 
-          {/* Copy link button */}
-          {event.shareable_link !== false && (event.public_link || event.id) && (
-            <div className={styles.detailItemProject}>
+        {/* Links section */}
+        <div style={{ marginBottom: '15px' }}>
+          {/* Copy link button - only show if can't generate invite */}
+          {!canGenerateInvite && event.shareable_link !== false && (event.public_link || event.id) && (
+            <div className={styles.detailItemProject} style={{ marginBottom: '8px' }}>
               <FaLink style={{ fontSize: '1.1rem', color: '#40916c', minWidth: '20px', flexShrink: 0 }} />
               <button
                 onClick={copyEventLinkFromDetails}
@@ -375,15 +416,15 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
                 }}
                 title="Copier le lien"
               >
-                <span><strong>{urlCopied ? 'Lien copié !' : 'Lien de partage'}</strong></span>
+                <span><strong>{urlCopied ? 'Lien copié !' : 'Lien interne'}</strong></span>
               </button>
             </div>
           )}
 
           {/* Invitation link button */}
           {canGenerateInvite && (
-            <div className={styles.detailItemProject}>
-              <FaUserFriends style={{ fontSize: '1.1rem', color: '#40916c', minWidth: '20px', flexShrink: 0 }} />
+            <div className={styles.detailItemProject} style={{ position: 'relative' }}>
+              <FaPaperPlane style={{ fontSize: '1.1rem', color: '#40916c', minWidth: '20px', flexShrink: 0 }} />
               <button
                 onClick={handleGenerateInvite}
                 style={{
@@ -409,6 +450,23 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
               >
                 <span><strong>Lien d'invitation</strong></span>
               </button>
+              {invitationCopied && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '30px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: '#40916c',
+                  color: 'white',
+                  padding: '5px 10px',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  whiteSpace: 'nowrap',
+                  zIndex: 1000
+                }}>
+                  Lien d'invitation copié !
+                </div>
+              )}
               {invitationError && (
                 <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>
                   {invitationError}
@@ -419,7 +477,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         </div>
 
         {/* Show all circles when expanded */}
-        <div className={styles.allCirclesSectionProject}>
+        <div className={styles.allCirclesSectionProject} style={{ marginTop: '10px' }}>
           {hasCircles && (
             <div className={styles.allCirclesProject}>
               <div style={{
