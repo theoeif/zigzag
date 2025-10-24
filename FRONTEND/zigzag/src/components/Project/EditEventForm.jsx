@@ -13,6 +13,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     event_shared: eventData.event_shared || false,
     start_time: eventData.start_time ? toLocalDatetimeInputValue(eventData.start_time) : "",
     end_time: eventData.end_time ? toLocalDatetimeInputValue(eventData.end_time) : "",
+    generate_invitation_link: eventData.has_invitation_link || false,  // NEW
   });
 
   const [localizedAddress, setLocalizedAddress] = useState(null);
@@ -221,6 +222,11 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
       }
     }
 
+    // Handle invitation link field (creator OR circle members of shared events)
+    if ((isCreator || eventData.event_shared) && formData.generate_invitation_link !== eventData.has_invitation_link) {
+      updatedFields.generate_invitation_link = formData.generate_invitation_link;
+    }
+
     // Only submit if there are changes
     if (Object.keys(updatedFields).length === 0) {
       alert("Aucune modification à sauvegarder");
@@ -414,6 +420,33 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                     </svg>
                     <div className={styles.tooltipProject}>
                       Tous les membres des cercles peuvent modifier la description et la date
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Invitation link option - available to creator OR circle members of shared events */}
+          {(isCreator || eventData.event_shared) && (
+            <div className={styles.formGroupProject}>
+              <div className={styles.checkboxContainerProject}>
+                <input
+                  type="checkbox"
+                  id="generate_invitation_link"
+                  name="generate_invitation_link"
+                  checked={formData.generate_invitation_link}
+                  onChange={handleInputChange}
+                  className={styles.checkboxInputProject}
+                />
+                <label htmlFor="generate_invitation_link" className={styles.checkboxLabelProject}>
+                  Lien d'invitation
+                  <div className={styles.infoIconProject}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    <div className={styles.tooltipProject}>
+                      Permet de générer un lien pour inviter des personnes externes au cercle
                     </div>
                   </div>
                 </label>

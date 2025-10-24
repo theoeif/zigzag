@@ -3,16 +3,24 @@ import {
   FaTrashAlt, FaEdit, FaMapMarkerAlt, FaClock,
   FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus,
   FaLink, FaUsers, FaUserFriends, FaCalendarAlt, FaDirections,
-  FaCaretDown, FaCaretRight, FaInfoCircle
+  FaCaretDown, FaCaretRight, FaInfoCircle, FaPaperPlane
 } from "react-icons/fa";
 import { FRONTEND_URL } from '../../config';
 import styles from './Project.module.css';
 import EventDetailsSection from './EventDetailsSection';
-import { downloadSingleEventICal } from '../../api/api';
+import EventModal from './EventModal';
+import { downloadSingleEventICal, generateEventInvite } from '../../api/api';
 
 const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
+  
+  // Invitation link state
+  const [invitationUrl, setInvitationUrl] = useState('');
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
+  const [invitationError, setInvitationError] = useState(null);
+  const [canGenerateInvite, setCanGenerateInvite] = useState(false);
+  const [invitationCopied, setInvitationCopied] = useState(false);
 
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
@@ -172,6 +180,64 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       alert("Erreur lors de l'ajout au calendrier. Veuillez réessayer.");
     }
   };
+
+  // Check if user can generate invitations using backend field
+  React.useEffect(() => {
+    if (event) {
+      console.log("EventCard - Full event object:", event);
+      console.log("EventCard - can_generate_invite:", event.can_generate_invite);
+      setCanGenerateInvite(event.can_generate_invite || false);
+    }
+  }, [event]);
+
+  // Generate invitation link
+  const handleGenerateInvite = async () => {
+    try {
+      setInvitationError(null);
+      const response = await generateEventInvite(event.id);
+      setInvitationUrl(response.invitation_url);
+      
+      // Immediately copy the link to clipboard
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(response.invitation_url);
+        } else {
+          // Fallback for mobile browsers and non-HTTPS contexts
+          const textArea = document.createElement('textarea');
+          textArea.value = response.invitation_url;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          textArea.style.opacity = '0';
+          textArea.style.pointerEvents = 'none';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          if (!successful) {
+            throw new Error('execCommand failed');
+          }
+        }
+        
+        // Show copy feedback
+        setInvitationCopied(true);
+        setTimeout(() => setInvitationCopied(false), 2000);
+        
+        // Show modal with the generated link
+        setShowInvitationModal(true);
+      } catch (copyError) {
+        console.error("Error copying invitation link:", copyError);
+        // Still show modal even if copy fails
+        setShowInvitationModal(true);
+      }
+    } catch (error) {
+      console.error("Error generating invitation link:", error);
+      setInvitationError("Échec de la génération du lien d'invitation");
+    }
+  };
+
 
 
   // Helper function to extract circles data from different formats
@@ -472,8 +538,8 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             <button
               onClick={() => handleViewAllCircleMembers(event, onViewCircleMembers)}
               className={styles.participantsButtonProject}
-              aria-label="View invited"
-              title="View invited"
+              aria-label="Voir les invités"
+              title="Voir les invités"
             >
               <FaUserFriends />
             </button>
@@ -481,22 +547,36 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
 
           <div className={styles.actionButtonsSpacerProject}></div>
 
-          {/* Only show share button if sharing is allowed */}
-          {(event.shareable_link === undefined || event.shareable_link === true) && (
+          {/* Only show share button if sharing is allowed and can't generate invite */}
+          {!canGenerateInvite && (event.shareable_link === undefined || event.shareable_link === true) && (
             <button
               className={styles.actionButtonProject}
-              aria-label="Share event link"
+              aria-label="Partager le lien de l'événement"
               onClick={shareEventLink}
-              title="Copy event link"
+              title="Copier le lien de l'événement"
             >
               <FaLink />
             </button>
           )}
 
+          {/* Invitation link button */}
+          {canGenerateInvite && (
+            <div style={{ position: 'relative' }}>
+              <button
+                className={styles.actionButtonProject}
+                aria-label="Générer un lien d'invitation"
+                onClick={handleGenerateInvite}
+                title="Générer un lien d'invitation"
+              >
+                <FaPaperPlane />
+              </button>
+            </div>
+          )}
+
           <button
             className={styles.actionButtonProject}
-            aria-label="Add to calendar"
-            title="Add to calendar"
+            aria-label="Ajouter au calendrier"
+            title="Ajouter au calendrier"
             onClick={handleAddToCalendar}
           >
             <FaCalendarPlus />
@@ -522,6 +602,14 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         isOpen={showDetails}
         onClose={toggleDetails}
         onViewCircleMembers={onViewCircleMembers}
+      />
+
+      {/* Invitation Link Modal */}
+      <EventModal
+        isOpen={showInvitationModal}
+        onClose={() => setShowInvitationModal(false)}
+        invitationUrl={invitationUrl}
+        title="Lien d'invitation généré"
       />
     </div>
   );

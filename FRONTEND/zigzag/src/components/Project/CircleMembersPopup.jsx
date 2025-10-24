@@ -25,23 +25,34 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           return;
         }
 
-        // Fetch user's accessible circles
-        const userCircles = await fetchCircles(); // existing API call
-        if (!userCircles || !Array.isArray(userCircles)) {
-          throw new Error("Failed to fetch user circles");
-        }
+        // Check if this is an invitation circle (by name)
+        const isInvitationCircle = circleName === 'Cercle invités' || circleName === 'Invités';
+        
+        let filteredCircleIds;
+        
+        if (isInvitationCircle) {
+          // For invitation circles, skip accessibility check
+          filteredCircleIds = [...new Set(circleIds)];
+        } else {
+          // For regular circles, use the existing accessibility check
+          const userCircles = await fetchCircles(); // existing API call
+          if (!userCircles || !Array.isArray(userCircles)) {
+            throw new Error("Failed to fetch user circles");
+          }
 
-        // Extract IDs of circles user belongs to
-        const accessibleCircleIds = userCircles.map(c => c.id);
+          // Extract IDs of circles user belongs to
+          const accessibleCircleIds = userCircles.map(c => c.id);
 
-        // Filter requested circles to only accessible ones
-        const uniqueRequested = [...new Set(circleIds)];
-        const filteredCircleIds = uniqueRequested.filter(id => accessibleCircleIds.includes(id));
+          // Filter requested circles to only accessible ones
+          const uniqueRequested = [...new Set(circleIds)];
+          filteredCircleIds = uniqueRequested.filter(id => accessibleCircleIds.includes(id));
 
-        if (filteredCircleIds.length === 0) {
-          setMembers([]);
-          setLoading(false);
-          return;
+          // If no accessible circles found, show the "not part of circle" message
+          if (filteredCircleIds.length === 0) {
+            setMembers([]);
+            setLoading(false);
+            return;
+          }
         }
 
         // Fetch members using filtered circle IDs
@@ -117,7 +128,10 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           ) : (
             <>
               <div className={styles.memberCountProject}>
-                <span>{members.length} invité{members.length !== 1 ? 's' : ''} de mes cercles</span>
+                <span>
+                  {members.length} invité{members.length !== 1 ? 's' : ''}
+                  {isMultiCircle ? ' de mes cercles' : ''}
+                </span>
               </div>
               <ul className={styles.membersListProject}>
                 {members.map((member, index) => (

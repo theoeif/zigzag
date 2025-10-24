@@ -11,10 +11,12 @@ class AddressSerializer(serializers.ModelSerializer):
 class CircleSerializer(serializers.ModelSerializer):
     creator = serializers.StringRelatedField(read_only=True)
     tags = serializers.StringRelatedField(source='categories', many=True, read_only=True)
+    is_invitation_circle = serializers.BooleanField(read_only=True)
+    linked_event = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Circle
-        fields = ['id', 'name', 'creator', 'categories', 'tags']
+        fields = ['id', 'name', 'creator', 'categories', 'tags', 'is_invitation_circle', 'linked_event']
 
     def create(self, validated_data):
         # Handle categories (tags) during creation
@@ -40,6 +42,8 @@ class CircleSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=False, read_only=True)
     circles = CircleSerializer(many=True, read_only=True)
+    creator = serializers.StringRelatedField(read_only=True)
+    can_generate_invite = serializers.SerializerMethodField()
 
     circle_ids = serializers.PrimaryKeyRelatedField(
         source='circles',
@@ -47,11 +51,37 @@ class EventSerializer(serializers.ModelSerializer):
         queryset=Circle.objects.all(),
         write_only=True
     )
+    
+    invitation_token = serializers.CharField(write_only=True, required=False)
+    has_invitation_link = serializers.SerializerMethodField()
+    generate_invitation_link = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
         model = Event
         fields = ['id', 'title', 'description', 'address', 'start_time', 'end_time',
-                  'circles','circle_ids', 'shareable_link', 'event_shared']
+                  'circles','circle_ids', 'shareable_link', 'event_shared', 'invitation_token', 'has_invitation_link', 'generate_invitation_link', 'creator', 'can_generate_invite']
+    
+    def get_has_invitation_link(self, obj):
+        return bool(obj.invitation_token)
+    
+    def get_can_generate_invite(self, obj):
+        """Check if current user can generate invitation links for this event"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        # User can generate invite if:
+        # 1. They are the creator, OR
+        # 2. Event is shared AND user is a member of any associated circle
+        is_creator = obj.creator == request.user
+        
+        is_circle_member = False
+        if obj.event_shared and obj.circles.exists():
+            is_circle_member = obj.circles.filter(members=request.user).exists()
+        
+        has_valid_token = obj.invitation_token and obj.invitation_token.strip()
+
+        return (is_creator or (obj.event_shared and is_circle_member)) and has_valid_token
 
 # TODO replace functionnality of circle_ids in the front as well
 # TODO change name categories to tags everywhere.

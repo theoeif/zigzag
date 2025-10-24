@@ -61,6 +61,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
     end_time: initialEndDateTime,
     shareable_link: true,  // Default to true - link is shareable
     event_shared: false,   // Default to false - event is not shared by default
+    generate_invitation_link: false,  // Default to false - don't generate invitation link by default
   });
 
   // State for tracking if the form should be shown
@@ -329,6 +330,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       end_time: formData.end_time ? toUtcIso(formData.end_time) : null,
       shareable_link: formData.shareable_link,
       event_shared: formData.event_shared,
+      generate_invitation_link: formData.generate_invitation_link,
       project: projectId,
       circle_ids: selectedCircles,
     };
@@ -648,6 +650,28 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                   </svg>
                   <div className={styles.tooltipProject}>
                     Lien de partage entre les membres des Cercles
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div className={styles.checkboxContainerProject}>
+              <input
+                type="checkbox"
+                id="generate_invitation_link"
+                name="generate_invitation_link"
+                checked={formData.generate_invitation_link}
+                onChange={handleInputChange}
+                className={styles.checkboxInputProject}
+              />
+              <label htmlFor="generate_invitation_link" className={styles.checkboxLabelProject}>
+                Lien d'invitation
+                <div className={styles.infoIconProject}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                  </svg>
+                  <div className={styles.tooltipProject}>
+                    Génère un lien d'invitation pour permettre à d'autres personnes de rejoindre l'événement
                   </div>
                 </div>
               </label>

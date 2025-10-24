@@ -57,7 +57,23 @@ admin.site.register(User, CustomUserAdmin)
 # ----- OTHER MODELS -----
 admin.site.register(Address)
 admin.site.register(Tag)
-admin.site.register(Circle)
+
+# ----- CIRCLE ADMIN -----
+class CircleAdmin(admin.ModelAdmin):
+    list_display = ['name', 'creator', 'is_invitation_circle', 'linked_event', 'get_categories', 'get_members_count']
+    list_filter = ['is_invitation_circle', 'creator']
+    search_fields = ['name', 'creator__username']
+    filter_horizontal = ['categories', 'members']  # This makes it easier to manage many-to-many fields
+    
+    def get_categories(self, obj):
+        return ", ".join([tag.name for tag in obj.categories.all()])
+    get_categories.short_description = 'Tags'
+    
+    def get_members_count(self, obj):
+        return obj.members.count()
+    get_members_count.short_description = 'Members'
+
+admin.site.register(Circle, CircleAdmin)
 
 # ----- EVENT ADMIN -----
 

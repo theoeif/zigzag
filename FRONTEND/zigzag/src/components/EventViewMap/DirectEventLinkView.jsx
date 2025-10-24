@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import EventView from "./EventView/EventView";
-import { fetchDirectEvent } from "../../api/api";
+import { fetchDirectEvent, acceptEventInvite } from "../../api/api";
 import { AuthContext } from "../../contexts/AuthProvider";
 import { MapContext } from "../../contexts/MapContext";
 
@@ -19,7 +19,10 @@ const DirectEventLinkView = () => {
   // Check authentication and redirect to login if not connected
   useEffect(() => {
     if (!isLoading && !isConnected) {
-      navigate(`/login?redirect=${encodeURIComponent(`/event/${id}`)}`);
+      const urlParams = new URLSearchParams(window.location.search);
+      const inviteToken = urlParams.get('invite_token');
+      const redirectUrl = inviteToken ? `/event/${id}?invite_token=${inviteToken}` : `/event/${id}`;
+      navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
     }
   }, [isConnected, isLoading, navigate, id]);
 
@@ -33,6 +36,30 @@ const DirectEventLinkView = () => {
         const data = await fetchDirectEvent(id);
         setEventData(data);
         setError(null);
+        
+        // Check for invitation token in URL AND sessionStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlInviteToken = urlParams.get('invite_token');
+        const sessionInviteToken = sessionStorage.getItem('pending_invite_token');
+        const inviteToken = urlInviteToken || sessionInviteToken;
+        
+        if (inviteToken && isConnected) {
+          try {
+            await acceptEventInvite(id, inviteToken);
+            console.log('Successfully joined event via invitation');
+            
+            // Clear sessionStorage if token came from there
+            if (sessionInviteToken) {
+              sessionStorage.removeItem('pending_invite_token');
+              sessionStorage.removeItem('pending_event_id');
+            }
+            
+            // Optionally show a success message or notification
+          } catch (inviteError) {
+            console.error('Error accepting invitation:', inviteError);
+            // Don't show error to user, just log it
+          }
+        }
       } catch (err) {
         console.error("DirectEventLinkView: Error loading event:", err);
         setError("Could not load this event.");
