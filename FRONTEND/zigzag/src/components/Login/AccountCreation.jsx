@@ -36,10 +36,24 @@ const AccountCreation = () => {
   // Check for invite_token in URL and preserve it in sessionStorage
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
+    const redirect = queryParams.get('redirect');
+    
+    // Check for invite_token in redirect URL
+    if (redirect) {
+      const redirectParams = new URLSearchParams(redirect.split('?')[1] || '');
+      const inviteToken = redirectParams.get('invite_token');
+      const eventId = redirect.split('/event/')[1]?.split('?')[0];
+      
+      if (inviteToken && eventId) {
+        sessionStorage.setItem('pending_invite_token', inviteToken);
+        sessionStorage.setItem('pending_event_id', eventId);
+      }
+    }
+    
+    // Also check for invite_token directly in URL (fallback)
     const inviteToken = queryParams.get('invite_token');
     if (inviteToken) {
       sessionStorage.setItem('pending_invite_token', inviteToken);
-      // Extract event ID from current URL if it's an event URL
       const currentPath = location.pathname;
       const eventMatch = currentPath.match(/\/event\/([0-9a-fA-F-]+)/);
       if (eventMatch && eventMatch[1]) {
@@ -91,7 +105,11 @@ const AccountCreation = () => {
 
       // Tokens are automatically stored by the register function in api.js
       setIsConnected(true);
-      navigate("/");
+      
+      // Navigate to redirect URL if available, otherwise go to home
+      const queryParams = new URLSearchParams(location.search);
+      const redirect = queryParams.get('redirect');
+      navigate(redirect || "/");
     } catch (err) {
       console.error(err);
 
@@ -205,7 +223,11 @@ const AccountCreation = () => {
           Already have an account?{" "}
           <button
             type="button"
-            onClick={() => navigate('/login')}
+            onClick={() => {
+              const currentRedirect = new URLSearchParams(location.search).get('redirect');
+              const redirectParam = currentRedirect ? `?redirect=${encodeURIComponent(currentRedirect)}` : '';
+              navigate(`/login${redirectParam}`);
+            }}
             className={styles.signupLink}
           >
             Sign In
