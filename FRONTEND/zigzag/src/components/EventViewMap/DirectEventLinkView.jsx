@@ -19,7 +19,10 @@ const DirectEventLinkView = () => {
   // Check authentication and redirect to login if not connected
   useEffect(() => {
     if (!isLoading && !isConnected) {
-      navigate(`/login?redirect=${encodeURIComponent(`/event/${id}`)}`);
+      const urlParams = new URLSearchParams(window.location.search);
+      const inviteToken = urlParams.get('invite_token');
+      const redirectUrl = inviteToken ? `/event/${id}?invite_token=${inviteToken}` : `/event/${id}`;
+      navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
     }
   }, [isConnected, isLoading, navigate, id]);
 

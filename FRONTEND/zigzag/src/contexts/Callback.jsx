@@ -12,12 +12,32 @@ const Callback = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const accessToken = queryParams.get('access_token');
-    const refreshToken = queryParams.get('refresh_token');
+    const urlAccessToken = queryParams.get('access_token');
+    const urlRefreshToken = queryParams.get('refresh_token');
+    const redirectUrl = queryParams.get('redirect');
+
+    // Check for invitation token in redirect URL
+    if (redirectUrl) {
+      const redirectParams = new URLSearchParams(redirectUrl.split('?')[1] || '');
+      const inviteToken = redirectParams.get('invite_token');
+      const eventId = redirectUrl.split('/event/')[1]?.split('?')[0];
+      
+      if (inviteToken && eventId) {
+        sessionStorage.setItem('pending_invite_token', inviteToken);
+        sessionStorage.setItem('pending_event_id', eventId);
+      }
+    }
+
+    // Prioritize tokens from URL over localStorage
+    const accessToken = urlAccessToken || localStorage.getItem('access_token');
+    const refreshToken = urlRefreshToken || localStorage.getItem('refresh_token');
 
     if (accessToken && refreshToken) {
-      localStorage.setItem('access_token', accessToken);
-      localStorage.setItem('refresh_token', refreshToken);
+      // Only update localStorage if we got fresh tokens from URL
+      if (urlAccessToken && urlRefreshToken) {
+        localStorage.setItem('access_token', urlAccessToken);
+        localStorage.setItem('refresh_token', urlRefreshToken);
+      }
       setIsConnected(true);
       
       // Check for pending invitation after authentication
