@@ -1047,7 +1047,7 @@ const EventView = ({
                   )}
                 </div>
 
-                {/* View on map button - only show for direct link access, not modal mode */}
+                {/* Close button - only show for direct link access, not modal mode */}
                 {!isModalMode && (
                   <div style={{
                     position: "absolute",
@@ -1059,11 +1059,17 @@ const EventView = ({
                         ...styles.button,
                         ...styles.secondaryButton,
                         padding: "8px 12px",
-                        fontSize: "0.9rem"
+                        fontSize: "0.9rem",
+                        minWidth: "40px",
+                        height: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
                       }}
-                      onClick={handleViewOnMap}
+                      onClick={onClose || handleViewOnMap}
+                      title="Fermer"
                     >
-                      View on Map
+                      ✕
                     </button>
                   </div>
                 )}
