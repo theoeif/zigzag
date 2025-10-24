@@ -18,7 +18,8 @@ import {
   FaUserFriends,
   FaCircle,
   // See more icon to navigate to project page
-  FaInfoCircle
+  FaInfoCircle,
+  FaPaperPlane
 } from "react-icons/fa";
 
 // Styles for the event view
@@ -378,6 +379,7 @@ const EventView = ({
   const [shareUrl, setShareUrl] = useState('');
   const [urlCopied, setUrlCopied] = useState(false);
   const [shareButtonClicked, setShareButtonClicked] = useState(false);
+  const [invitationButtonClicked, setInvitationButtonClicked] = useState(false);
   const [shareError, setShareError] = useState(null);
   const [addressHovered, setAddressHovered] = useState(false);
 
@@ -393,6 +395,7 @@ const EventView = ({
   const [invitationUrl, setInvitationUrl] = useState('');
   const [invitationError, setInvitationError] = useState(null);
   const [canGenerateInvite, setCanGenerateInvite] = useState(false);
+  const [invitationCopied, setInvitationCopied] = useState(false);
 
   // Fetch event data
   useEffect(() => {
@@ -628,8 +631,43 @@ const EventView = ({
   const handleGenerateInvite = async () => {
     try {
       setInvitationError(null);
+      // Add click animation effect for invitation button only
+      setInvitationButtonClicked(true);
+      setTimeout(() => setInvitationButtonClicked(false), 300);
+      
       const response = await generateEventInvite(eventId);
       setInvitationUrl(response.invitation_url);
+      
+      // Immediately copy the link to clipboard
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(response.invitation_url);
+          setInvitationCopied(true);
+          setTimeout(() => setInvitationCopied(false), 2000);
+        } else {
+          // Fallback for mobile browsers and non-HTTPS contexts
+          const textArea = document.createElement('textarea');
+          textArea.value = response.invitation_url;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          textArea.style.opacity = '0';
+          textArea.style.pointerEvents = 'none';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          
+          const successful = document.execCommand('copy');
+          if (successful) {
+            setInvitationCopied(true);
+            setTimeout(() => setInvitationCopied(false), 2000);
+          }
+          document.body.removeChild(textArea);
+        }
+      } catch (copyError) {
+        console.error("Error copying invitation link:", copyError);
+        // Don't show error for copy failure, just continue
+      }
     } catch (error) {
       console.error("Error generating invitation link:", error);
       setInvitationError("Échec de la génération du lien d'invitation");
@@ -638,9 +676,14 @@ const EventView = ({
 
   const handleCopyInviteLink = async () => {
     try {
+      // Add click animation effect for invitation button
+      setInvitationButtonClicked(true);
+      setTimeout(() => setInvitationButtonClicked(false), 300);
+      
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(invitationUrl);
-        alert("Lien d'invitation copié");
+        setInvitationCopied(true);
+        setTimeout(() => setInvitationCopied(false), 2000);
       } else {
         // Fallback for mobile browsers and non-HTTPS contexts
         const textArea = document.createElement('textarea');
@@ -656,7 +699,8 @@ const EventView = ({
         
         const successful = document.execCommand('copy');
         if (successful) {
-          alert("Lien d'invitation copié");
+          setInvitationCopied(true);
+          setTimeout(() => setInvitationCopied(false), 2000);
         } else {
           throw new Error('execCommand failed');
         }
@@ -900,50 +944,53 @@ const EventView = ({
                 <div style={styles.bottomButtons}>
                   {/* Left side buttons - share link and view members */}
                   <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    {/* Share link button */}
-                    <div style={{ position: "relative" }}>
-                    <button
-                      onClick={handleShareEvent}
-                      style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
-                      title="Copier lien interne"
-                    >
-                      <FaLink style={{ 
-                        color: shareButtonClicked ? "white" : "inherit",
-                        ...styles.shareButtonIcon
-                      }} />
-                    </button>
-                {urlCopied && (
-                  <div style={styles.copiedTooltip}>
-                    Lien copié !
-                  </div>
-                )}
-                    </div>
+                    {/* Share link button - only show if can't generate invite */}
+                    {!canGenerateInvite && (
+                      <div style={{ position: "relative" }}>
+                        <button
+                          onClick={handleShareEvent}
+                          style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
+                          title="Copier lien interne"
+                        >
+                          <FaLink style={{ 
+                            color: shareButtonClicked ? "white" : "inherit",
+                            ...styles.shareButtonIcon
+                          }} />
+                        </button>
+                        {urlCopied && (
+                          <div style={styles.copiedTooltip}>
+                            Lien copié !
+                          </div>
+                        )}
+                      </div>
+                    )}
 
 
                     {/* Invitation link section */}
                     {canGenerateInvite && (
                       <div style={{ position: "relative" }}>
-                        {!invitationUrl ? (
-                          <button
-                            onClick={(e) => {
-                              console.log("EventView: Button clicked!");
-                              e.preventDefault();
-                              e.stopPropagation();
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!invitationUrl) {
                               handleGenerateInvite();
-                            }}
-                            style={styles.shareButton}
-                            title="Générer un lien d'invitation"
-                          >
-                            <FaUserFriends style={styles.shareButtonIcon} />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={handleCopyInviteLink}
-                            style={styles.shareButton}
-                            title="Cliquer pour copier le lien d'invitation"
-                          >
-                            <FaUserFriends style={styles.shareButtonIcon} />
-                          </button>
+                            } else {
+                              handleCopyInviteLink();
+                            }
+                          }}
+                          style={invitationButtonClicked ? styles.shareButtonClicked : styles.shareButton}
+                          title={!invitationUrl ? "Générer un lien d'invitation" : "Cliquer pour copier le lien d'invitation"}
+                        >
+                          <FaPaperPlane style={{ 
+                            color: invitationButtonClicked ? "white" : "inherit",
+                            ...styles.shareButtonIcon
+                          }} />
+                        </button>
+                        {invitationCopied && (
+                          <div style={styles.copiedTooltip}>
+                            Lien d'invitation copié !
+                          </div>
                         )}
                         {invitationError && (
                           <div style={styles.errorTooltip}>
@@ -1155,50 +1202,54 @@ const EventView = ({
               <div style={styles.bottomButtons}>
                 {/* Left side buttons - share link and view members */}
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  {/* Share link button */}
-                  <div style={{ position: "relative" }}>
-                    <button
-                      onClick={handleShareEvent}
-                      style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
-                      title="Copier lien interne"
-                    >
-                      <FaLink style={{ 
-                        color: shareButtonClicked ? "white" : "inherit",
-                        ...styles.shareButtonIcon
-                      }} />
-                    </button>
-                    {urlCopied && (
-                      <div style={styles.copiedTooltip}>
-                        Lien copié !
-                      </div>
-                    )}
-                  </div>
+                  {/* Share link button - only show if can't generate invite */}
+                  {!canGenerateInvite && (
+                    <div style={{ position: "relative" }}>
+                      <button
+                        onClick={handleShareEvent}
+                        style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
+                        title="Copier lien interne"
+                      >
+                        <FaLink style={{ 
+                          color: shareButtonClicked ? "white" : "inherit",
+                          ...styles.shareButtonIcon
+                        }} />
+                      </button>
+                      {urlCopied && (
+                        <div style={styles.copiedTooltip}>
+                          Lien copié !
+                        </div>
+                      )}
+                    </div>
+                  )}
 
 
                   {/* Invitation link section */}
                   {canGenerateInvite && (
                     <div style={{ position: "relative" }}>
-                      {!invitationUrl ? (
-                        <button
-                          onClick={(e) => {
-                            console.log("EventView: Modal Button clicked!");
-                            e.preventDefault();
-                            e.stopPropagation();
+                      <button
+                        onClick={(e) => {
+                          console.log("EventView: Modal Button clicked!");
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!invitationUrl) {
                             handleGenerateInvite();
-                          }}
-                          style={styles.shareButton}
-                          title="Générer un lien d'invitation"
-                        >
-                          <FaUserFriends style={styles.shareButtonIcon} />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={handleCopyInviteLink}
-                          style={styles.shareButton}
-                          title="Cliquer pour copier le lien d'invitation"
-                        >
-                          <FaUserFriends style={styles.shareButtonIcon} />
-                        </button>
+                          } else {
+                            handleCopyInviteLink();
+                          }
+                        }}
+                        style={invitationButtonClicked ? styles.shareButtonClicked : styles.shareButton}
+                        title={!invitationUrl ? "Générer un lien d'invitation" : "Cliquer pour copier le lien d'invitation"}
+                      >
+                        <FaPaperPlane style={{ 
+                          color: invitationButtonClicked ? "white" : "inherit",
+                          ...styles.shareButtonIcon
+                        }} />
+                      </button>
+                      {invitationCopied && (
+                        <div style={styles.copiedTooltip}>
+                          Lien d'invitation copié !
+                        </div>
                       )}
                       {invitationError && (
                         <div style={styles.errorTooltip}>

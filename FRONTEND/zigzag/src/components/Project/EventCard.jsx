@@ -3,7 +3,7 @@ import {
   FaTrashAlt, FaEdit, FaMapMarkerAlt, FaClock,
   FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus,
   FaLink, FaUsers, FaUserFriends, FaCalendarAlt, FaDirections,
-  FaCaretDown, FaCaretRight, FaInfoCircle
+  FaCaretDown, FaCaretRight, FaInfoCircle, FaPaperPlane
 } from "react-icons/fa";
 import { FRONTEND_URL } from '../../config';
 import styles from './Project.module.css';
@@ -19,6 +19,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   const [showInvitationModal, setShowInvitationModal] = useState(false);
   const [invitationError, setInvitationError] = useState(null);
   const [canGenerateInvite, setCanGenerateInvite] = useState(false);
+  const [invitationCopied, setInvitationCopied] = useState(false);
 
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
@@ -182,6 +183,8 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
   // Check if user can generate invitations using backend field
   React.useEffect(() => {
     if (event) {
+      console.log("EventCard - Full event object:", event);
+      console.log("EventCard - can_generate_invite:", event.can_generate_invite);
       setCanGenerateInvite(event.can_generate_invite || false);
     }
   }, [event]);
@@ -192,7 +195,42 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
       setInvitationError(null);
       const response = await generateEventInvite(event.id);
       setInvitationUrl(response.invitation_url);
-      setShowInvitationModal(true);
+      
+      // Immediately copy the link to clipboard
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(response.invitation_url);
+        } else {
+          // Fallback for mobile browsers and non-HTTPS contexts
+          const textArea = document.createElement('textarea');
+          textArea.value = response.invitation_url;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          textArea.style.opacity = '0';
+          textArea.style.pointerEvents = 'none';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          if (!successful) {
+            throw new Error('execCommand failed');
+          }
+        }
+        
+        // Show copy feedback
+        setInvitationCopied(true);
+        setTimeout(() => setInvitationCopied(false), 2000);
+        
+        // Show modal with the generated link
+        setShowInvitationModal(true);
+      } catch (copyError) {
+        console.error("Error copying invitation link:", copyError);
+        // Still show modal even if copy fails
+        setShowInvitationModal(true);
+      }
     } catch (error) {
       console.error("Error generating invitation link:", error);
       setInvitationError("Échec de la génération du lien d'invitation");
@@ -204,7 +242,6 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(invitationUrl);
-        alert("Lien d'invitation copié");
       } else {
         // Fallback for mobile browsers and non-HTTPS contexts
         const textArea = document.createElement('textarea');
@@ -219,13 +256,15 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
         textArea.select();
         
         const successful = document.execCommand('copy');
-        if (successful) {
-          alert("Lien d'invitation copié");
-        } else {
+        document.body.removeChild(textArea);
+        if (!successful) {
           throw new Error('execCommand failed');
         }
-        document.body.removeChild(textArea);
       }
+      
+      // Show copy feedback
+      setInvitationCopied(true);
+      setTimeout(() => setInvitationCopied(false), 2000);
     } catch (error) {
       console.error("Error copying invitation link:", error);
       alert("Échec de la copie du lien d'invitation");
@@ -540,8 +579,8 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
 
           <div className={styles.actionButtonsSpacerProject}></div>
 
-          {/* Only show share button if sharing is allowed */}
-          {(event.shareable_link === undefined || event.shareable_link === true) && (
+          {/* Only show share button if sharing is allowed and can't generate invite */}
+          {!canGenerateInvite && (event.shareable_link === undefined || event.shareable_link === true) && (
             <button
               className={styles.actionButtonProject}
               aria-label="Partager le lien de l'événement"
@@ -554,14 +593,33 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
 
           {/* Invitation link button */}
           {canGenerateInvite && (
-            <button
-              className={styles.actionButtonProject}
-              aria-label="Générer un lien d'invitation"
-              onClick={handleGenerateInvite}
-              title="Générer un lien d'invitation"
-            >
-              <FaUserFriends />
-            </button>
+            <div style={{ position: 'relative' }}>
+              <button
+                className={styles.actionButtonProject}
+                aria-label="Générer un lien d'invitation"
+                onClick={handleGenerateInvite}
+                title="Générer un lien d'invitation"
+              >
+                <FaPaperPlane />
+              </button>
+              {invitationCopied && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '40px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: '#40916c',
+                  color: 'white',
+                  padding: '5px 10px',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  whiteSpace: 'nowrap',
+                  zIndex: 1000
+                }}>
+                  Lien d'invitation copié !
+                </div>
+              )}
+            </div>
           )}
 
           <button

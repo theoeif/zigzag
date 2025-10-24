@@ -51,25 +51,20 @@ class EventViewSet(viewsets.ModelViewSet):
         """
         event_id = self.kwargs.get('id')
         user = self.request.user
-        print(f"🔍 GET_OBJECT: Requesting event {event_id} for user {user.username}")
         
         # First try the normal permission-based access
         try:
             event = super().get_object()
-            print(f"🔍 GET_OBJECT: Normal access granted for event {event_id}")
             return event
         except Http404:
-            print(f"🔍 GET_OBJECT: Normal access denied for event {event_id}, checking invitation access")
             
             # If normal access fails, check if this is an invitation access
             if event_id:
                 try:
                     event = Event.objects.get(id=event_id)
-                    print(f"🔍 GET_OBJECT: Event found - {event.title}, has invitation token: {bool(event.invitation_token)}")
                     
                     # Only allow access if the event has an invitation token
                     if event.invitation_token:
-                        print(f"🔍 GET_OBJECT: Invitation access granted for event {event_id}")
                         return event
                     else:
                         print(f"🔍 GET_OBJECT: Event {event_id} has no invitation token")
