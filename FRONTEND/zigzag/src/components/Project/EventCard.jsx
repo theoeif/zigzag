@@ -489,7 +489,7 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
           {/* Show description preview in main view */}
           {event.description && (
             <div className={styles.descriptionPreviewProject}>
-              <p>{getDescriptionExcerpt(event.description)}</p>
+              <div style={{ whiteSpace: 'pre-line' }}>{getDescriptionExcerpt(event.description)}</div>
             </div>
           )}
 

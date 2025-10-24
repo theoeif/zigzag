@@ -490,19 +490,22 @@ const EventView = ({
   const getDescriptionPreviewParagraphs = (description) => {
     if (!description) return [];
     const MAX = 250; // target length budget for preview
-    // Normalize and inject spacing similar to EventCard expectations
-    let text = String(description).replace(/\r\n/g, '\n').trim();
-    // Insert blank lines after headings ending with ':'
-    text = text.replace(/:\s*/g, ':\n\n');
-    // Collapse 3+ newlines to double newlines
-    text = text.replace(/\n{3,}/g, '\n\n');
-
+    
+    // Simple text processing that preserves bullet points and formatting
+    let text = String(description).trim();
+    
+    // Only normalize line endings, don't modify content structure
+    text = text.replace(/\r\n/g, '\n');
+    
+    // Split by double newlines to get paragraphs, but preserve single newlines within paragraphs
     const rawParagraphs = text.split(/\n{2,}/);
     const result = [];
     let used = 0;
+    
     for (let i = 0; i < rawParagraphs.length; i++) {
       const p = rawParagraphs[i].trim();
       if (!p) continue;
+      
       if (used + p.length <= MAX) {
         result.push(p);
         used += p.length + 2; // account for spacing
@@ -929,12 +932,13 @@ const EventView = ({
                     </div>
                     <div>
                       {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
-                        <p key={idx} style={{
+                        <div key={idx} style={{
                           margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
                           fontSize: '0.95rem',
                           lineHeight: 1.5,
-                          color: '#333'
-                        }}>{para}</p>
+                          color: '#333',
+                          whiteSpace: 'pre-line'
+                        }}>{para}</div>
                       ))}
                     </div>
                   </div>
@@ -1187,12 +1191,13 @@ const EventView = ({
                   </div>
                   <div>
                     {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
-                      <p key={idx} style={{
+                      <div key={idx} style={{
                         margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
                         fontSize: '0.95rem',
                         lineHeight: 1.5,
-                        color: '#333'
-                      }}>{para}</p>
+                        color: '#333',
+                        whiteSpace: 'pre-line'
+                      }}>{para}</div>
                     ))}
                   </div>
                 </div>
