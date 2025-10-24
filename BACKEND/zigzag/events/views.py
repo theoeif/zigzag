@@ -49,22 +49,36 @@ class EventViewSet(viewsets.ModelViewSet):
         """
         Override get_object to handle invitation-based access.
         """
+        event_id = self.kwargs.get('id')
+        user = self.request.user
+        print(f"🔍 GET_OBJECT: Requesting event {event_id} for user {user.username}")
+        
         # First try the normal permission-based access
         try:
-            return super().get_object()
+            event = super().get_object()
+            print(f"🔍 GET_OBJECT: Normal access granted for event {event_id}")
+            return event
         except Http404:
+            print(f"🔍 GET_OBJECT: Normal access denied for event {event_id}, checking invitation access")
+            
             # If normal access fails, check if this is an invitation access
-            event_id = self.kwargs.get('id')
             if event_id:
                 try:
                     event = Event.objects.get(id=event_id)
+                    print(f"🔍 GET_OBJECT: Event found - {event.title}, has invitation token: {bool(event.invitation_token)}")
+                    
                     # Only allow access if the event has an invitation token
                     if event.invitation_token:
+                        print(f"🔍 GET_OBJECT: Invitation access granted for event {event_id}")
                         return event
+                    else:
+                        print(f"🔍 GET_OBJECT: Event {event_id} has no invitation token")
                 except Event.DoesNotExist:
+                    print(f"🔍 GET_OBJECT: Event {event_id} does not exist")
                     pass
             
             # If we get here, the event doesn't exist or user has no access
+            print(f"🔍 GET_OBJECT: No access granted for event {event_id}")
             raise Http404("No Event matches the given query.")
     
     def retrieve(self, request, *args, **kwargs):
@@ -80,7 +94,14 @@ class EventViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         user_circles = Circle.objects.filter(members=user)
-        return Event.objects.filter(Q(creator=user) | Q(circles__in=user_circles)).distinct()
+        
+        print(f"📋 GET_QUERYSET: User {user.username} has {user_circles.count()} circles: {[c.id for c in user_circles]}")
+        
+        events = Event.objects.filter(Q(creator=user) | Q(circles__in=user_circles)).distinct()
+        
+        print(f"📋 GET_QUERYSET: User {user.username} can access {events.count()} events: {[e.id for e in events]}")
+        
+        return events
 
     def list(self, request, *args, **kwargs):
         """
@@ -133,7 +154,9 @@ class EventViewSet(viewsets.ModelViewSet):
             event.invitation_token = generate_invitation_token()
             event.save()
             
-            # Create invitation circle
+            # Create invitation circle with default tag
+            from .models import Tag
+            default_tag = Tag.objects.get(id=2)
             invitation_circle = Circle.objects.create(
                 name="Invités",
                 creator=self.request.user,
@@ -142,6 +165,8 @@ class EventViewSet(viewsets.ModelViewSet):
             )
             # Add the creator to the invitation circle
             invitation_circle.members.add(self.request.user)
+            # Add the default tag
+            invitation_circle.categories.add(default_tag)
             
             event.circles.add(invitation_circle)
         # Return the created event with full address details
@@ -413,16 +438,17 @@ class EventViewSet(viewsets.ModelViewSet):
             linked_event=event
         ).first()
         
-        # Create invitation circle if doesn't exist
+        # Check if invitation circle exists - if not, return error
         if not invitation_circle:
-            invitation_circle = Circle.objects.create(
-                name="Invités",
-                creator=user,
-                is_invitation_circle=True,
-                linked_event=event
-            )
-            # Add the creator to the invitation circle
-            invitation_circle.members.add(user)
+            return Response({
+                "error": "No invitation circle found for this event. The event must be created with invitation link enabled."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Add the current user to the existing invitation circle
+        invitation_circle.members.add(user)
+        
+        # Link invitation circle to event
+        event.circles.add(invitation_circle)
         
         # Generate invitation URL
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
@@ -439,9 +465,10 @@ class EventViewSet(viewsets.ModelViewSet):
         """
         Accept an invitation to join the event's invitation circle.
         """
-        event = self.get_object()
-        invitation_token = request.data.get('invitation_token')
         
+        event = self.get_object()
+        
+        invitation_token = request.data.get('invitation_token')
         if not invitation_token:
             return Response(
                 {"detail": "invitation_token is required."}, 
@@ -467,12 +494,16 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         
+        # Check if user is already a member
+        is_already_member = invitation_circle.members.filter(id=request.user.id).exists()
+        
         # Add user to invitation circle if not already a member
-        if not invitation_circle.members.filter(id=request.user.id).exists():
+        if not is_already_member:
             invitation_circle.members.add(request.user)
         
         # Return event details
         serializer = self.get_serializer(event)
+        
         return Response({
             "message": "Successfully joined the event invitation circle.",
             "event": serializer.data
@@ -564,8 +595,10 @@ class CircleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        # Circles user created or is a member of
-        return Circle.objects.filter(Q(creator=user) | Q(members=user)).distinct()
+        # Include regular circles (user created or member of, excluding invitation circles)
+        return Circle.objects.filter(
+            Q(creator=user) | Q(members=user)
+        ).exclude(is_invitation_circle=True).distinct()
 
     def perform_create(self, serializer):
         circle = serializer.save(creator=self.request.user)

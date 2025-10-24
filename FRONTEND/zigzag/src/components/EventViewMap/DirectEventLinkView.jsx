@@ -34,13 +34,23 @@ const DirectEventLinkView = () => {
         setEventData(data);
         setError(null);
         
-        // Check for invitation token in URL and process it if user is authenticated
+        // Check for invitation token in URL AND sessionStorage
         const urlParams = new URLSearchParams(window.location.search);
-        const inviteToken = urlParams.get('invite_token');
+        const urlInviteToken = urlParams.get('invite_token');
+        const sessionInviteToken = sessionStorage.getItem('pending_invite_token');
+        const inviteToken = urlInviteToken || sessionInviteToken;
+        
         if (inviteToken && isConnected) {
           try {
             await acceptEventInvite(id, inviteToken);
             console.log('Successfully joined event via invitation');
+            
+            // Clear sessionStorage if token came from there
+            if (sessionInviteToken) {
+              sessionStorage.removeItem('pending_invite_token');
+              sessionStorage.removeItem('pending_event_id');
+            }
+            
             // Optionally show a success message or notification
           } catch (inviteError) {
             console.error('Error accepting invitation:', inviteError);
