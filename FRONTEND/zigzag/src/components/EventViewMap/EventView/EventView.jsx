@@ -125,17 +125,29 @@ const styles = {
     borderRadius: "0 0 0 8px",
     textAlign: "center",
     width: "90px", // Increased width for better rectangle
+    minHeight: "70px", // Increased height to better accommodate hour interval display
     cursor: "pointer",
     userSelect: "none",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
   },
   dayName: {
     fontSize: "0.8rem",
     fontWeight: "bold",
     textTransform: "uppercase",
+    color: "white",
   },
   dateTimeCompact: {
     fontSize: "0.9rem",
     fontWeight: "bold",
+    minHeight: "1.2em", // Ensure consistent height
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    whiteSpace: "nowrap",
+    color: "white",
   },
   timeCompact: {
     fontSize: "0.8rem",
@@ -529,7 +541,41 @@ const EventView = ({
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
 
-  // Toggle showing end time
+  // Check if event duration is less than 1 day
+  const isEventLessThanOneDay = () => {
+    if (!event || !event.end_time) return false;
+    const startTime = new Date(event.start_time);
+    const endTime = new Date(event.end_time);
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const durationDays = durationMs / (1000 * 60 * 60 * 24);
+    return durationDays < 1;
+  };
+
+  // Format hour interval for short events (24-hour format, no AM/PM) - returns object for two-line display
+  const formatHourInterval = () => {
+    if (!event || !event.end_time) return { start: '', end: '' };
+    
+    // Format time in 24-hour format without AM/PM
+    const formatTime24Hour = (dateString) => {
+      const date = new Date(dateString);
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      
+      // If both hours and minutes are 0 (midnight), don't show the time
+      if (hours === 0 && minutes === 0) {
+        return "";
+      }
+      
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    };
+    
+    const startTimeStr = formatTime24Hour(event.start_time);
+    const endTimeStr = formatTime24Hour(event.end_time);
+    
+    return { start: startTimeStr, end: endTimeStr };
+  };
+
+  // Toggle showing end time (or hour interval for short events)
   const toggleEndTimeDisplay = () => {
     setShowEndTime(!showEndTime);
   };
@@ -849,10 +895,25 @@ const EventView = ({
               onClick={toggleEndTimeDisplay}
               title={event.end_time ? "Cliquer pour changer de date" : ""}
             >
-              <div style={styles.dayName}>{getDayName(showEndTime && event.end_time ? event.end_time : event.start_time)}</div>
+              {/* Only show day name when not displaying hour interval for short events */}
+              {!(showEndTime && event.end_time && isEventLessThanOneDay()) && (
+                <div style={styles.dayName}>{getDayName(showEndTime && event.end_time ? event.end_time : event.start_time)}</div>
+              )}
               <div style={styles.dateTimeCompact}>
                 {showEndTime && event.end_time ? (
-                  formatDateOnly(event.end_time)
+                  isEventLessThanOneDay() ? (
+                    (() => {
+                      const timeInterval = formatHourInterval();
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                          {timeInterval.start && <div>{timeInterval.start}</div>}
+                          {timeInterval.end && <div>{timeInterval.end}</div>}
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    formatDateOnly(event.end_time)
+                  )
                 ) : (
                   formatDateOnly(event.start_time)
                 )}
@@ -871,7 +932,8 @@ const EventView = ({
                     <div
                       style={{
                         ...styles.addressItem,
-                        color: addressHovered ? "#2196F3" : "inherit"
+                        color: addressHovered ? "#2196F3" : "inherit",
+                        paddingRight: "90px",
                       }}
                       onClick={openGoogleMaps}
                       onMouseEnter={() => setAddressHovered(true)}
@@ -1115,10 +1177,25 @@ const EventView = ({
             onClick={toggleEndTimeDisplay}
             title={event.end_time ? "Cliquer pour changer de date" : ""}
           >
-            <div style={styles.dayName}>{getDayName(showEndTime && event.end_time ? event.end_time : event.start_time)}</div>
+            {/* Only show day name when not displaying hour interval for short events */}
+            {!(showEndTime && event.end_time && isEventLessThanOneDay()) && (
+              <div style={styles.dayName}>{getDayName(showEndTime && event.end_time ? event.end_time : event.start_time)}</div>
+            )}
             <div style={styles.dateTimeCompact}>
               {showEndTime && event.end_time ? (
-                formatDateOnly(event.end_time)
+                isEventLessThanOneDay() ? (
+                  (() => {
+                    const timeInterval = formatHourInterval();
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                        {timeInterval.start && <div>{timeInterval.start}</div>}
+                        {timeInterval.end && <div>{timeInterval.end}</div>}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  formatDateOnly(event.end_time)
+                )
               ) : (
                 formatDateOnly(event.start_time)
               )}
@@ -1136,7 +1213,8 @@ const EventView = ({
                   <div
                     style={{
                       ...styles.addressItem,
-                      color: addressHovered ? "#2196F3" : "inherit"
+                      color: addressHovered ? "#2196F3" : "inherit",
+                      paddingRight: "90px",
                     }}
                     onClick={openGoogleMaps}
                     onMouseEnter={() => setAddressHovered(true)}
