@@ -719,19 +719,28 @@ export const fetchMyLocations = async () => {
 // New function to fetch public event data even without authentication
 export const fetchDirectEvent = async (eventId) => {
   try {
+    console.log(`🔍 FRONTEND: Starting fetchDirectEvent for event ${eventId}`);
+    
     // Get auth headers if available, but don't require them
     const headers = {};
     const token = localStorage.getItem("access_token");
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      console.log(`🔍 FRONTEND: Using auth token for fetchDirectEvent`);
+    } else {
+      console.log(`🔍 FRONTEND: No auth token for fetchDirectEvent`);
     }
 
+    console.log(`🔍 FRONTEND: Making API call to fetch event`);
     const response = await axios.get(`${API_BASE_URL}events/event/${eventId}/`, { headers });
+    
+    console.log(`🔍 FRONTEND: Event fetched successfully:`, response.data);
     return response.data;
   } catch (error) {
-    console.error('Error fetching direct event:', error);
+    console.error('🔍 FRONTEND: Error fetching direct event:', error);
     // If we have response data with an error message, return it instead of throwing
     if (error.response && error.response.data) {
+      console.log(`🔍 FRONTEND: Error response data:`, error.response.data);
       return error.response.data;
     }
     throw error;
@@ -1013,21 +1022,26 @@ export const generateEventInvite = async (eventId) => {
 // Accept invitation to join event's invitation circle
 export const acceptEventInvite = async (eventId, invitationToken) => {
   try {
+    console.log(`🎯 FRONTEND: Starting acceptEventInvite for event ${eventId} with token ${invitationToken}`);
+    
     let token = localStorage.getItem("access_token");
     if (!token) {
+      console.log('🎯 FRONTEND: No access token, refreshing...');
       token = await refreshAccessToken();
       if (!token) throw new Error('Authentication required');
     }
 
+    console.log(`🎯 FRONTEND: Making API call to accept invitation`);
     const response = await axios.post(
       `${API_BASE_URL}events/event/${eventId}/accept_invite/`,
       { invitation_token: invitationToken },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
+    console.log(`🎯 FRONTEND: Accept invitation response:`, response.data);
     return response.data;
   } catch (error) {
-    console.error('Error accepting event invite:', error);
+    console.error('🎯 FRONTEND: Error accepting event invite:', error);
     throw error;
   }
 };
