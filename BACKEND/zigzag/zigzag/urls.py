@@ -38,3 +38,12 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # to delete refresh_token after log out
 ]
+
+from django.http import HttpResponse
+
+def healthz(request):
+    return HttpResponse("ok", content_type="text/plain")
+
+urlpatterns += [
+    path("healthz", healthz),  # or "healthz/"
+]
