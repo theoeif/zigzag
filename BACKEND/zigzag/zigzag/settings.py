@@ -242,3 +242,5 @@ LOGGING = {
 # Add this for debugging
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 CSRF_USE_SESSIONS = True
+
+CONN_MAX_AGE = 0  # close after each request; ideal for spiky, low traffic on serverless PG

@@ -3,7 +3,7 @@ name = "zigzag"
 version = "0.1.0"
 description = "Please have fun"
 readme = "README.md"
-requires-python = ">=3.9, <3.11"
+requires-python = ">=3.9, <3.13"
 dependencies = [
     "cryptography>=41.0.7",
     "django-allauth>=65.11.2",
@@ -19,6 +19,7 @@ dependencies = [
     "dj-database-url>=2.1.0",
     "whitenoise>=6.0.0",
     "django-ipware>=5.0.0",
+    "gunicorn>=23.0.0",
 ]
 authors = [
   {name = "BlueMountain"},
