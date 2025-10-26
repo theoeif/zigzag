@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaUserAlt, FaUserFriends, FaTimes } from 'react-icons/fa';
 import styles from './Project.module.css';
-import { fetchCircleMembers, fetchCircles } from '../../api/api';
+import { fetchCircleMembers } from '../../api/api';
 
 // Component now only accepts an array of circle IDs
 const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
@@ -25,38 +25,8 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
           return;
         }
 
-        // Check if this is an invitation circle (by name)
-        const isInvitationCircle = circleName === 'Cercle invités' || circleName === 'Invités';
-        
-        let filteredCircleIds;
-        
-        if (isInvitationCircle) {
-          // For invitation circles, skip accessibility check
-          filteredCircleIds = [...new Set(circleIds)];
-        } else {
-          // For regular circles, use the existing accessibility check
-          const userCircles = await fetchCircles(); // existing API call
-          if (!userCircles || !Array.isArray(userCircles)) {
-            throw new Error("Failed to fetch user circles");
-          }
-
-          // Extract IDs of circles user belongs to
-          const accessibleCircleIds = userCircles.map(c => c.id);
-
-          // Filter requested circles to only accessible ones
-          const uniqueRequested = [...new Set(circleIds)];
-          filteredCircleIds = uniqueRequested.filter(id => accessibleCircleIds.includes(id));
-
-          // If no accessible circles found, show the "not part of circle" message
-          if (filteredCircleIds.length === 0) {
-            setMembers([]);
-            setLoading(false);
-            return;
-          }
-        }
-
-        // Fetch members using filtered circle IDs
-        const membersData = await fetchCircleMembers(filteredCircleIds);
+        // Fetch members directly - backend handles all filtering
+        const membersData = await fetchCircleMembers(circleIds);
 
         if (Array.isArray(membersData)) {
           setMembers(membersData);
@@ -116,16 +86,11 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
               <p>Chargement des invités...</p>
             </div>
           ) : error ? (
-            <div className={styles.errorContainerProject}>
-              <p>Erreur : {error}</p>
-              <p>Veuillez réessayer plus tard.</p>
-            </div>
-          ) : members.length === 0 ? (
             <div className={styles.noMembersContainerProject}>
               <FaUserAlt className={styles.noMembersIcon} />
-              <p>Tu ne fais pas partie de {isMultiCircle ? 'ces cercles' : 'ce cercle'}</p>
+              <p>{typeof error === 'string' ? error : (error?.message || "Tu ne fais pas partie de ce cercle")}</p>
             </div>
-          ) : (
+          ) : members.length > 0 ? (
             <>
               <div className={styles.memberCountProject}>
                 <span>
@@ -155,6 +120,11 @@ const CircleMembersPopup = ({ circleIds = [], circleName, onClose }) => {
                 ))}
               </ul>
             </>
+          ) : (
+            <div className={styles.noMembersContainerProject}>
+              <FaUserAlt className={styles.noMembersIcon} />
+              <p>Tu ne fais pas partie de {isMultiCircle ? 'ces cercles' : 'ce cercle'}</p>
+            </div>
           )}
         </div>
       </div>

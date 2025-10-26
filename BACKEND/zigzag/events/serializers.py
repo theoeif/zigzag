@@ -13,10 +13,18 @@ class CircleSerializer(serializers.ModelSerializer):
     tags = serializers.StringRelatedField(source='categories', many=True, read_only=True)
     is_invitation_circle = serializers.BooleanField(read_only=True)
     linked_event = serializers.PrimaryKeyRelatedField(read_only=True)
+    is_creator = serializers.SerializerMethodField()
 
     class Meta:
         model = Circle
-        fields = ['id', 'name', 'creator', 'categories', 'tags', 'is_invitation_circle', 'linked_event']
+        fields = ['id', 'name', 'creator', 'categories', 'tags', 'is_invitation_circle', 'linked_event', 'is_creator']
+    
+    def get_is_creator(self, obj):
+        """Return True if the current user created this circle"""
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            return obj.creator == request.user
+        return False
 
     def create(self, validated_data):
         # Handle categories (tags) during creation
@@ -109,6 +117,33 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "password", "password2", "timezone", "utc_offset_minutes")
+
+    def validate_username(self, value):
+        """Normalize and validate username"""
+        if not value:
+            raise serializers.ValidationError("Username cannot be empty.")
+        
+        # Strip whitespace from username
+        value = value.strip()
+        
+        # Check for empty string after trimming
+        if not value:
+            raise serializers.ValidationError("Username cannot be empty.")
+        
+        # Check if username already exists (case-insensitive comparison to avoid duplicates)
+        # This handles cases like "Test " vs "test" vs "test"
+        existing_user = User.objects.filter(username__iexact=value.strip()).first()
+        if existing_user:
+            raise serializers.ValidationError("A user with that username already exists. Usernames may not include spaces.")
+        
+        # Basic length validation
+        if len(value) < 3:
+            raise serializers.ValidationError("Username must be at least 3 characters long.")
+        
+        if len(value) > 150:
+            raise serializers.ValidationError("Username cannot exceed 150 characters.")
+        
+        return value
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
