@@ -706,13 +706,18 @@
   position: relative;
 }
 
+.buttonContainer {
+  flex-shrink: 0;
+  padding: 16px 20px;
+  text-align: center;
+}
+
 .circlesList {
-  flex: 1;
   overflow-y: auto;
   padding: 16px;
   padding-right: 5px;
-  padding-bottom: 30px; /* Reduced space for button */
-  margin: 0 0 20px 0;
+  padding-bottom: 60px;
+  margin: 0;
   list-style: none;
 }
 
@@ -772,31 +777,25 @@
 }
 
 .addCircleButton {
-  background-color: #1b4332; /* Dark forest green color */
+  background-color: #1b4332;
   color: rgba(255, 255, 255, 0.9);
   border: none;
-  border-radius: 6px;
-  padding: 10px 12px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   margin: 0 auto;
-  font-weight: 500; /* Less bold */
-  font-size: 0.9rem; /* Smaller font */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(27, 67, 50, 0.2); /* Lighter shadow */
-  position: sticky;
-  bottom: 20px; /* Put back to original value */
-  width: calc(100% - 30px); /* Slightly narrower */
-  z-index: 5;
-  text-transform: none; /* Remove uppercase */
-  letter-spacing: normal;
-  opacity: 0.9; /* Slightly transparent */
+  box-shadow: 0 2px 4px rgba(27, 67, 50, 0.2);
+  opacity: 0.9;
 }
 
 .addCircleButton:hover {
-  background-color: #2d6a4f; /* Slightly lighter green on hover */
-  transform: translateY(-1px); /* Less movement */
+  background-color: #2d6a4f;
+  transform: translateY(-1px);
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
   opacity: 1;
 }
