@@ -5,7 +5,7 @@ import { patchEvent } from '../../api/api';
 import styles from './Project.module.css';
 
 
-const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsManageMode, isCreator = false }) => {
+const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsManageMode = null, isCreator = false }) => {
   // Pre-fill form state with current event values
   const [formData, setFormData] = useState({
     description: eventData.description || "",

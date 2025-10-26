@@ -467,7 +467,7 @@ export const deleteEvent = async (id) => {
     let token = localStorage.getItem("access_token");
     if (!token) {
       token = await refreshAccessToken(); // Refresh token if necessary
-      if (!token) return [];
+      if (!token) return false;
     }
 
     const response = await axios.delete(`${API_BASE_URL}events/event/${id}/`, {
@@ -479,7 +479,7 @@ export const deleteEvent = async (id) => {
     return response.status === 204;
   } catch (error) {
     console.error("Error deleting event:", error);
-    return [];
+    return false;
   }
 };
 
@@ -534,6 +534,15 @@ export const fetchCircleMembers = async (circleIdOrIds) => {
 
     return response.data;
   } catch (error) {
+    // Handle 404 error specifically
+    if (error.response && error.response.status === 404) {
+      // Pass through the backend error message (handles plural/singular)
+      const errorMessage = error.response.data?.error || "Tu ne fais pas partie de ce cercle";
+      const customError = new Error(errorMessage);
+      customError.status = 404;
+      customError.isAccessError = true;
+      throw customError;
+    }
     console.error('Error fetching circle members:', error);
     throw error;
   }
