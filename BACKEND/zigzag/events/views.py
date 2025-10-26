@@ -89,11 +89,7 @@ class EventViewSet(viewsets.ModelViewSet):
         user = self.request.user
         user_circles = Circle.objects.filter(members=user)
         
-        print(f"📋 GET_QUERYSET: User {user.username} has {user_circles.count()} circles: {[c.id for c in user_circles]}")
-        
         events = Event.objects.filter(Q(creator=user) | Q(circles__in=user_circles)).distinct()
-        
-        print(f"📋 GET_QUERYSET: User {user.username} can access {events.count()} events: {[e.id for e in events]}")
         
         return events
 
@@ -692,7 +688,7 @@ class CircleViewSet(viewsets.ModelViewSet):
         # Include regular circles (user created or member of, excluding invitation circles)
         return Circle.objects.filter(
             Q(creator=user) | Q(members=user)
-        ).exclude(is_invitation_circle=True).distinct()
+        ).exclude(is_invitation_circle=True).prefetch_related('categories').select_related('creator').distinct()
 
     def perform_create(self, serializer):
         circle = serializer.save(creator=self.request.user)
@@ -787,17 +783,31 @@ class MultiCircleMembersView(APIView):
         # Filter circles to only those the user is a member of or created
         user = request.user
         circles = Circle.objects.filter(
-            Q(id__in=circle_ids) & (Q(creator=user) | Q(members=user))
+            Q(id__in=circle_ids) & (
+                Q(creator=user) | 
+                Q(members=user) |
+                Q(is_invitation_circle=True)
+            )
         ).distinct()
 
-        found_ids = set(str(c.id) for c in circles)
-        missing_ids = set(str(cid) for cid in circle_ids) - found_ids
-        if missing_ids:
-            return Response({"error": f"Circles not found: {', '.join(sorted(missing_ids))}"}, status=status.HTTP_404_NOT_FOUND)
-        user_ids = circles.values_list("members__id", flat=True).distinct()
+        # Only return error if no circles were found at all
+        if not circles.exists():
+            # Check if single or multiple circles for appropriate error message
+            if len(circle_ids) == 1:
+                return Response({"error": "Tu ne fais pas partie de ce cercle"}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({"error": "Tu ne fais pas partie de ces cercles"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Fetch members from the accessible circles
         from .models import User  # local import
-        users = User.objects.filter(id__in=user_ids)
+        all_user_ids = set()
+        for circle in circles:
+            member_ids = circle.members.values_list('id', flat=True)
+            all_user_ids.update(member_ids)
+        
+        users = User.objects.filter(id__in=all_user_ids)
         data = [{"id": u.id, "username": u.username, "first_name": u.first_name, "last_name": u.last_name} for u in users]
+        
         return Response(data)
 
 

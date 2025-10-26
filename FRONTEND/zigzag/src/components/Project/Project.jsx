@@ -16,7 +16,6 @@ const Project = ({ projectId }) => {
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [projects, setProjects] = useState([]);           // Events created by the user
   const [otherProjects, setOtherProjects] = useState([]);   // Other events (excluding user's own)
-  const [isManageMode, setIsManageMode] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);   // Track event being edited
   const [isLoading, setIsLoading] = useState(true);
 
@@ -89,6 +88,7 @@ const Project = ({ projectId }) => {
     };
   }, [showEventForm, editingEvent, showCircleMembers, anyDetailsExpanded]);
 
+
   // Keep draft dates in sync when timeRange changes
   useEffect(() => {
     setDraftStart(timeRange.start.toISOString().slice(0, 10));
@@ -142,12 +142,10 @@ const Project = ({ projectId }) => {
 
   // New useEffect: Update events state whenever projects state changes (for immediate UI updates after edits)
   useEffect(() => {
-    if (projects.length > 0) {
-      const sortedEvents = [...projects].sort((a, b) => {
-        return new Date(b.start_time) - new Date(a.start_time);
-      });
-      setEvents(sortedEvents);
-    }
+    const sortedEvents = [...projects].sort((a, b) => {
+      return new Date(b.start_time) - new Date(a.start_time);
+    });
+    setEvents(sortedEvents);
   }, [projects]);
 
   // Viewport tracking to derive mobile status and grid columns
@@ -179,7 +177,11 @@ const Project = ({ projectId }) => {
 
   // Filter events based on timeline selection - this should run only when events or timeRange actually change
   useEffect(() => {
-    if (!events || events.length === 0) return;
+    // Handle empty events array
+    if (!events || events.length === 0) {
+      setFilteredEvents([]);
+      return;
+    }
 
     // Clone dates to avoid modifying original values
     const rawStart = new Date(timeRange.start);
@@ -219,6 +221,8 @@ const Project = ({ projectId }) => {
     if (otherProjects && otherProjects.length > 0) {
       const filteredFriends = otherProjects.filter(filterEventByTimeframe);
       setFilteredFriendsEvents(filteredFriends);
+    } else {
+      setFilteredFriendsEvents([]);
     }
   }, [events, otherProjects, timeRange.start, timeRange.end]);
 
@@ -283,10 +287,6 @@ const Project = ({ projectId }) => {
     setIsLeftMenuOpen(prev => !prev);
   };
 
-  const toggleManageMode = () => {
-    setIsManageMode(prev => !prev);
-  };
-
   const handleDeleteEvent = async (eventId) => {
     try {
       // Get the event details
@@ -297,14 +297,31 @@ const Project = ({ projectId }) => {
         return;
       }
 
-      // Backend enforces permissions automatically - only creators can delete
+      // Show confirmation dialog in French
+      const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible.");
+      
+      if (!confirmed) {
+        return;
+      }
+
+      // OPTIMISTIC UPDATE: Remove from all states immediately for instant UI feedback
+      setProjects(prev => prev.filter(e => e.id !== eventId));
+      setOtherProjects(prev => prev.filter(e => e.id !== eventId));
+      setEvents(prev => prev.filter(e => e.id !== eventId));
+      setFilteredEvents(prev => prev.filter(e => e.id !== eventId));
+      setFilteredFriendsEvents(prev => prev.filter(e => e.id !== eventId));
+
+      // Make API call in background
       const response = await deleteEvent(eventId);
-      if (response) {
-        setProjects(prev => prev.filter(event => event.id !== eventId));
+      
+      // If deletion failed on backend, show error but don't revert (user has already seen it disappear)
+      if (!response) {
+        console.error("Failed to delete event on backend");
+        alert("L'événement n'a pas pu être supprimé du serveur. Veuillez rafraîchir la page.");
       }
     } catch (error) {
       console.error("Error deleting event:", error);
-      alert("Unable to delete the project at this time.");
+      alert("Erreur lors de la suppression. Veuillez rafraîchir la page.");
     }
   };
 
@@ -553,20 +570,11 @@ const Project = ({ projectId }) => {
         )}
         {/* Render Your Projects */}
         <div>
-          {!isMobile ? (
+          {!isMobile && (
             <div className={styles.sectionHeaderProject}>
               <h3 className={styles.h3Project}>Mes projets</h3>
-              <div className={styles.headerRightProject}>
-                <button
-                  onClick={toggleManageMode}
-                  className={`${styles.manageButtonProject} ${isManageMode ? styles.activeProject : ''}`}
-                  data-button-type="project-edit"
-                >
-                  <FaEdit /> Modifier
-                </button>
-              </div>
             </div>
-          ) : null}
+          )}
           {(isMobile ? filteredEvents : capToTwoRows(filteredEvents)).length === 0 ? (
             <p>Vous n'avez pas encore créé de projets.</p>
           ) : (!isMobile && (
@@ -577,7 +585,8 @@ const Project = ({ projectId }) => {
                   <EventCard
                     key={event.id}
                     event={event}
-                    isManageMode={isManageMode}
+                    isManageMode={true}
+                    showDelete={true}
                     onDelete={handleDeleteEvent}
                     onEdit={handleEditEvent}
                     onViewCircleMembers={handleViewCircleMembers}
@@ -597,17 +606,6 @@ const Project = ({ projectId }) => {
         <div>
           <div className={styles.sectionHeaderProject}>
             {!isMobile && <h3 className={styles.h3Project}>Projets invités</h3>}
-            {isMobile && (
-              <div className={styles.headerLeftProject}>
-                <button
-                  onClick={toggleManageMode}
-                  className={`${styles.manageButtonProject} ${styles.manageButtonMobileProject} ${isManageMode ? styles.activeProject : ''}`}
-                  data-button-type="project-edit"
-                >
-                  <FaEdit /> Modifier
-                </button>
-              </div>
-            )}
             <div className={styles.headerRightProject}>
               <div className={styles.filterContainerProject}>
                 <FaFilter />
@@ -629,13 +627,14 @@ const Project = ({ projectId }) => {
             <div className={styles.eventsGridProject}>
               {capToTwoRows(getFilteredFriendsEvents()).map((event) => {
                 const shouldAutoOpen = autoOpenEventId === event.id;
-                // Allow editing if event is shared AND user is in manage mode
-                const canEdit = event.event_shared && isManageMode;
+                // Allow editing if event is shared
+                const canEdit = event.event_shared;
                 return (
                   <EventCard
                     key={event.id}
                     event={event}
-                    isManageMode={canEdit} // Allow editing of shared events only in manage mode
+                    isManageMode={canEdit}
+                    showDelete={false}
                     onDelete={handleDeleteEvent}
                     onEdit={handleEditEvent}
                     onViewCircleMembers={handleViewCircleMembers}
@@ -660,7 +659,8 @@ const Project = ({ projectId }) => {
                     <EventCard
                       key={event.id}
                       event={event}
-                      isManageMode={isManageMode}
+                      isManageMode={true}
+                      showDelete={true}
                       onDelete={handleDeleteEvent}
                       onEdit={handleEditEvent}
                       onViewCircleMembers={handleViewCircleMembers}
@@ -675,12 +675,13 @@ const Project = ({ projectId }) => {
               <div className={styles.eventsGridProject}>
                 {getFilteredFriendsEvents().map((event) => {
                   const shouldAutoOpen = autoOpenEventId === event.id;
-                  const canEdit = event.event_shared && isManageMode;
+                  const canEdit = event.event_shared;
                   return (
                     <EventCard
                       key={event.id}
                       event={event}
                       isManageMode={canEdit}
+                      showDelete={false}
                       onDelete={handleDeleteEvent}
                       onEdit={handleEditEvent}
                       onViewCircleMembers={handleViewCircleMembers}
@@ -705,11 +706,9 @@ const Project = ({ projectId }) => {
           isCreator={projects.some(e => e.id === editingEvent.id)}
           onClose={() => {
             setEditingEvent(null);
-            setIsManageMode(false); // Reset manage mode when closing
           }}
           onEventUpdated={handleEventUpdated}
           setEditMode={setEditingEvent}
-          setIsManageMode={setIsManageMode} // Pass the state setter function
         />
       )}
 

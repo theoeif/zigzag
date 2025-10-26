@@ -1,6 +1,6 @@
 // File: components/Circles/CirclesSidebar.jsx
 import React, { useEffect, useState } from 'react';
-import { fetchCircles, fetchMyTags, fetchAddCircle, fetchUserProfile } from '../../api/api';
+import { fetchCircles, fetchMyTags, fetchAddCircle } from '../../api/api';
 import styles from './Circle.module.css';
 import { FiX, FiCheck, FiTag, FiUsers, FiPlus } from 'react-icons/fi';
 
@@ -128,14 +128,11 @@ const AddCircleModal = ({ onClose, onCreate }) => {
 const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
   const [circles, setCircles] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
 
   const loadCircles = async () => {
     const data = await fetchCircles();
-    const userProfile = await fetchUserProfile();
-    if (data && userProfile) {
+    if (data) {
       setCircles(data);
-      setCurrentUser(userProfile);
     }
   };
 
@@ -159,12 +156,8 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
 
   // Filter out invitation circles and separate into created by user and others
   const regularCircles = circles.filter(circle => !circle.is_invitation_circle);
-  const createdCircles = regularCircles.filter(circle =>
-    circle.creator === currentUser?.username
-  );
-  const otherCircles = regularCircles.filter(circle =>
-    circle.creator !== currentUser?.username
-  );
+  const createdCircles = regularCircles.filter(circle => circle.is_creator);
+  const otherCircles = regularCircles.filter(circle => !circle.is_creator);
 
   return (
     <div className={styles.circlesSidebar}>

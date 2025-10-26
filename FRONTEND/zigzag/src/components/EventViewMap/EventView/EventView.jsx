@@ -287,29 +287,29 @@ const styles = {
   },
   copiedTooltip: {
     position: "absolute",
-    bottom: "40px",
-    left: "50%",
-    transform: "translateX(-50%)",
+    top: "-50px",
+    left: "20px",
     backgroundColor: "#40916c", // LeftMenu green color
     color: "white",
-    padding: "5px 10px",
-    borderRadius: "4px",
-    fontSize: "0.75rem",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    fontSize: "0.8rem",
     whiteSpace: "nowrap",
-    zIndex: 1000,
+    zIndex: 1001,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
   },
   errorTooltip: {
     position: "absolute",
-    bottom: "40px",
-    left: "50%",
-    transform: "translateX(-50%)",
+    top: "-30px",
+    left: "20px",
     backgroundColor: "#e74c3c", // Red color for errors
     color: "white",
-    padding: "5px 10px",
-    borderRadius: "4px",
-    fontSize: "0.75rem",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    fontSize: "0.8rem",
     whiteSpace: "nowrap",
-    zIndex: 1000,
+    zIndex: 1001,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
   },
   shareLinkError: {
     position: "absolute",
@@ -680,6 +680,7 @@ const EventView = ({
   const handleGenerateInvite = async () => {
     try {
       setInvitationError(null);
+      setInvitationCopied(false); // Reset copy state
       // Add click animation effect for invitation button only
       setInvitationButtonClicked(true);
       setTimeout(() => setInvitationButtonClicked(false), 300);
@@ -687,12 +688,10 @@ const EventView = ({
       const response = await generateEventInvite(eventId);
       setInvitationUrl(response.invitation_url);
       
-      // Immediately copy the link to clipboard
+      // Immediately copy the link to clipboard and show tooltip
       try {
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(response.invitation_url);
-          setInvitationCopied(true);
-          setTimeout(() => setInvitationCopied(false), 2000);
         } else {
           // Fallback for mobile browsers and non-HTTPS contexts
           const textArea = document.createElement('textarea');
@@ -706,16 +705,17 @@ const EventView = ({
           textArea.focus();
           textArea.select();
           
-          const successful = document.execCommand('copy');
-          if (successful) {
-            setInvitationCopied(true);
-            setTimeout(() => setInvitationCopied(false), 2000);
-          }
+          await document.execCommand('copy');
           document.body.removeChild(textArea);
         }
+        // Show tooltip after successful copy
+        setInvitationCopied(true);
+        setTimeout(() => setInvitationCopied(false), 2000);
       } catch (copyError) {
         console.error("Error copying invitation link:", copyError);
-        // Don't show error for copy failure, just continue
+        // Still show tooltip even if copy fails, as user needs to know the link was generated
+        setInvitationCopied(true);
+        setTimeout(() => setInvitationCopied(false), 2000);
       }
     } catch (error) {
       console.error("Error generating invitation link:", error);
@@ -887,6 +887,36 @@ const EventView = ({
             style={styles.card}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Close button for modal mode (when clicking marker) */}
+            {isModalMode && (
+              <div style={{
+                position: "absolute",
+                bottom: "20px",
+                right: "20px"
+              }}>
+                <button
+                  style={{
+                    ...styles.button,
+                    ...styles.secondaryButton,
+                    padding: "8px 12px",
+                    fontSize: "0.9rem",
+                    minWidth: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                  }}
+                  title="Fermer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            
             {/* Date display in right corner with click interaction */}
             <div
               style={{
@@ -1167,8 +1197,52 @@ const EventView = ({
   } else {
     // Modal view
     return (
-      <div style={styles.modal.overlay}>
-        <div style={styles.card}>
+      <div style={styles.modal.overlay} onClick={onClose}>
+        <div style={styles.card} onClick={(e) => e.stopPropagation()}>
+          {/* Close button - positioned outside scrollable area */}
+          <div style={{
+            position: "absolute",
+            top: "15px",
+            left: "15px",
+            zIndex: 1000
+          }}>
+            <button
+              type="button"
+              style={{
+                background: "none",
+                border: "none",
+                fontSize: "24px",
+                cursor: "pointer",
+                color: "#777",
+                padding: "4px 8px",
+                margin: "0",
+                lineHeight: 1,
+                transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "32px",
+                height: "32px",
+                borderRadius: "4px"
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#333";
+                e.currentTarget.style.backgroundColor = "#f5f5f5";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "#777";
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+              title="Fermer"
+            >
+              ✕
+            </button>
+          </div>
+          
           {/* Date display in right corner with click interaction */}
           <div
             style={{
@@ -1380,18 +1454,7 @@ const EventView = ({
                   </div>
                 )}
 
-              </div>
-
-              {/* Close button */}
-              <div style={{display: "flex", justifyContent: "center", marginTop: "15px"}}>
-                <button
-                  type="button"
-                  style={{...styles.button, ...styles.secondaryButton}}
-                  onClick={onClose || handleViewOnMap}
-                >
-                  Close
-                </button>
-              </div>
+                </div>
             </>
           }
         </div>
