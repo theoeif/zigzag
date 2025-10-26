@@ -97,10 +97,19 @@ const AccountCreation = () => {
     }
 
     try {
-      const { username, password, password2 } = formData;
+      // Trim username to remove leading/trailing spaces
+      const trimmedUsername = formData.username.trim();
+      
+      if (!trimmedUsername) {
+        setError("Username cannot be empty.");
+        setFieldErrors({ username: "Username cannot be empty." });
+        return;
+      }
+
+      const { password, password2 } = formData;
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
       const utcOffsetMinutes = -new Date().getTimezoneOffset();
-      const data = await register({ username, password, password2, timezone: timeZone, utc_offset_minutes: utcOffsetMinutes });
+      const data = await register({ username: trimmedUsername, password, password2, timezone: timeZone, utc_offset_minutes: utcOffsetMinutes });
       console.log("Account created:", data);
 
       // Tokens are automatically stored by the register function in api.js
@@ -116,8 +125,12 @@ const AccountCreation = () => {
       // Handle different types of errors
       if (err.response?.status === 400) {
         if (err.response.data?.username) {
-          setError("Username already exists. Please choose a different username.");
-          setFieldErrors({ username: "Username already exists" });
+          // Get the actual error message from the backend
+          const usernameError = Array.isArray(err.response.data.username) 
+            ? err.response.data.username[0] 
+            : err.response.data.username;
+          setError(usernameError);
+          setFieldErrors({ username: usernameError });
         } else if (err.response.data?.password) {
           setError("Password must be at least 8 characters long, not entirely numeric, and should not be a commonly used password.");
           setFieldErrors({ password: "Password requirements not met" });

@@ -11,7 +11,7 @@ import EventDetailsSection from './EventDetailsSection';
 import EventModal from './EventModal';
 import { downloadSingleEventICal, generateEventInvite } from '../../api/api';
 
-const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
+const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
   
@@ -568,14 +568,16 @@ const EventCard = ({ event, isManageMode, onDelete, onEdit, onViewCircleMembers,
             >
               <FaEdit />
             </button>
-            <button
-              className={styles.deleteButtonProject}
-              onClick={() => onDelete && onDelete(event.id)}
-              aria-label="Delete event"
-              title="Delete event"
-            >
-              <FaTrashAlt />
-            </button>
+            {showDelete && (
+              <button
+                className={styles.deleteButtonProject}
+                onClick={() => onDelete && onDelete(event.id)}
+                aria-label="Delete event"
+                title="Delete event"
+              >
+                <FaTrashAlt />
+              </button>
+            )}
           </div>
         )}
       </div>

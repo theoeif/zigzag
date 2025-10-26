@@ -1,6 +1,6 @@
 // File: components/Circles/CirclesSidebar.jsx
 import React, { useEffect, useState } from 'react';
-import { fetchCircles, fetchMyTags, fetchAddCircle, fetchUserProfile } from '../../api/api';
+import { fetchCircles, fetchMyTags, fetchAddCircle } from '../../api/api';
 import styles from './Circle.module.css';
 import { FiX, FiCheck, FiTag, FiUsers, FiPlus } from 'react-icons/fi';
 
@@ -128,15 +128,15 @@ const AddCircleModal = ({ onClose, onCreate }) => {
 const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
   const [circles, setCircles] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const loadCircles = async () => {
+    setIsLoading(true);
     const data = await fetchCircles();
-    const userProfile = await fetchUserProfile();
-    if (data && userProfile) {
+    if (data) {
       setCircles(data);
-      setCurrentUser(userProfile);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -159,12 +159,8 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
 
   // Filter out invitation circles and separate into created by user and others
   const regularCircles = circles.filter(circle => !circle.is_invitation_circle);
-  const createdCircles = regularCircles.filter(circle =>
-    circle.creator === currentUser?.username
-  );
-  const otherCircles = regularCircles.filter(circle =>
-    circle.creator !== currentUser?.username
-  );
+  const createdCircles = regularCircles.filter(circle => circle.is_creator);
+  const otherCircles = regularCircles.filter(circle => !circle.is_creator);
 
   return (
     <div className={styles.circlesSidebar}>
@@ -203,22 +199,17 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
           </>
         )}
 
-        <div style={{ height: "30px" }}></div>
-        <button
-          className={styles.addCircleButton}
-          onClick={() => setShowModal(true)}
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 0
-          }}
-        >
-          <FiPlus size={20} />
-        </button>
+        {/* Button at the end of the list - only show when loaded */}
+        {!isLoading && (
+          <div className={styles.buttonContainer}>
+            <button
+              className={styles.addCircleButton}
+              onClick={() => setShowModal(true)}
+            >
+              <FiPlus size={20} />
+            </button>
+          </div>
+        )}
       </div>
 
       {showModal && (
