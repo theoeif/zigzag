@@ -1,0 +1,127 @@
+.mapbox-autocomplete {
+  position: relative;
+  width: 100%;
+}
+
+.mapbox-autocomplete-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.mapbox-autocomplete-input {
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 45px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  background-color: white;
+}
+
+.mapbox-autocomplete-input:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.mapbox-autocomplete-spinner {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top-color: #2196F3;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mapbox-autocomplete-error {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fee;
+  color: #c33;
+  border-radius: 4px;
+  font-size: 13px;
+  border: 1px solid #fcc;
+}
+
+.mapbox-autocomplete-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 2px solid #2196F3;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.mapbox-autocomplete-suggestion {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mapbox-autocomplete-suggestion:last-child {
+  border-bottom: none;
+}
+
+.mapbox-autocomplete-suggestion:hover,
+.mapbox-autocomplete-suggestion.selected {
+  background-color: #f5f8ff;
+}
+
+.suggestion-main-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.suggestion-context {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .mapbox-autocomplete-input {
+    padding: 10px 14px;
+    padding-right: 40px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  .mapbox-autocomplete-suggestions {
+    max-height: 250px;
+  }
+
+  .mapbox-autocomplete-suggestion {
+    padding: 10px 14px;
+  }
+
+  .suggestion-main-text {
+    font-size: 14px;
+  }
+
+  .suggestion-context {
+    font-size: 11px;
+  }
+}
