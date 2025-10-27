@@ -23,6 +23,10 @@ export default defineConfig({
           description: 'A map-based application',
           theme_color: '#2d6a4f',
           background_color: '#2d6a4f',
+          start_url: '/',
+          scope: '/',
+          display: 'standalone',
+          orientation: 'portrait-primary',
           icons: [
             {
               src: '/icon-1024.png',
