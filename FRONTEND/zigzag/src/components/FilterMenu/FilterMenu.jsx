@@ -1,16 +1,6 @@
 import React from "react";
-import { OpenCageGeoSearchPlugin } from "@opencage/geosearch-core";
-import GeoSearch from "./Geosearch";
-import "@algolia/autocomplete-theme-classic";
+import MapboxAutocomplete from "./MapboxAutocomplete";
 import "../../index.css";
-import { OPENCAGE_SEARCH_TOKEN } from "../../config";
-
-
-const predefinedLocations = [
-  { label: "France", lat: 46.603354, lng: 1.888334, zoom: 6 },
-  { label: "Europe", lat: 54.5260, lng: 15.2551,  zoom: 4 },
-  { label: "World", lat: 50, lng: 0,  zoom: window.innerWidth > 768 ? 2.4 : 2.9 },
-];
 
 const FilterMenu = ({
   toggleClustering,
@@ -26,40 +16,9 @@ const FilterMenu = ({
   setShowFriendLocations,
   disableClustering
 }) => {
-  const options = {
-    key: OPENCAGE_SEARCH_TOKEN,
-    language: "fr",
-    limit: 5,
+  const handleSelectLocation = (location) => {
+    setSelectedLocation(location);
   };
-
-  const handleSelectSuggestion = (location) => {
-    if (location.item) {
-      let lat, lng, zoom;
-      if ("lat" in location.item && "lng" in location.item) {
-        lat = location.item.lat;
-        lng = location.item.lng;
-        zoom = location.item.zoom || 12;
-      } else if (location.item.geometry) {
-        lat = parseFloat(location.item.geometry.lat);
-        lng = parseFloat(location.item.geometry.lng);
-        zoom = location.item.bounds ?
-          Math.max(4, Math.min(16, Math.floor(12 - Math.log(
-            Math.abs(parseFloat(location.item.bounds.northeast.lat) -
-            parseFloat(location.item.bounds.southwest.lat)) +
-            Math.abs(parseFloat(location.item.bounds.northeast.lng) -
-            parseFloat(location.item.bounds.southwest.lng))
-          )))) : 12;
-      }
-
-      if (lat !== undefined && lng !== undefined) {
-        setSelectedLocation({ lat, lng, zoom });
-      }
-    }
-  };
-
-  const plugin = OpenCageGeoSearchPlugin(options, {
-    onSelect: handleSelectSuggestion,
-  });
 
   return (
     <div className="filter-menu">
@@ -83,8 +42,9 @@ const FilterMenu = ({
         <h2>filtres</h2>
       </div>
 
-      {/* Location Search Section - Moved to top */}
-      <div className="filter-section">
+      <div className="filter-menu-content">
+        {/* Location Search Section - Moved to top */}
+        <div className="filter-section">
         <div className="section-header">
           <svg xmlns="http://www.w3.org/2000/svg" className="section-icon" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -92,30 +52,7 @@ const FilterMenu = ({
           <h3>Localisation</h3>
         </div>
         <div className="geo-search-wrapper">
-          <GeoSearch
-            openOnFocus={true}
-            plugins={[plugin]}
-            getSources={({ query }) => {
-              const hardcodedResults = predefinedLocations.filter(({ label }) =>
-                label.toLowerCase().startsWith(query.toLowerCase())
-              );
-
-              return [
-                {
-                  sourceId: "Hardcoded Locations",
-                  getItems: () => hardcodedResults,
-                  templates: {
-                    item({ item }) {
-                      return `${item.label}`;
-                    },
-                  },
-                  onSelect: handleSelectSuggestion,
-                },
-              ];
-            }}
-            onSubmit={(e) => console.log("Autocomplete submitted:", e)}
-            onInput={({ state }) => console.log("Input State:", state)}
-          />
+          <MapboxAutocomplete onSelectLocation={handleSelectLocation} />
         </div>
       </div>
 
@@ -231,6 +168,7 @@ const FilterMenu = ({
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

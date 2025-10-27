@@ -181,19 +181,85 @@ body, html {
   height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   background-color: #f0fdf4;
   z-index: 1900; /* Below header */
-  padding: 1.5rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Reduce vertical spacing to bring sections closer to header */
+  gap: 0;
   box-shadow: -8px 0 15px -3px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.filter-menu::-webkit-scrollbar {
+  display: none;
+}
+
+/* Content wrapper for filter menu */
+.filter-menu-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 /* Prevent zoom on mobile */
 .filter-menu * {
   touch-action: pan-y pinch-zoom;
+}
+
+/* Fix mobile input issues - allow text selection in autocomplete inputs */
+.filter-menu .aa-Input,
+.filter-menu .aa-Input:focus,
+.filter-menu input,
+.filter-menu textarea {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  touch-action: auto !important; /* Allow all interactions on inputs */
+  -webkit-tap-highlight-color: rgba(52, 211, 153, 0.2);
+}
+
+/* Ensure input receives pointer events properly on mobile */
+.filter-menu .aa-InputWrapper {
+  touch-action: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Additional mobile keyboard fix */
+.filter-menu .aa-Input {
+  /* These properties enable mobile keyboard */
+  -webkit-user-modify: read-write-plaintext-only;
+  -webkit-touch-callout: default;
+  cursor: text;
+  min-height: 44px; /* iOS recommended minimum touch target */
+}
+
+/* Critical mobile input fix - ensure inputs can receive focus and events */
+.filter-menu .aa-InputWrapper * {
+  touch-action: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure the actual input element is always interactive */
+.filter-menu .aa-Input,
+.filter-menu .aa-Autocomplete input,
+.filter-menu .aa-Autocomplete input[type="search"] {
+  /* Force enable all interactions */
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  touch-action: auto !important;
+  pointer-events: auto !important;
+  /* Prevent any blocking */
+  -webkit-tap-highlight-color: rgba(52, 211, 153, 0.2);
+  /* Ensure proper input appearance */
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 /* Prevent GeoSearch from overflowing into Capacitor status bar */
@@ -287,6 +353,7 @@ body, html {
   border-radius: 0.75rem;
   padding: 1.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
 }
 
 .section-header {
@@ -734,11 +801,30 @@ input:checked + .slider:before {
   height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
   background-color: #f0fdf4;
   z-index: 1800; /* Below header */
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: 8px 0 15px -3px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.left-menu::-webkit-scrollbar {
+  display: none;
+}
+
+/* Content wrapper for menus to handle padding */
+.left-menu-content {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* Reduce vertical spacing to bring sections closer to header */
-  box-shadow: 8px 0 15px -3px rgba(0, 0, 0, 0.05);
+  gap: 0.75rem;
 }
 
 /* Menu header styles are shared with filter-menu, not duplicated */
@@ -969,6 +1055,7 @@ input:checked + .slider:before {
   border-radius: 0.75rem;
   padding: 1.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
 }
 
 /* Section header styles are shared with filter-menu, not duplicated */
@@ -1107,9 +1194,21 @@ input:checked + .slider:before {
 @media (max-width: 768px) {
   .left-menu {
     width: 66%;
-    padding: 1rem;
+    padding: 0;
     top: calc(60px + env(safe-area-inset-top)); /* Keep below header on mobile */
     height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
+  }
+  
+  .left-menu-content {
+    padding: 1rem;
+  }
+
+  .filter-menu {
+    padding: 0;
+  }
+  
+  .filter-menu-content {
+    padding: 1rem;
   }
 
   .menu-header h2 {
@@ -1131,8 +1230,21 @@ input:checked + .slider:before {
 @media (max-width: 480px) {
   .left-menu {
     width: 80%;
+    padding: 0;
     top: calc(60px + env(safe-area-inset-top)); /* Keep below header on small mobile */
     height: calc(100% - 60px - env(safe-area-inset-top)); /* Account for header height */
+  }
+  
+  .left-menu-content {
+    padding: 1rem;
+  }
+  
+  .filter-menu {
+    padding: 0;
+  }
+  
+  .filter-menu-content {
+    padding: 1rem;
   }
 }
 
