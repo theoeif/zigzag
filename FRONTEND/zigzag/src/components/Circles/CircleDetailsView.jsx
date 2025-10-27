@@ -441,6 +441,13 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   const handleRemoveMember = async (memberId) => {
     try {
       if (memberId) {
+        // Show confirmation dialog in French
+        const confirmed = window.confirm("Êtes-vous sûr de vouloir retirer cette personne ?");
+        
+        if (!confirmed) {
+          return;
+        }
+
         await removeUsersFromCircle(circle.id, [memberId]);
         loadMembers();
       } else {

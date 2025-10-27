@@ -72,7 +72,7 @@ const MainCircles = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <>
       <Header
         toggleLeftMenu={() => setIsLeftMenuOpen(!isLeftMenuOpen)}
         showBackButton={false}
@@ -84,36 +84,77 @@ const MainCircles = () => {
         </div>
       )}
 
-      <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
-        <Drawer
-          variant={isMobile ? 'temporary' : 'permanent'}
-          open={isMobile ? isCirclesSidebarOpen : true}
-          onClose={() => setIsCirclesSidebarOpen(false)}
-          sx={{
-            width: 240,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
+      <Box sx={{ 
+        position: 'fixed',
+        top: 'calc(60px + env(safe-area-inset-top))',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        overflow: 'hidden',
+        zIndex: 1
+      }}>
+        {!isMobile && (
+          <Drawer
+            variant="permanent"
+            open={true}
+            sx={{
               width: 240,
-              boxSizing: 'border-box',
-              mt: 'calc(64px + env(safe-area-inset-top))' // Account for header height + safe area
-            },
-          }}
-          // Add a ref to the drawer content for click outside detection
-          PaperProps={{ ref: circlesSidebarRef }}
-        >
-          <CirclesSidebar
-            onSelectCircle={handleSelectCircle}
-            selectedCircleId={selectedCircle?.id}
-          />
-        </Drawer>
+              flexShrink: 0,
+              '& .MuiDrawer-paper': {
+                width: 240,
+                boxSizing: 'border-box',
+                position: 'relative',
+                height: '100%',
+                mt: 0
+              },
+            }}
+            // Add a ref to the drawer content for click outside detection
+            PaperProps={{ ref: circlesSidebarRef }}
+          >
+            <CirclesSidebar
+              onSelectCircle={handleSelectCircle}
+              selectedCircleId={selectedCircle?.id}
+            />
+          </Drawer>
+        )}
+
+        {isMobile && (
+          <Drawer
+            variant="temporary"
+            open={isCirclesSidebarOpen}
+            onClose={() => setIsCirclesSidebarOpen(false)}
+            ModalProps={{
+              keepMounted: true
+            }}
+            sx={{
+              width: 240,
+              flexShrink: 0,
+              '& .MuiDrawer-paper': {
+                width: 240,
+                boxSizing: 'border-box',
+                mt: 0,
+                position: 'fixed',
+                top: 'calc(60px + env(safe-area-inset-top))',
+                height: 'calc(100vh - 60px - env(safe-area-inset-top))'
+              },
+            }}
+            PaperProps={{ ref: circlesSidebarRef }}
+          >
+            <CirclesSidebar
+              onSelectCircle={handleSelectCircle}
+              selectedCircleId={selectedCircle?.id}
+            />
+          </Drawer>
+        )}
 
         <Box
           component="main"
           sx={{
             flexGrow: 1,
-            p: 3,
-            mt: 'calc(64px + env(safe-area-inset-top))', // Account for header height + safe area
-            overflow: 'auto'
+            height: '100%',
+            overflow: 'auto',
+            p: 3
           }}
           ref={contentRef}
         >
@@ -140,7 +181,7 @@ const MainCircles = () => {
           )}
         </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 
