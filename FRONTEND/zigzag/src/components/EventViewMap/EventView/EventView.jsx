@@ -10,6 +10,7 @@ import { FRONTEND_URL } from "../../../config";
 import MarkersMap from "../../MarkersMap";
 import CircleMembersPopup from "../../Project/CircleMembersPopup";
 import EventDetailsSection from "../../Project/EventDetailsSection";
+import { isMobileDevice } from "../../../utils/mobileDetection";
 import {
   FaMapMarkerAlt,
   FaUser,
@@ -394,6 +395,7 @@ const EventView = ({
   const [invitationButtonClicked, setInvitationButtonClicked] = useState(false);
   const [shareError, setShareError] = useState(null);
   const [addressHovered, setAddressHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Circle members popup state
   const [showCircleMembers, setShowCircleMembers] = useState(false);
@@ -408,6 +410,11 @@ const EventView = ({
   const [invitationError, setInvitationError] = useState(null);
   const [canGenerateInvite, setCanGenerateInvite] = useState(false);
   const [invitationCopied, setInvitationCopied] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
 
   // Fetch event data
   useEffect(() => {
@@ -899,9 +906,9 @@ const EventView = ({
                     ...styles.button,
                     ...styles.secondaryButton,
                     padding: "8px 12px",
-                    fontSize: "0.9rem",
-                    minWidth: "40px",
-                    height: "40px",
+                    fontSize: isMobile ? "28px" : "20px",
+                    minWidth: isMobile ? "48px" : "38px",
+                    height: isMobile ? "48px" : "38px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center"
@@ -1151,9 +1158,9 @@ const EventView = ({
                         ...styles.button,
                         ...styles.secondaryButton,
                         padding: "8px 12px",
-                        fontSize: "0.9rem",
-                        minWidth: "40px",
-                        height: "40px",
+                        fontSize: isMobile ? "28px" : "20px",
+                        minWidth: isMobile ? "48px" : "38px",
+                        height: isMobile ? "48px" : "38px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center"
@@ -1211,7 +1218,7 @@ const EventView = ({
               style={{
                 background: "none",
                 border: "none",
-                fontSize: "24px",
+                fontSize: isMobile ? "32px" : "24px",
                 cursor: "pointer",
                 color: "#777",
                 padding: "4px 8px",
@@ -1221,8 +1228,8 @@ const EventView = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "32px",
-                height: "32px",
+                width: isMobile ? "48px" : "40px",
+                height: isMobile ? "48px" : "40px",
                 borderRadius: "4px"
               }}
               onClick={(e) => {
