@@ -15,3 +15,11 @@ class LoginThrottle(AnonRateThrottle):
     Uses 'login' rate from DEFAULT_THROTTLE_RATES setting.
     """
     scope = 'login'
+
+
+class PasswordResetThrottle(AnonRateThrottle):
+    """
+    Throttle class for password reset endpoint.
+    Uses 'password_reset' rate from DEFAULT_THROTTLE_RATES setting.
+    """
+    scope = 'password_reset'

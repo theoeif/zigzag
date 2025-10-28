@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -10,7 +11,11 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
 from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 from icalendar import Calendar, Event as ICalEvent
+from anymail.message import AnymailMessage
 
 from .models import (
     Event,
@@ -19,6 +24,7 @@ from .models import (
     UserAddress,
     Tag,
     Profile,
+    User
 )
 from .utils import generate_invitation_token
 from .serializers import (
@@ -31,7 +37,10 @@ from .serializers import (
     UserProfileSerializer,
     GreyEventSerializer,
     ChangePasswordSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
 )
+from events.throttles import RegisterThrottle, LoginThrottle, PasswordResetThrottle
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -145,7 +154,6 @@ class EventViewSet(viewsets.ModelViewSet):
             event.save()
             
             # Create invitation circle with default tag
-            from .models import Tag
             default_tag = Tag.objects.get(id=2)
             invitation_circle = Circle.objects.create(
                 name="Invités",
@@ -284,7 +292,6 @@ class EventViewSet(viewsets.ModelViewSet):
                 
                 if not invitation_circle:
                     # Create invitation circle with default tag
-                    from .models import Tag
                     default_tag = Tag.objects.get(id=2)
                     invitation_circle = Circle.objects.create(
                         name="Invités",
@@ -409,7 +416,6 @@ class EventViewSet(viewsets.ModelViewSet):
                 
                 if not invitation_circle:
                     # Create invitation circle with default tag
-                    from .models import Tag
                     default_tag = Tag.objects.get(id=2)
                     invitation_circle = Circle.objects.create(
                         name="Invités",
@@ -665,7 +671,6 @@ class ProfileByUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, username: str):
-        from .models import User  # local import to avoid circular imports
         user = get_object_or_404(User, username=username)
         serializer = UserProfileSerializer(user)
         return Response(serializer.data)
@@ -799,7 +804,7 @@ class MultiCircleMembersView(APIView):
                 return Response({"error": "Tu ne fais pas partie de ces cercles"}, status=status.HTTP_404_NOT_FOUND)
         
         # Fetch members from the accessible circles
-        from .models import User  # local import
+  # local import
         all_user_ids = set()
         for circle in circles:
             member_ids = circle.members.values_list('id', flat=True)
@@ -813,8 +818,6 @@ class MultiCircleMembersView(APIView):
 
 
 # from django_ratelimit.decorators import ratelimit
-from rest_framework_simplejwt.tokens import RefreshToken
-from events.throttles import RegisterThrottle, LoginThrottle
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -912,7 +915,6 @@ class FriendsListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from .models import User  # local import to avoid circular imports
 
         # Get all users except the current user
         users = User.objects.exclude(id=request.user.id).values(
@@ -1082,11 +1084,208 @@ class CircleGreyEventsView(APIView):
 class ThrottledTokenObtainPairView(APIView):
     """
     Throttled version of TokenObtainPairView for login rate limiting.
+    Supports login with either username or email.
     """
     permission_classes = [AllowAny]
     throttle_classes = [LoginThrottle] if not settings.DEBUG else []
 
     def post(self, request, *args, **kwargs):
-        from rest_framework_simplejwt.views import TokenObtainPairView
-        view = TokenObtainPairView.as_view()
-        return view(request._request, *args, **kwargs)
+        # Extract identifier (could be username or email)
+        identifier = request.data.get('username') or request.data.get('email')
+        password = request.data.get('password')
+        
+        if not identifier or not password:
+            return Response(
+                {"detail": "username or email and password required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Try to find user by username or email
+        
+        # Try username first, then email
+        user = User.objects.filter(username=identifier).first() or \
+               User.objects.filter(email__iexact=identifier).first()
+        
+        if user and user.check_password(password):
+            # User found and password matches
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            })
+        else:
+            # Invalid credentials
+            return Response(
+                {"detail": "Invalid credentials."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
+class PasswordResetRequestView(APIView):
+    """
+    Handle password reset requests.
+    Sends email with reset link containing uid and token.
+    """
+    permission_classes = [AllowAny]
+    throttle_classes = [PasswordResetThrottle] if not settings.DEBUG else []
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+
+        # Get user by email
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            # Return success even if user doesn't exist (security best practice)
+            return Response(
+                {"message": "Si cette adresse email existe dans notre système, vous recevrez un email avec les instructions de réinitialisation."},
+                status=status.HTTP_200_OK
+            )
+
+        # Generate reset token
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        # Create reset link
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        reset_link = f"{frontend_url}/password-reset-confirm/{uid}/{token}/"
+
+        # Send email
+        # Note: In AWS SES sandbox, you can only send emails TO verified addresses
+        # The "from" address must also be verified
+        try:
+            # Plain text version
+            plain_text = f"""Bonjour {user.username},
+
+Vous avez demandé à réinitialiser votre mot de passe pour votre compte.
+
+Pour continuer, veuillez cliquer sur le lien suivant :
+
+{reset_link}
+
+Important : Ce lien est valide pendant 1 heure seulement.
+
+Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en toute sécurité."""
+            
+            # HTML version
+            html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    
+    <p style="font-size: 16px;">Bonjour {user.username},</p>
+    
+    <p style="font-size: 16px;">Vous avez demandé à réinitialiser votre mot de passe pour votre compte.</p>
+    
+    <p style="font-size: 16px;">Pour continuer, veuillez cliquer sur le bouton ci-dessous :</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{reset_link}" 
+           style="background-color: #3498db; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+            Réinitialiser mon mot de passe
+        </a>
+    </div>
+    
+    <p style="font-size: 14px; color: #e74c3c;"><strong>Important :</strong> Ce lien est valide pendant 1 heure seulement.</p>
+    
+    <p style="font-size: 14px;">Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en toute sécurité.</p>
+    
+    <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+    
+    <p style="font-size: 12px; color: #95a5a6; text-align: center;">
+        © ZigZag team - Tous droits réservés
+    </p>
+</body>
+</html>"""
+            # Configure message with proper headers to improve deliverability
+            message = AnymailMessage(
+                subject="Réinitialisation de votre mot de passe",
+                body=plain_text,
+                to=[user.email],
+                from_email=settings.DEFAULT_FROM_EMAIL,
+            )
+            
+            # Add headers to improve deliverability and avoid spam
+            message.extra_headers = {
+                'Reply-To': settings.DEFAULT_FROM_EMAIL,
+                'X-Mailer': 'Password Reset Service',
+            }
+            
+            # Attach HTML alternative
+            message.attach_alternative(html_content, "text/html")
+            
+            message.send()
+            
+        except Exception as e:
+            error_message = str(e)
+            print(f"Error sending password reset email: {error_message}")
+            
+            # In sandbox, return success even on error (security best practice)
+            # But log the actual error for debugging
+            import traceback
+            traceback.print_exc()
+            
+            # In DEBUG mode, return the actual error so user can see what went wrong
+            if settings.DEBUG:
+                return Response(
+                    {
+                        "error": "Failed to send email",
+                        "details": error_message,
+                        "note": "En mode sandbox, l'email FROM doit être vérifié dans AWS SES"
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        
+        return Response(
+            {"message": "Si cette adresse email existe dans notre système, vous recevrez un email avec les instructions de réinitialisation."},
+            status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    """
+    Handle password reset confirmation.
+    Validates token and updates user password.
+    """
+    permission_classes = [AllowAny]
+    throttle_classes = [PasswordResetThrottle] if not settings.DEBUG else []
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        uid = serializer.validated_data['uid']
+        token = serializer.validated_data['token']
+        new_password = serializer.validated_data['new_password']
+        
+        try:
+            # Decode user ID
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response(
+                {"error": "Lien de réinitialisation invalide ou expiré."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if token is valid
+        if not default_token_generator.check_token(user, token):
+            return Response(
+                {"error": "Lien de réinitialisation invalide ou expiré."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Update password
+        user.set_password(new_password)
+        user.save()
+        
+        return Response(
+            {"message": "Votre mot de passe a été réinitialisé avec succès."},
+            status=status.HTTP_200_OK
+        )

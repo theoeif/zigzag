@@ -253,23 +253,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: '10vh',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        backgroundColor: 'white',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-        borderRadius: '12px',
-        padding: '0',
-        width: '90%',
-        maxWidth: '500px',
-        maxHeight: '80vh',
-        overflowY: 'auto'
-      }}
-    >
+    <div className={styles.eventDetailsSectionContainer}>
       <div
         className={styles.popupHeaderProjectEnhanced}
         style={{
@@ -294,7 +278,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         </button>
       </div>
 
-      <div style={{ padding: '15px' }}>
+      <div className={styles.eventDetailsSectionContent} style={{ padding: '15px' }}>
         {/* Location with map */}
         {event.address && event.address.latitude && event.address.longitude && (
           <div style={{
@@ -384,7 +368,7 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
                 }}
                 title="Copier le lien"
               >
-                <span><strong>{urlCopied ? 'Lien copié !' : 'Lien interne'}</strong></span>
+                <span><strong>{urlCopied ? 'Lien copié !' : 'Lien URL'}</strong></span>
               </button>
             </div>
           )}

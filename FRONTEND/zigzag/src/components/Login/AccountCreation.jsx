@@ -22,6 +22,7 @@ const EyeSlashIcon = () => (
 const AccountCreation = () => {
   const [formData, setFormData] = useState({
     username: "",
+    email: "",
     password: "",
     password2: "",
   });
@@ -84,15 +85,15 @@ const AccountCreation = () => {
 
     // Client-side validation for password match
     if (formData.password !== formData.password2) {
-      setError("Passwords do not match.");
-      setFieldErrors({ password2: "Passwords do not match" });
+      setError("Les mots de passe ne correspondent pas.");
+      setFieldErrors({ password2: "Les mots de passe ne correspondent pas" });
       return;
     }
 
     // Client-side validation for password length
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long, not entirely numeric, and should not be a commonly used password.");
-      setFieldErrors({ password: "Password must be at least 8 characters long" });
+      setError("Le mot de passe doit contenir au moins 8 caractères, ne pas être entièrement numérique et ne pas être un mot de passe couramment utilisé.");
+      setFieldErrors({ password: "Le mot de passe doit contenir au moins 8 caractères" });
       return;
     }
 
@@ -101,15 +102,15 @@ const AccountCreation = () => {
       const trimmedUsername = formData.username.trim();
       
       if (!trimmedUsername) {
-        setError("Username cannot be empty.");
-        setFieldErrors({ username: "Username cannot be empty." });
+        setError("Le nom d'utilisateur ne peut pas être vide.");
+        setFieldErrors({ username: "Le nom d'utilisateur ne peut pas être vide." });
         return;
       }
 
-      const { password, password2 } = formData;
+      const { email, password, password2 } = formData;
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
       const utcOffsetMinutes = -new Date().getTimezoneOffset();
-      const data = await register({ username: trimmedUsername, password, password2, timezone: timeZone, utc_offset_minutes: utcOffsetMinutes });
+      const data = await register({ username: trimmedUsername, email, password, password2, timezone: timeZone, utc_offset_minutes: utcOffsetMinutes });
       console.log("Account created:", data);
 
       // Tokens are automatically stored by the register function in api.js
@@ -131,21 +132,27 @@ const AccountCreation = () => {
             : err.response.data.username;
           setError(usernameError);
           setFieldErrors({ username: usernameError });
+        } else if (err.response.data?.email) {
+          const emailError = Array.isArray(err.response.data.email) 
+            ? err.response.data.email[0] 
+            : err.response.data.email;
+          setError(emailError);
+          setFieldErrors({ email: emailError });
         } else if (err.response.data?.password) {
-          setError("Password must be at least 8 characters long, not entirely numeric, and should not be a commonly used password.");
-          setFieldErrors({ password: "Password requirements not met" });
+          setError("Le mot de passe doit contenir au moins 8 caractères, ne pas être entièrement numérique et ne pas être un mot de passe couramment utilisé.");
+          setFieldErrors({ password: "Critères du mot de passe non respectés" });
         } else if (err.response.data?.password2) {
-          setError("Password confirmation does not match.");
-          setFieldErrors({ password2: "Password confirmation does not match" });
+          setError("La confirmation du mot de passe ne correspond pas.");
+          setFieldErrors({ password2: "La confirmation du mot de passe ne correspond pas" });
         } else {
-          setError("Please check your input and try again.");
+          setError("Veuillez vérifier vos informations et réessayer.");
         }
       } else if (err.response?.data?.detail) {
         setError(err.response.data.detail);
       } else if (err.response?.data) {
-        setError(typeof err.response.data === 'string' ? err.response.data : "Account creation failed. Please try again.");
+        setError(typeof err.response.data === 'string' ? err.response.data : "Échec de la création du compte. Veuillez réessayer.");
       } else {
-        setError("Unable to connect to the server. Please check your internet connection and try again.");
+        setError("Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet et réessayer.");
       }
     }
   };
@@ -153,7 +160,7 @@ const AccountCreation = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        <h2 className={styles.title}>Create Account</h2>
+        <h2 className={styles.title}>Créer un compte</h2>
 
         {error && (
           <div className={styles.errorContainer}>
@@ -173,7 +180,21 @@ const AccountCreation = () => {
               onChange={handleChange}
               required
               className={`${styles.input} ${fieldErrors.username ? styles.inputError : ''}`}
-              placeholder="Enter your username"
+              placeholder="Entrez votre nom d'utilisateur"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="email" className={styles.label}></label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className={`${styles.input} ${fieldErrors.email ? styles.inputError : ''}`}
+              placeholder="Entrez votre email"
             />
           </div>
 
@@ -188,7 +209,7 @@ const AccountCreation = () => {
                 onChange={handleChange}
                 required
                 className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`}
-                placeholder="Enter your password"
+                placeholder="Entrez votre mot de passe"
               />
               <button
                 type="button"
@@ -213,7 +234,7 @@ const AccountCreation = () => {
                 onChange={handleChange}
                 required
                 className={`${styles.input} ${fieldErrors.password2 ? styles.inputError : ''}`}
-                placeholder="Confirm your password"
+                placeholder="Confirmez votre mot de passe"
               />
               <button
                 type="button"
@@ -228,12 +249,12 @@ const AccountCreation = () => {
           </div>
 
           <button type="submit" className={styles.button}>
-            Create Account
+            Créer le compte
           </button>
         </form>
 
         <p className={styles.signupText}>
-          Already have an account?{" "}
+          Vous avez déjà un compte ?{" "}
           <button
             type="button"
             onClick={() => {
@@ -243,7 +264,7 @@ const AccountCreation = () => {
             }}
             className={styles.signupLink}
           >
-            Sign In
+            Se connecter
           </button>
         </p>
       </div>
