@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -39,6 +40,7 @@ from .serializers import (
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
 )
+from events.throttles import RegisterThrottle, LoginThrottle, PasswordResetThrottle
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -152,7 +154,6 @@ class EventViewSet(viewsets.ModelViewSet):
             event.save()
             
             # Create invitation circle with default tag
-            from .models import Tag
             default_tag = Tag.objects.get(id=2)
             invitation_circle = Circle.objects.create(
                 name="Invités",
@@ -291,7 +292,6 @@ class EventViewSet(viewsets.ModelViewSet):
                 
                 if not invitation_circle:
                     # Create invitation circle with default tag
-                    from .models import Tag
                     default_tag = Tag.objects.get(id=2)
                     invitation_circle = Circle.objects.create(
                         name="Invités",
@@ -416,7 +416,6 @@ class EventViewSet(viewsets.ModelViewSet):
                 
                 if not invitation_circle:
                     # Create invitation circle with default tag
-                    from .models import Tag
                     default_tag = Tag.objects.get(id=2)
                     invitation_circle = Circle.objects.create(
                         name="Invités",
@@ -672,7 +671,6 @@ class ProfileByUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, username: str):
-        from .models import User  # local import to avoid circular imports
         user = get_object_or_404(User, username=username)
         serializer = UserProfileSerializer(user)
         return Response(serializer.data)
@@ -806,7 +804,7 @@ class MultiCircleMembersView(APIView):
                 return Response({"error": "Tu ne fais pas partie de ces cercles"}, status=status.HTTP_404_NOT_FOUND)
         
         # Fetch members from the accessible circles
-        from .models import User  # local import
+  # local import
         all_user_ids = set()
         for circle in circles:
             member_ids = circle.members.values_list('id', flat=True)
@@ -820,8 +818,6 @@ class MultiCircleMembersView(APIView):
 
 
 # from django_ratelimit.decorators import ratelimit
-from rest_framework_simplejwt.tokens import RefreshToken
-from events.throttles import RegisterThrottle, LoginThrottle, PasswordResetThrottle
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -919,7 +915,6 @@ class FriendsListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from .models import User  # local import to avoid circular imports
 
         # Get all users except the current user
         users = User.objects.exclude(id=request.user.id).values(
@@ -1106,7 +1101,6 @@ class ThrottledTokenObtainPairView(APIView):
             )
         
         # Try to find user by username or email
-        from .models import User
         
         # Try username first, then email
         user = User.objects.filter(username=identifier).first() or \
@@ -1114,7 +1108,6 @@ class ThrottledTokenObtainPairView(APIView):
         
         if user and user.check_password(password):
             # User found and password matches
-            from rest_framework_simplejwt.tokens import RefreshToken
             refresh = RefreshToken.for_user(user)
             
             return Response({
@@ -1163,7 +1156,6 @@ class PasswordResetRequestView(APIView):
         # Send email
         # Note: In AWS SES sandbox, you can only send emails TO verified addresses
         # The "from" address must also be verified
-        email_sent = False
         try:
             # Plain text version
             plain_text = f"""Bonjour {user.username},
@@ -1211,7 +1203,6 @@ Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet ema
     </p>
 </body>
 </html>"""
-            print(settings.DEFAULT_FROM_EMAIL)
             # Configure message with proper headers to improve deliverability
             message = AnymailMessage(
                 subject="Réinitialisation de votre mot de passe",
@@ -1230,7 +1221,6 @@ Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet ema
             message.attach_alternative(html_content, "text/html")
             
             message.send()
-            email_sent = True
             
         except Exception as e:
             error_message = str(e)

@@ -1053,7 +1053,7 @@ const EventView = ({
                         <button
                           onClick={handleShareEvent}
                           style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
-                          title="Copier lien interne"
+                          title="Copier lien URL"
                         >
                           <FaLink style={{ 
                             color: shareButtonClicked ? "white" : "inherit",
@@ -1378,7 +1378,7 @@ const EventView = ({
                       <button
                         onClick={handleShareEvent}
                         style={shareButtonClicked ? styles.shareButtonClicked : styles.shareButton}
-                        title="Copier lien interne"
+                        title="Copier lien URL"
                       >
                         <FaLink style={{ 
                           color: shareButtonClicked ? "white" : "inherit",
