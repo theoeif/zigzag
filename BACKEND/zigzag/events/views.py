@@ -1254,6 +1254,7 @@ class PasswordResetConfirmView(APIView):
     Validates token and updates user password.
     """
     permission_classes = [AllowAny]
+    throttle_classes = [PasswordResetThrottle] if not settings.DEBUG else []
 
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
