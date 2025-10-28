@@ -27,7 +27,6 @@ const Login = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showAppBanner, setShowAppBanner] = useState(false);
-  const [showForgotPasswordBubble, setShowForgotPasswordBubble] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { setIsConnected } = useContext(AuthContext);
@@ -81,14 +80,6 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleForgotPassword = () => {
-    setShowForgotPasswordBubble(true);
-    // Auto-hide the bubble after 4 seconds
-    setTimeout(() => {
-      setShowForgotPasswordBubble(false);
-    }, 4000);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null); // Clear previous errors
@@ -104,15 +95,15 @@ const Login = () => {
 
       // Handle different types of errors
       if (err.response?.status === 401) {
-        setError("Invalid username or password. Please check your credentials and try again.");
+        setError("Nom d'utilisateur ou mot de passe invalide. Veuillez vérifier vos identifiants et réessayer.");
       } else if (err.response?.status === 400) {
-        setError("Please fill in all required fields.");
+        setError("Veuillez remplir tous les champs requis.");
       } else if (err.response?.data?.detail) {
         setError(err.response.data.detail);
       } else if (err.response?.data) {
-        setError(typeof err.response.data === 'string' ? err.response.data : "Login failed. Please try again.");
+        setError(typeof err.response.data === 'string' ? err.response.data : "Échec de la connexion. Veuillez réessayer.");
       } else {
-        setError("Unable to connect to the server. Please check your internet connection and try again.");
+        setError("Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet et réessayer.");
       }
     }
   };
@@ -129,7 +120,7 @@ const Login = () => {
         />
       )}
       <div className={styles.formContainer}>
-        <h2 className={styles.title}>Login</h2>
+        <h2 className={styles.title}>Connexion</h2>
 
         {error && (
           <div className={styles.errorContainer}>
@@ -150,7 +141,7 @@ const Login = () => {
               onChange={handleChange}
               required
               className={`${styles.input} ${fieldErrors.username ? styles.inputError : ''}`}
-              placeholder="Enter your username"
+              placeholder="Entrez votre nom d'utilisateur ou email"
             />
           </div>
 
@@ -166,7 +157,7 @@ const Login = () => {
                 onChange={handleChange}
                 required
                 className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`}
-                placeholder="Enter your password"
+                placeholder="Entrez votre mot de passe"
               />
               <button
                 type="button"
@@ -181,7 +172,7 @@ const Login = () => {
           </div>
 
           <button type="submit" className={styles.button}>
-            Login
+            Se connecter
           </button>
         </form>
 
@@ -189,31 +180,17 @@ const Login = () => {
         <div className={styles.forgotPasswordContainer}>
           <button
             type="button"
-            onClick={handleForgotPassword}
+            onClick={() => navigate("/password-reset")}
             className={styles.forgotPasswordLink}
           >
-            Forgot password?
+            Mot de passe oublié ?
           </button>
-          {showForgotPasswordBubble && (
-            <div className={styles.forgotPasswordBubble}>
-              <div className={styles.bubbleContent}>
-                <p>Contact admin to reset your password</p>
-                <button
-                  type="button"
-                  onClick={() => setShowForgotPasswordBubble(false)}
-                  className={styles.bubbleClose}
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Social login UI removed */}
 
         <p className={styles.signupText}>
-          Don't have an account?{" "}
+          Vous n'avez pas de compte ?{" "}
           <button
             type="button"
             onClick={() => {
@@ -223,7 +200,7 @@ const Login = () => {
             }}
             className={styles.signupLink}
           >
-            Sign Up
+            Créer un compte
           </button>
         </p>
       </div>

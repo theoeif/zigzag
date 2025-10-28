@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'anymail',
     # 'django_ratelimit', # TODO : Redis for django ratelimit in production to enable Cache for Ip across severs
 ]
 
@@ -67,6 +68,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'register': os.getenv('THROTTLE_RATE_REGISTER', '10/hour'),
         'login': os.getenv('THROTTLE_RATE_LOGIN', '10/hour'),
+        'password_reset': os.getenv('THROTTLE_RATE_PASSWORD_RESET', '3/hour'),
     }
 }
 
@@ -244,3 +246,27 @@ CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 CSRF_USE_SESSIONS = True
 
 CONN_MAX_AGE = 0  # close after each request; ideal for spiky, low traffic on serverless PG
+
+# Email Configuration (Mailgun via django-anymail)
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+ANYMAIL = {
+    "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY', ''),
+    "MAILGUN_SENDER_DOMAIN": os.getenv('MAILGUN_SENDER_DOMAIN', 'support.zigzag-project.org'),
+    "MAILGUN_API_URL": os.getenv('MAILGUN_API_URL', 'https://api.eu.mailgun.net/v3'),
+}
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'ZigZag <contact@support.zigzag-project.org>')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# Email Configuration (Amazon SES via django-anymail) - Commented out
+# Uncomment these lines and comment out Mailgun config above to switch back to Amazon SES
+# EMAIL_BACKEND = "anymail.backends.amazon_ses.EmailBackend"
+# ANYMAIL = {
+#     "AMAZON_SES_CLIENT_PARAMS": {
+#         "aws_access_key_id": os.getenv('AWS_ACCESS_KEY_ID', ''),
+#         "aws_secret_access_key": os.getenv('AWS_SECRET_ACCESS_KEY', ''),
+#         "region_name": os.getenv('AWS_REGION', 'eu-west-1'),
+#     },
+#     "AMAZON_SES_REGION_ENDPOINT": os.getenv('AWS_SES_REGION_ENDPOINT', 'email.eu-west-1.amazonaws.com'),
+# }
+# DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'ZIGZAG <noreply@zigzag.com>')
+# SERVER_EMAIL = DEFAULT_FROM_EMAIL
