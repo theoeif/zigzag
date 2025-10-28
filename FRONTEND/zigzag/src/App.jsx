@@ -3,6 +3,8 @@ import { BrowserRouter as Router, useLocation, Route, Routes, useNavigate } from
 import MarkersMap from "./components/MarkersMap";
 import AccountCreation from "./components/Login/AccountCreation";
 import Login from "./components/Login/Login.jsx";
+import PasswordResetRequest from "./components/Login/PasswordResetRequest";
+import PasswordResetConfirm from "./components/Login/PasswordResetConfirm";
 import Profile from "./components/Profile/Profile";
 import ProfilePage from "./components/Profile/ProfilePage";
 import Project from "./components/Project/Project";
@@ -38,6 +40,8 @@ const App = () => {
         <Route path="/callback" element={<Callback />} />
         <Route path="/create-account" element={<AccountCreation />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/password-reset" element={<PasswordResetRequest />} />
+        <Route path="/password-reset-confirm/:uid/:token" element={<PasswordResetConfirm />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/events" element={<Project />} />

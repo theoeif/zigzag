@@ -12,6 +12,8 @@ from .views import (
     ICalDownloadView,
     CircleGreyEventsView,
     ChangePasswordView,
+    PasswordResetRequestView,
+    PasswordResetConfirmView,
 )
 
 # ViewSet mappings
@@ -62,4 +64,8 @@ urlpatterns = [
     
     # Password change endpoint
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    
+    # Password reset endpoints
+    path('password-reset/request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 ]

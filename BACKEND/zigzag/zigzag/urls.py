@@ -17,12 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
     TokenBlacklistView,
 )
 from events.views import RegisterView, ThrottledTokenObtainPairView
-from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,7 +32,7 @@ urlpatterns = [
     path('api/register/', RegisterView.as_view(), name='register'),
 
     # token urls - use throttled version in production, non-throttled in development
-    path('api/token/', ThrottledTokenObtainPairView.as_view() if not settings.DEBUG else TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', ThrottledTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # to delete refresh_token after log out
 ]

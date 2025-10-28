@@ -16,7 +16,9 @@ export const setLogoutHandler = (handler) => {
 // Auth helpers
 export const login = async ({ username, password }) => {
   try {
-    const response = await axios.post(API_BASE_URL + "token/", { username, password });
+    // Support login with username or email
+    const identifier = username; // Can be username or email
+    const response = await axios.post(API_BASE_URL + "token/", { username: identifier, password });
     console.log("Login response.data:", response.data);
     const { access, refresh } = response.data || {};
     if (access) localStorage.setItem("access_token", access);
@@ -24,6 +26,33 @@ export const login = async ({ username, password }) => {
     return response.data; // { access, refresh }
   } catch (error) {
     console.error("Login error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Password reset request
+export const requestPasswordReset = async (email) => {
+  try {
+    const response = await axios.post(API_BASE_URL + "events/password-reset/request/", { email });
+    return response.data;
+  } catch (error) {
+    console.error("Password reset request error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Password reset confirmation
+export const confirmPasswordReset = async (uid, token, newPassword, confirmPassword) => {
+  try {
+    const response = await axios.post(API_BASE_URL + "events/password-reset/confirm/", {
+      uid,
+      token,
+      new_password: newPassword,
+      confirm_password: confirmPassword
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Password reset confirm error:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -110,7 +139,7 @@ axios.interceptors.response.use(
     }
 
     // Prevent retries for token/verify and token/refresh endpoints
-    if (url.includes("/token/verify/") || url.includes("/token/refresh/")) {
+    if (url.includes("/token/") || url.includes("/token/refresh/")) {
       console.warn("Validation request failed. Skipping retry.");
       return Promise.reject(error);
     }

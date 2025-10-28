@@ -111,12 +111,13 @@ class UserAddressSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
+    email = serializers.EmailField(required=True)
     timezone = serializers.CharField(write_only=True, required=False, default='UTC')
     utc_offset_minutes = serializers.IntegerField(write_only=True, required=False, default=0)
 
     class Meta:
         model = User
-        fields = ("username", "password", "password2", "timezone", "utc_offset_minutes")
+        fields = ("username", "email", "password", "password2", "timezone", "utc_offset_minutes")
 
     def validate_username(self, value):
         """Normalize and validate username"""
@@ -145,6 +146,18 @@ class RegisterSerializer(serializers.ModelSerializer):
         
         return value
 
+    def validate_email(self, value):
+        """Validate email uniqueness and format"""
+        if not value:
+            raise serializers.ValidationError("Email cannot be empty.")
+        
+        # Check if email already exists (case-insensitive)
+        existing_user = User.objects.filter(email__iexact=value).first()
+        if existing_user:
+            raise serializers.ValidationError("A user with that email already exists.")
+        
+        return value.lower()  # Normalize to lowercase
+
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
@@ -154,10 +167,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Extract timezone fields if provided
         tz = validated_data.pop("timezone", "UTC")
         offset = validated_data.pop("utc_offset_minutes", 0)
+        email = validated_data.pop("email")
 
         # Create user as active (no email confirmation required for now)
         user = User.objects.create(
             username=validated_data["username"],
+            email=email,
             is_active=True  # User is immediately active
         )
         user.set_password(validated_data["password"])
@@ -285,3 +300,32 @@ class GreyEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['start_time', 'end_time']
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """Serializer for password reset request"""
+    email = serializers.EmailField(required=True)
+    
+    def validate_email(self, value):
+        """Check if email exists in the system"""
+        from .models import User
+        try:
+            user = User.objects.get(email__iexact=value)
+        except User.DoesNotExist:
+            # Don't reveal if email exists or not (security best practice)
+            # Return a generic message
+            raise serializers.ValidationError("Si cette adresse email existe dans notre système, vous recevrez un email avec les instructions de réinitialisation.")
+        return value.lower()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """Serializer for password reset confirmation"""
+    uid = serializers.CharField(required=True, help_text="User ID in base64 format")
+    token = serializers.CharField(required=True, help_text="Password reset token")
+    new_password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    confirm_password = serializers.CharField(write_only=True, required=True)
+    
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError({"new_password": "Les mots de passe ne correspondent pas."})
+        return attrs
