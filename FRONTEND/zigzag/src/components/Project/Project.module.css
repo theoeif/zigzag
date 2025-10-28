@@ -2936,3 +2936,57 @@ button.manageButtonProject.activeProject {
   margin-top: auto !important;         /* Push button to bottom */
   padding: 6px 0 !important;
 }
+
+/* EventDetailsSection scrollbar fix to preserve rounded corners */
+.eventDetailsSectionContainer {
+  position: fixed;
+  top: 10vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 0;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden; /* Hide scrollbar on outer container */
+  display: flex;
+  flex-direction: column;
+}
+
+.eventDetailsSectionContent {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  flex: 1;
+  /* Custom scrollbar styling to preserve rounded corners */
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Custom scrollbar for EventDetailsSection */
+.eventDetailsSectionContent::-webkit-scrollbar {
+  width: 8px;
+}
+
+.eventDetailsSectionContent::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 12px 0;
+}
+
+.eventDetailsSectionContent::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.eventDetailsSectionContent::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ensure the scrollbar doesn't interfere with rounded corners */
+.eventDetailsSectionContent::-webkit-scrollbar-corner {
+  background: transparent;
+}

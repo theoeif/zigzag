@@ -175,7 +175,8 @@ const CalendarView = () => {
                 shareable_link: event.shareable_link,
                 public_link: event.public_link || null,
                 originalStart: event.start_time || null,
-                originalEnd: event.end_time || null
+                originalEnd: event.end_time || null,
+                can_generate_invite: event.can_generate_invite || false
               },
               backgroundColor: color,
               borderColor: color,
@@ -198,7 +199,8 @@ const CalendarView = () => {
               shareable_link: event.shareable_link,
               public_link: event.public_link || null,
               originalStart: event.start_time || null,
-              originalEnd: event.end_time || null
+              originalEnd: event.end_time || null,
+              can_generate_invite: event.can_generate_invite || false
             },
             backgroundColor: color,
             borderColor: color,
@@ -974,7 +976,8 @@ const CalendarView = () => {
             creator: selectedEvent.extendedProps?.creator || '',
             circles: selectedEvent.extendedProps?.circles || [],
             start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
-            end_time: selectedEvent.extendedProps?.originalEnd || null
+            end_time: selectedEvent.extendedProps?.originalEnd || null,
+            can_generate_invite: selectedEvent.extendedProps?.can_generate_invite || false
           }}
         />
       )}
@@ -991,7 +994,8 @@ const CalendarView = () => {
             start_time: selectedEvent.start?.toISOString?.() || selectedEvent.start,
             end_time: selectedEvent.extendedProps?.originalEnd || null,
             shareable_link: selectedEvent.extendedProps?.shareable_link || true,
-            public_link: selectedEvent.extendedProps?.public_link || null
+            public_link: selectedEvent.extendedProps?.public_link || null,
+            can_generate_invite: selectedEvent.extendedProps?.can_generate_invite || false
           }}
           isOpen={showEventDetails}
           onClose={() => setShowEventDetails(false)}
