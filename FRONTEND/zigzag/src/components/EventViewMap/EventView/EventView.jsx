@@ -102,6 +102,9 @@ const styles = {
     fontSize: "0.95rem",
     cursor: "pointer",
     transition: "color 0.2s ease",
+    userSelect: "text", // Allow text selection
+    WebkitUserSelect: "text", // Safari support
+    msUserSelect: "text", // IE/Edge support
   },
   timeDetail: {
     display: "flex",
@@ -769,8 +772,17 @@ const EventView = ({
     }
   };
 
-  const openGoogleMaps = () => {
-    // Get latitude and longitude values
+  const openGoogleMaps = (e) => {
+    // Don't redirect if user has selected text (long press or selection)
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length > 0) {
+      // User is selecting text, don't redirect
+      return;
+    }
+    
+    // Rest of your existing openGoogleMaps code...
     let latitude = null;
     let longitude = null;
 
@@ -782,13 +794,10 @@ const EventView = ({
       longitude = event.lng;
     }
 
-    // Verify that we have valid coordinates
     if (latitude && longitude && !isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
-      // On desktop, just open in browser
       const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
       window.open(googleMapsUrl, '_blank');
     } else {
-      // If coordinates are not available, try to search by address
       const address = event.address?.address_line || "Emplacement non disponible";
       const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
       window.open(googleMapsSearchUrl, '_blank');
@@ -951,7 +960,7 @@ const EventView = ({
                         ...styles.detailIcon,
                         color: addressHovered ? "#2196F3" : "#40916c"
                       }} />
-                      <span> {event.address.address_line}</span>
+                      <span style={{ userSelect: 'text', WebkitUserSelect: 'text' }}> {event.address.address_line}</span>
                     </div>
                   )}
 
@@ -1269,7 +1278,7 @@ const EventView = ({
                       ...styles.detailIcon,
                       color: addressHovered ? "#2196F3" : "#40916c"
                     }} />
-                    <span>{event.address.address_line}</span>
+                    <span style={{ userSelect: 'text', WebkitUserSelect: 'text' }}> {event.address.address_line}</span>
                   </div>
                 )}
 
