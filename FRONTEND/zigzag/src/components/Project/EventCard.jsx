@@ -387,6 +387,15 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
   const openGoogleMaps = (e) => {
     e.preventDefault();
 
+    // Don't redirect if user has selected text (long press or selection)
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length > 0) {
+      // User is selecting text, don't redirect
+      return;
+    }
+
     // Get latitude and longitude values
     let latitude = null;
     let longitude = null;
@@ -536,10 +545,19 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
 
           {/* Location with icon - NOW CLICKABLE */}
           {event.address && (
-            <div className={styles.eventLocationProject} onClick={openGoogleMaps}>
+            <div 
+              className={styles.eventLocationProject} 
+              onClick={openGoogleMaps}
+              style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
+            >
               <div className={styles.locationLinkProject}>
                 <span className={styles.locationIconProject}><FaMapMarkerAlt /></span>
-                <span className={styles.locationTextProject}>{event.address.address_line}</span>
+                <span 
+                  className={styles.locationTextProject}
+                  style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
+                >
+                  {event.address.address_line}
+                </span>
                 <FaDirections className={styles.directionsIconProject} />
               </div>
             </div>
