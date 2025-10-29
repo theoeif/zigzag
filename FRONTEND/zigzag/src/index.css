@@ -62,12 +62,12 @@ body, html {
   z-index: 1;
   position: relative;
   width: 100vw; /* Use viewport width to ensure full width */
-  height: 100vh; /* Critical change - ensures full viewport height */
+  /* Adjust height to account for header + safe area */
+  height: calc(100vh - 60px - env(safe-area-inset-top));
   pointer-events: auto; /* Ensure map container can receive events */
   touch-action: pan-x pan-y pinch-zoom; /* Allow map gestures */
-  margin-top: 60px;
-  /* Adjust height to account for header */
-  height: calc(100vh - 60px);
+  /* Push below header (content height 60px + safe area) */
+  margin-top: calc(60px + env(safe-area-inset-top));
   /* Remove any potential margins or padding */
   margin-left: 0;
   margin-right: 0;
@@ -651,22 +651,23 @@ input:checked + .slider:before {
 /* ========== Header Styles ========== */
 .header {
   position: fixed; /* Ensures it sticks to the top */
-  top: env(safe-area-inset-top); /* Remove conflicting top: 0 */
+  top: 0; /* Start from top of viewport */
   left: 0;
   width: 100%;
-  height: 60px; /* Reduced back to normal height */
+  height: calc(60px + env(safe-area-inset-top)); /* Content height + safe area */
   background-color: #2d6a4f; /* Deep green */
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end; /* Align items to bottom of header content area */
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 2000; /* Higher than menus */
   pointer-events: auto;
   touch-action: manipulation;
-  /* iOS safe area handling - push header below status bar */
+  /* iOS safe area handling - push content below status bar */
   padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+  padding-bottom: 0;
 }
 
 .left-menu-icon, .map-icon, .filter-icon, .calendar-icon, .projects-icon {
@@ -680,12 +681,13 @@ input:checked + .slider:before {
   pointer-events: auto;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  /* Center vertically within the header bar */
-  top: calc(env(safe-area-inset-top) + 6px); /* Safe area + (60px - 48px) / 2 = perfect center */
-  /* Remove transform: translateY(-50%) - not needed since we calculated exact center */
-  /* Remove padding/margin that was causing positioning issues */
+  /* Center vertically within the 60px content area below the safe area */
+  top: calc(env(safe-area-inset-top) + (60px - 48px) / 2);
   min-width: 48px; /* iOS recommended minimum touch target */
   min-height: 48px; /* iOS recommended minimum touch target */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .left-menu-icon:hover, .map-icon:hover, .filter-icon:hover, .calendar-icon:hover, .projects-icon:hover {
@@ -780,7 +782,8 @@ input:checked + .slider:before {
   margin: 0;
   position: absolute;
   left: 50%;
-  top: 50%;
+  /* Center within the 60px content area, accounting for safe area */
+  top: calc(env(safe-area-inset-top) + 30px);
   transform: translate(-50%, -50%);
   text-align: center;
   font-weight: bold;

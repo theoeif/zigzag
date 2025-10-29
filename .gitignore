@@ -2,6 +2,9 @@
 
 # required token to make the app works
 .env
+.env.development
+.env.production
+
 
 # external libraries
 # External NODE libraries

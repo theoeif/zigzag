@@ -472,21 +472,30 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
           {localizeError && <p className={styles.errorMessageProject}>{localizeError}</p>}
 
           {localizedAddress && (
-            <div
-              className={styles.localizedInfoProject}
+            <div className={styles.formGroupProject} style={{ marginBottom: '15px', width: '100%', padding: 0 }}>
+              <div
+                className={styles.localizedInfoProject}
               style={{
                 backgroundColor: '#f5f5f5',
                 borderRadius: '8px',
                 padding: '12px 15px',
-                marginBottom: '15px',
+                marginBottom: 0,
                 fontSize: '0.9rem',
                 maxHeight: '150px',
                 overflowY: 'auto',
+                overflowX: 'hidden',
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
                 WebkitOverflowScrolling: 'touch',
                 scrollBehavior: 'smooth',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '6px'
+                gap: '6px',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                whiteSpace: 'normal',
+                position: 'relative'
               }}
             >
               <div style={{
@@ -494,24 +503,51 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
                 alignItems: 'center',
                 marginBottom: '4px',
                 borderBottom: '1px solid #e0e0e0',
-                paddingBottom: '6px'
+                paddingBottom: '6px',
+                minWidth: 0,
+                flexShrink: 0,
+                width: '100%',
+                maxWidth: '100%'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ marginRight: '8px', color: '#4285F4' }}>
+                <div style={{ display: 'flex', alignItems: 'center', minWidth: 0, width: '100%', maxWidth: '100%' }}>
+                  <span style={{ marginRight: '8px', color: '#4285F4', flexShrink: 0 }}>
                     <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="#4285F4">
                       <path d="M0 0h24v24H0z" fill="none"/>
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
                   </span>
-                  <strong style={{ fontSize: '0.95rem' }}>Adresse localisée</strong>
+                  <strong style={{ fontSize: '0.95rem', wordWrap: 'break-word', overflowWrap: 'break-word', flex: '1', minWidth: 0 }}>Adresse localisée</strong>
                 </div>
               </div>
-              <p style={{ margin: '2px 0' }}>{localizedAddress.address_line}</p>
-              <p style={{ margin: '2px 0', color: '#666', fontSize: '0.85rem' }}>
+              <p style={{ 
+                margin: '2px 0', 
+                wordWrap: 'break-word', 
+                overflowWrap: 'break-word', 
+                minWidth: 0,
+                width: '100%',
+                maxWidth: '100%',
+                whiteSpace: 'normal',
+                overflow: 'visible',
+                display: 'block'
+              }}>{localizedAddress.address_line}</p>
+              <p style={{ 
+                margin: '2px 0', 
+                color: '#666', 
+                fontSize: '0.85rem', 
+                wordWrap: 'break-word', 
+                overflowWrap: 'break-word', 
+                minWidth: 0,
+                width: '100%',
+                maxWidth: '100%',
+                whiteSpace: 'normal',
+                overflow: 'visible',
+                display: 'block'
+              }}>
                 {localizedAddress.city}{localizedAddress.city && localizedAddress.state ? ', ' : ''}
                 {localizedAddress.state}{(localizedAddress.city || localizedAddress.state) && localizedAddress.country ? ', ' : ''}
                 {localizedAddress.country} {localizedAddress.postal_code}
               </p>
+              </div>
             </div>
           )}
 
@@ -646,7 +682,7 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               />
               <div className={styles.checkboxLabelContainer}>
                 <label htmlFor="shareable_link" className={styles.checkboxLabelProject}>
-                  Lien interne
+                  Lien URL
                 </label>
                 <div className={styles.infoIconProject}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

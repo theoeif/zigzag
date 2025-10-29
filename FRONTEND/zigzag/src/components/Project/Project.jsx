@@ -298,7 +298,7 @@ const Project = ({ projectId }) => {
       }
 
       // Show confirmation dialog in French
-      const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible.");
+      const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ?");
       
       if (!confirmed) {
         return;
