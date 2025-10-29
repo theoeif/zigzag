@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
 import { MapContext } from "../../../contexts/MapContext";
@@ -406,6 +406,9 @@ const EventView = ({
   const [selectedCircleIds, setSelectedCircleIds] = useState([]);
   const [selectedCircleName, setSelectedCircleName] = useState('');
 
+  // Ref for address element
+  const addressRef = useRef(null);
+
   // Event details modal state
   const [showEventDetails, setShowEventDetails] = useState(false);
 
@@ -418,6 +421,29 @@ const EventView = ({
   // Detect mobile device
   useEffect(() => {
     setIsMobile(isMobileDevice());
+  }, []);
+
+  // Clear text selection when clicking outside address element
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only clear if clicking outside the address element
+      if (addressRef.current && !addressRef.current.contains(event.target)) {
+        const selection = window.getSelection();
+        // Simply clear any selection
+        if (selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+      }
+    };
+
+    // Use capture phase for better performance on mobile
+    document.addEventListener('mousedown', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside, true);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside, true);
+    };
   }, []);
 
   // Fetch event data
@@ -947,6 +973,7 @@ const EventView = ({
                 <div style={styles.details}>
                   {event.address?.address_line && (
                     <div
+                      ref={addressRef}
                       style={{
                         ...styles.addressItem,
                         color: addressHovered ? "#2196F3" : "inherit",
@@ -1265,6 +1292,7 @@ const EventView = ({
               <div style={styles.details}>
                 {event.address?.address_line && (
                   <div
+                    ref={addressRef}
                     style={{
                       ...styles.addressItem,
                       color: addressHovered ? "#2196F3" : "inherit",

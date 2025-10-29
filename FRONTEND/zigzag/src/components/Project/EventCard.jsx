@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   FaTrashAlt, FaEdit, FaMapMarkerAlt, FaClock,
   FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus,
@@ -14,6 +14,9 @@ import { downloadSingleEventICal, generateEventInvite } from '../../api/api';
 const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
+  
+  // Ref for address element
+  const addressRef = useRef(null);
   
   // Invitation link state
   const [invitationUrl, setInvitationUrl] = useState('');
@@ -467,6 +470,29 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
   };
 
 
+  // Clear text selection when clicking outside address element
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only clear if clicking outside the address element
+      if (addressRef.current && !addressRef.current.contains(event.target)) {
+        const selection = window.getSelection();
+        // Simply clear any selection
+        if (selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+      }
+    };
+
+    // Use capture phase for better performance on mobile
+    document.addEventListener('mousedown', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside, true);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside, true);
+    };
+  }, []);
+
   // Auto-open details when requested by parent
   React.useEffect(() => {
     if (autoOpen && !showDetails) {
@@ -546,6 +572,7 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
           {/* Location with icon - NOW CLICKABLE */}
           {event.address && (
             <div 
+              ref={addressRef}
               className={styles.eventLocationProject} 
               onClick={openGoogleMaps}
               style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
