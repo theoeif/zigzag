@@ -84,7 +84,11 @@ class SecurityMiddleware:
         if self._is_browser_request(request):
             if self.api_allowed_domains:
                 domain = self._extract_domain(origin) or self._extract_domain(referer)
-                if domain and domain not in self.api_allowed_domains:
+                # Enforce whitelist strictly: deny if domain is missing or not allowed
+                if not domain:
+                    logger.warning("API access denied due to missing or malformed Origin/Referer")
+                    return self._deny_access(request, "API access denied")
+                if domain not in self.api_allowed_domains:
                     logger.warning(f"API access denied for domain: {domain}")
                     return self._deny_access(request, "API access denied")
                 logger.info(f"API access granted for domain: {domain}")
