@@ -21,6 +21,7 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
   const [invitationError, setInvitationError] = useState(null);
   const [canGenerateInvite, setCanGenerateInvite] = useState(false);
   const [invitationCopied, setInvitationCopied] = useState(false);
+  
 
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
@@ -456,6 +457,7 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
     }
   };
 
+
   // Auto-open details when requested by parent
   React.useEffect(() => {
     if (autoOpen && !showDetails) {
@@ -522,7 +524,9 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
                   borderRadius: '10px',
                   fontWeight: 'bold',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  position: 'relative',
+                  zIndex: 10
                 }}
               >
                 Partagé

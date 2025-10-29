@@ -346,6 +346,7 @@ const styles = {
   bottomButtons: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginTop: "20px",
     borderTop: "1px solid #eee",
     paddingTop: "15px",
@@ -894,36 +895,6 @@ const EventView = ({
             style={styles.card}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button for modal mode (when clicking marker) */}
-            {isModalMode && (
-              <div style={{
-                position: "absolute",
-                bottom: "20px",
-                right: "20px"
-              }}>
-                <button
-                  style={{
-                    ...styles.button,
-                    ...styles.secondaryButton,
-                    padding: "8px 12px",
-                    fontSize: isMobile ? "28px" : "20px",
-                    minWidth: isMobile ? "48px" : "38px",
-                    height: isMobile ? "48px" : "38px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClose();
-                  }}
-                  title="Fermer"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            
             {/* Date display in right corner with click interaction */}
             <div
               style={{
@@ -1128,6 +1099,26 @@ const EventView = ({
                     </button>
                   </div>
 
+                  {/* Right side - Close button aligned with icons */}
+                  <button
+                    style={{
+                      ...styles.shareButton,
+                      backgroundColor: "#f1f1f1",
+                      fontSize: isMobile ? "28px" : "20px"
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isModalMode) {
+                        onClose();
+                      } else {
+                        (onClose || handleViewOnMap)();
+                      }
+                    }}
+                    title="Fermer"
+                  >
+                    ✕
+                  </button>
+
                   {/* Show share error as popup if present */}
                   {shareError && (
                     <div style={styles.shareLinkErrorPopup}>
@@ -1145,33 +1136,6 @@ const EventView = ({
                     </button>
                   )}
                 </div>
-
-                {/* Close button - only show for direct link access, not modal mode */}
-                {!isModalMode && (
-                  <div style={{
-                    position: "absolute",
-                    bottom: "20px",
-                    right: "20px"
-                  }}>
-                    <button
-                      style={{
-                        ...styles.button,
-                        ...styles.secondaryButton,
-                        padding: "8px 12px",
-                        fontSize: isMobile ? "28px" : "20px",
-                        minWidth: isMobile ? "48px" : "38px",
-                        height: isMobile ? "48px" : "38px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                      }}
-                      onClick={onClose || handleViewOnMap}
-                      title="Fermer"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
               </>
             }
           </div>
@@ -1453,6 +1417,22 @@ const EventView = ({
                     <FaInfoCircle style={styles.shareButtonIcon} />
                   </button>
                 </div>
+
+                {/* Right side - Close button aligned with icons */}
+                <button
+                  style={{
+                    ...styles.shareButton,
+                    backgroundColor: "#f1f1f1",
+                    fontSize: isMobile ? "28px" : "20px"
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                  }}
+                  title="Fermer"
+                >
+                  ✕
+                </button>
 
                 {/* Show share error as popup if present */}
                 {shareError && (
