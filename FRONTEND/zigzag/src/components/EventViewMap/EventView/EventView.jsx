@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider";
 import { MapContext } from "../../../contexts/MapContext";
@@ -102,6 +102,9 @@ const styles = {
     fontSize: "0.95rem",
     cursor: "pointer",
     transition: "color 0.2s ease",
+    userSelect: "text", // Allow text selection
+    WebkitUserSelect: "text", // Safari support
+    msUserSelect: "text", // IE/Edge support
   },
   timeDetail: {
     display: "flex",
@@ -346,6 +349,7 @@ const styles = {
   bottomButtons: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginTop: "20px",
     borderTop: "1px solid #eee",
     paddingTop: "15px",
@@ -402,6 +406,9 @@ const EventView = ({
   const [selectedCircleIds, setSelectedCircleIds] = useState([]);
   const [selectedCircleName, setSelectedCircleName] = useState('');
 
+  // Ref for address element
+  const addressRef = useRef(null);
+
   // Event details modal state
   const [showEventDetails, setShowEventDetails] = useState(false);
 
@@ -414,6 +421,29 @@ const EventView = ({
   // Detect mobile device
   useEffect(() => {
     setIsMobile(isMobileDevice());
+  }, []);
+
+  // Clear text selection when clicking outside address element
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only clear if clicking outside the address element
+      if (addressRef.current && !addressRef.current.contains(event.target)) {
+        const selection = window.getSelection();
+        // Simply clear any selection
+        if (selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+      }
+    };
+
+    // Use capture phase for better performance on mobile
+    document.addEventListener('mousedown', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside, true);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside, true);
+    };
   }, []);
 
   // Fetch event data
@@ -768,8 +798,17 @@ const EventView = ({
     }
   };
 
-  const openGoogleMaps = () => {
-    // Get latitude and longitude values
+  const openGoogleMaps = (e) => {
+    // Don't redirect if user has selected text (long press or selection)
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length > 0) {
+      // User is selecting text, don't redirect
+      return;
+    }
+    
+    // Rest of your existing openGoogleMaps code...
     let latitude = null;
     let longitude = null;
 
@@ -781,13 +820,10 @@ const EventView = ({
       longitude = event.lng;
     }
 
-    // Verify that we have valid coordinates
     if (latitude && longitude && !isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
-      // On desktop, just open in browser
       const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
       window.open(googleMapsUrl, '_blank');
     } else {
-      // If coordinates are not available, try to search by address
       const address = event.address?.address_line || "Emplacement non disponible";
       const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
       window.open(googleMapsSearchUrl, '_blank');
@@ -894,36 +930,6 @@ const EventView = ({
             style={styles.card}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button for modal mode (when clicking marker) */}
-            {isModalMode && (
-              <div style={{
-                position: "absolute",
-                bottom: "20px",
-                right: "20px"
-              }}>
-                <button
-                  style={{
-                    ...styles.button,
-                    ...styles.secondaryButton,
-                    padding: "8px 12px",
-                    fontSize: isMobile ? "28px" : "20px",
-                    minWidth: isMobile ? "48px" : "38px",
-                    height: isMobile ? "48px" : "38px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClose();
-                  }}
-                  title="Fermer"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            
             {/* Date display in right corner with click interaction */}
             <div
               style={{
@@ -967,6 +973,7 @@ const EventView = ({
                 <div style={styles.details}>
                   {event.address?.address_line && (
                     <div
+                      ref={addressRef}
                       style={{
                         ...styles.addressItem,
                         color: addressHovered ? "#2196F3" : "inherit",
@@ -980,7 +987,7 @@ const EventView = ({
                         ...styles.detailIcon,
                         color: addressHovered ? "#2196F3" : "#40916c"
                       }} />
-                      <span> {event.address.address_line}</span>
+                      <span style={{ userSelect: 'text', WebkitUserSelect: 'text' }}> {event.address.address_line}</span>
                     </div>
                   )}
 
@@ -1128,6 +1135,26 @@ const EventView = ({
                     </button>
                   </div>
 
+                  {/* Right side - Close button aligned with icons */}
+                  <button
+                    style={{
+                      ...styles.shareButton,
+                      backgroundColor: "#f1f1f1",
+                      fontSize: isMobile ? "28px" : "20px"
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isModalMode) {
+                        onClose();
+                      } else {
+                        (onClose || handleViewOnMap)();
+                      }
+                    }}
+                    title="Fermer"
+                  >
+                    ✕
+                  </button>
+
                   {/* Show share error as popup if present */}
                   {shareError && (
                     <div style={styles.shareLinkErrorPopup}>
@@ -1145,33 +1172,6 @@ const EventView = ({
                     </button>
                   )}
                 </div>
-
-                {/* Close button - only show for direct link access, not modal mode */}
-                {!isModalMode && (
-                  <div style={{
-                    position: "absolute",
-                    bottom: "20px",
-                    right: "20px"
-                  }}>
-                    <button
-                      style={{
-                        ...styles.button,
-                        ...styles.secondaryButton,
-                        padding: "8px 12px",
-                        fontSize: isMobile ? "28px" : "20px",
-                        minWidth: isMobile ? "48px" : "38px",
-                        height: isMobile ? "48px" : "38px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                      }}
-                      onClick={onClose || handleViewOnMap}
-                      title="Fermer"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
               </>
             }
           </div>
@@ -1292,6 +1292,7 @@ const EventView = ({
               <div style={styles.details}>
                 {event.address?.address_line && (
                   <div
+                    ref={addressRef}
                     style={{
                       ...styles.addressItem,
                       color: addressHovered ? "#2196F3" : "inherit",
@@ -1305,7 +1306,7 @@ const EventView = ({
                       ...styles.detailIcon,
                       color: addressHovered ? "#2196F3" : "#40916c"
                     }} />
-                    <span>{event.address.address_line}</span>
+                    <span style={{ userSelect: 'text', WebkitUserSelect: 'text' }}> {event.address.address_line}</span>
                   </div>
                 )}
 
@@ -1453,6 +1454,22 @@ const EventView = ({
                     <FaInfoCircle style={styles.shareButtonIcon} />
                   </button>
                 </div>
+
+                {/* Right side - Close button aligned with icons */}
+                <button
+                  style={{
+                    ...styles.shareButton,
+                    backgroundColor: "#f1f1f1",
+                    fontSize: isMobile ? "28px" : "20px"
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                  }}
+                  title="Fermer"
+                >
+                  ✕
+                </button>
 
                 {/* Show share error as popup if present */}
                 {shareError && (

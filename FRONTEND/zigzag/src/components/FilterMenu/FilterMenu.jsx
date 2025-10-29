@@ -18,6 +18,7 @@ const FilterMenu = ({
 }) => {
   const handleSelectLocation = (location) => {
     setSelectedLocation(location);
+    closeMenu(); // Close the filter menu when a location is selected
   };
 
   return (

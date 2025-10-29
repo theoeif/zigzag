@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   FaTrashAlt, FaEdit, FaMapMarkerAlt, FaClock,
   FaUser, FaChevronUp, FaChevronDown, FaCalendarPlus,
@@ -15,12 +15,16 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
   const [showDetails, setShowDetails] = useState(false);
   const [showEndDate, setShowEndDate] = useState(false);
   
+  // Ref for address element
+  const addressRef = useRef(null);
+  
   // Invitation link state
   const [invitationUrl, setInvitationUrl] = useState('');
   const [showInvitationModal, setShowInvitationModal] = useState(false);
   const [invitationError, setInvitationError] = useState(null);
   const [canGenerateInvite, setCanGenerateInvite] = useState(false);
   const [invitationCopied, setInvitationCopied] = useState(false);
+  
 
   // Format date to a readable format (date only without time)
   const formatDateOnly = (dateString) => {
@@ -386,6 +390,15 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
   const openGoogleMaps = (e) => {
     e.preventDefault();
 
+    // Don't redirect if user has selected text (long press or selection)
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length > 0) {
+      // User is selecting text, don't redirect
+      return;
+    }
+
     // Get latitude and longitude values
     let latitude = null;
     let longitude = null;
@@ -456,6 +469,30 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
     }
   };
 
+
+  // Clear text selection when clicking outside address element
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only clear if clicking outside the address element
+      if (addressRef.current && !addressRef.current.contains(event.target)) {
+        const selection = window.getSelection();
+        // Simply clear any selection
+        if (selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+      }
+    };
+
+    // Use capture phase for better performance on mobile
+    document.addEventListener('mousedown', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside, true);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside, true);
+    };
+  }, []);
+
   // Auto-open details when requested by parent
   React.useEffect(() => {
     if (autoOpen && !showDetails) {
@@ -522,7 +559,9 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
                   borderRadius: '10px',
                   fontWeight: 'bold',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  position: 'relative',
+                  zIndex: 10
                 }}
               >
                 Partagé
@@ -532,10 +571,20 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
 
           {/* Location with icon - NOW CLICKABLE */}
           {event.address && (
-            <div className={styles.eventLocationProject} onClick={openGoogleMaps}>
+            <div 
+              ref={addressRef}
+              className={styles.eventLocationProject} 
+              onClick={openGoogleMaps}
+              style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
+            >
               <div className={styles.locationLinkProject}>
                 <span className={styles.locationIconProject}><FaMapMarkerAlt /></span>
-                <span className={styles.locationTextProject}>{event.address.address_line}</span>
+                <span 
+                  className={styles.locationTextProject}
+                  style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
+                >
+                  {event.address.address_line}
+                </span>
                 <FaDirections className={styles.directionsIconProject} />
               </div>
             </div>
