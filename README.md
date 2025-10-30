@@ -17,7 +17,9 @@ The Zig Zag project is a **social project mapping platform** that allows users t
   - **MapLibre GL Leaflet** connects Leaflet with MapTiler’s vector tiles for smooth, modern map rende
 Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
 
-- The project is almost live and close to production readines : [App Link](https://zigzag-project.org/)
+
+
+The project is almost live and close to production readines : [App Link](https://zigzag-project.org/)
 
 
 ## 🔧 Project Setup
@@ -30,7 +32,7 @@ Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
 
 ---
 
-To dev in local, please visit the wiki : [Setting Up your environment](https://github.com/theoeif/zigzag/wiki/Setting-Up-your-environment)
+To dev in local and start contributing, please visit the wiki : [Setting Up your environment](https://github.com/theoeif/zigzag/wiki/Setting-Up-your-environment)
 
 
 ## Handle postgres database
