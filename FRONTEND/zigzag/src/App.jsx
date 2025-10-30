@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, useLocation, Route, Routes, useNavigate } from "react-router-dom";
 import MarkersMap from "./components/MarkersMap";
 import AccountCreation from "./components/Login/AccountCreation";
@@ -14,10 +14,15 @@ import CalendarView from "./components/Calendar/CalendarView";
 import Settings from "./components/Settings/Settings";
 import Callback from './contexts/Callback';
 import { initDeepLinking, removeDeepLinkListener } from './utils/deepLinkHandler';
+import Help from "./components/Help/Help";
+import Privacy from "./components/Help/Privacy";
+import Header from "./components/Header/Header";
+import LeftMenu from "./components/LeftMenu/LeftMenu";
 
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   // If a modal was opened from a background location, it will be stored here.
   const state = location.state || {};
 
@@ -33,8 +38,16 @@ const App = () => {
     };
   }, [navigate]);
 
+  const isHelpOrPrivacy = location.pathname === "/help" || location.pathname === "/privacy";
+
   return (
     <>
+      {isHelpOrPrivacy && (
+        <Header toggleLeftMenu={() => setIsLeftMenuOpen(true)} hideNavigationIcons={true} />
+      )}
+      {isHelpOrPrivacy && isLeftMenuOpen && (
+        <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />
+      )}
       <Routes location={state.background || location}>
         <Route path="/" element={<MarkersMap />} />
         <Route path="/callback" element={<Callback />} />
@@ -49,6 +62,8 @@ const App = () => {
         <Route path="/calendar" element={<CalendarView />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/event/:id" element={<DirectEventLinkView />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/privacy" element={<Privacy />} />
       </Routes>
 
       {/* Modal routes - rendered when background state exists */}
