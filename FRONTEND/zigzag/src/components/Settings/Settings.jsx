@@ -5,6 +5,7 @@ import { FaLock, FaEye, FaEyeSlash, FaCheck, FaTimes } from 'react-icons/fa';
 import Header from '../Header/Header';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import styles from './Settings.module.css';
+import { faqData } from '../Help/faqData';
 
 const Settings = () => {
   const { isConnected } = useContext(AuthContext);
@@ -174,54 +175,7 @@ const Settings = () => {
     setExpandedFAQ(expandedFAQ === index ? null : index);
   };
 
-  const faqData = [
-    {
-      question: "Comment les gens s'ajoutent-ils ?",
-      answer: "Pour l'instant, les Cercles sont progressifs — ils grandissent et se connectent progressivement au fil du temps."
-    },
-    {
-      question: "À propos de \"Je cherche\" / \"J'offre\"",
-      answer: `Exemple : "Je cherche des cours d'anglais" → c'est quelque chose de plus adapté pour une plateforme comme Superprof.
-
-Nous ne voulons pas que les gens crient dans un réseau ouvert avec des posts aléatoires "J'ai besoin de ceci / Je veux cela". Tout le monde n'a pas besoin de tout savoir.
-
-Principe central :
-- "Je veux ceci" (sans le diffuser) ou
-- "Je prends ceci — le voici."
-
-La vision est que vous déclariez "Je veux ceci" seulement à un groupe de personnes sélectionné. Cela se fait à travers les projets.
-
-Exemple : Acheter une maison → devient un projet partagé avec les bonnes personnes.
-
-Note : Le concept "Je veux" est difficile à définir précisément — c'est intentionnel et privé.`
-    },
-    {
-      question: "Problèmes d'administration (Cercles)",
-      answer: `1. Gestion des nouveaux membres
-C'est délicat — les gens doivent actuellement demander en privé à rejoindre un Cercle auprès du créateur. Bien que les invitations aient du sens, elles compliquent aussi l'interface. Les règles changeront quand le nombre > 300.
-
-Problème : Si les noms de Cercles sont visibles publiquement, cela pourrait mener à une exposition non désirée.
-
-2. Ajout de membres aux Cercles
-Actuellement, seul le créateur peut ajouter de nouveaux membres. Mais peut-être que n'importe quel membre pourrait ajouter d'autres personnes pour aider les Cercles à grandir plus vite (→ Cercle partagé).
-
-Compromis :
-- Avantages : Le réseau grandit rapidement (ex: comme "Lycée").
-- Inconvénients : Peut devenir chaotique — pas idéal pour de petits groupes ciblés (ex: "Grimpeurs du dimanche").
-
-3. Changement des noms de Cercles
-Seul le créateur devrait être autorisé à changer le nom du Cercle. Sinon — cela devient désordonné rapidement.
-
-<strong>Conclusion : Les Cercles doivent rester des noyaux durs où les gens travaillent sur de vrais projets.</strong>`
-    },
-    {
-      question: "Tags",
-      answer: `Les tags sont de grandes catégories où appartiennent les cercles.
-(ex: "1er Cercle" : personnes que je connais et vois, "2ème Cercle" : Personnes que je connais mais ne vois plus)
-- Seuls les admins peuvent configurer les tags.
-- Les tags ne doivent pas être modifiables par tout le monde. Ils sont partagés entre les utilisateurs.`
-    }
-  ];
+  // faqData imported from shared module
 
   const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
 

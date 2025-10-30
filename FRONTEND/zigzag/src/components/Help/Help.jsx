@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Header from "../Header/Header";
+import LeftMenu from "../LeftMenu/LeftMenu";
+import settingsStyles from "../Settings/Settings.module.css";
+import { faqData } from "./faqData";
 
 export default function Help() {
+  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
+  const [expandedFAQ, setExpandedFAQ] = useState(null);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
@@ -8,6 +14,28 @@ export default function Help() {
   const [submitting, setSubmitting] = React.useState(false);
   const [trap, setTrap] = React.useState(""); // honeypot
   const startRef = React.useRef(Date.now());
+
+  const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isLeftMenuOpen) {
+        const leftMenu = document.querySelector('.left-menu');
+        const header = document.querySelector('.header');
+        if (leftMenu && !leftMenu.contains(event.target) && header && !header.contains(event.target)) {
+          setIsLeftMenuOpen(false);
+        }
+      }
+    };
+    if (isLeftMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isLeftMenuOpen]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -43,35 +71,44 @@ export default function Help() {
   }
 
   return (
-    <div style={{ padding: "16px", maxWidth: 800, margin: "0 auto", marginTop: 56 }}>
-      <h1>Aide</h1>
+    <div className={settingsStyles.settingsPage}>
+      <Header toggleLeftMenu={toggleLeftMenu} hideNavigationIcons={true} />
+      {isLeftMenuOpen && (
+        <div className="left-menu">
+          <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />
+        </div>
+      )}
+      <div className={settingsStyles.container} style={{ marginTop: 56 }}>
+      <h1 className={settingsStyles.pageTitle}>Aide</h1>
       <p>
         Bienvenue sur ZIGZAG. Cette page regroupe une FAQ rapide et des liens utiles.
       </p>
 
-      <h2>FAQ</h2>
-      <div>
-        <h3>Comment fonctionne le partage des événements ?</h3>
-        <p>
-          Vous créez des projets/événements et choisissez avec quels cercles d’amis
-          vous les partagez. Seules les personnes de ces cercles peuvent voir les
-          événements partagés.
-        </p>
-
-        <h3>Ma localisation est‑elle partagée ?</h3>
-        <p>
-          La localisation des projets est partagée selon vos cercles. Votre
-          localisation personnelle est optionnelle, limitée à la session et n’est
-          pas partagée par défaut entre utilisateurs.
-        </p>
-
-        <h3>Comment supprimer mon compte et mes données ?</h3>
-        <p>
-          Vous pourrez demander la suppression via le formulaire de contact situé au
-          bas de cette page (bientôt disponible). Le délai de traitement est de
-          30 jours maximum.
-        </p>
-      </div>
+      <section className={settingsStyles.faqSection}>
+        <h2 className={settingsStyles.faqTitle}>FAQ</h2>
+        <div className={settingsStyles.faqList}>
+          {faqData.map((item, index) => (
+            <div key={index} className={settingsStyles.faqItem}>
+              <button
+                className={settingsStyles.faqQuestion}
+                onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
+                aria-expanded={expandedFAQ === index}
+                aria-controls={`faq-panel-${index}`}
+              >
+                <span>{item.question}</span>
+                <span className={`${settingsStyles.arrow} ${expandedFAQ === index ? settingsStyles.expanded : ''}`}>
+                  ▼
+                </span>
+              </button>
+              {expandedFAQ === index && (
+                <div id={`faq-panel-${index}`} className={settingsStyles.faqAnswer}>
+                  <p dangerouslySetInnerHTML={{ __html: item.answer }}></p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
       <h2>Confidentialité</h2>
       <p>
@@ -84,8 +121,9 @@ export default function Help() {
         </a>
       </p>
 
+      <section className={settingsStyles.passwordSection}>
       <h2>Contact</h2>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 8, maxWidth: 600 }} aria-label="Formulaire de contact">
+      <form onSubmit={handleSubmit} className={settingsStyles.passwordForm} aria-label="Formulaire de contact">
         {/* Honeypot field (do not remove) */}
         <input
           type="text"
@@ -96,37 +134,40 @@ export default function Help() {
           aria-hidden="true"
           autoComplete="off"
         />
-        <label>
-          Nom (facultatif)
+        <div className={settingsStyles.inputGroup}>
+          <label>Nom (facultatif)</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className={settingsStyles.usernameInput}
             placeholder="Votre nom"
           />
-        </label>
-        <label>
-          E‑mail
+        </div>
+        <div className={settingsStyles.inputGroup}>
+          <label>E‑mail</label>
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className={settingsStyles.usernameInput}
             placeholder="vous@exemple.com"
           />
-        </label>
-        <label>
-          Message
+        </div>
+        <div className={settingsStyles.inputGroup}>
+          <label>Message</label>
           <textarea
             required
             rows={5}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            className={settingsStyles.usernameInput}
             placeholder="Décrivez votre demande"
           />
-        </label>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button type="submit" disabled={submitting || !email || !message}>
+        </div>
+        <div className={settingsStyles.buttonGroup}>
+          <button type="submit" className={settingsStyles.saveButton} disabled={submitting || !email || !message}>
             {submitting ? "Envoi…" : "Envoyer"}
           </button>
           {status === "ok" && <span role="status" aria-live="polite">Message envoyé ✔️</span>}
@@ -138,6 +179,8 @@ export default function Help() {
           )}
         </div>
       </form>
+      </section>
+      </div>
     </div>
   );
 }
