@@ -17,12 +17,11 @@ import { initDeepLinking, removeDeepLinkListener } from './utils/deepLinkHandler
 import Help from "./components/Help/Help";
 import Privacy from "./components/Help/Privacy";
 import Header from "./components/Header/Header";
-import LeftMenu from "./components/LeftMenu/LeftMenu";
+// Removed per-page header/menu handling from App; handled inside Help/Privacy
 
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   // If a modal was opened from a background location, it will be stored here.
   const state = location.state || {};
 
@@ -38,16 +37,8 @@ const App = () => {
     };
   }, [navigate]);
 
-  const isHelpOrPrivacy = location.pathname === "/help" || location.pathname === "/privacy";
-
   return (
     <>
-      {isHelpOrPrivacy && (
-        <Header toggleLeftMenu={() => setIsLeftMenuOpen(true)} hideNavigationIcons={true} />
-      )}
-      {isHelpOrPrivacy && isLeftMenuOpen && (
-        <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />
-      )}
       <Routes location={state.background || location}>
         <Route path="/" element={<MarkersMap />} />
         <Route path="/callback" element={<Callback />} />

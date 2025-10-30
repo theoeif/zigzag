@@ -1,9 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Header from "../Header/Header";
+import LeftMenu from "../LeftMenu/LeftMenu";
+import settingsStyles from "../Settings/Settings.module.css";
 
 export default function Privacy() {
+  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
+  const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isLeftMenuOpen) {
+        const leftMenu = document.querySelector('.left-menu');
+        const header = document.querySelector('.header');
+        if (leftMenu && !leftMenu.contains(event.target) && header && !header.contains(event.target)) {
+          setIsLeftMenuOpen(false);
+        }
+      }
+    };
+    if (isLeftMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isLeftMenuOpen]);
+
   return (
-    <div style={{ padding: "16px", maxWidth: 900, margin: "0 auto", marginTop: 56 }}>
-      <h1>Politique de confidentialité ZIGZAG</h1>
+    <div className={settingsStyles.settingsPage}>
+      <Header toggleLeftMenu={toggleLeftMenu} hideNavigationIcons={true} />
+      {isLeftMenuOpen && (
+        <div className="left-menu">
+          <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />
+        </div>
+      )}
+      <div className={settingsStyles.container} style={{ marginTop: 56 }}>
+      <h1 className={settingsStyles.pageTitle}>Politique de confidentialité ZIGZAG</h1>
+      <section className={settingsStyles.passwordSection}>
       <p>Dernière mise à jour: [à compléter] • Âge cible: 18+</p>
 
       <h2>1. Qui sommes‑nous</h2>
@@ -97,10 +131,11 @@ export default function Privacy() {
         E‑mails transactionnels (confirmations/invitations) via Mailgun. Pas de newsletters publicitaires par défaut.
       </p>
 
-      <h2>15. Contact</h2>
+      <h2>13. Contact</h2>
       <p>
         Un formulaire intégré est disponible sur la page d’aide. Les messages sont relayés par le backend Django
-        via Mailgun (adresse non exposée côté client). Dépôt open source: <a href="https://github.com/theoeif/zigzag" target="_blank" rel="noreferrer">github.com/theoeif/zigzag</a>.
+        via Mailgun (adresse non exposée côté client). 
+        Dépôt open source: <a href="https://github.com/theoeif/zigzag" target="_blank" rel="noreferrer">github.com/theoeif/zigzag</a>.
       </p>
 
       <hr />
@@ -118,6 +153,8 @@ export default function Privacy() {
         </li>
         <li>Pas de suivi publicitaire, pas de tiers publicitaires</li>
       </ul>
+      </section>
+      </div>
     </div>
   );
 }
