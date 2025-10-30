@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "XQ2QPQ85Z9.com.zigzagunique.app"
+        ],
+        "components": [
+          { "/": "/event/*" },
+          { "/": "/invite/*" }
+        ]
+      }
+    ]
+  }
+}
