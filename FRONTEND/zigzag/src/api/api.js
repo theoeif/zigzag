@@ -57,6 +57,17 @@ export const confirmPasswordReset = async (uid, token, newPassword, confirmPassw
   }
 };
 
+// Contact form submission
+export const submitContactForm = async (contactData) => {
+  try {
+    const response = await axios.post(API_BASE_URL + "contact/", contactData);
+    return response.data;
+  } catch (error) {
+    console.error("Contact form submission error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // Registration helper
 export const register = async (payload) => {
   try {

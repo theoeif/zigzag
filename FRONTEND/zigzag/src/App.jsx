@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, useLocation, Route, Routes, useNavigate } from "react-router-dom";
 import MarkersMap from "./components/MarkersMap";
 import AccountCreation from "./components/Login/AccountCreation";
@@ -14,6 +14,10 @@ import CalendarView from "./components/Calendar/CalendarView";
 import Settings from "./components/Settings/Settings";
 import Callback from './contexts/Callback';
 import { initDeepLinking, removeDeepLinkListener } from './utils/deepLinkHandler';
+import Help from "./components/Help/Help";
+import Privacy from "./components/Help/Privacy";
+import Header from "./components/Header/Header";
+// Removed per-page header/menu handling from App; handled inside Help/Privacy
 
 const App = () => {
   const location = useLocation();
@@ -49,6 +53,8 @@ const App = () => {
         <Route path="/calendar" element={<CalendarView />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/event/:id" element={<DirectEventLinkView />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/privacy" element={<Privacy />} />
       </Routes>
 
       {/* Modal routes - rendered when background state exists */}

@@ -23,3 +23,11 @@ class PasswordResetThrottle(AnonRateThrottle):
     Uses 'password_reset' rate from DEFAULT_THROTTLE_RATES setting.
     """
     scope = 'password_reset'
+
+
+class ContactThrottle(AnonRateThrottle):
+    """
+    Throttle class for contact form endpoint.
+    Uses 'contact' rate from DEFAULT_THROTTLE_RATES setting.
+    """
+    scope = 'contact'

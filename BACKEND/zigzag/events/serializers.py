@@ -329,3 +329,10 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         if attrs["new_password"] != attrs["confirm_password"]:
             raise serializers.ValidationError({"new_password": "Les mots de passe ne correspondent pas."})
         return attrs
+
+
+class ContactFormSerializer(serializers.Serializer):
+    """Serializer for contact form submission"""
+    name = serializers.CharField(required=False, allow_blank=True, max_length=200)
+    email = serializers.EmailField(required=True)
+    message = serializers.CharField(required=True, max_length=5000)
