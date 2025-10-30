@@ -29,7 +29,8 @@ const LeftMenu = ({ closeMenu }) => {
     "create-account": null,
     login: null,
     disconnect: null,
-    settings: null
+    settings: null,
+    help: null
   });
 
   // Get active button from localStorage - moved outside of useState to ensure it's always current
@@ -175,6 +176,8 @@ const LeftMenu = ({ closeMenu }) => {
       currentActive = "login";
     } else if (path === "/settings") {
       currentActive = "settings";
+    } else if (path === "/help") {
+      currentActive = "help";
     }
 
     if (currentActive) {
@@ -307,6 +310,18 @@ const LeftMenu = ({ closeMenu }) => {
         </div>
       </div>
 
+
+      {/* Small help icon anchored at bottom-left */}
+      <button
+        className={getButtonClass("help")}
+        onClick={() => handleNavigation("/help", "help")}
+        ref={el => buttonRefs.current.help = el}
+        aria-label="Aide"
+        title="Aide"
+        style={{ position: 'absolute', left: 8, bottom: 8, padding: '6px 10px', minWidth: 0 }}
+      >
+        ?
+      </button>
 
       {isConnected && (
         <div className="menu-section">
