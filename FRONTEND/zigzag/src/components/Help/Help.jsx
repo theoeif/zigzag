@@ -110,16 +110,18 @@ export default function Help() {
         </div>
       </section>
 
-      <h2>Confidentialité</h2>
-      <p>
-        Consultez notre Politique de confidentialité pour les détails sur les
-        données traitées, les finalités et vos droits.
-      </p>
-      <p>
-        <a href="/privacy" style={{ textDecoration: "underline" }}>
-          Ouvrir la Politique de confidentialité
-        </a>
-      </p>
+      <section className={settingsStyles.passwordSection}>
+        <h2>Confidentialité</h2>
+        <p>
+          Consultez notre Politique de confidentialité pour les détails sur les
+          données traitées, les finalités et vos droits.
+        </p>
+        <p>
+          <a href="/privacy" style={{ textDecoration: "underline" }}>
+            Ouvrir la Politique de confidentialité
+          </a>
+        </p>
+      </section>
 
       <section className={settingsStyles.passwordSection}>
       <h2>Contact</h2>
