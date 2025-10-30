@@ -69,6 +69,7 @@ REST_FRAMEWORK = {
         'register': os.getenv('THROTTLE_RATE_REGISTER', '10/hour'),
         'login': os.getenv('THROTTLE_RATE_LOGIN', '10/hour'),
         'password_reset': os.getenv('THROTTLE_RATE_PASSWORD_RESET', '3/hour'),
+        'contact': os.getenv('THROTTLE_RATE_CONTACT', '5/hour'),
     }
 }
 

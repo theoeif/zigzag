@@ -1,3 +1,4 @@
+import os
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -39,8 +40,9 @@ from .serializers import (
     ChangePasswordSerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
+    ContactFormSerializer,
 )
-from events.throttles import RegisterThrottle, LoginThrottle, PasswordResetThrottle
+from events.throttles import RegisterThrottle, LoginThrottle, PasswordResetThrottle, ContactThrottle
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -1287,5 +1289,127 @@ class PasswordResetConfirmView(APIView):
         
         return Response(
             {"message": "Votre mot de passe a été réinitialisé avec succès."},
+            status=status.HTTP_200_OK
+        )
+
+
+class ContactView(APIView):
+    """
+    Handle contact form submissions.
+    Sends email via Mailgun to HOST_EMAIL with contact form data.
+    """
+    permission_classes = [AllowAny]
+    throttle_classes = [ContactThrottle] if not settings.DEBUG else []
+
+    def post(self, request):
+        serializer = ContactFormSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        name = serializer.validated_data.get('name', '')
+        email = serializer.validated_data['email']
+        message = serializer.validated_data['message']
+        
+        # Get HOST_EMAIL from environment
+        host_email = os.getenv('HOST_EMAIL')
+        if not host_email:
+            # In production, log error but don't reveal to user (security best practice)
+            if settings.DEBUG:
+                return Response(
+                    {"error": "HOST_EMAIL not configured"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            # In production, return success even if email fails
+            return Response(
+                {"message": "Votre message a été envoyé avec succès."},
+                status=status.HTTP_200_OK
+            )
+        
+        try:
+            # Create plain text email content
+            sender_name = name if name else "Anonyme"
+            plain_text = f"""Nouveau message de contact ZIGZAG
+
+Nom: {sender_name}
+Email: {email}
+
+Message:
+{message}
+
+---
+Ce message a été envoyé depuis le formulaire de contact ZIGZAG.
+Vous pouvez répondre directement à cet email pour contacter {sender_name}."""
+            
+            # Create HTML email content
+            html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    
+    <h2 style="color: #3498db;">Nouveau message de contact ZIGZAG</h2>
+    
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p style="margin: 5px 0;"><strong>Nom:</strong> {sender_name}</p>
+        <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:{email}">{email}</a></p>
+    </div>
+    
+    <div style="background-color: #ffffff; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Message:</h3>
+        <p style="white-space: pre-wrap;">{message}</p>
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+    
+    <p style="font-size: 12px; color: #95a5a6; text-align: center;">
+        Ce message a été envoyé depuis le formulaire de contact ZIGZAG.<br>
+        Vous pouvez répondre directement à cet email pour contacter {sender_name}.
+    </p>
+</body>
+</html>"""
+            
+            # Configure message with proper headers
+            message = AnymailMessage(
+                subject="Nouveau message de contact ZIGZAG",
+                body=plain_text,
+                to=[host_email],
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                reply_to=[email],  # Set Reply-To to sender's email for easy replies
+            )
+            
+            # Add headers to improve deliverability
+            message.extra_headers = {
+                'Reply-To': email,
+                'X-Mailer': 'ZIGZAG Contact Form',
+            }
+            
+            # Attach HTML alternative
+            message.attach_alternative(html_content, "text/html")
+            
+            message.send()
+            
+        except Exception as e:
+            error_message = str(e)
+            print(f"Error sending contact form email: {error_message}")
+            
+            # In DEBUG mode, return the actual error so user can see what went wrong
+            if settings.DEBUG:
+
+                # Log error for debugging
+                import traceback
+                traceback.print_exc()
+                
+                return Response(
+                    {
+                        "error": "Failed to send email",
+                        "details": error_message,
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        
+        # Return success response (even on email errors, for security best practice)
+        return Response(
+            {"message": "Votre message a été envoyé avec succès."},
             status=status.HTTP_200_OK
         )
