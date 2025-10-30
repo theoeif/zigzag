@@ -3,6 +3,7 @@ import Header from "../Header/Header";
 import LeftMenu from "../LeftMenu/LeftMenu";
 import settingsStyles from "../Settings/Settings.module.css";
 import { faqData } from "./faqData";
+import { submitContactForm } from "../../api/api";
 
 export default function Help() {
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
@@ -53,12 +54,7 @@ export default function Help() {
     setSubmitting(true);
     setStatus(null);
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message })
-      });
-      if (!res.ok) throw new Error("Bad response");
+      await submitContactForm({ name, email, message });
       setStatus("ok");
       setName("");
       setEmail("");
@@ -169,10 +165,9 @@ export default function Help() {
           />
         </div>
         <div className={settingsStyles.buttonGroup}>
-          <button type="submit" className={settingsStyles.saveButton} disabled={submitting || !email || !message}>
-            {submitting ? "Envoi…" : "Envoyer"}
+          <button type="submit" className={settingsStyles.saveButton} disabled={submitting || !email || !message || status === "ok"}>
+            {submitting ? "Envoi…" : status === "ok" ? "✓ Envoyé" : "Envoyer"}
           </button>
-          {status === "ok" && <span role="status" aria-live="polite">Message envoyé ✔️</span>}
           {status === "spam" && (
             <span role="alert">Soumission bloquée. Veuillez réessayer dans quelques secondes.</span>
           )}

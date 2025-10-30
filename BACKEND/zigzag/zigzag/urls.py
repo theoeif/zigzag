@@ -20,7 +20,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenBlacklistView,
 )
-from events.views import RegisterView, ThrottledTokenObtainPairView
+from events.views import RegisterView, ThrottledTokenObtainPairView, ContactView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,6 +35,9 @@ urlpatterns = [
     path('api/token/', ThrottledTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # to delete refresh_token after log out
+    
+    # contact form endpoint
+    path('api/contact/', ContactView.as_view(), name='contact'),
 ]
 
 from django.http import HttpResponse
