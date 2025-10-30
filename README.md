@@ -1,8 +1,9 @@
 # zigzag
 ---
 
-## zigzag Project
-The Zig Zag project is a **social project mapping platform** that allows users to create, share, and discover events on an interactive map. Users can organize friends into circles, create location-based events, and filter content by tags and timeline.
+## zigzag project
+
+The zigzag project is a **social project mapping platform** that allows users to create, share, and discover events on an interactive map. Users can organize friends into circles, create location-based events, and filter content by tags and timeline.
 
 ## Technology stack
 - **Backend:**  
@@ -18,8 +19,8 @@ The Zig Zag project is a **social project mapping platform** that allows users t
 Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
 
 
-
-The project is almost live and close to production readines : [App Link](https://zigzag-project.org/)
+ 
+The project is almost live and close to production readines : https://zigzag-project.org/
 
 
 ## 🔧 Project Setup
