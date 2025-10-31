@@ -112,7 +112,7 @@ Dépôt open source: https://github.com/theoeif/zigzag
 
   return (
     <div className={settingsStyles.settingsPage}>
-      <Header toggleLeftMenu={toggleLeftMenu} hideNavigationIcons={true} />
+      <Header toggleLeftMenu={toggleLeftMenu} hideNavigationIcons={true} showRightMapIcon={true} />
       {isLeftMenuOpen && (
         <div className="left-menu">
           <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 import { FaFilter } from 'react-icons/fa'; // Import FaFilter if needed
 import { CalendarToday, Folder, Map, Menu } from '@mui/icons-material';
 
-const Header = ({ toggleLeftMenu, toggleFilterMenu, hideNavigationIcons = false }) => {
+const Header = ({ toggleLeftMenu, toggleFilterMenu, hideNavigationIcons = false, showRightMapIcon = false }) => {
   const navigate = useNavigate(); // Initialize the useNavigate hook
 
   const handleLogoClick = () => {
@@ -25,15 +25,17 @@ const Header = ({ toggleLeftMenu, toggleFilterMenu, hideNavigationIcons = false 
 
   return (
     <div className="header">
-      <button className="left-menu-icon" onClick={toggleLeftMenu}>
-        <Menu />
-      </button>
-      {!hideNavigationIcons && (
-        <button className="map-icon" onClick={handleMapClick} title="Carte">
-          <Map />
+      <div className="header-left-actions">
+        <button className="left-menu-icon" onClick={toggleLeftMenu}>
+          <Menu />
         </button>
-      )}
-      <h1 className="app-title" onClick={handleLogoClick}>zig zag</h1> {/* Add click handler here */}
+        {!hideNavigationIcons && (
+          <button className="map-icon" onClick={handleMapClick} title="Carte">
+            <Map />
+          </button>
+        )}
+      </div>
+      <h1 className="app-title" onClick={handleLogoClick}>zig zag</h1>
       <div className="header-actions">
         {!hideNavigationIcons && (
           <>
@@ -44,6 +46,11 @@ const Header = ({ toggleLeftMenu, toggleFilterMenu, hideNavigationIcons = false 
               <CalendarToday />
             </button>
           </>
+        )}
+        {showRightMapIcon && (
+          <button className="map-icon" onClick={handleMapClick} title="Carte">
+            <Map />
+          </button>
         )}
         {/* Only render the filter button if toggleFilterMenu is passed */}
         {toggleFilterMenu && (
