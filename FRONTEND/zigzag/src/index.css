@@ -724,7 +724,7 @@ input:checked + .slider:before {
   display: flex;
   gap: 8px;
   align-items: center;
-  top: calc(env(safe-area-inset-top) + (60px - 48px) / 2 + 4px);
+  top: calc(env(safe-area-inset-top) + (60px - 48px) / 2 + 3px);
   height: 48px;
   z-index: 2001;
 }
@@ -748,8 +748,8 @@ input:checked + .slider:before {
   left: auto;
   right: auto;
   font-size: 20px;
-  min-width: 40px;
-  min-height: 40px;
+  min-width: 48px;
+  max-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
