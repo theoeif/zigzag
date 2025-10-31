@@ -1,8 +1,7 @@
 import React from 'react';
 import '../../index.css'
 import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
-import { FaFilter } from 'react-icons/fa'; // Import FaFilter if needed
-import { CalendarToday, Folder, Map, Menu } from '@mui/icons-material';
+import { CalendarToday, Folder, Map, Menu, Search } from '@mui/icons-material';
 
 const Header = ({ toggleLeftMenu, toggleFilterMenu, hideNavigationIcons = false, showRightMapIcon = false }) => {
   const navigate = useNavigate(); // Initialize the useNavigate hook
@@ -55,7 +54,7 @@ const Header = ({ toggleLeftMenu, toggleFilterMenu, hideNavigationIcons = false,
         {/* Only render the filter button if toggleFilterMenu is passed */}
         {toggleFilterMenu && (
           <button className="filter-icon" onClick={toggleFilterMenu}>
-            <FaFilter />
+            <Search />
           </button>
         )}
       </div>
