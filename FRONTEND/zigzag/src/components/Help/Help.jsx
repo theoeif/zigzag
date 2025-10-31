@@ -68,7 +68,7 @@ export default function Help() {
 
   return (
     <div className={settingsStyles.settingsPage}>
-      <Header toggleLeftMenu={toggleLeftMenu} hideNavigationIcons={true} />
+      <Header toggleLeftMenu={toggleLeftMenu} hideNavigationIcons={true} showRightMapIcon={true} />
       {isLeftMenuOpen && (
         <div className="left-menu">
           <LeftMenu closeMenu={() => setIsLeftMenuOpen(false)} />

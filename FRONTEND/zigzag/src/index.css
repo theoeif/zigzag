@@ -671,7 +671,7 @@ input:checked + .slider:before {
 }
 
 .left-menu-icon, .map-icon, .filter-icon, .calendar-icon, .projects-icon {
-  position: absolute;
+  position: relative;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -682,7 +682,6 @@ input:checked + .slider:before {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   /* Center vertically within the 60px content area below the safe area */
-  top: calc(env(safe-area-inset-top) + (60px - 48px) / 2);
   min-width: 48px; /* iOS recommended minimum touch target */
   min-height: 48px; /* iOS recommended minimum touch target */
   display: flex;
@@ -703,20 +702,9 @@ input:checked + .slider:before {
   opacity: 0.8;
 }
 
-.left-menu-icon {
-  left: 10px;
-}
-
-.map-icon {
-  left: 58px; /* 10px + 48px button width = placed right of menu */
-}
-
-/* Ensure left-side buttons center their content vertically like the right-side ones */
-.left-menu-icon, .map-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Left icons will be placed by the container */
+.left-menu-icon { left: auto; }
+.map-icon { left: auto; }
 
 .header-actions {
   position: absolute;
@@ -724,6 +712,21 @@ input:checked + .slider:before {
   display: flex;
   gap: 8px;
   align-items: center;
+  top: calc(env(safe-area-inset-top) + (60px - 48px) / 2 + 3px);
+  height: 48px;
+  z-index: 2001;
+}
+
+/* New unified container for left-side icons */
+.header-left-actions {
+  position: absolute;
+  left: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  top: calc(env(safe-area-inset-top) + (60px - 48px) / 2 + 4px);
+  height: 48px;
+  z-index: 2001;
 }
 
 .calendar-icon {
