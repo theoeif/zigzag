@@ -310,19 +310,6 @@ const LeftMenu = ({ closeMenu }) => {
         </div>
       </div>
 
-
-      {/* Small help icon anchored at bottom-left */}
-      <button
-        className={getButtonClass("help")}
-        onClick={() => handleNavigation("/help", "help")}
-        ref={el => buttonRefs.current.help = el}
-        aria-label="Aide"
-        title="Aide"
-        style={{ position: 'absolute', left: 8, bottom: 8, padding: '6px 10px', minWidth: 0 }}
-      >
-        ?
-      </button>
-
       {isConnected && (
         <div className="menu-section">
           <div className="section-header">
@@ -415,6 +402,25 @@ const LeftMenu = ({ closeMenu }) => {
           </div>
         )}
       </div>
+
+      {/* Help button placed after Compte Container */}
+      <button
+        className={getButtonClass("help")}
+        onClick={() => handleNavigation("/help", "help")}
+        ref={el => buttonRefs.current.help = el}
+        aria-label="Aide"
+        title="Aide"
+        style={{ 
+          padding: '6px 10px', 
+          minWidth: 0,
+          marginTop: '0.75rem',
+          width: 'auto',
+          display: 'inline-flex',
+          alignSelf: 'flex-start'
+        }}
+      >
+        ?
+      </button>
       </div>
     </div>
   );
