@@ -9,10 +9,10 @@ export default function Privacy() {
   const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
   const md = useMemo(() => new MarkdownIt({ linkify: true, breaks: true }), []);
   const markdown = `
-Dernière mise à jour: 31/10/2025 • Âge cible: 18+
+Dernière mise à jour: 31/10/2025 •
 
 # 1. Qui sommes‑nous
-ZIGZAG est un projet open source opéré par un particulier (Théo Eiferman). Aucune finalité publicitaire. Pas de vente de données.
+ZigZag est un projet open source opéré par un particulier (Théo Eiferman). Aucune finalité publicitaire. Pas de vente de données.
 
 # 2. Fonctionnalités principales
 - Création/gestion d'événements (« projets ») avec localisation
@@ -126,6 +126,25 @@ Dépôt open source: https://github.com/theoeif/zigzag
           .markdown-body h2 {
             color: #666;
             font-weight: 600;
+          }
+
+          /* Mobile layout fixes for list cards (e.g., Localisation blocks) */
+          @media (max-width: 520px) {
+            .markdown-body {
+              word-break: break-word;
+            }
+            .markdown-body ul,
+            .markdown-body ol {
+              margin-left: 0;          /* avoid double indentation */
+              padding-left: 18px;      /* compact list padding on small screens */
+            }
+            /* Ensure list items stack vertically instead of side-by-side */
+            .markdown-body li {
+              display: block !important;
+            }
+            .markdown-body li > * {
+              display: block;
+            }
           }
         `}</style>
         <div
