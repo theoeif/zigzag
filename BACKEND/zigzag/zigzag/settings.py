@@ -200,7 +200,6 @@ CIRCLE_CALENDAR_MIN_MEMBERS = os.getenv('CIRCLE_CALENDAR_MIN_MEMBERS')
 # Deep Link Configuration
 IOS_APP_STORE_URL = os.getenv('VITE_IOS_APP_STORE_URL', 'https://apps.apple.com/app/zigzag')
 ANDROID_PLAY_STORE_URL = os.getenv('VITE_ANDROID_PLAY_STORE_URL', 'https://play.google.com/store/apps/details?id=com.zigzagunique.app')
-DEEP_LINK_SCHEME = os.getenv('VITE_DEEP_LINK_SCHEME', 'zigzag://')
 FRONTEND_URL = os.getenv('VITE_FRONTEND_URL', 'http://localhost:5173')
 
 if not DEBUG:
