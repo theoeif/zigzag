@@ -35,7 +35,7 @@ const App = () => {
       console.log('App: Cleaning up deep link listeners');
       removeDeepLinkListener();
     };
-  }, [navigate]);
+  }, []); // run only once on mount.
 
   return (
     <>
