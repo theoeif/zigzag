@@ -1,5 +1,5 @@
 import React from 'react';
-import { IOS_APP_STORE_URL, ANDROID_PLAY_STORE_URL, DEEP_LINK_SCHEME } from '../../config';
+import { IOS_APP_STORE_URL, ANDROID_PLAY_STORE_URL, FRONTEND_URL } from '../../config';
 import { getDevicePlatform } from '../../utils/mobileDetection';
 import './AppRedirectBanner.css';
 
@@ -14,14 +14,16 @@ const AppRedirectBanner = ({ eventId, onClose }) => {
     const urlParams = new URLSearchParams(window.location.search);
     const inviteToken = urlParams.get('invite_token');
     
-    // Try to open app with custom scheme
-    let deepLink = `${DEEP_LINK_SCHEME}event/${eventId}`;
+    // Use Universal Link (https://) instead of custom scheme
+    // If app is installed, iOS will intercept and open it automatically
+    const baseUrl = FRONTEND_URL || window.location.origin;
+    let universalLink = `${baseUrl}/event/${eventId}`;
     if (inviteToken) {
-      deepLink += `?invite_token=${inviteToken}`;
+      universalLink += `?invite_token=${inviteToken}`;
     }
-    window.location.href = deepLink;
+    window.location.href = universalLink;
     
-    // Fallback to app store if app doesn't open
+    // Fallback to app store if app doesn't open (keeps existing behavior)
     setTimeout(() => {
       const platform = getDevicePlatform();
       if (platform === 'ios') {

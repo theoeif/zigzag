@@ -12,5 +12,4 @@ export const MAPBOX_SEARCH_TOKEN = import.meta.env.VITE_MAPBOX_SEARCH_TOKEN;
 // Deep Link Configuration
 export const IOS_APP_STORE_URL = import.meta.env.VITE_IOS_APP_STORE_URL || 'https://apps.apple.com/app/zigzag/id[YOUR_APP_ID]';
 export const ANDROID_PLAY_STORE_URL = import.meta.env.VITE_ANDROID_PLAY_STORE_URL || 'https://play.google.com/store/apps/details?id=com.zigzagunique.app';
-export const DEEP_LINK_SCHEME = import.meta.env.VITE_DEEP_LINK_SCHEME || 'zigzag://';
 export const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173';
