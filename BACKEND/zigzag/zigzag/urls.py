@@ -39,12 +39,3 @@ urlpatterns = [
     # contact form endpoint
     path('api/contact/', ContactView.as_view(), name='contact'),
 ]
-
-from django.http import HttpResponse
-
-def healthz(request):
-    return HttpResponse("ok", content_type="text/plain")
-
-urlpatterns += [
-    path("healthz", healthz),  # or "healthz/"
-]
