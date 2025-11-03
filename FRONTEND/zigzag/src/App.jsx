@@ -18,6 +18,8 @@ import Help from "./components/Help/Help";
 import Privacy from "./components/Help/Privacy";
 import Header from "./components/Header/Header";
 // Removed per-page header/menu handling from App; handled inside Help/Privacy
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 const App = () => {
   const location = useLocation();
@@ -63,6 +65,9 @@ const App = () => {
           <Route path="/event/:id" element={<DirectEventLinkView />} />
         </Routes>
       )}
+
+      <Analytics />
+      <SpeedInsights />
 
     </>
   );
