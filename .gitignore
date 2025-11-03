@@ -27,3 +27,4 @@ ingest_venv/
 # capacitor
 dist/
 ios/
+android/
