@@ -55,9 +55,9 @@ const AppRedirectBanner = ({ eventId, onClose }) => {
           const platform = getDevicePlatform();
           console.log('Opening app store for platform:', platform);
           if (platform === 'ios' && IOS_APP_STORE_URL) {
-            window.open(IOS_APP_STORE_URL, '_blank');
+            window.location.href = IOS_APP_STORE_URL;
           } else if (platform === 'android' && ANDROID_PLAY_STORE_URL) {
-            window.open(ANDROID_PLAY_STORE_URL, '_blank');
+            window.location.href = ANDROID_PLAY_STORE_URL;
           }
         } else {
           // Old attempt, clear it
