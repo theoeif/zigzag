@@ -51,9 +51,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isConnected, setIsConnected, logout }}>
-      {/* Render children only after loading state is complete */}
-      {!isLoading ? children : <div>Loading...</div>}
+    <AuthContext.Provider value={{ isConnected, setIsConnected, logout, isLoading }}>
+      {/* Always render children - no blocking on root route */}
+      {children}
     </AuthContext.Provider>
   );
 };

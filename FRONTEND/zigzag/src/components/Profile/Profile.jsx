@@ -169,9 +169,7 @@ const Profile = () => {
     }
   };
 
-  if (isLoading) {
-    return <div>Chargement...</div>;
-  }
+  // Removed loading check - render content immediately
 
   return (
     <div className={styles.profilePage}>
