@@ -1084,8 +1084,234 @@ input:checked + .slider:before {
   right: 0;
 }
 
-/* Desktop-only adjustments for left menu */
-@media (min-width: 769px) {
+/* Small tablet breakpoint (769px - 941px) - Wider menu */
+@media (min-width: 769px) and (max-width: 941px) {
+  .left-menu {
+    width: 45%; /* Wider for small tablets */
+    padding: 1.5rem; /* Normal padding */
+  }
+  
+  .left-menu .menu-header h2 {
+    font-size: 1.3rem; /* Between mobile and desktop */
+  }
+  
+  .left-menu .section-header h3 {
+    font-size: 1rem; /* Normal size */
+  }
+  
+  .left-menu .menu-btn {
+    font-size: 0.9rem; /* Normal size */
+    padding: 0.7rem 0.9rem; /* Normal padding */
+  }
+  
+  .left-menu .menu-section {
+    padding: 1.15rem; /* Normal padding */
+  }
+  
+  .left-menu .research-bar input {
+    font-size: 0.9rem; /* Normal size */
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .left-menu .search-results li {
+    font-size: 0.85rem; /* Normal size */
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .left-menu .section-icon {
+    width: 19px; /* Normal size */
+    height: 19px;
+  }
+  
+  /* FilterMenu small tablet adjustments */
+  .filter-menu {
+    width: 45%; /* Wider for small tablets */
+    padding: 1.5rem; /* Normal padding */
+  }
+  
+  .filter-menu .menu-header h2 {
+    font-size: 1.3rem; /* Between mobile and desktop */
+  }
+  
+  .filter-menu .section-header h3 {
+    font-size: 1rem; /* Normal size */
+  }
+  
+  .filter-menu .section-icon {
+    width: 19px; /* Normal size */
+    height: 19px;
+  }
+  
+  .filter-menu .toggle-label {
+    font-size: 0.9rem; /* Normal size */
+  }
+  
+  .filter-menu .tag-item {
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .filter-menu .tag-label {
+    font-size: 0.85rem; /* Normal size */
+  }
+  
+  .filter-menu .aa-Input {
+    font-size: 0.9rem; /* Normal size */
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .filter-menu .aa-Item {
+    padding: 0.7rem; /* Normal padding */
+    font-size: 0.85rem; /* Normal size */
+  }
+  
+  .filter-menu .filter-section {
+    padding: 1.15rem; /* Normal padding */
+  }
+  
+  .filter-menu .switch {
+    width: 46px; /* Normal size */
+    height: 23px; /* Normal size */
+  }
+  
+  .filter-menu .slider:before {
+    height: 17px; /* Normal size */
+    width: 17px; /* Normal size */
+    left: 3px;
+    bottom: 3px;
+  }
+  
+  .filter-menu input:checked + .slider:before {
+    transform: translateX(23px); /* Adjust for normal switch */
+  }
+  
+  .filter-menu .custom-checkbox {
+    width: 17px; /* Normal size */
+    height: 17px; /* Normal size */
+  }
+  
+  .filter-menu .custom-checkbox::after {
+    left: 3px;
+    top: 1px;
+    width: 4px;
+    height: 9px;
+  }
+}
+
+/* Larger tablet breakpoint (942px - 1232px) */
+@media (min-width: 942px) and (max-width: 1232px) {
+  .left-menu {
+    width: 35%; /* More appropriate for larger tablets */
+    padding: 1.5rem; /* Normal padding */
+  }
+  
+  .left-menu .menu-header h2 {
+    font-size: 1.3rem; /* Between mobile and desktop */
+  }
+  
+  .left-menu .section-header h3 {
+    font-size: 1rem; /* Normal size */
+  }
+  
+  .left-menu .menu-btn {
+    font-size: 0.9rem; /* Normal size */
+    padding: 0.7rem 0.9rem; /* Normal padding */
+  }
+  
+  .left-menu .menu-section {
+    padding: 1.15rem; /* Normal padding */
+  }
+  
+  .left-menu .research-bar input {
+    font-size: 0.9rem; /* Normal size */
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .left-menu .search-results li {
+    font-size: 0.85rem; /* Normal size */
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .left-menu .section-icon {
+    width: 19px; /* Normal size */
+    height: 19px;
+  }
+  
+  /* FilterMenu larger tablet adjustments */
+  .filter-menu {
+    width: 35%; /* More appropriate for larger tablets */
+    padding: 1.5rem; /* Normal padding */
+  }
+  
+  .filter-menu .menu-header h2 {
+    font-size: 1.3rem; /* Between mobile and desktop */
+  }
+  
+  .filter-menu .section-header h3 {
+    font-size: 1rem; /* Normal size */
+  }
+  
+  .filter-menu .section-icon {
+    width: 19px; /* Normal size */
+    height: 19px;
+  }
+  
+  .filter-menu .toggle-label {
+    font-size: 0.9rem; /* Normal size */
+  }
+  
+  .filter-menu .tag-item {
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .filter-menu .tag-label {
+    font-size: 0.85rem; /* Normal size */
+  }
+  
+  .filter-menu .aa-Input {
+    font-size: 0.9rem; /* Normal size */
+    padding: 0.7rem; /* Normal padding */
+  }
+  
+  .filter-menu .aa-Item {
+    padding: 0.7rem; /* Normal padding */
+    font-size: 0.85rem; /* Normal size */
+  }
+  
+  .filter-menu .filter-section {
+    padding: 1.15rem; /* Normal padding */
+  }
+  
+  .filter-menu .switch {
+    width: 46px; /* Normal size */
+    height: 23px; /* Normal size */
+  }
+  
+  .filter-menu .slider:before {
+    height: 17px; /* Normal size */
+    width: 17px; /* Normal size */
+    left: 3px;
+    bottom: 3px;
+  }
+  
+  .filter-menu input:checked + .slider:before {
+    transform: translateX(23px); /* Adjust for normal switch */
+  }
+  
+  .filter-menu .custom-checkbox {
+    width: 17px; /* Normal size */
+    height: 17px; /* Normal size */
+  }
+  
+  .filter-menu .custom-checkbox::after {
+    left: 3px;
+    top: 1px;
+    width: 4px;
+    height: 9px;
+  }
+}
+
+/* Desktop-only adjustments for left menu (above 1232px) */
+@media (min-width: 1233px) {
   .left-menu {
     width: 25%; /* Reduce from 30% */
     padding: 1.2rem; /* Reduce from 1.5rem */

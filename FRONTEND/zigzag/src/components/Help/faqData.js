@@ -24,7 +24,7 @@ export const faqData = [
     answer: ` Un Cercle est une liste de personnes, comme un groupe que vous voulez inviter à un événement.
 
 1. Rejoindre un Cercle.
-C'est délicat — les gens doivent actuellement demander en privé à rejoindre un Cercle auprès du créateur. Puis le créteur les ajoute.
+C'est délicat — les gens doivent actuellement demander en privé à rejoindre un Cercle auprès du créateur. Puis le créateur les ajoute.
 Bien que les invitations aient du sens, elles compliquent aussi l'interface. Les règles changeront quand le nombre > 300.
 Remarque : Si les noms de Cercles sont visibles publiquement, cela pourrait mener à une exposition non désirée.
 
@@ -53,17 +53,21 @@ Exemple:
   },
   {
     question: "À propos de \"Je cherche\" / \"J'offre\"",
-    answer: `Exemple : "Je cherche des cours d'anglais" → c'est quelque chose de plus adapté pour une plateforme comme Superprof.
+    answer: `Exemple : "Je cherche des cours d'anglais" 
+    → c'est quelque chose de plus adapté pour une plateforme comme Superprof.
 
 Nous ne voulons pas que les gens crient dans un réseau ouvert avec des posts aléatoires "J'ai besoin de ceci / Je veux cela". Tout le monde n'a pas besoin de tout savoir.
 
 Principe central :
 - "Je veux ceci" (sans le diffuser) ou
-- "Je prends ceci — le voici."
+- "Je fais ceci" — le voici, prennez le.
 
 La vision est que vous déclariez "Je veux ceci" seulement à un groupe de personnes sélectionné. Cela se fait à travers les projets.
 
-Exemple : Acheter une maison → devient un projet partagé avec les bonnes personnes.
+Exemple : Acheter une maison 
+Cela devient un projet partagé avec les bonnes personnes.
+
+Ainsi à travers l'expression des projets, vous débloquez des volontés et des offres nouvelles.
 
 Note : Le concept "Je veux" est difficile à définir précisément — c'est intentionnel et privé.`,
   },
