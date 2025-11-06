@@ -155,10 +155,10 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
     }
   };
 
-  // Create a short excerpt of the description
+  // Return full description (no truncation)
   const getDescriptionExcerpt = (description) => {
     if (!description) return "";
-    return description.length > 80 ? `${description.substring(0, 80)}...` : description;
+    return description;
   };
 
   // Copy event link to clipboard
@@ -506,8 +506,7 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
     <div className={styles.eventCardProject} style={{
       display: 'flex',
       flexDirection: 'column',
-      position: 'relative',
-      minHeight: '280px' // Set a minimum height for all cards
+      position: 'relative'
     }}>
       {/* Date display in right corner with click interaction - more compact version */}
       <div
@@ -542,7 +541,7 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
       </div>
 
       {/* Content section */}
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {/* Event title and quick info */}
         <div className={styles.eventMainInfoProject}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -593,7 +592,9 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
           {/* Show description preview in main view */}
           {event.description && (
             <div className={styles.descriptionPreviewProject}>
-              <div style={{ whiteSpace: 'pre-line' }}>{getDescriptionExcerpt(event.description)}</div>
+              <div style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                {getDescriptionExcerpt(event.description)}
+              </div>
             </div>
           )}
 
