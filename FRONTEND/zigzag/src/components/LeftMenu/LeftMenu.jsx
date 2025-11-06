@@ -327,6 +327,13 @@ const LeftMenu = ({ closeMenu }) => {
               Profil
             </button>
             <button
+              className={getButtonClass("circles")}
+              onClick={() => handleNavigation("/circles", "circles")}
+              ref={el => buttonRefs.current.circles = el}
+            >
+              Cercles
+             </button>
+            <button
               className={getButtonClass("events")}
               onClick={() => handleNavigation("/events", "events")}
               ref={el => buttonRefs.current.events = el}
@@ -339,13 +346,6 @@ const LeftMenu = ({ closeMenu }) => {
               ref={el => buttonRefs.current.circles = el}
             >
               Cercles
-            </button>
-            <button
-              className={getButtonClass("calendar")}
-              onClick={() => handleNavigation("/calendar", "calendar")}
-              ref={el => buttonRefs.current.calendar = el}
-            >
-              Calendrier
             </button>
           </div>
         </div>
