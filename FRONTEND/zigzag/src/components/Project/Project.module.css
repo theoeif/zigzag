@@ -1158,7 +1158,8 @@ body.modal-open {
 .eventMainInfoProject {
   margin-top: 3px;
   margin-right: 120px;
-  width: 100%;
+  width: calc(100% - 120px); /* Ensure content doesn't overlap with badge */
+  max-width: calc(100% - 120px); /* Prevent overflow */
   flex: 1 1 auto; /* Take available space but allow shrinking */
   min-width: 0; /* Allow flex item to shrink below content size */
   min-height: 0; /* Allow flex item to shrink */
@@ -1176,17 +1177,22 @@ body.modal-open {
 
 .eventLocationProject {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align to top to allow multi-line wrapping */
   font-size: 0.9rem;
   color: #555;
   margin-bottom: 8px;
+  height: 60px; /* Fixed height to ensure all addresses in same row have same height (accommodates 3 lines) */
+  width: 100%;
+  overflow: hidden; /* No scrolling, text wraps naturally and gets cut off if too long */
 }
 
 .locationIconProject {
   color: #40916c;
   margin-right: 6px;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align icon to top for multi-line text */
+  flex-shrink: 0; /* Prevent icon from shrinking */
+  margin-top: 2px; /* Slight top margin to align with first line of text */
 }
 
 /* Circles/Tags - Enhanced visibility */
@@ -2286,20 +2292,26 @@ button.manageButtonProject.activeProject {
 /* Address link styles */
 .eventLocationProject {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align to top for multi-line support */
   margin-top: 5px;
   cursor: pointer;
   transition: color 0.2s ease;
+  height: 60px; /* Fixed height to ensure all addresses in same row have same height (accommodates 3 lines) */
+  width: 100%;
+  overflow: hidden; /* No scrolling, text wraps naturally and gets cut off if too long */
 }
 
 .locationLinkProject {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Allow wrapping */
   color: #444;
   text-decoration: none;
   gap: 4px;
   padding: 3px 0;
   transition: all 0.2s ease;
+  width: 100%;
+  flex-wrap: wrap; /* Allow content to wrap */
+  min-width: 0; /* Allow shrinking */
 }
 
 .locationLinkProject:hover {
@@ -2314,11 +2326,18 @@ button.manageButtonProject.activeProject {
   margin-right: 5px;
   color: #666;
   font-size: 14px;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+  margin-top: 2px; /* Slight top margin to align with first line of text */
+  align-self: flex-start; /* Align icon to top */
 }
 
 .locationTextProject {
   font-size: 14px;
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  flex: 1;
+  min-width: 0; /* Allow text to wrap */
 }
 
 /* Direction icon style */
@@ -2328,6 +2347,9 @@ button.manageButtonProject.activeProject {
   color: #4285F4;
   opacity: 0;
   transition: opacity 0.2s ease;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+  align-self: flex-start; /* Align icon to top */
+  margin-top: 2px; /* Slight top margin to align with first line of text */
 }
 
 .locationLinkProject:hover .directionsIconProject {
@@ -2534,7 +2556,8 @@ button.manageButtonProject.activeProject {
   background-color: #f8f9fa;
   border-radius: 6px;
   border-left: 3px solid #40916c;
-  width: 100%;
+  width: calc(100% + 120px); /* Extend beyond parent constraint to use full card width */
+  margin-right: -120px; /* Offset the parent's margin to extend into badge area */
   flex: 1 1 auto; /* Take up available vertical space */
   min-height: 0; /* Allow flex item to shrink */
   max-height: 80px; /* Limit maximum height */
