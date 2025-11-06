@@ -20,6 +20,7 @@ const MainCircles = () => {
   const menuRef = useRef(null);
   const circlesSidebarRef = useRef(null);
   const contentRef = useRef(null);
+  const removeCircleFromSidebarRef = useRef(null);
 
   // Handle outside clicks to close menus
   useEffect(() => {
@@ -64,6 +65,22 @@ const MainCircles = () => {
     // Force CirclesSidebar to refresh its list
     const event = new CustomEvent('refreshCircles');
     window.dispatchEvent(event);
+  };
+
+  const handleCircleRemoved = (removeFunction) => {
+    // Store the remove function from CirclesSidebar
+    removeCircleFromSidebarRef.current = removeFunction;
+  };
+
+  const handleRemoveCircle = (circleId) => {
+    // Remove circle from sidebar
+    if (removeCircleFromSidebarRef.current) {
+      removeCircleFromSidebarRef.current(circleId);
+    }
+    // Clear selected circle if it's the removed one
+    if (selectedCircle?.id === circleId) {
+      setSelectedCircle(null);
+    }
   };
 
   const handleBackToCircles = () => {
@@ -115,6 +132,7 @@ const MainCircles = () => {
             <CirclesSidebar
               onSelectCircle={handleSelectCircle}
               selectedCircleId={selectedCircle?.id}
+              onCircleRemoved={handleCircleRemoved}
             />
           </Drawer>
         )}
@@ -144,6 +162,7 @@ const MainCircles = () => {
             <CirclesSidebar
               onSelectCircle={handleSelectCircle}
               selectedCircleId={selectedCircle?.id}
+              onCircleRemoved={handleCircleRemoved}
             />
           </Drawer>
         )}
@@ -177,6 +196,7 @@ const MainCircles = () => {
               circle={selectedCircle}
               onSelectUser={setSelectedUser}
               onCircleDeleted={handleCircleDeleted}
+              onCircleRemoved={handleRemoveCircle}
             />
           )}
         </Box>

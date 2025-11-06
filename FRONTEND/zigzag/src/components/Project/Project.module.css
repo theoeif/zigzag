@@ -412,6 +412,7 @@ body.modal-open {
   width: 95%;
   max-width: 500px;
   max-height: 85vh;
+  height: 85vh; /* Fixed height to ensure scrolling works */
   overflow: hidden; /* This hides the scrollbar corners */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: relative;
@@ -3053,4 +3054,15 @@ button.manageButtonProject.activeProject {
 /* Ensure the scrollbar doesn't interfere with rounded corners */
 .eventDetailsSectionContent::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* Chrome-specific: Add white space at bottom to see button */
+body.chrome-browser .modalContentProjectRounded {
+  max-height: 80vh !important;
+  height: 80vh !important; /* Fixed height for Chrome to ensure scrolling */
+}
+
+body.chrome-browser .eventFormProject {
+  padding-bottom: 400px !important; /* White space at bottom for Chrome */
+  min-height: fit-content !important; /* Ensure form can expand */
 }

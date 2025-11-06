@@ -67,15 +67,57 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   // State for tracking if the form should be shown
   const [showForm, setShowForm] = useState(true);
 
+  // Detect Chrome browser (more reliable detection - handles Chrome app and mobile)
+  const isChrome = typeof navigator !== 'undefined' && (
+    // Standard Chrome desktop/mobile (contains "Chrome" but not Edge/Opera)
+    (/Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent) && !/OPR/.test(navigator.userAgent) && !/Opera/.test(navigator.userAgent)) ||
+    // Chrome iOS (CriOS in user agent)
+    /CriOS/.test(navigator.userAgent) ||
+    // Check vendor for Google Inc (but exclude Edge/Opera)
+    (/Google Inc/.test(navigator.vendor) && !/Edg/.test(navigator.userAgent) && !/OPR/.test(navigator.userAgent) && !/Opera/.test(navigator.userAgent))
+  );
+
   // Prevent background scrolling when modal is open
   useEffect(() => {
     if (showForm) {
+      // Store original values
+      const originalOverflow = document.body.style.overflow;
+      const originalPosition = document.body.style.position;
+      const originalWidth = document.body.style.width;
+      const originalHeight = document.body.style.height;
+      const scrollY = window.scrollY;
+      
+      // Add class for CSS rules
       document.body.classList.add('modal-open');
+      
+      // Add Chrome-specific class if Chrome is detected
+      if (isChrome) {
+        document.body.classList.add('chrome-browser');
+      }
+      
+      // Also set inline styles for more reliable prevention
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.body.style.top = `-${scrollY}px`;
+      
       return () => {
+        // Remove classes
         document.body.classList.remove('modal-open');
+        document.body.classList.remove('chrome-browser');
+        
+        // Restore original styles
+        document.body.style.overflow = originalOverflow;
+        document.body.style.position = originalPosition;
+        document.body.style.width = originalWidth;
+        document.body.style.height = originalHeight;
+        
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
       };
     }
-  }, [showForm]);
+  }, [showForm, isChrome]);
 
   // Removed public/friends-of-friends settings
 
@@ -384,13 +426,14 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
   }
 
   return (
-    <div className={styles.modalOverlayProjectNoAnimation || styles.modalOverlayProject}
-         onMouseDown={(e) => {
-           if (e.target === e.currentTarget && typeof onClose === 'function') {
-             onClose();
-           }
-         }}
-         style={{ zIndex: 3000 }}>
+    <>
+      <div className={styles.modalOverlayProjectNoAnimation || styles.modalOverlayProject}
+           onMouseDown={(e) => {
+             if (e.target === e.currentTarget && typeof onClose === 'function') {
+               onClose();
+             }
+           }}
+           style={{ zIndex: 3000 }}>
       <div
         className={styles.modalContentProjectRounded}
       >
@@ -725,10 +768,21 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
               Créer l'événement
             </button>
           </div>
+          
+          {/* Artificial spacer component at bottom for Chrome to ensure button is visible */}
+          {isChrome && (
+            <div style={{ 
+              height: '50px', 
+              width: '100%',
+              flexShrink: 0,
+              backgroundColor: 'transparent'
+            }} />
+          )}
           </form>
         </div>
       </div>
     </div>
+    </>
   );
 };
 

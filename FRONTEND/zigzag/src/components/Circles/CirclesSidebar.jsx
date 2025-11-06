@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchCircles, fetchMyTags, fetchAddCircle } from '../../api/api';
 import styles from './Circle.module.css';
 import { FiX, FiCheck, FiTag, FiUsers, FiPlus } from 'react-icons/fi';
+import StarIcon from '@mui/icons-material/Star';
 
 const AddCircleModal = ({ onClose, onCreate }) => {
   const [name, setName] = useState('');
@@ -125,7 +126,7 @@ const AddCircleModal = ({ onClose, onCreate }) => {
   );
 };
 
-const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
+const CirclesSidebar = ({ onSelectCircle, selectedCircleId, onCircleRemoved }) => {
   const [circles, setCircles] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -157,46 +158,45 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId }) => {
     onSelectCircle(newCircle);
   };
 
-  // Filter out invitation circles and separate into created by user and others
+  const handleRemoveCircle = (circleId) => {
+    setCircles(prev => prev.filter(circle => circle.id !== circleId));
+  };
+
+  // Expose handleRemoveCircle to parent via callback prop
+  useEffect(() => {
+    if (onCircleRemoved) {
+      onCircleRemoved(handleRemoveCircle);
+    }
+  }, [onCircleRemoved]);
+
+  // Filter out invitation circles and combine all into single list
   const regularCircles = circles.filter(circle => !circle.is_invitation_circle);
-  const createdCircles = regularCircles.filter(circle => circle.is_creator);
-  const otherCircles = regularCircles.filter(circle => !circle.is_creator);
 
   return (
     <div className={styles.circlesSidebar}>
       <div className={styles.circlesList}>
-        {createdCircles.length > 0 && (
-          <>
-            <div className={styles.circleCategory}>Cercles</div>
-            <ul className={styles.circlesSubList}>
-              {createdCircles.map(circle => (
-                <li
-                  key={circle.id}
-                  className={`${styles.circleItem} ${circle.id === selectedCircleId ? styles.selected : ''}`}
-                  onClick={() => onSelectCircle(circle)}
-                >
-                  {circle.name}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-
-        {otherCircles.length > 0 && (
-          <>
-            <div className={styles.circleCategory}></div>
-            <ul className={styles.circlesSubList}>
-              {otherCircles.map(circle => (
-                <li
-                  key={circle.id}
-                  className={`${styles.circleItem} ${circle.id === selectedCircleId ? styles.selected : ''}`}
-                  onClick={() => onSelectCircle(circle)}
-                >
-                  {circle.name}
-                </li>
-              ))}
-            </ul>
-          </>
+        {regularCircles.length > 0 && (
+          <ul className={styles.circlesSubList}>
+            {regularCircles.map(circle => (
+              <li
+                key={circle.id}
+                className={`${styles.circleItem} ${circle.id === selectedCircleId ? styles.selected : ''}`}
+                onClick={() => onSelectCircle(circle)}
+              >
+                {circle.name}
+                {circle.is_creator && (
+                  <StarIcon 
+                    sx={{ 
+                      fontSize: 16, 
+                      color: 'rgba(0, 0, 0, 0.54)',
+                      ml: 0.5,
+                      verticalAlign: 'middle'
+                    }} 
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
         )}
 
         {/* Button at the end of the list - only show when loaded */}
