@@ -382,7 +382,7 @@ const EditTagsModal = ({ open, onClose, onUpdate, circle }) => {
   );
 };
 
-const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
+const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted, onCircleRemoved }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [members, setMembers] = useState([]);
@@ -441,15 +441,33 @@ const CircleDetailsView = ({ circle, onSelectUser, onCircleDeleted }) => {
   const handleRemoveMember = async (memberId) => {
     try {
       if (memberId) {
+        const isRemovingSelf = memberId === currentUser?.id;
+        const confirmMessage = isRemovingSelf 
+          ? "Êtes-vous sûr de vouloir quitter ce cercle ?"
+          : "Êtes-vous sûr de vouloir retirer cette personne ?";
+        
         // Show confirmation dialog in French
-        const confirmed = window.confirm("Êtes-vous sûr de vouloir retirer cette personne ?");
+        const confirmed = window.confirm(confirmMessage);
         
         if (!confirmed) {
           return;
         }
 
         await removeUsersFromCircle(circle.id, [memberId]);
-        loadMembers();
+        
+        // If removing yourself, immediately update state and notify parent
+        if (isRemovingSelf) {
+          // Update member list immediately
+          setMembers(prev => prev.filter(member => member.id !== memberId));
+          
+          // Notify parent to remove circle from sidebar list
+          if (onCircleRemoved) {
+            onCircleRemoved(circle.id);
+          }
+        } else {
+          // For other members, just reload the list
+          loadMembers();
+        }
       } else {
         console.error('Cannot remove member: ID is undefined');
       }

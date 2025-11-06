@@ -729,12 +729,25 @@ class CircleViewSet(viewsets.ModelViewSet):
         member_ids = request.data.get("member_ids", [])
         if not isinstance(member_ids, list):
             return Response({"detail": "member_ids must be a list"}, status=status.HTTP_400_BAD_REQUEST)
-        if circle.creator != request.user:
-            raise PermissionDenied("Only the creator can remove members.")
+        
+        # Allow creator to remove any members, or allow members to remove themselves
+        is_creator = circle.creator == request.user
+        if not is_creator:
+            # Non-creators can only remove themselves
+            if len(member_ids) != 1 or member_ids[0] != request.user.id:
+                raise PermissionDenied("You can only remove yourself from this circle.")
+            # Also verify the user is actually a member
+            if not circle.members.filter(id=request.user.id).exists():
+                raise PermissionDenied("You are not a member of this circle.")
+        
         removed, errors = [], []
         for uid in member_ids:
             try:
                 user = circle.members.get(id=uid)
+                # Additional check: non-creators can only remove themselves
+                if not is_creator and user.id != request.user.id:
+                    errors.append(f"You cannot remove user {uid} from this circle.")
+                    continue
                 circle.members.remove(user)
                 removed.append(user.id)
             except circle.members.model.DoesNotExist:
