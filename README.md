@@ -50,7 +50,7 @@ Note : you can use default db.sqlite in local
 -  \>300 :
     - Add Friends relationships :
          - see friends of friends events when Number > 300 : marker and project.
-         - Found list of friends insatead of user on the plateform.
+         - Found list of friends instead of user on the plateform.
     - People could add their circle into a project.
     - Introduce some public event when Number > 1000
 - Implementing a dapp for financing project through the blockchain. (compatible capacitor)
