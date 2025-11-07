@@ -413,76 +413,92 @@ const Project = ({ projectId }) => {
     if (viewportWidth <= 500) return;
 
     const alignAddressHeights = () => {
-      console.log('Aligning address heights, viewport width:', viewportWidth);
-      
       // Find all grid containers - use class name directly since CSS modules might hash it
       const grids = document.querySelectorAll('[class*="eventsGridProject"]');
-      console.log('Found grids:', grids.length);
       
-      if (grids.length === 0) {
-        // Fallback: try finding by data attribute or other method
-        const allGrids = document.querySelectorAll('.eventsGridProject, [class*="eventsGrid"]');
-        console.log('Fallback search found:', allGrids.length);
-      }
-      
-      grids.forEach((grid, gridIndex) => {
+      grids.forEach((grid) => {
         // Get all cards in this grid
         const cards = Array.from(grid.children);
-        console.log(`Grid ${gridIndex}: Found ${cards.length} cards`);
         if (cards.length === 0) return;
 
         // Determine number of columns (3 on desktop, 2 on tablet)
         const gridComputedStyle = window.getComputedStyle(grid);
         const gridTemplateColumns = gridComputedStyle.gridTemplateColumns;
         const numColumns = gridTemplateColumns.split(' ').length;
-        console.log(`Grid ${gridIndex}: ${numColumns} columns`);
 
         // Group cards by row
         const rows = [];
         for (let i = 0; i < cards.length; i += numColumns) {
           rows.push(cards.slice(i, i + numColumns));
         }
-        console.log(`Grid ${gridIndex}: ${rows.length} rows`);
 
         // For each row, find the tallest address and set all addresses to that height
-        rows.forEach((rowCards, rowIndex) => {
-          // Try multiple selectors to find address elements
-          const addressElements = rowCards
-            .map(card => {
-              // Try CSS module class first
-              const byModuleClass = card.querySelector(`.${styles.eventLocationProject}`);
-              if (byModuleClass) return byModuleClass;
-              
-              // Fallback: try partial class match
-              const byPartial = card.querySelector('[class*="eventLocationProject"]');
-              if (byPartial) return byPartial;
-              
-              // Fallback: try direct class name
-              return card.querySelector('.eventLocationProject');
-            })
-            .filter(Boolean); // Remove nulls
+        // Also account for "PARTAGÉ" badge spacing
+        rows.forEach((rowCards) => {
+          // Find badge elements and address elements for each card
+          const cardData = rowCards.map(card => {
+            // Find badge
+            const badge = card.querySelector(`.${styles.sharedEventBadgeProject}`) ||
+                         card.querySelector('[class*="sharedEventBadgeProject"]') ||
+                         card.querySelector('.sharedEventBadgeProject');
+            
+            // Find address
+            const address = card.querySelector(`.${styles.eventLocationProject}`) ||
+                           card.querySelector('[class*="eventLocationProject"]') ||
+                           card.querySelector('.eventLocationProject');
+            
+            return { card, badge, address };
+          }).filter(data => data.address); // Only keep cards with addresses
 
-          console.log(`Grid ${gridIndex}, Row ${rowIndex}: Found ${addressElements.length} address elements`);
+          if (cardData.length === 0) return;
 
-          if (addressElements.length === 0) return;
+          // Check if any card in the row has a badge
+          const hasBadgeInRow = cardData.some(data => data.badge !== null);
+          
+          // If there's a badge in the row, calculate its height including gap
+          let badgeHeight = 0;
+          if (hasBadgeInRow) {
+            const badgeCard = cardData.find(data => data.badge);
+            if (badgeCard && badgeCard.badge) {
+              const badgeRect = badgeCard.badge.getBoundingClientRect();
+              // Get the title container to check gap
+              const titleContainer = badgeCard.badge.closest(`.${styles.titleContainerProject}`) ||
+                                    badgeCard.badge.closest('[class*="titleContainerProject"]') ||
+                                    badgeCard.badge.parentElement;
+              if (titleContainer) {
+                const containerStyle = window.getComputedStyle(titleContainer);
+                const gap = parseFloat(containerStyle.gap) || 6; // Default gap from CSS
+                badgeHeight = badgeRect.height + gap;
+              } else {
+                badgeHeight = badgeRect.height + 6; // Fallback gap
+              }
+            }
+          }
 
-          // Reset heights to auto to get natural heights
-          addressElements.forEach(el => {
-            el.style.setProperty('height', 'auto', 'important');
+          // Reset heights and margins to auto to get natural measurements
+          cardData.forEach(({ address }) => {
+            address.style.setProperty('height', 'auto', 'important');
+            address.style.setProperty('margin-top', 'auto', 'important');
           });
 
           // Force a reflow to get accurate measurements
           void grid.offsetHeight;
 
           // Find the maximum height
-          const heights = addressElements.map(el => el.getBoundingClientRect().height);
+          const heights = cardData.map(({ address }) => address.getBoundingClientRect().height);
           const maxHeight = Math.max(...heights);
-          console.log(`Grid ${gridIndex}, Row ${rowIndex}: Heights:`, heights, 'Max:', maxHeight);
 
           // Set all addresses in this row to the maximum height
-          addressElements.forEach((el, idx) => {
-            el.style.setProperty('height', `${maxHeight}px`, 'important');
-            console.log(`Set address ${idx} height to ${maxHeight}px`);
+          // Add margin-top to addresses in cards without badge to align with cards that have badge
+          cardData.forEach(({ badge, address }) => {
+            address.style.setProperty('height', `${maxHeight}px`, 'important');
+            
+            // If there's a badge in the row but this card doesn't have one, add margin-top
+            if (hasBadgeInRow && !badge) {
+              address.style.setProperty('margin-top', `${badgeHeight}px`, 'important');
+            } else {
+              address.style.setProperty('margin-top', 'auto', 'important');
+            }
           });
         });
       });
