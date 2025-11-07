@@ -621,7 +621,7 @@ const Project = ({ projectId }) => {
             </div>
           </div>
 
-          {getFilteredFriendsEvents().length === 0 ? (
+          {!isMobile && getFilteredFriendsEvents().length === 0 ? (
             <p>Vous ne faites partie d'aucun projet pour le moment.</p>
           ) : (!isMobile && (
             <div className={styles.eventsGridProject}>
@@ -672,26 +672,32 @@ const Project = ({ projectId }) => {
                 })}
               </div>
             ) : (
-              <div className={styles.eventsGridProject}>
-                {getFilteredFriendsEvents().map((event) => {
-                  const shouldAutoOpen = autoOpenEventId === event.id;
-                  const canEdit = event.event_shared;
-                  return (
-                    <EventCard
-                      key={event.id}
-                      event={event}
-                      isManageMode={canEdit}
-                      showDelete={false}
-                      onDelete={handleDeleteEvent}
-                      onEdit={handleEditEvent}
-                      onViewCircleMembers={handleViewCircleMembers}
-                      onDetailsToggle={handleDetailsToggle}
-                      autoOpen={shouldAutoOpen}
-                      onAutoOpened={() => setAutoOpenEventId(null)}
-                    />
-                  );
-                })}
-              </div>
+              <>
+                {getFilteredFriendsEvents().length === 0 ? (
+                  <p>Vous ne faites partie d'aucun projet pour le moment.</p>
+                ) : (
+                  <div className={styles.eventsGridProject}>
+                    {getFilteredFriendsEvents().map((event) => {
+                      const shouldAutoOpen = autoOpenEventId === event.id;
+                      const canEdit = event.event_shared;
+                      return (
+                        <EventCard
+                          key={event.id}
+                          event={event}
+                          isManageMode={canEdit}
+                          showDelete={false}
+                          onDelete={handleDeleteEvent}
+                          onEdit={handleEditEvent}
+                          onViewCircleMembers={handleViewCircleMembers}
+                          onDetailsToggle={handleDetailsToggle}
+                          autoOpen={shouldAutoOpen}
+                          onAutoOpened={() => setAutoOpenEventId(null)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
