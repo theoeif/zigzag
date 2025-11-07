@@ -407,6 +407,105 @@ const Project = ({ projectId }) => {
     setAnyDetailsExpanded(false);
   }, [filteredEvents, filteredFriendsEvents]);
 
+  // Align address heights within each row on desktop
+  useEffect(() => {
+    // Only run on desktop (screen width > 500px)
+    if (viewportWidth <= 500) return;
+
+    const alignAddressHeights = () => {
+      console.log('Aligning address heights, viewport width:', viewportWidth);
+      
+      // Find all grid containers - use class name directly since CSS modules might hash it
+      const grids = document.querySelectorAll('[class*="eventsGridProject"]');
+      console.log('Found grids:', grids.length);
+      
+      if (grids.length === 0) {
+        // Fallback: try finding by data attribute or other method
+        const allGrids = document.querySelectorAll('.eventsGridProject, [class*="eventsGrid"]');
+        console.log('Fallback search found:', allGrids.length);
+      }
+      
+      grids.forEach((grid, gridIndex) => {
+        // Get all cards in this grid
+        const cards = Array.from(grid.children);
+        console.log(`Grid ${gridIndex}: Found ${cards.length} cards`);
+        if (cards.length === 0) return;
+
+        // Determine number of columns (3 on desktop, 2 on tablet)
+        const gridComputedStyle = window.getComputedStyle(grid);
+        const gridTemplateColumns = gridComputedStyle.gridTemplateColumns;
+        const numColumns = gridTemplateColumns.split(' ').length;
+        console.log(`Grid ${gridIndex}: ${numColumns} columns`);
+
+        // Group cards by row
+        const rows = [];
+        for (let i = 0; i < cards.length; i += numColumns) {
+          rows.push(cards.slice(i, i + numColumns));
+        }
+        console.log(`Grid ${gridIndex}: ${rows.length} rows`);
+
+        // For each row, find the tallest address and set all addresses to that height
+        rows.forEach((rowCards, rowIndex) => {
+          // Try multiple selectors to find address elements
+          const addressElements = rowCards
+            .map(card => {
+              // Try CSS module class first
+              const byModuleClass = card.querySelector(`.${styles.eventLocationProject}`);
+              if (byModuleClass) return byModuleClass;
+              
+              // Fallback: try partial class match
+              const byPartial = card.querySelector('[class*="eventLocationProject"]');
+              if (byPartial) return byPartial;
+              
+              // Fallback: try direct class name
+              return card.querySelector('.eventLocationProject');
+            })
+            .filter(Boolean); // Remove nulls
+
+          console.log(`Grid ${gridIndex}, Row ${rowIndex}: Found ${addressElements.length} address elements`);
+
+          if (addressElements.length === 0) return;
+
+          // Reset heights to auto to get natural heights
+          addressElements.forEach(el => {
+            el.style.setProperty('height', 'auto', 'important');
+          });
+
+          // Force a reflow to get accurate measurements
+          void grid.offsetHeight;
+
+          // Find the maximum height
+          const heights = addressElements.map(el => el.getBoundingClientRect().height);
+          const maxHeight = Math.max(...heights);
+          console.log(`Grid ${gridIndex}, Row ${rowIndex}: Heights:`, heights, 'Max:', maxHeight);
+
+          // Set all addresses in this row to the maximum height
+          addressElements.forEach((el, idx) => {
+            el.style.setProperty('height', `${maxHeight}px`, 'important');
+            console.log(`Set address ${idx} height to ${maxHeight}px`);
+          });
+        });
+      });
+    };
+
+    // Run after a short delay to ensure DOM is fully rendered
+    const timeoutId = setTimeout(alignAddressHeights, 200);
+
+    // Also run on window resize with debounce
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(alignAddressHeights, 200);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [filteredEvents, filteredFriendsEvents, viewportWidth, styles]);
+
   // (logs removed)
 
   // Loading state UI
