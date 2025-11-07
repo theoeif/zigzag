@@ -95,3 +95,47 @@ class EventAdmin(admin.ModelAdmin):
     get_lng.short_description = 'Longitude'
 
 admin.site.register(Event, EventAdmin)
+
+from rest_framework_simplejwt.token_blacklist.admin import OutstandingTokenAdmin, BlacklistedTokenAdmin
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+
+# Custom admin classes that allow deletion
+class CustomOutstandingTokenAdmin(OutstandingTokenAdmin):
+    """Custom admin for OutstandingToken with delete permissions enabled."""
+    def has_delete_permission(self, request, obj=None):
+        return True
+    
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' not in actions:
+            # Enable bulk delete action
+            actions['delete_selected'] = (
+                self.get_action('delete_selected')[0],
+                'delete_selected',
+                'Delete selected %(verbose_name_plural)s'
+            )
+        return actions
+
+class CustomBlacklistedTokenAdmin(BlacklistedTokenAdmin):
+    """Custom admin for BlacklistedToken with delete permissions enabled."""
+    def has_delete_permission(self, request, obj=None):
+        return True
+    
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' not in actions:
+            # Enable bulk delete action
+            actions['delete_selected'] = (
+                self.get_action('delete_selected')[0],
+                'delete_selected',
+                'Delete selected %(verbose_name_plural)s'
+            )
+        return actions
+
+# Unregister first
+admin.site.unregister(OutstandingToken)
+admin.site.unregister(BlacklistedToken)
+
+# Then re-register with custom admin classes that allow deletion
+admin.site.register(OutstandingToken, CustomOutstandingTokenAdmin)
+admin.site.register(BlacklistedToken, CustomBlacklistedTokenAdmin)

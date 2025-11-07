@@ -544,28 +544,16 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {/* Event title and quick info */}
         <div className={styles.eventMainInfoProject}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <h3 className={styles.eventTitleProject}>{event.title}</h3>
+          <div className={styles.titleContainerProject}>
             {event.event_shared && (
               <span
                 className={styles.sharedEventBadgeProject}
                 title="Événement partagé - tous les membres des cercles peuvent modifier la date et la description"
-                style={{
-                  backgroundColor: '#40916c',
-                  color: 'white',
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  fontWeight: 'bold',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  position: 'relative',
-                  zIndex: 10
-                }}
               >
                 Partagé
               </span>
             )}
+            <h3 className={styles.eventTitleProject}>{event.title}</h3>
           </div>
 
           {/* Location with icon - NOW CLICKABLE */}

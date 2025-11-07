@@ -407,6 +407,121 @@ const Project = ({ projectId }) => {
     setAnyDetailsExpanded(false);
   }, [filteredEvents, filteredFriendsEvents]);
 
+  // Align address heights within each row on desktop
+  useEffect(() => {
+    // Only run on desktop (screen width > 500px)
+    if (viewportWidth <= 500) return;
+
+    const alignAddressHeights = () => {
+      // Find all grid containers - use class name directly since CSS modules might hash it
+      const grids = document.querySelectorAll('[class*="eventsGridProject"]');
+      
+      grids.forEach((grid) => {
+        // Get all cards in this grid
+        const cards = Array.from(grid.children);
+        if (cards.length === 0) return;
+
+        // Determine number of columns (3 on desktop, 2 on tablet)
+        const gridComputedStyle = window.getComputedStyle(grid);
+        const gridTemplateColumns = gridComputedStyle.gridTemplateColumns;
+        const numColumns = gridTemplateColumns.split(' ').length;
+
+        // Group cards by row
+        const rows = [];
+        for (let i = 0; i < cards.length; i += numColumns) {
+          rows.push(cards.slice(i, i + numColumns));
+        }
+
+        // For each row, find the tallest address and set all addresses to that height
+        // Also account for "PARTAGÉ" badge spacing
+        rows.forEach((rowCards) => {
+          // Find badge elements and address elements for each card
+          const cardData = rowCards.map(card => {
+            // Find badge
+            const badge = card.querySelector(`.${styles.sharedEventBadgeProject}`) ||
+                         card.querySelector('[class*="sharedEventBadgeProject"]') ||
+                         card.querySelector('.sharedEventBadgeProject');
+            
+            // Find address
+            const address = card.querySelector(`.${styles.eventLocationProject}`) ||
+                           card.querySelector('[class*="eventLocationProject"]') ||
+                           card.querySelector('.eventLocationProject');
+            
+            return { card, badge, address };
+          }).filter(data => data.address); // Only keep cards with addresses
+
+          if (cardData.length === 0) return;
+
+          // Check if any card in the row has a badge
+          const hasBadgeInRow = cardData.some(data => data.badge !== null);
+          
+          // If there's a badge in the row, calculate its height including gap
+          let badgeHeight = 0;
+          if (hasBadgeInRow) {
+            const badgeCard = cardData.find(data => data.badge);
+            if (badgeCard && badgeCard.badge) {
+              const badgeRect = badgeCard.badge.getBoundingClientRect();
+              // Get the title container to check gap
+              const titleContainer = badgeCard.badge.closest(`.${styles.titleContainerProject}`) ||
+                                    badgeCard.badge.closest('[class*="titleContainerProject"]') ||
+                                    badgeCard.badge.parentElement;
+              if (titleContainer) {
+                const containerStyle = window.getComputedStyle(titleContainer);
+                const gap = parseFloat(containerStyle.gap) || 6; // Default gap from CSS
+                badgeHeight = badgeRect.height + gap;
+              } else {
+                badgeHeight = badgeRect.height + 6; // Fallback gap
+              }
+            }
+          }
+
+          // Reset heights and margins to auto to get natural measurements
+          cardData.forEach(({ address }) => {
+            address.style.setProperty('height', 'auto', 'important');
+            address.style.setProperty('margin-top', 'auto', 'important');
+          });
+
+          // Force a reflow to get accurate measurements
+          void grid.offsetHeight;
+
+          // Find the maximum height
+          const heights = cardData.map(({ address }) => address.getBoundingClientRect().height);
+          const maxHeight = Math.max(...heights);
+
+          // Set all addresses in this row to the maximum height
+          // Add margin-top to addresses in cards without badge to align with cards that have badge
+          cardData.forEach(({ badge, address }) => {
+            address.style.setProperty('height', `${maxHeight}px`, 'important');
+            
+            // If there's a badge in the row but this card doesn't have one, add margin-top
+            if (hasBadgeInRow && !badge) {
+              address.style.setProperty('margin-top', `${badgeHeight}px`, 'important');
+            } else {
+              address.style.setProperty('margin-top', 'auto', 'important');
+            }
+          });
+        });
+      });
+    };
+
+    // Run after a short delay to ensure DOM is fully rendered
+    const timeoutId = setTimeout(alignAddressHeights, 200);
+
+    // Also run on window resize with debounce
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(alignAddressHeights, 200);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [filteredEvents, filteredFriendsEvents, viewportWidth, styles]);
+
   // (logs removed)
 
   // Loading state UI
@@ -621,7 +736,7 @@ const Project = ({ projectId }) => {
             </div>
           </div>
 
-          {getFilteredFriendsEvents().length === 0 ? (
+          {!isMobile && getFilteredFriendsEvents().length === 0 ? (
             <p>Vous ne faites partie d'aucun projet pour le moment.</p>
           ) : (!isMobile && (
             <div className={styles.eventsGridProject}>
@@ -672,26 +787,32 @@ const Project = ({ projectId }) => {
                 })}
               </div>
             ) : (
-              <div className={styles.eventsGridProject}>
-                {getFilteredFriendsEvents().map((event) => {
-                  const shouldAutoOpen = autoOpenEventId === event.id;
-                  const canEdit = event.event_shared;
-                  return (
-                    <EventCard
-                      key={event.id}
-                      event={event}
-                      isManageMode={canEdit}
-                      showDelete={false}
-                      onDelete={handleDeleteEvent}
-                      onEdit={handleEditEvent}
-                      onViewCircleMembers={handleViewCircleMembers}
-                      onDetailsToggle={handleDetailsToggle}
-                      autoOpen={shouldAutoOpen}
-                      onAutoOpened={() => setAutoOpenEventId(null)}
-                    />
-                  );
-                })}
-              </div>
+              <>
+                {getFilteredFriendsEvents().length === 0 ? (
+                  <p>Vous ne faites partie d'aucun projet pour le moment.</p>
+                ) : (
+                  <div className={styles.eventsGridProject}>
+                    {getFilteredFriendsEvents().map((event) => {
+                      const shouldAutoOpen = autoOpenEventId === event.id;
+                      const canEdit = event.event_shared;
+                      return (
+                        <EventCard
+                          key={event.id}
+                          event={event}
+                          isManageMode={canEdit}
+                          showDelete={false}
+                          onDelete={handleDeleteEvent}
+                          onEdit={handleEditEvent}
+                          onViewCircleMembers={handleViewCircleMembers}
+                          onDetailsToggle={handleDetailsToggle}
+                          autoOpen={shouldAutoOpen}
+                          onAutoOpened={() => setAutoOpenEventId(null)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
