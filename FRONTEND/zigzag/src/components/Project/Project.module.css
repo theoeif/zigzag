@@ -1168,12 +1168,39 @@ body.modal-open {
   flex-direction: column;
 }
 
+.titleContainerProject {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 8px;
+  min-width: 0; /* Allow shrinking */
+}
+
 .eventTitleProject {
   font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 0;
   color: #333;
   line-height: 1.2;
+  width: 100%; /* Take full width to allow wrapping */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.sharedEventBadgeProject {
+  background-color: #40916c;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 10;
+  white-space: nowrap; /* Prevent badge text from wrapping */
+  align-self: flex-start; /* Align badge to the left, below title */
 }
 
 .eventLocationProject {
