@@ -2737,6 +2737,31 @@ button.manageButtonProject.activeProject {
     align-items: stretch; /* Make all cards the same height */
     justify-content: start; /* Ensure left alignment on wide screens too */
   }
+
+  /* On desktop, addresses will have their height set dynamically by JavaScript */
+  /* to match the tallest address in each row */
+  .eventLocationProject {
+    /* Remove !important to allow JavaScript to override */
+    height: auto;
+    min-height: auto;
+    display: flex;
+    align-items: flex-start; /* Align content to top */
+    transition: height 0.2s ease; /* Smooth transition when height changes */
+  }
+  
+  /* Ensure the card's flex layout allows proper alignment */
+  .eventCardProject {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Make the main info section use flexbox to distribute space */
+  .eventMainInfoProject {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0; /* Allow flex shrinking */
+  }
 }
 
 /* Mobile tabs (discreet pill design) */
