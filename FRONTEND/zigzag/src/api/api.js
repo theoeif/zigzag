@@ -19,7 +19,6 @@ export const login = async ({ username, password }) => {
     // Support login with username or email
     const identifier = username; // Can be username or email
     const response = await axios.post(API_BASE_URL + "token/", { username: identifier, password });
-    console.log("Login response.data:", response.data);
     const { access, refresh } = response.data || {};
     if (access) localStorage.setItem("access_token", access);
     if (refresh) localStorage.setItem("refresh_token", refresh);
@@ -72,7 +71,6 @@ export const submitContactForm = async (contactData) => {
 export const register = async (payload) => {
   try {
     const response = await axios.post(API_BASE_URL + "register/", payload);
-    console.log("Register response.data:", response.data);
     const { access, refresh, username } = response.data || {};
     if (access) localStorage.setItem("access_token", access);
     if (refresh) localStorage.setItem("refresh_token", refresh);
