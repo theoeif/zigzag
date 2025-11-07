@@ -2823,6 +2823,39 @@ button.manageButtonProject.activeProject {
     font-weight: 400;
     border: 1px solid rgba(0,0,0,0.08);
   }
+
+  /* Mobile: Allow event card elements to stack vertically instead of forcing same-row alignment */
+  .eventMainInfoProject {
+    margin-right: 120px !important; /* Keep margin to prevent address from going under badge */
+    width: calc(100% - 120px) !important;
+    max-width: calc(100% - 120px) !important;
+  }
+
+  .eventLocationProject {
+    height: auto !important; /* Remove fixed height on mobile to allow natural stacking */
+    min-height: auto !important;
+    margin-bottom: 10px;
+    width: 100%; /* Ensure address respects parent's margin */
+  }
+
+  .locationLinkProject {
+    /* Keep icon, text, and directions icon in a row on mobile */
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .locationTextProject {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Description can extend beyond the margin (safe vs badge) */
+  .descriptionPreviewProject {
+    width: calc(100% + 120px) !important; /* Extend beyond parent constraint */
+    margin-right: -120px !important; /* Offset the parent's margin to extend into badge area */
+    max-width: calc(100% + 120px) !important;
+  }
 }
 
 /* Global FAB Add Button (applies to all screen sizes) */
