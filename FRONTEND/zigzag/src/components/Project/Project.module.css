@@ -2859,6 +2859,11 @@ button.manageButtonProject.activeProject {
   .mobileHeaderProject { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .dateRangeMobileWrapProject { display: flex; justify-content: flex-start; }
 
+  /* Add extra bottom padding on mobile to prevent FAB button from overlapping content */
+  .contentWithPaddingProject {
+    padding-bottom: 70px; /* Button height (56px) + position (10px) + extra space (4px) */
+  }
+
   /* Enlarge switch */
   .contentWithPaddingProject .tabsBarProject { width: 100%; justify-content: center; border-bottom: none; }
   .contentWithPaddingProject .tabsGroupProject { font-size: 18px; left: 0; }
@@ -2913,7 +2918,7 @@ button.manageButtonProject.activeProject {
 /* Global FAB Add Button (applies to all screen sizes) */
 .addEventButtonProject {
   position: fixed;
-  bottom: 10px; /* lower to bottom corner */
+  bottom: 20px; /* lower to bottom corner */
   left: 10px;
   width: 56px;
   height: 56px;
