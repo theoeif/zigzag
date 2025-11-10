@@ -402,25 +402,19 @@ const LeftMenu = ({ closeMenu }) => {
           </div>
         )}
       </div>
+      </div>
 
-      {/* Help button placed after Compte Container */}
-      <button
-        className={getButtonClass("help")}
-        onClick={() => handleNavigation("/help", "help")}
-        ref={el => buttonRefs.current.help = el}
-        aria-label="Aide"
-        title="Aide"
-        style={{ 
-          padding: '6px 10px', 
-          minWidth: 0,
-          marginTop: '0.75rem',
-          width: 'auto',
-          display: 'inline-flex',
-          alignSelf: 'flex-start'
-        }}
-      >
-        ?
-      </button>
+      {/* Help button fixed at the bottom */}
+      <div className="help-button-container">
+        <button
+          className={getButtonClass("help")}
+          onClick={() => handleNavigation("/help", "help")}
+          ref={el => buttonRefs.current.help = el}
+          aria-label="Aide"
+          title="Aide"
+        >
+          ?
+        </button>
       </div>
     </div>
   );

@@ -141,7 +141,7 @@ const Login = () => {
               onChange={handleChange}
               required
               className={`${styles.input} ${fieldErrors.username ? styles.inputError : ''}`}
-              placeholder="Entrez votre nom d'utilisateur ou email"
+              placeholder="Nom d'utilisateur ou email"
             />
           </div>
 

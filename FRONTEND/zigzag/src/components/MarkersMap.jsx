@@ -258,6 +258,21 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         `https://api.maptiler.com/maps/0199a425-b17a-78e9-9d91-e1123d890474/style.json?key=${MAPTILER_API_KEY}`,
     }).addTo(map);
 
+    // Remplacer l'attribution Leaflet par un lien "© Credits"
+    map.attributionControl.setPrefix(false); // Enlever le préfixe "Leaflet"
+    map.attributionControl.addAttribution(
+      '<a href="/help#credits" style="color: #064e3b; text-decoration: none;">© MapTiler | © OpenStreetMap</a>'
+    );
+
+    // Ajouter le logo MapTiler comme contrôle Leaflet
+    const maptilerLogo = L.control({ position: 'bottomleft' });
+    maptilerLogo.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'maptiler-logo-control');
+      div.innerHTML = '<a href="https://www.maptiler.com" target="_blank" rel="noopener noreferrer"><img src="/maptiler-logo-dark-long.svg" alt="MapTiler logo" style="height: 20px; width: auto;"></a>';
+      return div;
+    };
+    maptilerLogo.addTo(map);
+
     // Prevent world wrapping - set max bounds to the world
     const worldBounds = L.latLngBounds(
       L.latLng(-70, -160),  // Southwest corner

@@ -260,11 +260,21 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
     }
   };
 
+  // Determine if this is a shared event (has date inputs)
+  const previouslyShared = !!eventData.event_shared;
+  const showDateInputs = previouslyShared && !!formData.event_shared;
+  const isSharedEvent = showDateInputs;
+
   return (
     <div className={styles.modalOverlayProjectNoAnimation || styles.modalOverlayProject}
          style={{ zIndex: 1500 }}>
       <div
         className={styles.modalContentProjectRounded}
+        style={{
+          // Dynamic height based on whether event is shared
+          height: isSharedEvent ? '85vh' : 'auto',
+          maxHeight: isSharedEvent ? '85vh' : '90vh',
+        }}
       >
         <div className={styles.modalHeaderProject}>
           <div className={styles.popupTitleWrapper}>
@@ -276,11 +286,14 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
         <div className={styles.modalContentProjectRoundedInner}>
           <form
             onSubmit={handleSubmit}
-            className={styles.eventFormProject}
+            className={`${styles.eventFormProject} ${!isSharedEvent ? styles.eventFormProjectCompact : ''}`}
             style={{
               padding: '20px',
+              paddingBottom: isSharedEvent ? '20px' : '10px',
               overflow: 'visible',
-              flex: 1
+              flex: isSharedEvent ? 1 : 'none',
+              height: isSharedEvent ? '100%' : 'auto',
+              minHeight: isSharedEvent ? '0' : 'auto'
             }}
           >
           <div className={styles.formGroupProject}>
@@ -423,7 +436,7 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
                     />
                   </div>
                   <div style={{ width: '100%' }}>
-                    <label className={styles.formLabelProject} htmlFor="end_time" style={{ fontSize: '0.9rem' }}>Fin (optionnel)</label>
+                    <label className={styles.formLabelProject} htmlFor="end_time" style={{ fontSize: '0.9rem' }}>Fin</label>
                     <input
                       type="datetime-local"
                       id="end_time"
@@ -501,7 +514,14 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             </div>
           )}
 
-          <div className={styles.buttonGroupProject}>
+          <div 
+            className={`${styles.buttonGroupProject} ${!isSharedEvent ? styles.buttonGroupProjectCompact : ''}`}
+            style={{
+              marginTop: isSharedEvent ? 'auto' : '10px',
+              paddingBottom: isSharedEvent ? '0' : '0',
+              padding: isSharedEvent ? '6px 0' : '0'
+            }}
+          >
             <button
               type="submit"
               className={styles.submitButtonProject}

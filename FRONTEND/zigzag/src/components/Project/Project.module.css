@@ -973,6 +973,26 @@ body.modal-open {
   background-color: #eee;
 }
 
+.applyButtonProject {
+  background-color: #40916c !important;
+  color: white !important;
+  border: none !important;
+  transition: all 0.2s ease;
+}
+
+.applyButtonProject:hover {
+  background-color: #2d6a4f !important;
+}
+
+.applyButtonProject:disabled {
+  background-color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+.applyButtonProject:disabled:hover {
+  background-color: #ccc !important;
+}
+
 /* removed error styling as validation is constrained via min/max */
 /* Media query for mobile devices - specific to Project page */
 @media (max-width: 768px) {
@@ -2859,6 +2879,11 @@ button.manageButtonProject.activeProject {
   .mobileHeaderProject { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .dateRangeMobileWrapProject { display: flex; justify-content: flex-start; }
 
+  /* Add extra bottom padding on mobile to prevent FAB button from overlapping content */
+  .contentWithPaddingProject {
+    padding-bottom: 70px; /* Button height (56px) + position (10px) + extra space (4px) */
+  }
+
   /* Enlarge switch */
   .contentWithPaddingProject .tabsBarProject { width: 100%; justify-content: center; border-bottom: none; }
   .contentWithPaddingProject .tabsGroupProject { font-size: 18px; left: 0; }
@@ -2913,7 +2938,7 @@ button.manageButtonProject.activeProject {
 /* Global FAB Add Button (applies to all screen sizes) */
 .addEventButtonProject {
   position: fixed;
-  bottom: 10px; /* lower to bottom corner */
+  bottom: 20px; /* lower to bottom corner */
   left: 10px;
   width: 56px;
   height: 56px;
@@ -3087,6 +3112,18 @@ button.manageButtonProject.activeProject {
   padding: 6px 0 !important;
 }
 
+/* Compact form styles for non-shared events - override !important rules */
+.eventFormProjectCompact {
+  height: auto !important;
+  min-height: auto !important;
+  padding-bottom: 10px !important;
+}
+
+.eventFormProjectCompact .buttonGroupProject {
+  margin-top: 10px !important;
+  padding: 0 !important;
+}
+
 /* EventDetailsSection scrollbar fix to preserve rounded corners */
 .eventDetailsSectionContainer {
   position: fixed;
@@ -3150,4 +3187,10 @@ body.chrome-browser .modalContentProjectRounded {
 body.chrome-browser .eventFormProject {
   padding-bottom: 400px !important; /* White space at bottom for Chrome */
   min-height: fit-content !important; /* Ensure form can expand */
+}
+
+/* Override Chrome-specific padding for compact forms */
+body.chrome-browser .eventFormProjectCompact {
+  padding-bottom: 10px !important;
+  min-height: auto !important;
 }
