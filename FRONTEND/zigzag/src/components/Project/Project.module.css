@@ -3087,6 +3087,18 @@ button.manageButtonProject.activeProject {
   padding: 6px 0 !important;
 }
 
+/* Compact form styles for non-shared events - override !important rules */
+.eventFormProjectCompact {
+  height: auto !important;
+  min-height: auto !important;
+  padding-bottom: 10px !important;
+}
+
+.eventFormProjectCompact .buttonGroupProject {
+  margin-top: 10px !important;
+  padding: 0 !important;
+}
+
 /* EventDetailsSection scrollbar fix to preserve rounded corners */
 .eventDetailsSectionContainer {
   position: fixed;
@@ -3150,4 +3162,10 @@ body.chrome-browser .modalContentProjectRounded {
 body.chrome-browser .eventFormProject {
   padding-bottom: 400px !important; /* White space at bottom for Chrome */
   min-height: fit-content !important; /* Ensure form can expand */
+}
+
+/* Override Chrome-specific padding for compact forms */
+body.chrome-browser .eventFormProjectCompact {
+  padding-bottom: 10px !important;
+  min-height: auto !important;
 }

@@ -40,6 +40,26 @@ const MapControls = ({
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (datePopoverRef.current && !datePopoverRef.current.contains(e.target)) {
+        // Apply date range automatically when closing by clicking outside
+        const start = new Date(draftStart);
+        const end = new Date(draftEnd);
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          // Only apply if dates are valid and different from current timeframe
+          const currentStart = new Date(timeframe.start);
+          const currentEnd = new Date(timeframe.end);
+          // Normalize dates for comparison (set hours to 0 for start, 23:59:59 for end)
+          currentStart.setHours(0, 0, 0, 0);
+          currentEnd.setHours(23, 59, 59, 999);
+          start.setHours(0, 0, 0, 0);
+          end.setHours(23, 59, 59, 999);
+          
+          const startChanged = start.getTime() !== currentStart.getTime();
+          const endChanged = end.getTime() !== currentEnd.getTime();
+          
+          if (startChanged || endChanged) {
+            onTimeChange({ start, end });
+          }
+        }
         setIsDatePopoverOpen(false);
       }
     };
@@ -49,7 +69,7 @@ const MapControls = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDatePopoverOpen]);
+  }, [isDatePopoverOpen, draftStart, draftEnd, timeframe, onTimeChange]);
 
   // Date range picker functions
   const applyDateRange = () => {
