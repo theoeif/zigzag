@@ -14,7 +14,7 @@
 }
 
 .containerMobile {
-  bottom: 30px;
+  bottom: 40px;
   left: 20px;
   gap: 8px;
   max-width: calc(100vw - 40px);
