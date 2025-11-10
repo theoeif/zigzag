@@ -57,6 +57,47 @@ body, html {
   left: 10px !important; /* Keep it near the left edge */
 }
 
+/* Fix Leaflet attribution logo cropping on mobile */
+.leaflet-control-attribution {
+  bottom: 0 !important;
+  right: 0 !important;
+  padding: 2px 4px !important;
+  font-size: 10px !important;
+  max-width: calc(100vw - 20px) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Ensure attribution is visible on mobile devices */
+@media (max-width: 599px) {
+  .leaflet-control-attribution {
+    font-size: 9px !important;
+    padding: 2px 3px !important;
+    max-width: calc(100vw - 40px) !important;
+    /* Position slightly higher to prevent cropping */
+    bottom: 10px !important;
+    right: 25px !important;
+  }
+}
+
+/* MapTiler logo control styling */
+.maptiler-logo-control {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.maptiler-logo-control a {
+  display: block;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.maptiler-logo-control a:hover {
+  opacity: 1;
+}
+
 .map-container {
   isolation: isolate; /* Creates new stacking context */
   z-index: 1;

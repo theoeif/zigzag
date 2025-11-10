@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../Header/Header";
 import LeftMenu from "../LeftMenu/LeftMenu";
 import settingsStyles from "../Settings/Settings.module.css";
 import { faqData } from "./faqData";
 import { submitContactForm } from "../../api/api";
+import MarkdownIt from "markdown-it";
 
 export default function Help() {
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
@@ -15,8 +17,28 @@ export default function Help() {
   const [submitting, setSubmitting] = React.useState(false);
   const [trap, setTrap] = React.useState(""); // honeypot
   const startRef = React.useRef(Date.now());
+  const location = useLocation();
 
   const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
+  const md = useMemo(() => new MarkdownIt({ linkify: true, breaks: true }), []);
+  
+  const creditsMarkdown = `
+ZIGZAG utilise les services et technologies suivants :
+
+## APIs externes
+
+**OpenCage** - pour le géocodage (conversion d'adresses en coordonnées géographiques) - [opencagedata.com](https://opencagedata.com)
+
+**Mapbox** - pour la recherche d'autosuggestion de localisation - [mapbox.com](https://www.mapbox.com)
+
+## Services externes
+
+**MapTiler** - pour servir les tuiles de carte (données routières, bâtiments, terrain) - [maptiler.com](https://www.maptiler.com/copyright/) and [openstreetmap.org](https://www.openstreetmap.org/copyright)
+
+**Leaflet** - pour l'interaction avec les cartes (bibliothèque de visualisation de cartes) - [leafletjs.com](https://leafletjs.com)
+
+**ZigZag Team** : Pour suivre le travail et contribuer - [github.com/theoeif/zigzag](https://github.com/theoeif/zigzag)
+`;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,6 +59,19 @@ export default function Help() {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [isLeftMenuOpen]);
+
+  // Scroll automatique vers la section Crédits si le hash #credits est présent
+  useEffect(() => {
+    if (location.hash === '#credits') {
+      // Petit délai pour s'assurer que le DOM est rendu
+      setTimeout(() => {
+        const creditsSection = document.getElementById('credits-section');
+        if (creditsSection) {
+          creditsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [location.hash]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -107,19 +142,6 @@ export default function Help() {
       </section>
 
       <section className={settingsStyles.passwordSection}>
-        <h2>Confidentialité</h2>
-        <p>
-          Consultez notre Politique de confidentialité pour les détails sur les
-          données traitées, les finalités et vos droits.
-        </p>
-        <p>
-          <a href="/privacy" style={{ textDecoration: "underline" }}>
-            Ouvrir la Politique de confidentialité
-          </a>
-        </p>
-      </section>
-
-      <section className={settingsStyles.passwordSection}>
       <h2>Contact</h2>
       <form onSubmit={handleSubmit} className={settingsStyles.passwordForm} aria-label="Formulaire de contact">
         {/* Honeypot field (do not remove) */}
@@ -176,6 +198,73 @@ export default function Help() {
           )}
         </div>
       </form>
+      </section>
+
+      <section className={settingsStyles.passwordSection}>
+        <h2>Confidentialité</h2>
+        <p>
+          Consultez notre Politique de confidentialité pour les détails sur les
+          données traitées, les finalités et vos droits.
+        </p>
+        <p>
+          <a href="/privacy" style={{ textDecoration: "underline" }}>
+            Ouvrir la Politique de confidentialité
+          </a>
+        </p>
+      </section>
+
+      <section id="credits-section" className={settingsStyles.passwordSection}>
+        <h2>Crédits</h2>
+        <style>{`
+          .credits-markdown {
+            line-height: 1.65;
+            width: 100%;
+          }
+          .credits-markdown p {
+            margin-bottom: 12px;
+            max-width: none;
+          }
+          .credits-markdown h2 {
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d6a4f;
+          }
+          .credits-markdown h2:first-of-type {
+            margin-top: 0;
+          }
+          .credits-markdown a {
+            text-decoration: underline;
+          }
+          .credits-markdown > p:last-child {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+          }
+          @media (min-width: 768px) {
+            .credits-markdown {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              column-gap: 40px;
+              row-gap: 12px;
+            }
+            .credits-markdown > p:first-child,
+            .credits-markdown h2 {
+              grid-column: 1 / -1;
+            }
+            .credits-markdown > p:last-child {
+              grid-column: 1 / -1;
+              margin-top: 20px;
+              padding-top: 20px;
+              border-top: 1px solid #e0e0e0;
+            }
+          }
+        `}</style>
+        <div
+          className="credits-markdown"
+          dangerouslySetInnerHTML={{ __html: md.render(creditsMarkdown) }}
+        />
       </section>
       </div>
     </div>
