@@ -391,9 +391,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Update filtered markers whenever markersData or timeframe changes.
   useEffect(() => {
-    if (markersData.red_markers.length || friendLocationData.length) {
-      filterMarkersByTimeframe();
-    }
+    // Always call filterMarkersByTimeframe, even if markersData is empty
+    filterMarkersByTimeframe();
   }, [markersData, timeframe.start, timeframe.end, showProjects, showFriendLocations, filterMarkersByTimeframe]);
 
   /**
@@ -651,8 +650,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
    * Render all markers on the map.
    */
   const renderMarkers = useCallback(() => {
-    // Skip if map or data not ready
-    if (!mapRef.current || (!filteredMarkers.red_markers?.length && !friendLocationData?.length)) {
+    // Always run cleanup first, even if there are no markers to show
+    if (!mapRef.current) {
       return;
     }
 
@@ -680,6 +679,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       }
     });
     individualMarkersRef.current = [];
+
+    // If no markers to show, we're done (map is now cleared)
+    if (!filteredMarkers.red_markers?.length && !friendLocationData?.length) {
+      return;
+    }
 
     const projectMarkers = showProjects ? filteredMarkers.red_markers : [];
     const friendMarkers = showFriendLocations ? friendLocationData : [];
@@ -975,9 +979,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Update markers on map when filtered markers change.
   useEffect(() => {
-    if (filteredMarkers.red_markers.length || (showFriendLocations && friendLocationData.length)) {
-      renderMarkers();
-    }
+    // Always call renderMarkers when filteredMarkers changes, even if empty
+    renderMarkers();
   }, [filteredMarkers, friendLocationData, isClustered, showProjects, showFriendLocations, renderMarkers]);
 
   // Close menus when clicking outside.

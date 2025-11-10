@@ -8,8 +8,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Q, Prefetch, F
 from django.shortcuts import get_object_or_404
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.http import HttpResponse, Http404
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -448,6 +449,7 @@ class EventViewSet(viewsets.ModelViewSet):
     def markers(self, request):
         """
         Return private markers for the authenticated user, optionally filtered by tags.
+        Optimized: Uses PostgreSQL ArrayAgg in production, Prefetch for SQLite locally.
         """
         user = request.user
         tags_param = request.data.get("tags", [])
@@ -473,27 +475,58 @@ class EventViewSet(viewsets.ModelViewSet):
             event_ids = list(events.values_list('id', flat=True))
             events = Event.objects.filter(id__in=event_ids)
 
-        markers = []
-        for e in events.select_related("address").prefetch_related("circles__categories"):
-            # Get all tags from all circles associated with this event
-            event_tags = []
-            for circle in e.circles.all():
-                event_tags.extend([tag.name for tag in circle.categories.all()])
+        # Check database backend from environment variable
+        DEFAULT_DB = os.getenv('DB_DEFAULT', 'default')
+        
+        if DEFAULT_DB == 'postgres':
+            # PostgreSQL: Use ArrayAgg with field aliases - returns exact format needed
+            markers = list(
+                events.select_related("address").annotate(
+                    lat=F('address__latitude'),
+                    lng=F('address__longitude'),
+                    address_line=F('address__address_line'),
+                    start_date=F('start_time'),
+                    end_date=F('end_time'),
+                    tags=ArrayAgg(
+                        'circles__categories__name',
+                        distinct=True,
+                        filter=Q(circles__categories__name__isnull=False),
+                        default=[]
+                    )
+                ).values(
+                    'id', 'title', 'description', 'lat', 'lng', 
+                    'address_line', 'start_date', 'end_date', 'tags'
+                )
+            )
+        else:
+            # SQLite/Other: Use optimized Prefetch
+            events_prefetched = events.select_related("address").prefetch_related(
+                Prefetch(
+                    'circles',
+                    queryset=Circle.objects.prefetch_related(
+                        Prefetch('categories', queryset=Tag.objects.only('name'))
+                    ).only('id')
+                )
+            )
 
-            # Remove duplicates
-            event_tags = list(set(event_tags))
+            markers = []
+            for e in events_prefetched:
+                # Collect unique tag names using set for O(1) lookups
+                event_tags = set()
+                for circle in e.circles.all():
+                    event_tags.update(tag.name for tag in circle.categories.all())
 
-            markers.append({
-                "id": e.id,
-                "title": e.title,
-                "lat": e.address.latitude if e.address else None,
-                "lng": e.address.longitude if e.address else None,
-                "address_line": e.address.address_line if e.address else None,
-                "description": e.description,
-                "start_date": e.start_time,
-                "end_date": e.end_time,
-                "tags": event_tags,
-            })
+                markers.append({
+                    "id": e.id,
+                    "title": e.title,
+                    "lat": e.address.latitude if e.address else None,
+                    "lng": e.address.longitude if e.address else None,
+                    "address_line": e.address.address_line if e.address else None,
+                    "description": e.description,
+                    "start_date": e.start_time,
+                    "end_date": e.end_time,
+                    "tags": sorted(event_tags),
+                })
 
         return Response({"private_markers": markers}, status=status.HTTP_200_OK)
 
