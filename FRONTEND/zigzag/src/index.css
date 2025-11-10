@@ -812,6 +812,16 @@ input:checked + .slider:before {
   flex-direction: column;
   gap: 0;
   box-shadow: 8px 0 15px -3px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Changed from overflow-y: auto to overflow: hidden */
+}
+
+/* Content wrapper for menus to handle padding */
+.left-menu-content {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -821,16 +831,8 @@ input:checked + .slider:before {
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-.left-menu::-webkit-scrollbar {
+.left-menu-content::-webkit-scrollbar {
   display: none;
-}
-
-/* Content wrapper for menus to handle padding */
-.left-menu-content {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
 }
 
 /* Menu header styles are shared with filter-menu, not duplicated */
@@ -843,7 +845,7 @@ input:checked + .slider:before {
 /* Make left menu sections sit closer to the menu header without affecting FilterMenu */
 .left-menu .menu-header {
   padding: 0.5rem 0; /* Reduce header height inside left menu */
-  margin-bottom: 0.5rem; /* Bring first section closer to header */
+  margin-bottom: 0rem; /* Bring first section closer to header */
 }
 
 .menu-btn {
@@ -1082,6 +1084,22 @@ input:checked + .slider:before {
   top: calc(100% + 0.5rem);
   left: 0;
   right: 0;
+}
+
+/* Help button container - fixed at bottom */
+.help-button-container {
+  padding: 0.25rem 1.5rem;
+  padding-bottom: -0.5rem;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.help-button-container .menu-btn {
+  padding: 6px 10px;
+  min-width: 0;
+  width: auto;
+  display: inline-flex;
+  align-self: flex-start;
 }
 
 /* Small tablet breakpoint (769px - 941px) - Wider menu */
