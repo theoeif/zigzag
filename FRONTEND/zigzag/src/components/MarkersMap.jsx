@@ -399,18 +399,18 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   /**
    * Refresh markers based on selected tags and public markers.
    */
-  const refreshMarkersForSelectedTags = async () => {
+  const refreshMarkersForSelectedTags = useCallback(async () => {
     // If user is connected, fetch their markers
     if (isConnected) {
       // Pass selectedTags (can be empty array for all markers)
       const tagsToUse = Array.isArray(selectedTags) ? selectedTags : [];
       const markers = await fetchMarkers(tagsToUse);
 
-      if (markers) {
-        setMarkersData(markers);
-      }
+      // Always update state, even if markers is null or empty
+      // This ensures the UI reflects the current filter state
+      setMarkersData(markers || { red_markers: [] });
     }
-  };
+  }, [isConnected, selectedTags]);
 
   /**
   * Fetch my saved locations separately
@@ -1034,7 +1034,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     if (isConnected && !isBackground && selectedTags !== null) {
       refreshMarkersForSelectedTags();
     }
-  }, [selectedTags, isConnected, isBackground]);
+  }, [selectedTags, isConnected, isBackground, refreshMarkersForSelectedTags]);
 
   // Update map view when clustering state changes.
   useEffect(() => {
