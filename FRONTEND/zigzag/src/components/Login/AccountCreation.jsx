@@ -30,6 +30,10 @@ const AccountCreation = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    minLength: false,
+    notNumeric: false,
+  });
   const navigate = useNavigate();
   const location = useLocation();
   const { setIsConnected } = useContext(AuthContext);
@@ -63,11 +67,25 @@ const AccountCreation = () => {
     }
   }, [location.search, location.pathname]);
 
+  const validatePasswordRequirements = (password) => {
+    setPasswordRequirements({
+      minLength: password.length >= 8,
+      notNumeric: password.length > 0 && !/^\d+$/.test(password),
+    });
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    // Validate password requirements in real-time
+    if (name === 'password') {
+      validatePasswordRequirements(value);
+    }
+    
     // Clear field-specific errors when user starts typing
-    if (fieldErrors[e.target.name]) {
-      setFieldErrors({ ...fieldErrors, [e.target.name]: null });
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: null });
     }
   };
 
@@ -221,6 +239,26 @@ const AccountCreation = () => {
                 {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
               </button>
             </div>
+            {formData.password && (
+              <div className={styles.passwordRequirements}>
+                <div className={styles.requirementItem}>
+                  <span className={`${styles.checkmark} ${passwordRequirements.minLength ? styles.checkmarkChecked : ''}`}>
+                    {passwordRequirements.minLength ? '✓' : '○'}
+                  </span>
+                  <span className={passwordRequirements.minLength ? styles.requirementMet : ''}>
+                    Au moins 8 caractères
+                  </span>
+                </div>
+                <div className={styles.requirementItem}>
+                  <span className={`${styles.checkmark} ${passwordRequirements.notNumeric ? styles.checkmarkChecked : ''}`}>
+                    {passwordRequirements.notNumeric ? '✓' : '○'}
+                  </span>
+                  <span className={passwordRequirements.notNumeric ? styles.requirementMet : ''}>
+                    Ne pas être entièrement numérique
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.formGroup}>

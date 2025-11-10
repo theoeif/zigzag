@@ -99,6 +99,28 @@ const Project = ({ projectId }) => {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (datePopoverRef.current && !datePopoverRef.current.contains(e.target)) {
+        // Apply date range automatically when closing by clicking outside
+        const start = new Date(draftStart);
+        const end = new Date(draftEnd);
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          // Only apply if dates are valid and different from current timeRange
+          const currentStart = new Date(timeRange.start);
+          const currentEnd = new Date(timeRange.end);
+          // Normalize dates for comparison (set hours to 0 for start, 23:59:59 for end)
+          currentStart.setHours(0, 0, 0, 0);
+          currentEnd.setHours(23, 59, 59, 999);
+          start.setHours(0, 0, 0, 0);
+          end.setHours(23, 59, 59, 999);
+          
+          const startChanged = start.getTime() !== currentStart.getTime();
+          const endChanged = end.getTime() !== currentEnd.getTime();
+          
+          if (startChanged || endChanged) {
+            // Apply the date range directly (same logic as handleTimeChange)
+            setTimeRange({ start, end });
+            setTimeRangeModified(true);
+          }
+        }
         setIsDatePopoverOpen(false);
       }
     };
@@ -108,7 +130,7 @@ const Project = ({ projectId }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDatePopoverOpen]);
+  }, [isDatePopoverOpen, draftStart, draftEnd, timeRange]);
 
   // Fetch and categorize events
   useEffect(() => {
@@ -432,10 +454,10 @@ const Project = ({ projectId }) => {
           rows.push(cards.slice(i, i + numColumns));
         }
 
-        // For each row, find the tallest address and set all addresses to that height
+        // For each row, align addresses by their top position relative to the card
         // Also account for "PARTAGÉ" badge spacing
         rows.forEach((rowCards) => {
-          // Find badge elements and address elements for each card
+          // Find badge elements, address elements, and description elements for each card
           const cardData = rowCards.map(card => {
             // Find badge
             const badge = card.querySelector(`.${styles.sharedEventBadgeProject}`) ||
@@ -447,7 +469,12 @@ const Project = ({ projectId }) => {
                            card.querySelector('[class*="eventLocationProject"]') ||
                            card.querySelector('.eventLocationProject');
             
-            return { card, badge, address };
+            // Find description (if present)
+            const description = card.querySelector(`.${styles.descriptionPreviewProject}`) ||
+                              card.querySelector('[class*="descriptionPreviewProject"]') ||
+                              card.querySelector('.descriptionPreviewProject');
+            
+            return { card, badge, address, description };
           }).filter(data => data.address); // Only keep cards with addresses
 
           if (cardData.length === 0) return;
@@ -479,26 +506,80 @@ const Project = ({ projectId }) => {
           cardData.forEach(({ address }) => {
             address.style.setProperty('height', 'auto', 'important');
             address.style.setProperty('margin-top', 'auto', 'important');
+            address.style.setProperty('margin-bottom', 'auto', 'important');
           });
 
           // Force a reflow to get accurate measurements
           void grid.offsetHeight;
 
-          // Find the maximum height
+          // First, add virtual space to cards without badges (if any card in row has badge)
+          // This creates the same spacing as if the badge were present
+          cardData.forEach(({ badge, address }) => {
+            if (hasBadgeInRow && !badge) {
+              address.style.setProperty('margin-top', `${badgeHeight}px`, 'important');
+            }
+          });
+
+          // Force another reflow after adding virtual space
+          void grid.offsetHeight;
+
+          // Calculate top positions of addresses relative to title container bottom
+          // This ensures addresses align at the same level regardless of description presence
+          const addressPositions = cardData.map(({ card, address }) => {
+            // Find title container
+            const titleContainer = card.querySelector(`.${styles.titleContainerProject}`) ||
+                                 card.querySelector('[class*="titleContainerProject"]') ||
+                                 card.querySelector('.titleContainerProject');
+            
+            if (titleContainer) {
+              const titleRect = titleContainer.getBoundingClientRect();
+              const addressRect = address.getBoundingClientRect();
+              return {
+                card,
+                address,
+                titleContainer,
+                topOffset: addressRect.top - titleRect.bottom
+              };
+            } else {
+              // Fallback to card-relative positioning if title container not found
+              const cardRect = card.getBoundingClientRect();
+              const addressRect = address.getBoundingClientRect();
+              return {
+                card,
+                address,
+                titleContainer: null,
+                topOffset: addressRect.top - cardRect.top
+              };
+            }
+          });
+
+          // Find the minimum top offset (the highest address position relative to title)
+          const minTopOffset = Math.min(...addressPositions.map(p => p.topOffset));
+
+          // Find the maximum height for addresses
           const heights = cardData.map(({ address }) => address.getBoundingClientRect().height);
           const maxHeight = Math.max(...heights);
 
-          // Set all addresses in this row to the maximum height
-          // Add margin-top to addresses in cards without badge to align with cards that have badge
-          cardData.forEach(({ badge, address }) => {
+          // Align all addresses to the same top position and set to max height
+          addressPositions.forEach(({ card, address, topOffset }, index) => {
+            const cardDataItem = cardData[index];
+            const { badge, description } = cardDataItem;
+            
+            // Get current margin-top (which may include virtual badge space)
+            const currentMarginTop = parseFloat(address.style.marginTop) || 0;
+            
+            // Calculate the additional margin-top needed to align to the minimum top position
+            const additionalMarginNeeded = minTopOffset - topOffset;
+            
+            // Set the address height to max height
             address.style.setProperty('height', `${maxHeight}px`, 'important');
             
-            // If there's a badge in the row but this card doesn't have one, add margin-top
-            if (hasBadgeInRow && !badge) {
-              address.style.setProperty('margin-top', `${badgeHeight}px`, 'important');
-            } else {
-              address.style.setProperty('margin-top', 'auto', 'important');
-            }
+            // Adjust margin-top: keep virtual badge space + add alignment adjustment
+            const finalMarginTop = currentMarginTop + (additionalMarginNeeded > 0 ? additionalMarginNeeded : 0);
+            address.style.setProperty('margin-top', `${finalMarginTop}px`, 'important');
+            
+            // Ensure consistent margin-bottom (address already has 8px in CSS, keep it)
+            address.style.setProperty('margin-bottom', '8px', 'important');
           });
         });
       });
@@ -579,7 +660,7 @@ const Project = ({ projectId }) => {
                     </label>
                     <div className={styles.dateRangeActionsProject}>
                       <button onClick={resetRange}>Réinitialiser</button>
-                      <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                      <button className={styles.applyButtonProject} disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
                     </div>
                   </div>
                 )}
@@ -610,7 +691,7 @@ const Project = ({ projectId }) => {
                     </label>
                     <div className={styles.dateRangeActionsProject}>
                       <button onClick={resetRange}>Réinitialiser</button>
-                      <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                      <button className={styles.applyButtonProject} disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
                     </div>
                   </div>
                 )}
@@ -621,7 +702,24 @@ const Project = ({ projectId }) => {
         )}
 
         {/* Action buttons - stacked vertically */}
-        <div className={styles.actionButtonsContainerProject}>
+        {!editingEvent && !isLeftMenuOpen && (
+          <div className={styles.actionButtonsContainerProject}>
+            <button
+              onClick={() => {
+                setShowEventForm(true);
+              }}
+              className={styles.addEventButtonProject}
+              data-button-type="project-add"
+            >
+              <FaPlus /> Ajouter un projet
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Add button row – shown below the timeline filter */}
+      {!editingEvent && !isLeftMenuOpen && (
+        <div className={styles.addButtonRowProject}>
           <button
             onClick={() => {
               setShowEventForm(true);
@@ -629,23 +727,10 @@ const Project = ({ projectId }) => {
             className={styles.addEventButtonProject}
             data-button-type="project-add"
           >
-            <FaPlus /> Ajouter un projet
+            <FaPlus />
           </button>
         </div>
-      </div>
-
-      {/* Add button row – shown below the timeline filter */}
-      <div className={styles.addButtonRowProject}>
-        <button
-          onClick={() => {
-            setShowEventForm(true);
-          }}
-          className={styles.addEventButtonProject}
-          data-button-type="project-add"
-        >
-          <FaPlus />
-        </button>
-      </div>
+      )}
 
       {/* Render the Create Event Form Modal */}
       {showEventForm && (
