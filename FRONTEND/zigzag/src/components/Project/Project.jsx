@@ -99,6 +99,28 @@ const Project = ({ projectId }) => {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (datePopoverRef.current && !datePopoverRef.current.contains(e.target)) {
+        // Apply date range automatically when closing by clicking outside
+        const start = new Date(draftStart);
+        const end = new Date(draftEnd);
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          // Only apply if dates are valid and different from current timeRange
+          const currentStart = new Date(timeRange.start);
+          const currentEnd = new Date(timeRange.end);
+          // Normalize dates for comparison (set hours to 0 for start, 23:59:59 for end)
+          currentStart.setHours(0, 0, 0, 0);
+          currentEnd.setHours(23, 59, 59, 999);
+          start.setHours(0, 0, 0, 0);
+          end.setHours(23, 59, 59, 999);
+          
+          const startChanged = start.getTime() !== currentStart.getTime();
+          const endChanged = end.getTime() !== currentEnd.getTime();
+          
+          if (startChanged || endChanged) {
+            // Apply the date range directly (same logic as handleTimeChange)
+            setTimeRange({ start, end });
+            setTimeRangeModified(true);
+          }
+        }
         setIsDatePopoverOpen(false);
       }
     };
@@ -108,7 +130,7 @@ const Project = ({ projectId }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDatePopoverOpen]);
+  }, [isDatePopoverOpen, draftStart, draftEnd, timeRange]);
 
   // Fetch and categorize events
   useEffect(() => {
@@ -638,7 +660,7 @@ const Project = ({ projectId }) => {
                     </label>
                     <div className={styles.dateRangeActionsProject}>
                       <button onClick={resetRange}>Réinitialiser</button>
-                      <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                      <button className={styles.applyButtonProject} disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
                     </div>
                   </div>
                 )}
@@ -669,7 +691,7 @@ const Project = ({ projectId }) => {
                     </label>
                     <div className={styles.dateRangeActionsProject}>
                       <button onClick={resetRange}>Réinitialiser</button>
-                      <button disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
+                      <button className={styles.applyButtonProject} disabled={new Date(draftStart) > new Date(draftEnd)} onClick={applyDateRange}>Appliquer</button>
                     </div>
                   </div>
                 )}
@@ -680,7 +702,7 @@ const Project = ({ projectId }) => {
         )}
 
         {/* Action buttons - stacked vertically */}
-        {!editingEvent && (
+        {!editingEvent && !isLeftMenuOpen && (
           <div className={styles.actionButtonsContainerProject}>
             <button
               onClick={() => {
@@ -696,7 +718,7 @@ const Project = ({ projectId }) => {
       </div>
 
       {/* Add button row – shown below the timeline filter */}
-      {!editingEvent && (
+      {!editingEvent && !isLeftMenuOpen && (
         <div className={styles.addButtonRowProject}>
           <button
             onClick={() => {
