@@ -154,13 +154,13 @@ const FilterMenu = ({
             <div
               key={tag.id}
               className={`tag-item ${
-                selectedTags.includes(tag.id) ? "selected" : ""
+                selectedTags && selectedTags.includes(tag.id) ? "selected" : ""
               }`}
               onClick={() => handleTagSelection(tag.id)}
             >
               <input
                 type="checkbox"
-                checked={selectedTags.includes(tag.id)}
+                checked={selectedTags && selectedTags.includes(tag.id)}
                 onChange={() => {}}
                 className="sr-only"
               />
