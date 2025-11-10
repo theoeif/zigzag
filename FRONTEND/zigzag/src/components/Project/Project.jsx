@@ -621,7 +621,24 @@ const Project = ({ projectId }) => {
         )}
 
         {/* Action buttons - stacked vertically */}
-        <div className={styles.actionButtonsContainerProject}>
+        {!editingEvent && (
+          <div className={styles.actionButtonsContainerProject}>
+            <button
+              onClick={() => {
+                setShowEventForm(true);
+              }}
+              className={styles.addEventButtonProject}
+              data-button-type="project-add"
+            >
+              <FaPlus /> Ajouter un projet
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Add button row – shown below the timeline filter */}
+      {!editingEvent && (
+        <div className={styles.addButtonRowProject}>
           <button
             onClick={() => {
               setShowEventForm(true);
@@ -629,23 +646,10 @@ const Project = ({ projectId }) => {
             className={styles.addEventButtonProject}
             data-button-type="project-add"
           >
-            <FaPlus /> Ajouter un projet
+            <FaPlus />
           </button>
         </div>
-      </div>
-
-      {/* Add button row – shown below the timeline filter */}
-      <div className={styles.addButtonRowProject}>
-        <button
-          onClick={() => {
-            setShowEventForm(true);
-          }}
-          className={styles.addEventButtonProject}
-          data-button-type="project-add"
-        >
-          <FaPlus />
-        </button>
-      </div>
+      )}
 
       {/* Render the Create Event Form Modal */}
       {showEventForm && (
