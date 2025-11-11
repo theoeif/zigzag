@@ -460,8 +460,8 @@ class EventViewSet(viewsets.ModelViewSet):
         # If tags are provided, filter by circle categories
         if tags_param and len(tags_param) > 0:
             # Get events that have circles with the specified tags
-            events_with_circles = events.filter(circles__categories__id__in=tags_param).distinct()
-
+            # This ensures we only match circles the user is actually in
+            events_with_circles = events.filter(circles__in=user_circles.filter(categories__id__in=tags_param)).distinct()
             # Get solo events (events created by user that have no circles)
             events_solo = Event.objects.filter(
                 Q(creator=user) & Q(circles__isnull=True)
@@ -490,7 +490,10 @@ class EventViewSet(viewsets.ModelViewSet):
                     tags=ArrayAgg(
                         'circles__categories__name',
                         distinct=True,
-                        filter=Q(circles__categories__name__isnull=False),
+                        filter=Q(
+                            circles__categories__name__isnull=False,
+                            circles__in=user_circles
+                        ),
                         default=[]
                     )
                 ).values(
@@ -503,7 +506,7 @@ class EventViewSet(viewsets.ModelViewSet):
             events_prefetched = events.select_related("address").prefetch_related(
                 Prefetch(
                     'circles',
-                    queryset=Circle.objects.prefetch_related(
+                    queryset=user_circles.prefetch_related(
                         Prefetch('categories', queryset=Tag.objects.only('name'))
                     ).only('id')
                 )
