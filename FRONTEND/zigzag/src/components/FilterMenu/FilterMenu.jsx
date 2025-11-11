@@ -87,7 +87,6 @@ const FilterMenu = ({
               type="checkbox"
               checked={showProjects}
               onChange={() => setShowProjects(!showProjects)}
-              disabled={showEvents}
             />
             <span className="slider"></span>
           </label>
