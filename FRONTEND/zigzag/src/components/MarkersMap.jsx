@@ -43,6 +43,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Toggle state for projects and my locations
   const [showProjects, setShowProjects] = useState(true);
   const [showFriendLocations, setShowFriendLocations] = useState(true);
+  const [showEvents, setShowEvents] = useState(false);
 
 
   // Timeframe is now managed by MapContext
@@ -363,6 +364,15 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       const eventStart = new Date(event.start_date);
       const eventEnd = new Date(event.end_date);
 
+      // If showEvents is enabled, check if event duration is 24 hours or less
+      if (showEvents) {
+        const durationMs = eventEnd.getTime() - eventStart.getTime();
+        const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000; // 86,400,000 milliseconds
+        if (durationMs > TWENTY_FOUR_HOURS_MS) {
+          return false; // Event duration exceeds 24 hours
+        }
+      }
+
       return (
         // Case 1: Event starts within the filter range
         (eventStart >= start && eventStart <= end) ||
@@ -379,7 +389,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     };
 
     // Apply visibility filters along with date filtering for red markers
-    const filteredRed = showProjects
+    const filteredRed = (showProjects || showEvents)
       ? markersData.red_markers.filter(filterFunc)
       : [];
 
@@ -387,13 +397,13 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     const filteredBlue = showFriendLocations ? friendLocationData : [];
 
     setFilteredMarkers({ red_markers: filteredRed });
-  }, [markersData, friendLocationData, timeframe, showProjects, showFriendLocations]);
+  }, [markersData, friendLocationData, timeframe, showProjects, showFriendLocations, showEvents]);
 
   // Update filtered markers whenever markersData or timeframe changes.
   useEffect(() => {
     // Always call filterMarkersByTimeframe, even if markersData is empty
     filterMarkersByTimeframe();
-  }, [markersData, timeframe.start, timeframe.end, showProjects, showFriendLocations, filterMarkersByTimeframe]);
+  }, [markersData, timeframe.start, timeframe.end, showProjects, showFriendLocations, showEvents, filterMarkersByTimeframe]);
 
   /**
    * Refresh markers based on selected tags and public markers.
@@ -685,7 +695,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       return;
     }
 
-    const projectMarkers = showProjects ? filteredMarkers.red_markers : [];
+    const projectMarkers = (showProjects || showEvents) ? filteredMarkers.red_markers : [];
     const friendMarkers = showFriendLocations ? friendLocationData : [];
 
     // Apply offset to friend markers if too close to project markers
@@ -694,9 +704,9 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
 
     // Determine display mode based on filters and clustering settings
-    const showOnlyProjects = showProjects && !showFriendLocations;
-    const showOnlyFriends = !showProjects && showFriendLocations;
-    const showBoth = showProjects && showFriendLocations;
+    const showOnlyProjects = (showProjects || showEvents) && !showFriendLocations;
+    const showOnlyFriends = !(showProjects || showEvents) && showFriendLocations;
+    const showBoth = (showProjects || showEvents) && showFriendLocations;
 
     // Only use clustering for:
     // 1. Close markers (always cluster these)
@@ -704,7 +714,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     const useClusteringForNormal = showBoth ? false : isClustered;
 
     // Group project markers
-    const projectMarkersGroups = showProjects ? groupCloseMarkers(projectMarkers) : { closeMarkers: [], normalMarkers: [] };
+    const projectMarkersGroups = (showProjects || showEvents) ? groupCloseMarkers(projectMarkers) : { closeMarkers: [], normalMarkers: [] };
 
     // Group friend markers
     const friendMarkersGroups = showFriendLocations ? groupCloseMarkers(processedFriendMarkers) : { closeMarkers: [], normalMarkers: [] };
@@ -937,7 +947,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
 
     // Process markers based on filter state
-    if (showProjects) {
+    if (showProjects || showEvents) {
       processCloseProjectMarkers();
       processNormalProjectMarkers();
     }
@@ -950,7 +960,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
 
     // Add the marker groups to the map as needed
-    if (showProjects) {
+    if (showProjects || showEvents) {
       // Only add close project clusters when they're not merged with main clusters
       if (closeProjectClusterGroupRef.current.getLayers().length > 0 && !(showOnlyProjects && useClusteringForNormal)) {
         mapRef.current.addLayer(closeProjectClusterGroupRef.current);
@@ -975,7 +985,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     }
 
 
-  }, [filteredMarkers, isClustered, navigate, location.pathname, showProjects, showFriendLocations, friendLocationData]);
+  }, [filteredMarkers, isClustered, navigate, location.pathname, showProjects, showFriendLocations, showEvents, friendLocationData]);
 
   // Update markers on map when filtered markers change.
   useEffect(() => {
@@ -1067,6 +1077,19 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     prevShowProjectsRef.current = showProjects;
     prevShowFriendLocationsRef.current = showFriendLocations;
   }, [showProjects, showFriendLocations]);
+
+  // Mutual exclusion: disable showProjects when showEvents is enabled, and vice versa
+  useEffect(() => {
+    if (showEvents && showProjects) {
+      setShowProjects(false);
+    }
+  }, [showEvents]);
+
+  useEffect(() => {
+    if (showProjects && showEvents) {
+      setShowEvents(false);
+    }
+  }, [showProjects]);
 
   // Update map view when mapState changes.
   useEffect(() => {
@@ -1204,6 +1227,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           setShowFriendLocations={setShowFriendLocations}
           showProjects={showProjects}
           setShowProjects={setShowProjects}
+          showEvents={showEvents}
+          setShowEvents={setShowEvents}
           disableClustering={showProjects && showFriendLocations}
         />
       )}
