@@ -1078,12 +1078,18 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     prevShowFriendLocationsRef.current = showFriendLocations;
   }, [showProjects, showFriendLocations]);
 
-  // Automatically disable showProjects when showEvents is enabled
+  // Mutual exclusion: disable showProjects when showEvents is enabled, and vice versa
   useEffect(() => {
     if (showEvents && showProjects) {
       setShowProjects(false);
     }
   }, [showEvents]);
+
+  useEffect(() => {
+    if (showProjects && showEvents) {
+      setShowEvents(false);
+    }
+  }, [showProjects]);
 
   // Update map view when mapState changes.
   useEffect(() => {
