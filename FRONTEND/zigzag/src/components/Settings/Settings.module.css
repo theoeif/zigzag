@@ -382,6 +382,10 @@
 }
 
 /* Account Deletion Form Styles */
+.deletionUsernameDisplay {
+  margin-bottom: 0px !important;
+}
+
 .deletionConfirm {
   background-color: #fff3cd;
   border: 2px solid #ffc107;
