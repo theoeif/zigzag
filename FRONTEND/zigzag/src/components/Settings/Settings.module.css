@@ -319,6 +319,9 @@
 .buttonGroup {
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-top: 20px;
 }
 
@@ -327,14 +330,14 @@
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 18px 48px;
-  font-size: 1.2rem;
+  padding: 12px 32px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(64, 145, 108, 0.3);
-  min-width: 280px;
-  height: 56px;
+  min-width: 200px;
+  height: 44px;
 }
 
 .saveButton:hover:not(:disabled) {
@@ -348,6 +351,82 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.cancelButton {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+  min-width: 200px;
+  height: 44px;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+.cancelButton:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Account Deletion Form Styles */
+.deletionConfirm {
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  animation: fadeIn 0.3s ease-in;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.deletionConfirmText {
+  margin: 0;
+  color: #856404;
+  font-weight: 600;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.errorMessage {
+  display: block;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  text-align: center;
+  width: 100%;
+  flex-basis: 100%;
 }
 
 /* FAQ Section - Plus à venir */
@@ -463,9 +542,10 @@
   }
   
   .saveButton {
-    padding: 12px 24px;
-    font-size: 1rem;
+    padding: 10px 24px;
+    font-size: 0.95rem;
     min-width: 180px;
+    height: 40px;
   }
   
   .faqQuestion {
@@ -475,5 +555,18 @@
   
   .faqAnswer {
     padding: 0 16px 16px 16px;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .cancelButton {
+    min-width: 100%;
+  }
+  
+  .saveButton {
+    min-width: 100%;
   }
 }

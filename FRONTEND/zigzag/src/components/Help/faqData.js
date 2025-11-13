@@ -12,7 +12,7 @@ export const faqData = [
   {
     question: "Comment supprimer mon compte et mes données ?",
     answer:
-      "Vous pourrez demander la suppression via le formulaire de contact situé dans l'onglet d'aide (?) du Menu. Le délai de traitement est de 30 jours maximum.",
+      "Vous pourrez demander la suppression via le formulaire de contact situé en bas de la page. Le délai de traitement est de 30 jours maximum.",
   },
   {
     question: "Comment les gens s'ajoutent-ils ?",
