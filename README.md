@@ -53,6 +53,7 @@ Note : you can use default db.sqlite in local
          - Found list of friends instead of user on the plateform.
     - People could add their circle into a project.
     - Introduce some public event when Number > 1000
+- Add conversating messaging functionnality to contact people.
 - Implementing a dapp for financing project through the blockchain. (compatible capacitor)
 
 

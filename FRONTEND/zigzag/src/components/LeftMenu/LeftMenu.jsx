@@ -405,7 +405,7 @@ const LeftMenu = ({ closeMenu }) => {
       </div>
 
       {/* Help button fixed at the bottom */}
-      <div className="help-button-container">
+      <div className="help-button-container safe-area-bottom"> 
         <button
           className={getButtonClass("help")}
           onClick={() => handleNavigation("/help", "help")}
