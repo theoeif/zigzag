@@ -1,6 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { AuthContext } from '../../contexts/AuthProvider';
-import { changePassword, fetchUserProfile, updateProfile } from '../../api/api';
+import { changePassword, fetchUserProfile, updateProfile, submitContactForm } from '../../api/api';
 import { FaLock, FaEye, FaEyeSlash, FaCheck, FaTimes } from 'react-icons/fa';
 import Header from '../Header/Header';
 import LeftMenu from '../LeftMenu/LeftMenu';
@@ -27,6 +27,14 @@ const Settings = () => {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [usernameError, setUsernameError] = useState('');
+  
+  // Account deletion form state
+  const [deletionEmail, setDeletionEmail] = useState('');
+  const [deletionStatus, setDeletionStatus] = useState(null); // "ok" | "error" | "spam"
+  const [deletionSubmitting, setDeletionSubmitting] = useState(false);
+  const [deletionTrap, setDeletionTrap] = useState(''); // honeypot
+  const [showDeletionConfirm, setShowDeletionConfirm] = useState(false);
+  const deletionStartRef = useRef(Date.now());
 
   // Fetch user profile data when connected
   useEffect(() => {
@@ -178,6 +186,45 @@ const Settings = () => {
   // faqData imported from shared module
 
   const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
+
+  // Handle account deletion form submission
+  const handleDeletionSubmit = async (e) => {
+    e.preventDefault();
+    if (!deletionEmail) return;
+    
+    // Show confirmation dialog first
+    if (!showDeletionConfirm) {
+      setShowDeletionConfirm(true);
+      return;
+    }
+    
+    // Anti-spam checks
+    if (deletionTrap) {
+      setDeletionStatus("spam");
+      return;
+    }
+    if (Date.now() - deletionStartRef.current < 2500) {
+      setDeletionStatus("spam");
+      return;
+    }
+
+    setDeletionSubmitting(true);
+    setDeletionStatus(null);
+    try {
+      await submitContactForm({ 
+        name: userProfile?.username || 'Non fourni',
+        email: deletionEmail,
+        message: 'Demande de suppression de compte'
+      });
+      setDeletionStatus("ok");
+      setDeletionEmail("");
+      setShowDeletionConfirm(false);
+    } catch (err) {
+      setDeletionStatus("error");
+    } finally {
+      setDeletionSubmitting(false);
+    }
+  };
 
   // Close left menu when clicking outside
   useEffect(() => {
@@ -394,6 +441,91 @@ const Settings = () => {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Account Deletion Request Section */}
+        <section className={styles.passwordSection}>
+          <div className={styles.sectionHeader}>
+            <h2>Suppression de compte</h2>
+          </div>
+          <p>
+            Si vous souhaitez supprimer votre compte, veuillez remplir le formulaire ci-dessous.
+            Nous traiterons votre demande dans les plus brefs délais.   
+            Au Maximum 30 jours pour une suppression complète.
+          </p>
+          <form onSubmit={handleDeletionSubmit} className={styles.passwordForm} aria-label="Formulaire de demande de suppression de compte">
+            {/* Honeypot field (do not remove) */}
+            <input
+              type="text"
+              value={deletionTrap}
+              onChange={(e) => setDeletionTrap(e.target.value)}
+              style={{ position: "absolute", left: "-9999px", width: 1, height: 1 }}
+              tabIndex={-1}
+              aria-hidden="true"
+              autoComplete="off"
+            />
+            {showDeletionConfirm && (
+              <div className={styles.deletionConfirm}>
+                <p className={styles.deletionConfirmText}>
+                  Êtes-vous vraiment sûr(e) de vouloir envoyer une demande de suppression de compte ?
+                </p>
+              </div>
+            )}
+            <div className={`${styles.usernameDisplay} ${styles.deletionUsernameDisplay}`}>
+              <label>Nom d'utilisateur</label>
+              <div className={styles.lockedField}>
+                <div className={styles.usernameDisplayContainer}>
+                  <span className={styles.username}>
+                    {userProfile?.username || 'Chargement...'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className={styles.inputGroup}>
+              <label>E‑mail</label>
+              <input
+                type="email"
+                required
+                value={deletionEmail}
+                onChange={(e) => setDeletionEmail(e.target.value)}
+                className={styles.usernameInput}
+                placeholder="vous@exemple.com"
+                disabled={deletionSubmitting || deletionStatus === "ok"}
+              />
+            </div>
+            <div className={styles.buttonGroup}>
+              <button 
+                type="submit" 
+                className={styles.saveButton} 
+                disabled={deletionSubmitting || !deletionEmail || deletionStatus === "ok"}
+              >
+                {deletionSubmitting ? "Envoi…" : deletionStatus === "ok" ? "✓ Envoyé" : showDeletionConfirm ? "Confirmer l'envoi" : "Envoyer la demande"}
+              </button>
+              {showDeletionConfirm && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeletionConfirm(false);
+                    setDeletionStatus(null);
+                  }}
+                  className={styles.cancelButton}
+                  disabled={deletionSubmitting}
+                >
+                  Annuler
+                </button>
+              )}
+              {deletionStatus === "spam" && (
+                <span role="alert" className={styles.errorMessage}>
+                  Soumission bloquée. Veuillez réessayer dans quelques secondes.
+                </span>
+              )}
+              {deletionStatus === "error" && (
+                <span role="alert" className={styles.errorMessage}>
+                  Envoi indisponible pour le moment. Réessayez plus tard.
+                </span>
+              )}
+            </div>
+          </form>
         </section>
       </div>
     </div>
