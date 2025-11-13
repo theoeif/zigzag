@@ -29,7 +29,6 @@ const Settings = () => {
   const [usernameError, setUsernameError] = useState('');
   
   // Account deletion form state
-  const [deletionName, setDeletionName] = useState('');
   const [deletionEmail, setDeletionEmail] = useState('');
   const [deletionStatus, setDeletionStatus] = useState(null); // "ok" | "error" | "spam"
   const [deletionSubmitting, setDeletionSubmitting] = useState(false);
@@ -213,12 +212,11 @@ const Settings = () => {
     setDeletionStatus(null);
     try {
       await submitContactForm({ 
-        name: deletionName || 'Non fourni',
+        name: userProfile?.username || 'Non fourni',
         email: deletionEmail,
         message: 'Demande de suppression de compte'
       });
       setDeletionStatus("ok");
-      setDeletionName("");
       setDeletionEmail("");
       setShowDeletionConfirm(false);
     } catch (err) {
@@ -447,7 +445,9 @@ const Settings = () => {
 
         {/* Account Deletion Request Section */}
         <section className={styles.passwordSection}>
-          <h2>Demande de suppression de compte</h2>
+          <div className={styles.sectionHeader}>
+            <h2>Suppression de compte</h2>
+          </div>
           <p>
             Si vous souhaitez supprimer votre compte, veuillez remplir le formulaire ci-dessous.
             Nous traiterons votre demande dans les plus brefs délais.   
@@ -471,16 +471,15 @@ const Settings = () => {
                 </p>
               </div>
             )}
-            <div className={styles.inputGroup}>
-              <label>Nom (facultatif)</label>
-              <input
-                type="text"
-                value={deletionName}
-                onChange={(e) => setDeletionName(e.target.value)}
-                className={styles.usernameInput}
-                placeholder="Votre nom"
-                disabled={deletionSubmitting || deletionStatus === "ok"}
-              />
+            <div className={`${styles.usernameDisplay} ${styles.deletionUsernameDisplay}`}>
+              <label>Nom d'utilisateur</label>
+              <div className={styles.lockedField}>
+                <div className={styles.usernameDisplayContainer}>
+                  <span className={styles.username}>
+                    {userProfile?.username || 'Chargement...'}
+                  </span>
+                </div>
+              </div>
             </div>
             <div className={styles.inputGroup}>
               <label>E‑mail</label>
