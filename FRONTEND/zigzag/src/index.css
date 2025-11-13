@@ -1130,7 +1130,6 @@ input:checked + .slider:before {
 /* Help button container - fixed at bottom */
 .help-button-container {
   padding: 0.25rem 1.5rem;
-  padding-bottom: -0.5rem;
   margin-top: auto;
   flex-shrink: 0;
 }
@@ -1141,6 +1140,12 @@ input:checked + .slider:before {
   width: auto;
   display: inline-flex;
   align-self: flex-start;
+}
+
+/* Help button safe area adjustment for mobile apps */
+.help-button-container.safe-area-bottom {
+  padding-top: calc(env(safe-area-inset-bottom) / 2);
+  padding-bottom: calc(env(safe-area-inset-bottom) / 2);
 }
 
 /* Small tablet breakpoint (769px - 941px) - Wider menu */
