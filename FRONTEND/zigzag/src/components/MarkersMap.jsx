@@ -54,7 +54,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   
   // Refs to track connection state for timeframe initialization
   const isFirstMountRef = useRef(true);
-  const prevIsConnectedRef = useRef(isConnected);
+  const prevIsConnectedRef = useRef(null);
 
   // Markers state: full markers data and filtered markers for timeline
   const [markersData, setMarkersData] = useState({ red_markers: [] });
@@ -1154,7 +1154,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         setContextTimeframe({ start, end });
       }
     }
-    
     // Update refs after checking
     isFirstMountRef.current = false;
     prevIsConnectedRef.current = isConnected;
