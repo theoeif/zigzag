@@ -1123,6 +1123,25 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     });
   }, [setContextTimeframe]);
 
+  // Set timeframe to one year from today when user is disconnected
+  // Reset to default (current date + 1 month) when user logs in
+  useEffect(() => {
+    if (!isBackground) {
+      if (!isConnected) {
+        // Disconnected: set to one year from today
+        const start = new Date();
+        const end = new Date();
+        end.setFullYear(end.getFullYear() + 1);
+        setContextTimeframe({ start, end });
+      } else {
+        // Connected: reset to default (current date + 1 month)
+        const start = new Date();
+        const end = new Date();
+        end.setMonth(end.getMonth() + 2);
+        setContextTimeframe({ start, end });
+      }
+    }
+  }, [isConnected, isBackground, setContextTimeframe]);
 
   // Save map state when component unmounts
   useEffect(() => {
