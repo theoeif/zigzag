@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useMediaQuery, IconButton } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
+import { AuthContext } from '../../contexts/AuthProvider';
 import styles from './MapControls.module.css';
 
 const MapControls = ({
@@ -9,6 +10,7 @@ const MapControls = ({
   onCreateProject,
   isBackground = false
 }) => {
+  const { isConnected } = useContext(AuthContext);
   const isSmallScreen = useMediaQuery('(max-width:599px)');
 
   // Date range picker state
@@ -26,12 +28,14 @@ const MapControls = ({
   }, [timeframe.start, timeframe.end]);
 
   // Format date for display (more readable format)
+  // Show year on mobile when user is disconnected (exception for one-year timeframe)
   const formatDateForDisplay = (dateString) => {
     const date = new Date(dateString);
+    const showYear = !isSmallScreen || !isConnected;
     const options = { 
       month: 'short', 
       day: 'numeric',
-      ...(isSmallScreen ? {} : { year: 'numeric' })
+      ...(showYear ? { year: 'numeric' } : {})
     };
     return date.toLocaleDateString('fr-FR', options);
   };
@@ -84,7 +88,7 @@ const MapControls = ({
   const resetRange = () => {
     const start = new Date();
     const end = new Date();
-    end.setMonth(end.getMonth() + 1);
+    end.setMonth(end.getMonth() + 2);
 
     onTimeChange({ start, end });
     setIsDatePopoverOpen(false);
@@ -105,18 +109,20 @@ const MapControls = ({
         onClick={() => setIsDatePopoverOpen(!isDatePopoverOpen)}
         title="Filtrer par date"
       >
-        {/* Create Project Button */}
-        <IconButton
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent triggering the date picker
-            onCreateProject();
-          }}
-          className={`${styles.createButton} ${isSmallScreen ? styles.createButtonMobile : ''}`}
-          title="Créer un projet"
-          size={isSmallScreen ? 'small' : 'medium'}
-        >
-          <AddIcon />
-        </IconButton>
+        {/* Create Project Button - only show when connected */}
+        {isConnected && (
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering the date picker
+              onCreateProject();
+            }}
+            className={`${styles.createButton} ${isSmallScreen ? styles.createButtonMobile : ''}`}
+            title="Créer un projet"
+            size={isSmallScreen ? 'small' : 'medium'}
+          >
+            <AddIcon />
+          </IconButton>
+        )}
 
         {/* Date Range Picker Content */}
         <div className={`${styles.dateButton} ${isSmallScreen ? styles.dateButtonMobile : ''}`}>
@@ -124,7 +130,7 @@ const MapControls = ({
             <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
           </svg>
           <span className={`${styles.dateText} ${isSmallScreen ? styles.dateTextMobile : ''}`}>
-            {formatDateForDisplay(draftStart)} → {formatDateForDisplay(draftEnd)}
+            {formatDateForDisplay(draftStart)} - {formatDateForDisplay(draftEnd)}
           </span>
         </div>
       </div>
