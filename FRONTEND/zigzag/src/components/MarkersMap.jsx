@@ -51,6 +51,10 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Refs to track previous filter states for auto-untoggling
   const prevShowProjectsRef = useRef(showProjects);
   const prevShowFriendLocationsRef = useRef(showFriendLocations);
+  
+  // Refs to track connection state for timeframe initialization
+  const isFirstMountRef = useRef(true);
+  const prevIsConnectedRef = useRef(isConnected);
 
   // Markers state: full markers data and filtered markers for timeline
   const [markersData, setMarkersData] = useState({ red_markers: [] });
@@ -1124,24 +1128,37 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   }, [setContextTimeframe]);
 
   // Set timeframe to one year from today when user is disconnected
-  // Reset to default (current date + 1 month) when user logs in
+  // Reset to default (current date + 2 months) when user logs in
+  // Runs on mount and when user logs in
   useEffect(() => {
-    if (!isBackground) {
+    // Only run on mount or when user logs in (isConnected changes from false to true)
+    const shouldRun = isFirstMountRef.current || 
+                     (!prevIsConnectedRef.current && isConnected);
+    
+    if (shouldRun && !isBackground) {
+      const now = new Date();
+      
       if (!isConnected) {
         // Disconnected: set to one year from today
-        const start = new Date();
-        const end = new Date();
+        const start = new Date(now);
+        const end = new Date(now);
         end.setFullYear(end.getFullYear() + 1);
+        end.setHours(23, 59, 59, 999);
         setContextTimeframe({ start, end });
       } else {
-        // Connected: reset to default (current date + 1 month)
-        const start = new Date();
-        const end = new Date();
+        // Connected: reset to default (current date + 2 months)
+        const start = new Date(now);
+        const end = new Date(now);
         end.setMonth(end.getMonth() + 2);
+        end.setHours(23, 59, 59, 999);
         setContextTimeframe({ start, end });
       }
     }
-  }, [isConnected, isBackground, setContextTimeframe]);
+    
+    // Update refs after checking
+    isFirstMountRef.current = false;
+    prevIsConnectedRef.current = isConnected;
+  }, [isConnected, isBackground]);
 
   // Save map state when component unmounts
   useEffect(() => {
