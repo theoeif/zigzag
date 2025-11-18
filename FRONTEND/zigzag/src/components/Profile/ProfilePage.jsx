@@ -58,8 +58,8 @@ const ProfilePage = () => {
   }, [isLeftMenuOpen]);
 
   if (error) return <div>Error: {String(error)}</div>;
-  if (!profile) return <div>Loading...</div>;
 
+  // Use profile data if available, otherwise use defaults
   const timetable = profile?.profile?.timetable || emptyTimetable;
   const remoteDaysCount = profile?.profile?.remote_days_count ?? 0;
   const remoteDays = profile?.profile?.remote_days || defaultRemoteDays;
@@ -72,12 +72,12 @@ const ProfilePage = () => {
       <div className={styles.manageButtonContainer}>
         <h1 style={{
           margin: 0,
-          color: '#2563eb',
+          color: '#0981D1',
           fontSize: '1.5rem',
           fontWeight: 'bold',
           textAlign: 'left'
         }}>
-          {profile?.username || "Profil"}
+          {profile?.username || username || "Profil"}
         </h1>
       </div>
 
@@ -87,7 +87,7 @@ const ProfilePage = () => {
         </div>
       )}
 
-      <div className={styles.sectionsContainer}>
+      <div className={styles.sectionsContainerProfilePage}>
         <ProofileItem
           timetable={timetable}
           remoteDaysCount={remoteDaysCount}
