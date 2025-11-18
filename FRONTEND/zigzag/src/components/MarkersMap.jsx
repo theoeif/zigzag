@@ -162,6 +162,13 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const mapState = contextMapState;
   const timeframe = contextTimeframe;
 
+  // Only sync location (the one that actually changes)
+  const locationRef = useRef(location);
+
+  useEffect(() => {
+    locationRef.current = location;
+  });
+
 
   /**
    * Handle zoom level changes to determine when to show/hide close markers
@@ -734,7 +741,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
 
         marker.bindTooltip(`
-          <div class="tooltip-content">
+          <div class="tooltip-content" style="cursor: pointer;">
             <div class="tooltip-title">${markerData.title}</div>
             ${(markerData.address_line || (markerData.address && markerData.address.address_line)) ? `<div class="tooltip-address">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 384 512" fill="#2196F3">
@@ -749,24 +756,59 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           opacity: 1,
           className: "custom-tooltip",
           offset: [0, -10],
+          interactive: true, // Enable tooltips on mobile touch devices
         });
 
-        marker.on("click", () => {
-          // Update MapContext BEFORE navigating
-          setMapState({
-            center: { lat: markerData.lat, lng: markerData.lng },
-            zoom: 15
-          });
-          navigate(`/event/${markerData.id}`, {
-            state: {
-              background: location,  // Tells App.jsx to keep map mounted
-              mapState: {
-                center: { lat: markerData.lat, lng: markerData.lng },
-                zoom: 15
+        // Show tooltip on tap (mobile) or hover (desktop)
+        marker.on("click", (e) => {
+          // On mobile, open tooltip on first tap
+          if (!marker.isTooltipOpen()) {
+            marker.openTooltip();
+            e.originalEvent?.preventDefault?.();
+            return;
+          }
+          // If tooltip is already open, navigate (fallback for when tooltip click doesn't work)
+          if (marker.isTooltipOpen()) {
+            setMapState({
+              center: { lat: markerData.lat, lng: markerData.lng },
+              zoom: 15
+            });
+            navigate(`/event/${markerData.id}`, {
+              state: {
+                background: location,
+                mapState: {
+                  center: { lat: markerData.lat, lng: markerData.lng },
+                  zoom: 15
+                },
+                eventCoordinates: { lat: markerData.lat, lng: markerData.lng }
               },
-              eventCoordinates: { lat: markerData.lat, lng: markerData.lng }
-            },
-          });
+            });
+          }
+        });
+
+        // Handle tooltip clicks using mousedown/touchstart (fires before tooltip closes)
+        marker.on("tooltipopen", () => {
+          const tooltipElement = marker.getTooltip()?.getElement();
+          if (tooltipElement && !tooltipElement.dataset.listenerAdded) {
+            tooltipElement.dataset.listenerAdded = "true";
+            
+            const handleClick = () => {
+              // Navigate immediately - fires before Leaflet closes tooltip
+              if (window.handleTooltipNavigation) {
+                window.handleTooltipNavigation(markerData.id, markerData.lat, markerData.lng);
+              }
+            };
+            
+            // Use mousedown/touchstart instead of click - fires earlier
+            tooltipElement.addEventListener("mousedown", handleClick, true);
+            tooltipElement.addEventListener("touchstart", handleClick, true);
+            
+            const contentDiv = tooltipElement.querySelector('.tooltip-content');
+            if (contentDiv) {
+              contentDiv.addEventListener("mousedown", handleClick, true);
+              contentDiv.addEventListener("touchstart", handleClick, true);
+            }
+          }
         });
 
         // When showing only projects and clustering is on, put close markers in the main cluster group
@@ -791,7 +833,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         });
 
         marker.bindTooltip(`
-          <div class="tooltip-content">
+          <div class="tooltip-content" style="cursor: pointer;">
             <div class="tooltip-title">${markerData.title}</div>
             ${(markerData.address_line || (markerData.address && markerData.address.address_line)) ? `<div class="tooltip-address">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 384 512" fill="#2196F3">
@@ -806,24 +848,59 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           opacity: 1,
           className: "custom-tooltip",
           offset: [0, -10],
+          interactive: true, // Enable tooltips on mobile touch devices
         });
 
-        marker.on("click", () => {
-          // Update MapContext BEFORE navigating so background map has correct coordinates
-          setMapState({
-            center: { lat: markerData.lat, lng: markerData.lng },
-            zoom: 15
-          });
-
-          navigate(`/event/${markerData.id}`, {
-            state: {
-              background: location,  // Tells App.jsx to keep map mounted
-              mapState: {
-                center: { lat: markerData.lat, lng: markerData.lng },
-                zoom: 15
+        // Show tooltip on tap (mobile) or hover (desktop)
+        marker.on("click", (e) => {
+          // On mobile, open tooltip on first tap
+          if (!marker.isTooltipOpen()) {
+            marker.openTooltip();
+            e.originalEvent?.preventDefault?.();
+            return;
+          }
+          // If tooltip is already open, navigate (fallback for when tooltip click doesn't work)
+          if (marker.isTooltipOpen()) {
+            setMapState({
+              center: { lat: markerData.lat, lng: markerData.lng },
+              zoom: 15
+            });
+            navigate(`/event/${markerData.id}`, {
+              state: {
+                background: location,
+                mapState: {
+                  center: { lat: markerData.lat, lng: markerData.lng },
+                  zoom: 15
+                },
+                eventCoordinates: { lat: markerData.lat, lng: markerData.lng }
               },
-            },
-          });
+            });
+          }
+        });
+
+        // Handle tooltip clicks using mousedown/touchstart (fires before tooltip closes)
+        marker.on("tooltipopen", () => {
+          const tooltipElement = marker.getTooltip()?.getElement();
+          if (tooltipElement && !tooltipElement.dataset.listenerAdded) {
+            tooltipElement.dataset.listenerAdded = "true";
+            
+            const handleClick = () => {
+              // Navigate immediately - fires before Leaflet closes tooltip
+              if (window.handleTooltipNavigation) {
+                window.handleTooltipNavigation(markerData.id, markerData.lat, markerData.lng);
+              }
+            };
+            
+            // Use mousedown/touchstart instead of click - fires earlier
+            tooltipElement.addEventListener("mousedown", handleClick, true);
+            tooltipElement.addEventListener("touchstart", handleClick, true);
+            
+            const contentDiv = tooltipElement.querySelector('.tooltip-content');
+            if (contentDiv) {
+              contentDiv.addEventListener("mousedown", handleClick, true);
+              contentDiv.addEventListener("touchstart", handleClick, true);
+            }
+          }
         });
 
         // Only cluster normal markers when:
@@ -878,9 +955,17 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           opacity: 1,
           className: "custom-tooltip",
           offset: [0, -10],
+          interactive: true, // Enable tooltips on mobile touch devices
         });
 
-        // Friend marker click functionality removed
+        // Toggle tooltip on tap for mobile
+        marker.on("click", () => {
+          if (!marker.isTooltipOpen()) {
+            marker.openTooltip();
+          } else {
+            marker.closeTooltip();
+          }
+        });
 
         // When showing only friends and clustering is on, put close markers in the main friend cluster group
         // This allows close and normal friend markers to merge into a single cluster
@@ -932,9 +1017,17 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           opacity: 1,
           className: "custom-tooltip",
           offset: [0, -10],
+          interactive: true, // Enable tooltips on mobile touch devices
         });
 
-        // Friend marker click functionality removed
+        // Toggle tooltip on tap for mobile
+        marker.on("click", () => {
+          if (!marker.isTooltipOpen()) {
+            marker.openTooltip();
+          } else {
+            marker.closeTooltip();
+          }
+        });
 
         // Make this exactly match the project marker logic for clustering
         if (useClusteringForNormal) {
@@ -1234,6 +1327,31 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       setShowAppBanner(true);
     }
   }, [fromEvent, eventIdFromState]);
+
+  // Set up global handler for tooltip clicks - navigate and setMapState are stable
+  useEffect(() => {
+    window.handleTooltipNavigation = (eventId, lat, lng) => {
+      // Update MapContext BEFORE navigating so background map has correct coordinates
+      setMapState({
+        center: { lat, lng },
+        zoom: 15
+      });
+      navigate(`/event/${eventId}`, {
+        state: {
+          background: locationRef.current, // Use ref for location and Tells App.jsx to keep map mounted
+          mapState: {
+            center: { lat, lng },
+            zoom: 15
+          },
+          eventCoordinates: { lat, lng }
+        },
+      });
+    };
+    
+    return () => {
+      delete window.handleTooltipNavigation;
+    };
+  }, []); // Empty deps - navigate and setMapState are stable, location uses ref
 
   return (
     <>

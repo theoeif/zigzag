@@ -13,7 +13,7 @@ export const MapProvider = ({ children }) => {
     // Default: current date to current date + 1 month (one month range)
     const start = new Date();
     const end = new Date();
-    end.setMonth(end.getMonth() + 1);
+    end.setMonth(end.getMonth() + 2);
     return { start, end };
   });
 
