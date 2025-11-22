@@ -1,6 +1,11 @@
 # zigzag
 ---
 
+The project is live on : https://zigzag-project.org/
+
+The [ios App](https://apps.apple.com/us/app/zigzag-project/id6754614690) is also avalaiable.
+
+
 ## zigzag project
 
 The zigzag project is a **social project mapping platform** that allows users to create, share, and discover events on an interactive map. Users can organize friends into circles, create location-based events, and filter content by tags and timeline.
@@ -15,12 +20,8 @@ The zigzag project is a **social project mapping platform** that allows users to
 - **Maps:**  
   - **MapTiler** provides the **map data and visual tiles** (roads, buildings, terrain, etc.).  
   - **Leaflet** is the **map viewer** used to display and interact with maps in the browser.  
-  - **MapLibre GL Leaflet** connects Leaflet with MapTiler’s vector tiles for smooth, modern map rende
+  - **MapLibre GL Leaflet** connects Leaflet with MapTiler’s vector tiles for smooth, modern map render
 Package used : https://www.npmjs.com/package/@maplibre/maplibre-gl-leaflet.
-
-
- 
-The project is almost live and close to production readines : https://zigzag-project.org/
 
 
 ## 🔧 Project Setup
@@ -33,13 +34,11 @@ The project is almost live and close to production readines : https://zigzag-pro
 
 ---
 
+
+## Installation
+
 To dev in local and start contributing, please visit the wiki : [Setting Up your environment](https://github.com/theoeif/zigzag/wiki/Setting-Up-your-environment)
 
-
-## Handle postgres database
-
-To setup a postgres database, please visit the wiki : [Set Up a Postgres Database](https://github.com/theoeif/zigzag/wiki/SetUp-a-PostgreSQL-DB)
-Note : you can use default db.sqlite in local
 
 ## Known issues
 
@@ -63,4 +62,4 @@ Related projects : La carte des collocs, Leaflet
 
 [Doc github markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
-[Build doc landing page](https://github.com/cruip/open-react-template/) or [here](https://github.com/GrapesJS/grapesjs)
+[Build doc landing page](https://github.com/GrapesJS/grapesjs)
