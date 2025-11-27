@@ -66,12 +66,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Precision threshold for close markers (in kilometers)
   const CLOSE_MARKERS_THRESHOLD = 0.05; // 50 meters
-  // Threshold for offset calculation (in degrees)
-  const OFFSET_THRESHOLD = 0.02; // Approximately 2 km
   // Offset value for friend markers when too close to project markers (in degrees)
-  const MARKER_OFFSET = 0.005; // Small offset to northeast
-  // Larger offset for close markers (in degrees)
-  const CLOSE_MARKER_OFFSET = 0.010; // Double offset for close markers
+  const MARKER_OFFSET = 0.001; // Small offset to northeast
 
   // Tags and location
   const [tags, setTags] = useState([]);
@@ -591,30 +587,6 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   };
 
   /**
-  * Calculate if a my location marker is too close to any project marker
-   * @param {Object} friendMarker - Friend marker data
-   * @param {Array} projectMarkers - Array of project marker data
-   * @returns {boolean} True if markers are too close
-   */
-  const isTooCloseToProject = (friendMarker, projectMarkers) => {
-    if (!friendMarker || !friendMarker.lat || !friendMarker.lng || !projectMarkers || !Array.isArray(projectMarkers)) {
-      return false;
-    }
-
-    return projectMarkers.some(projectMarker => {
-      if (!projectMarker || !projectMarker.lat || !projectMarker.lng) {
-        return false;
-      }
-
-      // Check if coordinate distance is less than threshold
-      const latDiff = Math.abs(friendMarker.lat - projectMarker.lat);
-      const lngDiff = Math.abs(friendMarker.lng - projectMarker.lng);
-
-      return latDiff < OFFSET_THRESHOLD && lngDiff < OFFSET_THRESHOLD;
-    });
-  };
-
-  /**
   * Apply small offset to my location markers that are too close to project markers
    * @param {Array} friendMarkers - Array of friend marker data
    * @param {Array} projectMarkers - Array of project marker data
@@ -632,24 +604,26 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
       // Only apply offset when both filter types are active
       if (showProjects && showFriendLocations) {
-        // Find if this marker is close to any project marker
+        // Find if this marker is close to any project marker using distance calculation
         const closeProject = projectMarkers.find(projectMarker => {
           if (!projectMarker || !projectMarker.lat || !projectMarker.lng) {
             return false;
           }
 
-          // Check if coordinate distance is less than threshold
-          const latDiff = Math.abs(friendMarker.lat - projectMarker.lat);
-          const lngDiff = Math.abs(friendMarker.lng - projectMarker.lng);
+          // Use the same distance calculation as groupCloseMarkers for consistency
+          const distance = calculateDistance(
+            friendMarker.lat, 
+            friendMarker.lng, 
+            projectMarker.lat, 
+            projectMarker.lng
+          );
 
-          return latDiff < OFFSET_THRESHOLD && lngDiff < OFFSET_THRESHOLD;
+          // Only apply offset if markers are within the close markers threshold (50 meters)
+          return distance <= CLOSE_MARKERS_THRESHOLD;
         });
 
         if (closeProject) {
-          // Apply normal or larger offset based on whether the markers are "close" markers
-          const offsetAmount = (friendMarker.isCloseMarker && closeProject.isCloseMarker)
-            ? CLOSE_MARKER_OFFSET
-            : MARKER_OFFSET;
+          const offsetAmount = MARKER_OFFSET
 
           return {
             ...friendMarker,
