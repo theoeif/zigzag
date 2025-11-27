@@ -143,6 +143,14 @@ body, html {
 
 .leaflet-tooltip.custom-tooltip {
   white-space: normal; /* Allow text wrapping */
+  pointer-events: auto !important; /* Ensure tooltips can receive clicks */
+  touch-action: auto !important; /* Allow touch interactions */
+}
+
+.custom-tooltip .tooltip-content {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  -webkit-tap-highlight-color: rgba(52, 211, 153, 0.2); /* Visual feedback on tap */
 }
 
 /* Enhanced tooltip styles */
@@ -1791,7 +1799,7 @@ input:checked + .slider:before {
 }
 
 .marker-cluster.friend-cluster div {
-  background-color: rgba(90, 150, 230, 0.8); /* Increased opacity */
+  background-color:rgba(90, 150, 230, 0.8); /* Increased opacity  */
   color: white;
 }
 
