@@ -67,7 +67,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   // Precision threshold for close markers (in kilometers)
   const CLOSE_MARKERS_THRESHOLD = 0.05; // 50 meters
   // Offset value for friend markers when too close to project markers (in degrees)
-  const MARKER_OFFSET = 0.001; // Small offset to northeast
+  const MARKER_OFFSET = 0.0005; // Small offset to northeast
 
   // Tags and location
   const [tags, setTags] = useState([]);
