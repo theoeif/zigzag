@@ -257,9 +257,11 @@ const LeftMenu = ({ closeMenu }) => {
       setActiveButton("profile");
       localStorage.setItem('activeMenuButton', "profile");
       navigate(`/profile/${result.name}`);
+      closeMenu();
     } else if (result.type === "project") {
       // Navigate to DirectEventLinkView for project details
       navigate(`/event/${result.id}`);
+      closeMenu();
     }
   };
 
