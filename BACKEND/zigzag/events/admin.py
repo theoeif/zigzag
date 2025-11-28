@@ -28,7 +28,9 @@ class CustomUserAdmin(UserAdmin):
     )
     readonly_fields = ('friends_section',)
 
-    list_display = ('username', 'email', 'first_name', 'last_name', 'friends_count')
+    list_display = ('username', 'email', 'friends_count', 'date_joined')
+    list_filter = ('date_joined', 'is_active', 'is_staff', 'is_superuser')
+    date_hierarchy = 'date_joined'
 
     def friends_count(self, obj):
         """Count all unique users sharing any circle with this user."""
@@ -55,7 +57,14 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 
 # ----- OTHER MODELS -----
-admin.site.register(Address)
+
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ['address_line', 'city', 'country', 'created_at']
+    list_filter = ['created_at', 'country', 'city']
+    search_fields = ['address_line', 'city', 'country']
+    date_hierarchy = 'created_at'
+
+admin.site.register(Address, AddressAdmin)
 admin.site.register(Tag)
 
 # ----- CIRCLE ADMIN -----
@@ -78,9 +87,10 @@ admin.site.register(Circle, CircleAdmin)
 # ----- EVENT ADMIN -----
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ['title', 'creator', 'get_address', 'get_lat', 'get_lng']
+    list_display = ['title', 'creator', 'get_address', 'get_lat', 'get_lng', 'created_at']
     search_fields = ['title', 'description', 'address__address_line']
-    list_filter = ['created_at']
+    list_filter = ['created_at', 'creator']
+    date_hierarchy = 'created_at'
 
     def get_address(self, obj):
         return obj.address.address_line if obj.address else "-"
