@@ -281,6 +281,15 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     };
     maptilerLogo.addTo(map);
 
+    // Add scale control in bottom right, above credits
+    const scaleControl = L.control.scale({
+      position: 'bottomright',
+      metric: true,
+      imperial: false,
+      maxWidth: 150
+    });
+    scaleControl.addTo(map);
+
     // Prevent world wrapping - set max bounds to the world
     const worldBounds = L.latLngBounds(
       L.latLng(-70, -160),  // Southwest corner

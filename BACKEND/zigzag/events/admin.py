@@ -87,9 +87,9 @@ admin.site.register(Circle, CircleAdmin)
 # ----- EVENT ADMIN -----
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ['title', 'creator', 'get_address', 'get_lat', 'get_lng', 'created_at']
+    list_display = ['title', 'creator', 'get_address', 'get_lat', 'get_lng', 'start_time', 'created_at']
     search_fields = ['title', 'description', 'address__address_line']
-    list_filter = ['created_at', 'creator']
+    list_filter = ['created_at']
     date_hierarchy = 'created_at'
 
     def get_address(self, obj):
