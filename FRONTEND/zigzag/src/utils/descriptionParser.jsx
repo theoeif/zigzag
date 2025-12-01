@@ -10,6 +10,7 @@ import React from 'react';
 export const parseDescriptionWithLinks = (text) => {
   if (!text) return [];
   
+  // Original simple pattern - allows all non-whitespace characters (including _, ?, etc.)
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = [];
   let lastIndex = 0;
@@ -24,14 +25,45 @@ export const parseDescriptionWithLinks = (text) => {
       });
     }
     
-    // Add the URL as a link
+    let url = match[0];
+    let urlEndIndex = match.index + url.length;
+    
+    // Only check for trailing period (.), comma (,), or closing parenthesis ())
+    // These are the only punctuation we want to exclude from URLs
+    if (url.endsWith('.') || url.endsWith(',') || url.endsWith(')')) {
+      const nextChar = text[urlEndIndex];
+      // If next char is whitespace or end of string, exclude the trailing punctuation
+      if (!nextChar || /\s/.test(nextChar)) {
+        const punct = url[url.length - 1];
+        url = url.slice(0, -1);
+        urlEndIndex = match.index + url.length;
+        
+        // Add URL as link
+        parts.push({
+          type: 'link',
+          content: url,
+          url: url
+        });
+        
+        // Add punctuation as text
+        parts.push({
+          type: 'text',
+          content: punct
+        });
+        
+        lastIndex = urlEndIndex + 1; // +1 for the punctuation
+        continue;
+      }
+    }
+    
+    // Add the URL as a link (no trailing punctuation to remove)
     parts.push({
       type: 'link',
-      content: match[0],
-      url: match[0]
+      content: url,
+      url: url
     });
     
-    lastIndex = match.index + match[0].length;
+    lastIndex = urlEndIndex;
   }
   
   // Add remaining text after the last URL
@@ -42,15 +74,25 @@ export const parseDescriptionWithLinks = (text) => {
     });
   }
   
+  // Merge consecutive text parts
+  const mergedParts = [];
+  for (let i = 0; i < parts.length; i++) {
+    if (i > 0 && parts[i].type === 'text' && parts[i - 1].type === 'text') {
+      mergedParts[mergedParts.length - 1].content += parts[i].content;
+    } else {
+      mergedParts.push(parts[i]);
+    }
+  }
+  
   // If no URLs were found, return the whole text as a single text part
-  if (parts.length === 0) {
-    parts.push({
+  if (mergedParts.length === 0) {
+    mergedParts.push({
       type: 'text',
       content: text
     });
   }
   
-  return parts;
+  return mergedParts;
 };
 
 /**
