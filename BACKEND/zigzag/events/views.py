@@ -1017,7 +1017,7 @@ class ICalDownloadView(APIView):
         cal.add('x-wr-calname', f'ZIGZAG Events - {user.username}')
         cal.add('x-wr-timezone', 'Europe/Paris')
 
-        # Add events to calendar - create dual events for each event
+        # Add events to calendar - logic depends on event duration
         for event in events:
             from datetime import timedelta
             
@@ -1051,26 +1051,44 @@ class ICalDownloadView(APIView):
                 
                 return vevent
 
-            # Create first event (start time)
-            start_end_time = event.start_time + timedelta(hours=2)
-            start_event = create_calendar_event(
-                event.start_time,
-                start_end_time,
-                f'zigzag-{event.id}-start@zigzag.com',
-                f'{event.title} (Début)'
-            )
-            cal.add_component(start_event)
-
-            # Create second event (end time) - only if end_time exists
+            # Calculate event duration
             if event.end_time:
-                end_end_time = event.end_time + timedelta(hours=2)
-                end_event = create_calendar_event(
+                duration = event.end_time - event.start_time
+                is_less_than_24h = duration.total_seconds() < 86400  # 24 hours in seconds
+            else:
+                is_less_than_24h = False
+
+            if is_less_than_24h and event.end_time:
+                # Event < 24h: Create one event with actual start_time and end_time
+                single_event = create_calendar_event(
+                    event.start_time,
                     event.end_time,
-                    end_end_time,
-                    f'zigzag-{event.id}-end@zigzag.com',
-                    f'{event.title} (Fin)'
+                    f'zigzag-{event.id}@zigzag.com',
+                    event.title
                 )
-                cal.add_component(end_event)
+                cal.add_component(single_event)
+            else:
+                # Event >= 24h: Create two events (start and end)
+                # Create first event (start time)
+                start_end_time = event.start_time + timedelta(hours=2)
+                start_event = create_calendar_event(
+                    event.start_time,
+                    start_end_time,
+                    f'zigzag-{event.id}-start@zigzag.com',
+                    f'{event.title} (Début)'
+                )
+                cal.add_component(start_event)
+
+                # Create second event (end time) - only if end_time exists
+                if event.end_time:
+                    end_end_time = event.end_time + timedelta(hours=2)
+                    end_event = create_calendar_event(
+                        event.end_time,
+                        end_end_time,
+                        f'zigzag-{event.id}-end@zigzag.com',
+                        f'{event.title} (Fin)'
+                    )
+                    cal.add_component(end_event)
 
         # Generate response
         response = HttpResponse(cal.to_ical(), content_type='text/calendar; charset=utf-8')

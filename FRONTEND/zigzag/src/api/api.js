@@ -924,13 +924,16 @@ export const downloadSingleEventICal = async (event) => {
       return parts.join(', ');
     })();
 
-    // Generate unique IDs for the events
-    const eventId1 = `zigzag-${event.id}-start@zigzag.com`;
-    const eventId2 = `zigzag-${event.id}-end@zigzag.com`;
+    // Calculate event duration
+    const startTime = new Date(event.start_time);
+    const endTime = event.end_time ? new Date(event.end_time) : null;
+    const durationHours = endTime ? (endTime - startTime) / (1000 * 60 * 60) : 0;
+    const isLessThan24Hours = endTime && durationHours < 24;
+
     const now = formatDate(new Date());
     
     // Create a safe filename from the event title
-    const createSafeFilename = (title, eventId) => {
+    const createSafeFilename = (title, suffix = '') => {
       // Remove or replace characters that are not safe for filenames
       const safeTitle = title
         .replace(/[<>:"/\\|?*]/g, '') // Remove invalid filename characters
@@ -939,17 +942,23 @@ export const downloadSingleEventICal = async (event) => {
         .trim();
       
       // Fallback to event ID if title is empty or only special characters
-      const filename = safeTitle || `event-${eventId}`;
+      const filename = safeTitle || `event-${event.id}`;
+      const suffixPart = suffix ? `-${suffix}` : '';
       
-      return `zigzag-${filename}.ics`;
+      return `zigzag-${filename}${suffixPart}.ics`;
     };
     
-    // Create two events: one for start_time and one for end_time
-    const createEvent = (startTime, endTime, uid, summary) => {
+    // Create iCal content for a single event
+    const createICalContent = (startTime, endTime, uid, summary) => {
       const startDate = formatDate(startTime);
       const endDate = formatDate(endTime);
       
-      return `BEGIN:VEVENT
+      return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ZIGZAG//Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
 UID:${uid}
 DTSTAMP:${now}
 DTSTART:${startDate}
@@ -958,72 +967,97 @@ SUMMARY:${summary}
 DESCRIPTION:${eventDescription.replace(/\n/g, '\\n')}
 LOCATION:${eventLocation}
 STATUS:CONFIRMED
-END:VEVENT`;
-    };
-    
-    // Create iCal content with two events
-    const icalContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//ZIGZAG//Events//EN
-CALSCALE:GREGORIAN
-METHOD:PUBLISH
-${createEvent(
-  event.start_time,
-  new Date(new Date(event.start_time).getTime() + 2 * 60 * 60 * 1000),
-  eventId1,
-  `${eventTitle} (Début)`
-)}
-${event.end_time ? createEvent(
-  event.end_time,
-  new Date(new Date(event.end_time).getTime() + 2 * 60 * 60 * 1000),
-  eventId2,
-  `${eventTitle} (Fin)`
-) : ''}
+END:VEVENT
 END:VCALENDAR`;
+    };
 
-    if (Capacitor.isNativePlatform()) {
-      // MOBILE: Use Capacitor Share API
-      const fileName = createSafeFilename(event.title, event.id);
+    // Helper function to download a single file
+    const downloadFile = async (icalContent, fileName) => {
+      if (Capacitor.isNativePlatform()) {
+        // MOBILE: Use Capacitor Share API
+        // First save to a temporary location
+        await Filesystem.writeFile({
+          path: fileName,
+          data: icalContent,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        });
+
+        // Get the file URI
+        const fileUri = await Filesystem.getUri({
+          directory: Directory.Cache,
+          path: fileName,
+        });
+
+        // Share the file - this opens the native share sheet
+        await Share.share({
+          title: 'Ajouter au calendrier',
+          text: `Événement: ${event.title}`,
+          url: fileUri.uri,
+          dialogTitle: 'Choisir une application',
+        });
+
+        // Clean up the temporary file
+        await Filesystem.deleteFile({
+          directory: Directory.Cache,
+          path: fileName,
+        });
+      } else {
+        // WEB: Use traditional web download
+        const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+    };
+
+    if (isLessThan24Hours && endTime) {
+      // Event < 24h: Create one file with actual start_time and end_time
+      const eventId = `zigzag-${event.id}@zigzag.com`;
+      const icalContent = createICalContent(startTime, endTime, eventId, eventTitle);
+      const fileName = createSafeFilename(event.title);
       
-      // First save to a temporary location
-      await Filesystem.writeFile({
-        path: fileName,
-        data: icalContent,
-        directory: Directory.Cache,
-        encoding: Encoding.UTF8,
-      });
-
-      // Get the file URI
-      const fileUri = await Filesystem.getUri({
-        directory: Directory.Cache,
-        path: fileName,
-      });
-
-      // Share the file - this opens the native share sheet
-      await Share.share({
-        title: 'Ajouter au calendrier',
-        text: `Événement: ${event.title}`,
-        url: fileUri.uri,
-        dialogTitle: 'Choisir une application',
-      });
-
-      // Clean up the temporary file
-      await Filesystem.deleteFile({
-        directory: Directory.Cache,
-        path: fileName,
-      });
+      await downloadFile(icalContent, fileName);
     } else {
-      // WEB: Use traditional web download
-      const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = createSafeFilename(event.title, event.id);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
+      // Event >= 24h: Create two separate files
+      const eventId1 = `zigzag-${event.id}-start@zigzag.com`;
+      const eventId2 = `zigzag-${event.id}-end@zigzag.com`;
       
-      alert("À ouvrir dans votre calendrier !");
+      // File 1: Start event (start_time to start_time + 2 hours)
+      const startEndTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
+      const icalContent1 = createICalContent(
+        startTime,
+        startEndTime,
+        eventId1,
+        `${eventTitle} (Début)`
+      );
+      const fileName1 = createSafeFilename(event.title, 'Debut');
+      
+      await downloadFile(icalContent1, fileName1);
+      
+      // Small delay between downloads to ensure both files are processed
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // File 2: End event (end_time to end_time + 2 hours) - only if end_time exists
+      if (endTime) {
+        const endEndTime = new Date(endTime.getTime() + 2 * 60 * 60 * 1000);
+        const icalContent2 = createICalContent(
+          endTime,
+          endEndTime,
+          eventId2,
+          `${eventTitle} (Fin)`
+        );
+        const fileName2 = createSafeFilename(event.title, 'Fin');
+        
+        await downloadFile(icalContent2, fileName2);
+        
+        // Small delay after second download
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
     }
 
     return true;
