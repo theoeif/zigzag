@@ -373,9 +373,9 @@ const EditEventForm = ({ eventData, onClose, onEventUpdated, setEditMode, setIsM
             <div
               className={styles.localizedInfoProject}
               style={{
-                maxHeight: '150px',
-                overflowY: 'auto',
-                WebkitOverflowScrolling: 'touch',
+                maxHeight: 'none',
+                overflowY: 'visible',
+                WebkitOverflowScrolling: 'auto',
                 scrollBehavior: 'smooth',
                 padding: '10px 15px',
                 backgroundColor: '#f5f5f5',

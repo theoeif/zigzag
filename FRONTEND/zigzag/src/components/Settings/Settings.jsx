@@ -451,7 +451,7 @@ const Settings = () => {
           <p>
             Si vous souhaitez supprimer votre compte, veuillez remplir le formulaire ci-dessous.
             Nous traiterons votre demande dans les plus brefs délais.   
-            Au Maximum 30 jours pour une suppression complète.
+            Au maximum 30 jours pour une suppression complète.
           </p>
           <form onSubmit={handleDeletionSubmit} className={styles.passwordForm} aria-label="Formulaire de demande de suppression de compte">
             {/* Honeypot field (do not remove) */}

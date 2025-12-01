@@ -169,6 +169,16 @@ const Profile = () => {
     }
   };
 
+  // Clear a specific day's time range
+  const handleClearDay = (day) => {
+    const newTimetable = {
+      ...timetable,
+      [day]: { start: null, end: null }
+    };
+    setTimetable(newTimetable);
+    setSelectedDay(null);
+  };
+
   // Removed loading check - render content immediately
 
   return (
@@ -244,6 +254,7 @@ const Profile = () => {
           onCancelSelectDay={() => setSelectedDay(null)}
           onToggleRemoteDay={handleRemoteDayClick}
           onChangeLookingFor={(val) => setLookingFor(val)}
+          onClearDay={handleClearDay}
         />
       </div>
 

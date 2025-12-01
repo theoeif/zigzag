@@ -38,6 +38,15 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
   const openGoogleMaps = (e) => {
     e.stopPropagation(); // Prevent other click handlers from firing
 
+    // Don't redirect if user has selected text (long press or selection)
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length > 0) {
+      // User is selecting text, don't redirect
+      return;
+    }
+
     // Get latitude and longitude values
     let latitude = null;
     let longitude = null;
@@ -109,7 +118,10 @@ const AddressItem = ({ address, isManageMode, onLabelUpdate, onDelete }) => {
     >
       <Box className={styles.addressTextContainer} sx={{ flex: 1 }} onClick={openGoogleMaps}>
         <Typography variant="body1" sx={{
-          '&:hover': { color: '#4285F4' }
+          '&:hover': { color: '#4285F4' },
+          userSelect: 'text',
+          WebkitUserSelect: 'text',
+          msUserSelect: 'text'
         }}>
           {address.address?.address_line}
         </Typography>
