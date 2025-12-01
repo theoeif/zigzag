@@ -3,6 +3,7 @@ import { API_BASE_URL } from "../config";
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
+import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 
 // Single in-flight refresh promise to throttle concurrent refreshes
 let refreshPromise = null;
@@ -974,8 +975,9 @@ END:VCALENDAR`;
     // Helper function to download a single file
     const downloadFile = async (icalContent, fileName) => {
       if (Capacitor.isNativePlatform()) {
-        // MOBILE: Use Capacitor Share API
-        // First save to a temporary location
+        // MOBILE: Use FileOpener to open directly in Calendar app
+        
+        // 1. Write file to cache
         await Filesystem.writeFile({
           path: fileName,
           data: icalContent,
@@ -983,25 +985,31 @@ END:VCALENDAR`;
           encoding: Encoding.UTF8,
         });
 
-        // Get the file URI
+        // 2. Get the URI
         const fileUri = await Filesystem.getUri({
           directory: Directory.Cache,
           path: fileName,
         });
 
-        // Share the file - this opens the native share sheet
-        await Share.share({
-          title: 'Ajouter au calendrier',
-          text: `Événement: ${event.title}`,
-          url: fileUri.uri,
-          dialogTitle: 'Choisir une application',
-        });
-
-        // Clean up the temporary file
-        await Filesystem.deleteFile({
-          directory: Directory.Cache,
-          path: fileName,
-        });
+        // 3. Open with FileOpener (instead of Share)
+        try {
+            await FileOpener.openFile({
+                path: fileUri.uri,
+                mimeType: 'text/calendar', // Important for opening in Calendar
+            });
+        } catch (err) {
+            console.error('Error opening file:', err);
+            // Fallback to Share if FileOpener fails
+            await Share.share({
+                title: 'Ajouter au calendrier',
+                text: `Événement: ${event.title}`,
+                url: fileUri.uri,
+                dialogTitle: 'Ajouter au calendrier',
+            });
+        }
+        
+        // We don't delete the file immediately as FileOpener might need it
+        // The OS cache will handle cleanup eventually
       } else {
         // WEB: Use traditional web download
         const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
