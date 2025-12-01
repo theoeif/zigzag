@@ -421,6 +421,7 @@ li {
   display: flex;
   justify-content: space-between;
   margin-top: 25px;
+  gap: 10px;
 }
 
 .timeRangePicker button {
@@ -431,6 +432,7 @@ li {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 1rem;
+  flex: 1;
 }
 
 .timeRangePicker button:first-child {
@@ -440,6 +442,17 @@ li {
 
 .timeRangePicker button:first-child:hover {
   background-color: #2d6a4f;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.clearButton {
+  background-color: #f1f1f1 !important;
+  color: #333 !important;
+}
+
+.clearButton:hover {
+  background-color: #e0e0e0 !important;
   transform: translateY(-2px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
