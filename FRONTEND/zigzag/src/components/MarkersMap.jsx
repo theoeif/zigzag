@@ -929,7 +929,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               ${markerData.address_line}
             </div>` : ''}
             <div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
-              <span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">
+              <span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500;">
                 ${markerData.label && markerData.label !== markerData.address_line ? markerData.label : 'No Label'}
               </span>
             </div>
@@ -991,7 +991,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
               ${markerData.address_line}
             </div>` : ''}
             <div class="tooltip-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
-              <span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500; text-transform: lowercase;">
+              <span class="tooltip-tag" style="background-color: #f0f7f4; color: #2d6a4f; border-radius: 12px; padding: 2px 8px; font-size: 0.8rem; font-weight: 500;">
                 ${markerData.label && markerData.label !== markerData.address_line ? markerData.label : 'No Label'}
               </span>
             </div>

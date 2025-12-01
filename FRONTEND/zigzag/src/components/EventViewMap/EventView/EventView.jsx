@@ -11,6 +11,7 @@ import MarkersMap from "../../MarkersMap";
 import CircleMembersPopup from "../../Project/CircleMembersPopup";
 import EventDetailsSection from "../../Project/EventDetailsSection";
 import { isMobileDevice } from "../../../utils/mobileDetection";
+import { renderDescriptionWithLinks } from "../../../utils/descriptionParser.jsx";
 import {
   FaMapMarkerAlt,
   FaUser,
@@ -1031,20 +1032,32 @@ const EventView = ({
                     borderRadius: "10px",
                     border: "1px solid #eee",
                     boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+                    overflow: "hidden",
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word"
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                       <FaInfoCircle style={{ color: "#2d6a4f" }} />
                       <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#2d2d2d" }}>Description</span>
                     </div>
-                    <div>
+                    <div style={{
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                      maxWidth: "100%"
+                    }}>
                       {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
                         <div key={idx} style={{
                           margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
                           fontSize: '0.95rem',
                           lineHeight: 1.5,
                           color: '#333',
-                          whiteSpace: 'pre-line'
-                        }}>{para}</div>
+                          whiteSpace: 'pre-line',
+                          userSelect: 'text',
+                          WebkitUserSelect: 'text',
+                          msUserSelect: 'text',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word'
+                        }}>{renderDescriptionWithLinks(para)}</div>
                       ))}
                     </div>
                   </div>
@@ -1206,50 +1219,6 @@ const EventView = ({
     return (
       <div style={styles.modal.overlay} onClick={onClose}>
         <div style={styles.card} onClick={(e) => e.stopPropagation()}>
-          {/* Close button - positioned outside scrollable area */}
-          <div style={{
-            position: "absolute",
-            top: "15px",
-            left: "15px",
-            zIndex: 1000
-          }}>
-            <button
-              type="button"
-              style={{
-                background: "none",
-                border: "none",
-                fontSize: isMobile ? "32px" : "24px",
-                cursor: "pointer",
-                color: "#777",
-                padding: "4px 8px",
-                margin: "0",
-                lineHeight: 1,
-                transition: "all 0.2s ease",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: isMobile ? "48px" : "40px",
-                height: isMobile ? "48px" : "40px",
-                borderRadius: "4px"
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#333";
-                e.currentTarget.style.backgroundColor = "#f5f5f5";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#777";
-                e.currentTarget.style.backgroundColor = "transparent";
-              }}
-              title="Fermer"
-            >
-              ✕
-            </button>
-          </div>
-          
           {/* Date display in right corner with click interaction */}
           <div
             style={{
@@ -1350,20 +1319,32 @@ const EventView = ({
                   borderRadius: "10px",
                   border: "1px solid #eee",
                   boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+                  overflow: "hidden",
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word"
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <FaInfoCircle style={{ color: "#2d6a4f" }} />
                     <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#2d2d2d" }}>Description</span>
                   </div>
-                  <div>
+                  <div style={{
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word",
+                    maxWidth: "100%"
+                  }}>
                     {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
                       <div key={idx} style={{
                         margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
                         fontSize: '0.95rem',
                         lineHeight: 1.5,
                         color: '#333',
-                        whiteSpace: 'pre-line'
-                      }}>{para}</div>
+                        whiteSpace: 'pre-line',
+                        userSelect: 'text',
+                        WebkitUserSelect: 'text',
+                        msUserSelect: 'text',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word'
+                      }}>{renderDescriptionWithLinks(para)}</div>
                     ))}
                   </div>
                 </div>

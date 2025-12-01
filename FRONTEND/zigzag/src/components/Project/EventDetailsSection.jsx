@@ -6,6 +6,7 @@ import { FRONTEND_URL } from '../../config';
 import { generateEventInvite } from '../../api/api';
 import EventModal from './EventModal';
 import styles from './Project.module.css';
+import { renderDescriptionWithLinks } from '../../utils/descriptionParser.jsx';
 
 const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) => {
   const [urlCopied, setUrlCopied] = useState(false);
@@ -156,6 +157,15 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
   const openGoogleMaps = (e) => {
     e.preventDefault();
 
+    // Don't redirect if user has selected text (long press or selection)
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length > 0) {
+      // User is selecting text, don't redirect
+      return;
+    }
+
     // Get latitude and longitude values
     let latitude = null;
     let longitude = null;
@@ -303,7 +313,13 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
               }}>
                 <FaMapMarkerAlt style={{ fontSize: '32px', color: '#e63946', marginBottom: '8px' }} />
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                  <div style={{ 
+                    fontWeight: 'bold', 
+                    marginBottom: '4px',
+                    userSelect: 'text',
+                    WebkitUserSelect: 'text',
+                    msUserSelect: 'text'
+                  }}>
                     {event.address.address_line}
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#666' }}>
@@ -317,7 +333,14 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
 
         <div className={styles.fullDescriptionProject} style={{ marginBottom: '20px' }}>
           <strong>Description</strong>
-          <div style={{ whiteSpace: 'pre-line' }}>{event.description || "Aucune description fournie pour cet événement."}</div>
+          <div style={{ 
+            whiteSpace: 'pre-line',
+            userSelect: 'text',
+            WebkitUserSelect: 'text',
+            msUserSelect: 'text'
+          }}>
+            {event.description ? renderDescriptionWithLinks(event.description) : "Aucune description fournie pour cet événement."}
+          </div>
         </div>
 
         {/* Dates section */}

@@ -10,6 +10,7 @@ import styles from './Project.module.css';
 import EventDetailsSection from './EventDetailsSection';
 import EventModal from './EventModal';
 import { downloadSingleEventICal, generateEventInvite } from '../../api/api';
+import { renderDescriptionWithLinks } from '../../utils/descriptionParser.jsx';
 
 const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, onViewCircleMembers, onDetailsToggle, autoOpen = false, onAutoOpened }) => {
   const [showDetails, setShowDetails] = useState(false);
@@ -593,8 +594,15 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
           {/* Show description preview in main view */}
           {event.description && (
             <div className={styles.descriptionPreviewProject}>
-              <div style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-                {getDescriptionExcerpt(event.description)}
+              <div style={{ 
+                whiteSpace: 'pre-line', 
+                wordWrap: 'break-word', 
+                overflowWrap: 'break-word',
+                userSelect: 'text',
+                WebkitUserSelect: 'text',
+                msUserSelect: 'text'
+              }}>
+                {renderDescriptionWithLinks(getDescriptionExcerpt(event.description))}
               </div>
             </div>
           )}
