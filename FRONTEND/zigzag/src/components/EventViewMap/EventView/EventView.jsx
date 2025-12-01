@@ -11,6 +11,7 @@ import MarkersMap from "../../MarkersMap";
 import CircleMembersPopup from "../../Project/CircleMembersPopup";
 import EventDetailsSection from "../../Project/EventDetailsSection";
 import { isMobileDevice } from "../../../utils/mobileDetection";
+import { renderDescriptionWithLinks } from "../../../utils/descriptionParser.jsx";
 import {
   FaMapMarkerAlt,
   FaUser,
@@ -1043,8 +1044,11 @@ const EventView = ({
                           fontSize: '0.95rem',
                           lineHeight: 1.5,
                           color: '#333',
-                          whiteSpace: 'pre-line'
-                        }}>{para}</div>
+                          whiteSpace: 'pre-line',
+                          userSelect: 'text',
+                          WebkitUserSelect: 'text',
+                          msUserSelect: 'text'
+                        }}>{renderDescriptionWithLinks(para)}</div>
                       ))}
                     </div>
                   </div>
@@ -1318,8 +1322,11 @@ const EventView = ({
                         fontSize: '0.95rem',
                         lineHeight: 1.5,
                         color: '#333',
-                        whiteSpace: 'pre-line'
-                      }}>{para}</div>
+                        whiteSpace: 'pre-line',
+                        userSelect: 'text',
+                        WebkitUserSelect: 'text',
+                        msUserSelect: 'text'
+                      }}>{renderDescriptionWithLinks(para)}</div>
                     ))}
                   </div>
                 </div>
