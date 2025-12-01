@@ -76,7 +76,10 @@ export const renderDescriptionWithLinks = (text) => {
             userSelect: 'text',
             WebkitUserSelect: 'text',
             msUserSelect: 'text',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
+            hyphens: 'auto'
           }}
           onClick={(e) => e.stopPropagation()}
         >
