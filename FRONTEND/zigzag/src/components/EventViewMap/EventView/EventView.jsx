@@ -1032,12 +1032,19 @@ const EventView = ({
                     borderRadius: "10px",
                     border: "1px solid #eee",
                     boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+                    overflow: "hidden",
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word"
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                       <FaInfoCircle style={{ color: "#2d6a4f" }} />
                       <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#2d2d2d" }}>Description</span>
                     </div>
-                    <div>
+                    <div style={{
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                      maxWidth: "100%"
+                    }}>
                       {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
                         <div key={idx} style={{
                           margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
@@ -1047,7 +1054,9 @@ const EventView = ({
                           whiteSpace: 'pre-line',
                           userSelect: 'text',
                           WebkitUserSelect: 'text',
-                          msUserSelect: 'text'
+                          msUserSelect: 'text',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word'
                         }}>{renderDescriptionWithLinks(para)}</div>
                       ))}
                     </div>
@@ -1310,12 +1319,19 @@ const EventView = ({
                   borderRadius: "10px",
                   border: "1px solid #eee",
                   boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+                  overflow: "hidden",
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word"
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <FaInfoCircle style={{ color: "#2d6a4f" }} />
                     <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#2d2d2d" }}>Description</span>
                   </div>
-                  <div>
+                  <div style={{
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word",
+                    maxWidth: "100%"
+                  }}>
                     {getDescriptionPreviewParagraphs(event.description).map((para, idx) => (
                       <div key={idx} style={{
                         margin: idx === 0 ? '0 0 10px 0' : '10px 0 0 0',
@@ -1325,7 +1341,9 @@ const EventView = ({
                         whiteSpace: 'pre-line',
                         userSelect: 'text',
                         WebkitUserSelect: 'text',
-                        msUserSelect: 'text'
+                        msUserSelect: 'text',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word'
                       }}>{renderDescriptionWithLinks(para)}</div>
                     ))}
                   </div>
