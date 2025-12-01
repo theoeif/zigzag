@@ -609,9 +609,10 @@ const CalendarView = () => {
       // Create a 30-minute duration for the display event
       const displayEnd = new Date(displayStart.getTime() + 30 * 60 * 1000);
 
+      const eventCount = events.length;
       return {
         id: `grey-${timeSlotKey}`,
-        title: `${events.length} event${events.length > 1 ? 's' : ''}`,
+        title: eventCount === 1 ? '1 évènement' : `${eventCount} évènements`,
         start: displayStart.toISOString(),
         end: displayEnd.toISOString(),
         allDay: false,
@@ -646,7 +647,7 @@ const CalendarView = () => {
       return (
         <div className={styles.greyEventContent}>
           <span className={styles.greyEventText}>
-            {eventCount} event{eventCount > 1 ? 's' : ''}
+            {eventCount === 1 ? '1 évènement' : `${eventCount} évènements`}
           </span>
         </div>
       );
@@ -889,12 +890,15 @@ const CalendarView = () => {
             myList: {
               type: 'list',
               buttonText: 'Liste',
+              noEventsMessage: 'Aucun événement',
               visibleRange: (currentDate) => {
                 const { start, end } = getMonthAlignedRange(currentDate, listMonths);
                 return { start, end };
               }
             }
           }}
+          listDayFormat={{ weekday: 'short', day: 'numeric', month: 'short' }}
+          listDaySideFormat={false}
           select={(info) => {
             // User selected an interval (start/end)
             console.log('selected interval:', info.start, info.end);
