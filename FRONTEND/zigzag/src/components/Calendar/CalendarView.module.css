@@ -1364,6 +1364,10 @@
   text-decoration-thickness: 2px;
   color: #40916c !important;
 }
+   /* Hide "no events" message in list view */
+.fullCalendar :global(.fc-list-empty) {
+  display: none !important;
+}
 
 /* Mobile: hide event titles in Month (daygrid) view for compact display */
 @media (max-width: 768px) {

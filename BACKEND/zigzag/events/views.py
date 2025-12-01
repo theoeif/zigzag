@@ -1119,8 +1119,23 @@ class CircleGreyEventsView(APIView):
                 "error": f"Not enough members to display events. Need at least {min_members} members."
             }, status=status.HTTP_403_FORBIDDEN)
 
-        # Get all events from selected circles (only temporal data)
-        events = Event.objects.filter(circles__in=circles).distinct()
+        # Get member IDs from selected circles
+        member_ids = list(unique_member_ids)
+        
+        # Get events from selected circles (only temporal data)
+        events_from_circles = Event.objects.filter(circles__in=circles).distinct()
+        
+        # Get solo events where creator is a member of selected circles and has no circles
+        solo_events = Event.objects.filter(
+            creator__id__in=member_ids,
+            circles__isnull=True
+        ).distinct()
+        
+        # Combine both sets of events and filter by duration < 24 hours at database level
+        from datetime import timedelta
+        events = (events_from_circles | solo_events).filter(
+            Q(end_time__lt=F('start_time') + timedelta(hours=24))
+        ).distinct()
 
         # Serialize only temporal information
         serializer = GreyEventSerializer(events, many=True)
