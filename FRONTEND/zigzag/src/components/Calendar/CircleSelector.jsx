@@ -60,7 +60,21 @@ const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, 
       onGreyEventsChange(response.grey_events || []);
     } catch (error) {
       console.error('Error loading grey events:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load circle events';
+      let errorMessage = error.response?.data?.error || 'Failed to load circle events';
+      
+      // Translate 403 error messages to French
+      if (error.response?.status === 403) {
+        if (errorMessage.includes('Not enough members to display events')) {
+          // Extract the number from the error message if present
+          const match = errorMessage.match(/Need at least (\d+) members/);
+          if (match) {
+            errorMessage = `Pas assez de membres pour afficher les événements. Il faut au moins ${match[1]} membres.`;
+          } else {
+            errorMessage = 'Pas assez de membres pour afficher les événements.';
+          }
+        }
+      }
+      
       setError(errorMessage);
       onError(errorMessage);
       onGreyEventsChange([]);
@@ -170,7 +184,7 @@ const CircleSelector = ({ selectedCircles, onCirclesChange, onGreyEventsChange, 
             </Alert>
           ) : totalMembers >= 15 ? (
             <Typography variant="body2" className={styles.memberCount}>
-              {totalMembers} unique members across {selectedCircles.length} selected circles
+              {totalMembers} membres uniques sélectionnés parmi {selectedCircles.length} cercles
             </Typography>
           ) : null}
         </Box>
