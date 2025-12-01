@@ -81,6 +81,43 @@ body, html {
   }
 }
 
+/* Scale control styling - light discrete grey bar above credits */
+.leaflet-bottom.leaflet-right .leaflet-control-scale {
+  background: rgba(240, 240, 240, 0.85) !important;
+  border: 1px solid rgba(200, 200, 200, 0.5) !important;
+  border-radius: 3px !important;
+  padding: 4px 6px !important;
+  margin: 0 0 20px 0 !important; /* Position above attribution (credits) */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  color: #666 !important;
+  line-height: 1.2 !important;
+}
+
+.leaflet-control-scale-line {
+  border: 2px solid #999 !important;
+  border-top: none !important;
+  background-color: rgba(240, 240, 240, 0.85) !important;
+  color: #666 !important;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  padding: 2px 4px !important;
+}
+
+@media (max-width: 599px) {
+  .leaflet-bottom.leaflet-right .leaflet-control-scale {
+    margin-bottom: 15px !important;
+    font-size: 9px !important;
+    padding: 3px 5px !important;
+  }
+  
+  .leaflet-control-scale-line {
+    font-size: 9px !important;
+    padding: 2px 3px !important;
+  }
+}
+
 /* MapTiler logo control styling */
 .maptiler-logo-control {
   background: transparent !important;
