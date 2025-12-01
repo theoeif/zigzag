@@ -288,7 +288,8 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       imperial: false,
       maxWidth: 150
     });
-    scaleControl.addTo(map);
+    // to add scale
+    // scaleControl.addTo(map);
 
     // Prevent world wrapping - set max bounds to the world
     const worldBounds = L.latLngBounds(
