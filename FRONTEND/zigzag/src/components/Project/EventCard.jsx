@@ -214,11 +214,24 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
   // Add event to calendar by downloading iCal file
   const handleAddToCalendar = async () => {
     try {
+      // Calculate if event is long (>= 24h) to show message at the right time
+      const startTime = new Date(event.start_time);
+      const endTime = event.end_time ? new Date(event.end_time) : null;
+      const durationHours = endTime ? (endTime - startTime) / (1000 * 60 * 60) : 0;
+      const isLongEvent = endTime && durationHours >= 24;
+
+      // For long events, show message BEFORE downloads start
+      if (isLongEvent) {
+        alert("Cliquez sur 'Ajouter' en bas du prochaine écran.");
+      }
+
       // Download the iCal file for this specific event only
       await downloadSingleEventICal(event);
 
-      // Show success message
-      alert("À ouvrir dans votre calendrier !");
+      // For short events, show message after download
+      if (!isLongEvent) {
+        alert("Cliquez sur 'Ajouter' en bas du prochaine écran.");
+      }
     } catch (error) {
       console.error("Error adding event to calendar:", error);
       alert("Erreur lors de l'ajout au calendrier. Veuillez réessayer.");
