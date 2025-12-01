@@ -1206,50 +1206,6 @@ const EventView = ({
     return (
       <div style={styles.modal.overlay} onClick={onClose}>
         <div style={styles.card} onClick={(e) => e.stopPropagation()}>
-          {/* Close button - positioned outside scrollable area */}
-          <div style={{
-            position: "absolute",
-            top: "15px",
-            left: "15px",
-            zIndex: 1000
-          }}>
-            <button
-              type="button"
-              style={{
-                background: "none",
-                border: "none",
-                fontSize: isMobile ? "32px" : "24px",
-                cursor: "pointer",
-                color: "#777",
-                padding: "4px 8px",
-                margin: "0",
-                lineHeight: 1,
-                transition: "all 0.2s ease",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: isMobile ? "48px" : "40px",
-                height: isMobile ? "48px" : "40px",
-                borderRadius: "4px"
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#333";
-                e.currentTarget.style.backgroundColor = "#f5f5f5";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#777";
-                e.currentTarget.style.backgroundColor = "transparent";
-              }}
-              title="Fermer"
-            >
-              ✕
-            </button>
-          </div>
-          
           {/* Date display in right corner with click interaction */}
           <div
             style={{
