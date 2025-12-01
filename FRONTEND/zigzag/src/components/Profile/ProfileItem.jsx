@@ -16,6 +16,7 @@ const ProofileItem = ({
   onCancelSelectDay,
   onToggleRemoteDay,
   onChangeLookingFor,
+  onClearDay,
 }) => {
   // Define the correct order of days starting with Monday
   const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -84,7 +85,16 @@ const ProofileItem = ({
               />
               <div className={styles.buttonContainer}>
                 <button onClick={onSaveTimeRange}>Sauvegarder</button>
-                <button onClick={onCancelSelectDay}>Annuler</button>
+                {timetable[selectedDay]?.start && onClearDay ? (
+                  <button 
+                    onClick={() => onClearDay(selectedDay)}
+                    className={styles.clearButton}
+                  >
+                    Effacer
+                  </button>
+                ) : (
+                  <button onClick={onCancelSelectDay}>Annuler</button>
+                )}
               </div>
             </div>
           </div>
