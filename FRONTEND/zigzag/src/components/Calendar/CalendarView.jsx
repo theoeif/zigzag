@@ -45,6 +45,7 @@ const CalendarView = () => {
   const [viewMenuAnchor, setViewMenuAnchor] = useState(null);
   const [selectedView, setSelectedView] = useState('myList');
   const [listAnchorDate, setListAnchorDate] = useState(new Date());
+  const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null });
   const [mobileTitle, setMobileTitle] = useState(() => {
     // Set initial title for list view (1 month by default)
     const now = new Date();
@@ -632,7 +633,10 @@ const CalendarView = () => {
   const handleDownloadICS = async () => {
     try {
       const circleIds = selectedCircles.map(c => c.id);
-      await downloadICalFile(circleIds);
+      const startDate = visibleDateRange.start ? visibleDateRange.start.toISOString() : null;
+      const endDate = visibleDateRange.end ? visibleDateRange.end.toISOString() : null;
+      await downloadICalFile(circleIds, startDate, endDate);
+      alert('Ajoutés dans le calendrier');
     } catch (error) {
       console.error('Download failed:', error);
       alert('Erreur lors du téléchargement');
@@ -879,6 +883,25 @@ const CalendarView = () => {
           datesSet={(arg) => {
             setActiveView(arg.view.type);
             setSelectedView(arg.view.type);
+            
+            // Store visible date range for filtering - only update if dates changed
+            if (arg.start && arg.end) {
+              setVisibleDateRange(prev => {
+                // Only update if dates have actually changed
+                if (prev.start && prev.end) {
+                  const startChanged = prev.start.getTime() !== arg.start.getTime();
+                  const endChanged = prev.end.getTime() !== arg.end.getTime();
+                  if (!startChanged && !endChanged) {
+                    return prev; // No change, return previous state
+                  }
+                }
+                // Dates changed or first time setting
+                return {
+                  start: arg.start,
+                  end: arg.end
+                };
+              });
+            }
             
             // Update titles for non-list views
             if (arg.view.type !== 'myList') {

@@ -1008,6 +1008,58 @@ class ICalDownloadView(APIView):
         if circle_ids:
             events = events.filter(circles__id__in=circle_ids)
 
+        # Filter by date range if specified
+        start_date_str = request.query_params.get('start_date')
+        end_date_str = request.query_params.get('end_date')
+        
+        if start_date_str or end_date_str:
+            from django.utils.dateparse import parse_datetime
+            
+            start_date = None
+            end_date = None
+            
+            if start_date_str:
+                start_date = parse_datetime(start_date_str)
+            if end_date_str:
+                end_date = parse_datetime(end_date_str)
+            
+            if start_date or end_date:
+                # Filter events that overlap with the date range
+                # An event overlaps if:
+                # 1. Event starts within range: start_time >= start_date AND start_time <= end_date
+                # 2. Event ends within range: end_time >= start_date AND end_time <= end_date
+                # 3. Event spans the range: start_time <= start_date AND end_time >= end_date
+                # 4. Event is completely within range: start_time >= start_date AND end_time <= end_date
+                
+                date_filter = Q()
+                
+                if start_date and end_date:
+                    # Both dates provided - check for overlap
+                    date_filter = (
+                        # Event starts within range (handles events without end_time)
+                        Q(start_time__gte=start_date, start_time__lte=end_date) |
+                        # Event ends within range (only if end_time exists)
+                        Q(end_time__isnull=False, end_time__gte=start_date, end_time__lte=end_date) |
+                        # Event spans the range (only if end_time exists)
+                        Q(end_time__isnull=False, start_time__lte=start_date, end_time__gte=end_date) |
+                        # Event is completely within range (only if end_time exists)
+                        Q(end_time__isnull=False, start_time__gte=start_date, end_time__lte=end_date)
+                    )
+                elif start_date:
+                    # Only start date - events that start on or after this date
+                    date_filter = (
+                        Q(start_time__gte=start_date) |
+                        Q(end_time__isnull=False, end_time__gte=start_date)
+                    )
+                elif end_date:
+                    # Only end date - events that start before or at end_date, or end before or at end_date
+                    date_filter = (
+                        Q(start_time__lte=end_date) |
+                        Q(end_time__isnull=False, end_time__lte=end_date)
+                    )
+                
+                events = events.filter(date_filter)
+
         # Create iCalendar object
         cal = Calendar()
         cal.add('prodid', '-//ZIGZAG//Events//EN')
