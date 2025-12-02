@@ -942,13 +942,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           interactive: true, // Enable tooltips on mobile touch devices
         });
 
-        // Toggle tooltip on tap for mobile
-        marker.on("click", () => {
-          if (!marker.isTooltipOpen()) {
-            marker.openTooltip();
-          } else {
-            marker.closeTooltip();
-          }
+        // Toggle tooltip on tap for mobile (always open on tap)
+        marker.on("click", (e) => {
+          // Always open tooltip on tap to avoid accidental closing on mobile
+          marker.openTooltip();
+          e?.originalEvent?.preventDefault?.();
         });
 
         // When showing only friends and clustering is on, put close markers in the main friend cluster group
@@ -1004,13 +1002,11 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           interactive: true, // Enable tooltips on mobile touch devices
         });
 
-        // Toggle tooltip on tap for mobile
-        marker.on("click", () => {
-          if (!marker.isTooltipOpen()) {
-            marker.openTooltip();
-          } else {
-            marker.closeTooltip();
-          }
+        // Toggle tooltip on tap for mobile (always open on tap)
+        marker.on("click", (e) => {
+          // Always open tooltip on tap to avoid accidental closing on mobile
+          marker.openTooltip();
+          e?.originalEvent?.preventDefault?.();
         });
 
         // Make this exactly match the project marker logic for clustering

@@ -4,6 +4,8 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
+import { CapacitorCalendar } from 'capacitor-calendar';
+import ICAL from 'ical.js';
 
 // Single in-flight refresh promise to throttle concurrent refreshes
 let refreshPromise = null;
@@ -820,7 +822,7 @@ export const fetchGreyEvents = async (circleIds) => {
 };
 
 // iCal export function
-export const downloadICalFile = async (circleIds = []) => {
+export const downloadICalFile = async (circleIds = [], startDate = null, endDate = null) => {
   try {
     let token = localStorage.getItem("access_token");
     if (!token) {
@@ -828,9 +830,17 @@ export const downloadICalFile = async (circleIds = []) => {
       if (!token) throw new Error('Authentication required');
     }
 
-    // Build query params for circle filtering
+    // Build query params for circle filtering and date range
     const params = new URLSearchParams();
     circleIds.forEach(id => params.append('circles', id));
+    
+    // Add date range parameters if provided
+    if (startDate) {
+      params.append('start_date', startDate);
+    }
+    if (endDate) {
+      params.append('end_date', endDate);
+    }
 
     const url = `${API_BASE_URL}events/ical/download/${params.toString() ? '?' + params.toString() : ''}`;
 
@@ -849,38 +859,72 @@ export const downloadICalFile = async (circleIds = []) => {
     const blob = await response.blob();
 
     if (Capacitor.isNativePlatform()) {
-      // MOBILE: Use Capacitor Share API
-      const arrayBuffer = await blob.arrayBuffer();
-      const base64Data = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-      const fileName = `zigzag-events-${new Date().toISOString().split('T')[0]}.ics`;
-      
-      // First save to a temporary location
-      await Filesystem.writeFile({
-        path: fileName,
-        data: base64Data,
-        directory: Directory.Cache,
-        encoding: Encoding.UTF8,
-      });
-
-      // Get the file URI
-      const fileUri = await Filesystem.getUri({
-        directory: Directory.Cache,
-        path: fileName,
-      });
-
-      // Share the file - this opens the native share sheet
-      await Share.share({
-        title: 'Exporter le calendrier',
-        text: 'Calendrier ZIGZAG',
-        url: fileUri.uri,
-        dialogTitle: 'Choisir une application',
-      });
-
-      // Clean up the temporary file
-      await Filesystem.deleteFile({
-        directory: Directory.Cache,
-        path: fileName,
-      });
+      // MOBILE: Parse .ics file and create CapacitorCalendar events directly
+      try {
+        // Convert blob to text
+        const icalText = await blob.text();
+        
+        // Parse the .ics file
+        const jcalData = ICAL.parse(icalText);
+        const comp = new ICAL.Component(jcalData);
+        const vevents = comp.getAllSubcomponents('vevent');
+        
+        // Loop through all events and create them in the CapacitorCalendar
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const vevent of vevents) {
+          try {
+            const event = new ICAL.Event(vevent);
+            
+            // Extract event data
+            const summary = event.summary || 'Untitled Event';
+            const description = event.description || '';
+            const location = event.location || '';
+            
+            // Get start and end dates
+            const startDate = event.startDate.toJSDate();
+            const endDate = event.endDate ? event.endDate.toJSDate() : new Date(startDate.getTime() + 60 * 60 * 1000); // Default 1 hour if no end date
+            
+            // Create CapacitorCalendar event
+            await CapacitorCalendar.createEvent({
+              title: summary,
+              location: location,
+              notes: description,
+              startDate: startDate.getTime(),
+              endDate: endDate.getTime(),
+            });
+            
+            successCount++;
+            
+            // Small delay between events to ensure they're processed
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch (error) {
+            console.error(`Error creating CapacitorCalendar event "${vevent.getFirstPropertyValue('summary') || 'Unknown'}":`, error);
+            errorCount++;
+            // Continue with next event even if one fails
+          }
+        }
+        
+        if (errorCount > 0) {
+          console.warn(`Created ${successCount} events, ${errorCount} failed`);
+        }
+        
+        if (successCount === 0 && vevents.length > 0) {
+          throw new Error('Failed to create any CapacitorCalendar events');
+        }
+      } catch (error) {
+        console.error('Error parsing .ics file or creating CapacitorCalendar events:', error);
+        // Fallback to file download if parsing fails
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'zigzag-events.ics';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        throw error;
+      }
     } else {
       // WEB: Use traditional web download
       const link = document.createElement('a');
@@ -946,6 +990,7 @@ export const downloadSingleEventICal = async (event) => {
       const filename = safeTitle || `event-${event.id}`;
       const suffixPart = suffix ? `-${suffix}` : '';
       
+      // Always ensure filename ends with .ics
       return `zigzag-${filename}${suffixPart}.ics`;
     };
     
@@ -972,46 +1017,47 @@ END:VEVENT
 END:VCALENDAR`;
     };
 
-    // Helper function to download a single file
-    const downloadFile = async (icalContent, fileName) => {
+    // Helper function to add event to CapacitorCalendar (native) or download file (web)
+    const addEventToCapacitorCalendar = async (eventTitle, eventStart, eventEnd, eventDescription, eventLocation) => {
       if (Capacitor.isNativePlatform()) {
-        // MOBILE: Use FileOpener to open directly in Calendar app
-        
-        // 1. Write file to cache
-        await Filesystem.writeFile({
-          path: fileName,
-          data: icalContent,
-          directory: Directory.Cache,
-          encoding: Encoding.UTF8,
-        });
-
-        // 2. Get the URI
-        const fileUri = await Filesystem.getUri({
-          directory: Directory.Cache,
-          path: fileName,
-        });
-
-        // 3. Open with FileOpener (instead of Share)
+        // MOBILE: Use CapacitorCalendar plugin to add event directly
         try {
-            await FileOpener.openFile({
-                path: fileUri.uri,
-                mimeType: 'text/calendar', // Important for opening in Calendar
-            });
-        } catch (err) {
-            console.error('Error opening file:', err);
-            // Fallback to Share if FileOpener fails
-            await Share.share({
-                title: 'Ajouter au calendrier',
-                text: `Événement: ${event.title}`,
-                url: fileUri.uri,
-                dialogTitle: 'Ajouter au calendrier',
-            });
+          await CapacitorCalendar.createEvent({
+            title: eventTitle,
+            location: eventLocation || '',
+            notes: eventDescription || '',
+            startDate: eventStart.getTime(),
+            endDate: eventEnd.getTime(),
+          });
+        } catch (error) {
+          console.error('Error creating CapacitorCalendar event:', error);
+          // Fallback to file download if CapacitorCalendar plugin fails
+          const icalContent = createICalContent(
+            eventStart,
+            eventEnd,
+            `zigzag-${event.id}@zigzag.com`,
+            eventTitle
+          );
+          const fileName = createSafeFilename(eventTitle);
+          const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+          throw error;
         }
-        
-        // We don't delete the file immediately as FileOpener might need it
-        // The OS cache will handle cleanup eventually
       } else {
-        // WEB: Use traditional web download
+        // WEB: Use traditional file download
+        const icalContent = createICalContent(
+          eventStart,
+          eventEnd,
+          `zigzag-${event.id}@zigzag.com`,
+          eventTitle
+        );
+        const fileName = createSafeFilename(eventTitle);
         const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -1024,47 +1070,40 @@ END:VCALENDAR`;
     };
 
     if (isLessThan24Hours && endTime) {
-      // Event < 24h: Create one file with actual start_time and end_time
-      const eventId = `zigzag-${event.id}@zigzag.com`;
-      const icalContent = createICalContent(startTime, endTime, eventId, eventTitle);
-      const fileName = createSafeFilename(event.title);
-      
-      await downloadFile(icalContent, fileName);
+      // Event < 24h: Create one CapacitorCalendar event with actual start_time and end_time
+      await addEventToCapacitorCalendar(eventTitle, startTime, endTime, eventDescription, eventLocation);
     } else {
-      // Event >= 24h: Create two separate files
-      const eventId1 = `zigzag-${event.id}-start@zigzag.com`;
-      const eventId2 = `zigzag-${event.id}-end@zigzag.com`;
-      
-      // File 1: Start event (start_time to start_time + 2 hours)
+      // Event >= 24h: Create two separate CapacitorCalendar events
+      // Event 1: Start event (start_time to start_time + 2 hours)
       const startEndTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
-      const icalContent1 = createICalContent(
+      await addEventToCapacitorCalendar(
+        `${eventTitle} (Début)`,
         startTime,
         startEndTime,
-        eventId1,
-        `${eventTitle} (Début)`
+        eventDescription,
+        eventLocation
       );
-      const fileName1 = createSafeFilename(event.title, 'Debut');
       
-      await downloadFile(icalContent1, fileName1);
+      // Small delay between events to ensure both are processed
+      if (Capacitor.isNativePlatform()) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
       
-      // Small delay between downloads to ensure both files are processed
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // File 2: End event (end_time to end_time + 2 hours) - only if end_time exists
+      // Event 2: End event (end_time to end_time + 2 hours) - only if end_time exists
       if (endTime) {
         const endEndTime = new Date(endTime.getTime() + 2 * 60 * 60 * 1000);
-        const icalContent2 = createICalContent(
+        await addEventToCapacitorCalendar(
+          `${eventTitle} (Fin)`,
           endTime,
           endEndTime,
-          eventId2,
-          `${eventTitle} (Fin)`
+          eventDescription,
+          eventLocation
         );
-        const fileName2 = createSafeFilename(event.title, 'Fin');
         
-        await downloadFile(icalContent2, fileName2);
-        
-        // Small delay after second download
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay after second event
+        if (Capacitor.isNativePlatform()) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
     }
 

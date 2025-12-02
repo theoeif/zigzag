@@ -539,7 +539,7 @@ const EventView = ({
   // Create a short, beautiful description preview (EventView only)
   const getDescriptionPreviewParagraphs = (description) => {
     if (!description) return [];
-    const MAX = 250; // target length budget for preview
+    const MAX = 280; // target length budget for preview
     
     // Simple text processing that preserves bullet points and formatting
     let text = String(description).trim();
