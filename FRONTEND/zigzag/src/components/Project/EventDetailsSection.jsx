@@ -332,14 +332,23 @@ const EventDetailsSection = ({ event, isOpen, onClose, onViewCircleMembers }) =>
         )}
 
         <div className={styles.fullDescriptionProject} style={{ marginBottom: '20px' }}>
-          <strong>Description</strong>
-          <div style={{ 
-            whiteSpace: 'pre-line',
-            userSelect: 'text',
-            WebkitUserSelect: 'text',
-            msUserSelect: 'text'
+          <div style={{
+            backgroundColor: '#f9f9f9',
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px',
+            padding: '12px 14px',
+            marginTop: '8px'
           }}>
-            {event.description ? renderDescriptionWithLinks(event.description) : "Aucune description fournie pour cet événement."}
+            <strong>Description</strong>
+            <div style={{ 
+              whiteSpace: 'pre-line',
+              userSelect: 'text',
+              WebkitUserSelect: 'text',
+              msUserSelect: 'text',
+              marginTop: '8px'
+            }}>
+              {event.description ? renderDescriptionWithLinks(event.description) : "Aucune description fournie pour cet événement."}
+            </div>
           </div>
         </div>
 
