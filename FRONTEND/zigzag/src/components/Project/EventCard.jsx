@@ -223,7 +223,7 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
 
       // For long events, show message BEFORE downloads start
       if (isLongEvent) {
-        alert("Cliquez sur 'Ajouter' en bas du prochaine écran.");
+        alert("Ajouter dans le calendrier");
       }
 
       // Download the iCal file for this specific event only
@@ -231,7 +231,7 @@ const EventCard = ({ event, isManageMode, showDelete = true, onDelete, onEdit, o
 
       // For short events, show message after download
       if (!isLongEvent) {
-        alert("Cliquez sur 'Ajouter' en bas du prochaine écran.");
+        alert("Ajouter dans le calendrier");
       }
     } catch (error) {
       console.error("Error adding event to calendar:", error);
