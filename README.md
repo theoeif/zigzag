@@ -3,7 +3,7 @@
 
 The project is live on : https://zigzag-project.org/
 
-The [ios App](https://apps.apple.com/us/app/zigzag-project/id6754614690) is also avalaiable.
+The [ios App](https://apps.apple.com/us/app/zigzag-project/id6754614690) is also available.
 
 
 ## zigzag project
