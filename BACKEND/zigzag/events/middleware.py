@@ -63,17 +63,21 @@ class SecurityMiddleware:
             logger.warning(f"Admin access denied for IP: {client_ip}")
             return self._deny_access(request, "Admin access denied")
         
-        logger.info(f"Admin access granted for IP: {client_ip}")
+        # logger.info(f"Admin access granted for IP: {client_ip}")  # Commented out to reduce RAM usage
         return self.get_response(request)
 
     def _check_api_access(self, request, client_ip):
         """Check if client IP and domain are allowed to access API."""
         
-        # Log raw headers to assist with diagnostics
+        # Log raw headers to assist with diagnostics - COMMENTED OUT to reduce RAM usage
+        # origin = request.META.get('HTTP_ORIGIN', '')
+        # referer = request.META.get('HTTP_REFERER', '')
+        # user_agent = request.META.get('HTTP_USER_AGENT', '')
+        # logger.info(f"API access - UA: {user_agent}, Origin: {origin}, Referer: {referer}")
+        
+        # Still need origin/referer for domain extraction, but only when needed
         origin = request.META.get('HTTP_ORIGIN', '')
         referer = request.META.get('HTTP_REFERER', '')
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        logger.info(f"API access - UA: {user_agent}, Origin: {origin}, Referer: {referer}")
 
         # Capacitor/iOS native app detection
         if self._is_capacitor_request(request):
@@ -91,14 +95,14 @@ class SecurityMiddleware:
                 if domain not in self.api_allowed_domains:
                     logger.warning(f"API access denied for domain: {domain}")
                     return self._deny_access(request, "API access denied")
-                logger.info(f"API access granted for domain: {domain}")
-            else:
-                logger.info("API access granted for browser request (no domain restrictions)")
+                # logger.info(f"API access granted for domain: {domain}")  # Commented out to reduce RAM usage
+            # else:
+            #     logger.info("API access granted for browser request (no domain restrictions)")  # Commented out to reduce RAM usage
             return self.get_response(request)
 
         # Explicit server-to-server requests (fallback)
         if self._is_server_to_server(request):
-            logger.info(f"API access server_to_server try for server IP: {client_ip}")
+            # logger.info(f"API access server_to_server try for server IP: {client_ip}")  # Commented out to reduce RAM usage
             if self.api_allowed_ips and client_ip not in self.api_allowed_ips:
                 logger.warning(f"API access denied for server IP: {client_ip}")
                 return self._deny_access(request, "API access denied")
@@ -127,7 +131,7 @@ class SecurityMiddleware:
         from urllib.parse import urlparse
         po = urlparse(origin) if origin else None
         pr = urlparse(referer) if referer else None
-        user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
 
         def is_localhost_http(p): 
             return getattr(p, 'scheme', '') in {'http','https'} and getattr(p, 'netloc', '') == 'localhost'
