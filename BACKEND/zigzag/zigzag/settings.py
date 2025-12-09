@@ -238,6 +238,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+        'events.middleware': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
     },
 }
 
