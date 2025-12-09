@@ -59,8 +59,6 @@ INSTALLED_APPS = [
 # }
 # RATELIMIT_USE_CACHE = 'default'
 
-RATELIMIT_ENABLE = False
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -237,10 +235,6 @@ LOGGING = {
         'django.security.csrf': {
             'handlers': ['console'],
             'level': 'DEBUG',
-        },
-        'events.middleware': {
-            'handlers': ['console'],
-            'level': 'INFO',
         },
     },
 }
