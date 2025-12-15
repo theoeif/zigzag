@@ -24,22 +24,18 @@ export const faqData = [
     answer: ` Un Cercle est une liste de personnes, comme un groupe que vous voulez inviter à un événement.
 
 1. Rejoindre un Cercle.
-C'est délicat — les gens doivent actuellement demander en privé à rejoindre un Cercle auprès du créateur. Puis le créateur les ajoute.
-Bien que les invitations aient du sens, elles compliquent aussi l'interface. Les règles changeront quand le nombre > 300.
-Remarque : Si les noms de Cercles sont visibles publiquement, cela pourrait mener à une exposition non désirée.
-
-2. Ajout de membres aux Cercles
 Actuellement, seul le créateur peut ajouter de nouveaux membres. 
-Mais peut-être que n'importe quel membre pourrait ajouter d'autres personnes pour aider les Cercles à grandir plus vite (→ Cercle partagé).
+Les gens doivent actuellement demander en privé à rejoindre un Cercle auprès du créateur.
+Bien que les invitations aient du sens, elles compliquent aussi l'interface.
 
-Compromis :
-- Avantages : Le réseau grandit rapidement (ex: comme "Lycée").
-- Inconvénients : Peut devenir chaotique — pas idéal pour de petits groupes ciblés (ex: "Grimpeurs du dimanche").
+2 Ajouter ces Cercles à un autre évènement/projet existant.
+Cette feature n'est pas encore disponible. N'hésitez pas à le faire remonter aux développeurs !
 
-3. Changement de nom d'un Cercle
-Seul le créateur devrait être autorisé à changer le nom du Cercle. Sinon — cela devient désordonné rapidement.
+3. Faire un "Lien d'invitation" lors de la creation d'un projet/évènement.
+Cela Créee un cercle temporaire pour cet événement uniquement. 
+Cela est utile pour invtiter des gens que vous ne connaissez pas encore ou qui n'appartiennent pas à vos Cercles.
 
-<strong>Conclusion : Les Cercles doivent rester des noyaux durs où les gens travaillent sur de vrais projets.</strong>`,
+<strong>Conclusion : Les Cercles doivent rester des noyaux durs où les gens travaillent sur des vrais projets.</strong>`,
   },
   {
     question: "C'est quoi les Tags ?",

@@ -135,7 +135,11 @@ const CirclesSidebar = ({ onSelectCircle, selectedCircleId, onCircleRemoved }) =
     setIsLoading(true);
     const data = await fetchCircles();
     if (data) {
-      setCircles(data);
+      // Sort circles alphabetically by name (case-insensitive)
+      const sortedCircles = [...data].sort((a, b) => 
+        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      );
+      setCircles(sortedCircles);
     }
     setIsLoading(false);
   };
