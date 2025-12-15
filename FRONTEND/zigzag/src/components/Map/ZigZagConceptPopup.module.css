@@ -206,40 +206,38 @@
 }
 
 .expandButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   background: none;
-  border: 1px solid #40916c;
+  border: none;
   color: #40916c;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 4px;
+  margin-left: 8px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
   transition: all 0.2s ease;
-  align-self: flex-start;
+  vertical-align: middle;
+  opacity: 0.6;
 }
 
 .expandButton:hover {
-  background-color: #f0fdf4;
-  border-color: #2d6a4f;
+  background-color: rgba(64, 145, 108, 0.1);
+  opacity: 1;
   color: #2d6a4f;
 }
 
 .expandButton:active {
-  transform: scale(0.98);
+  transform: scale(0.95);
 }
 
 .expandIcon {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
 }
 
 .adviceSection {
   margin-top: 8px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e5e5;
+  padding-top: 0;
 }
 
 .adviceText {
@@ -251,16 +249,35 @@
 
 .adviceList {
   margin: 0;
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .adviceList li {
   font-size: 0.9rem;
   color: #555;
-  line-height: 1.5;
+  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  position: relative;
+  padding-left: 20px;
+  text-align: left;
+}
+
+.adviceList li::before {
+  content: '•';
+  color: #40916c;
+  font-weight: bold;
+  font-size: 1.2rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+  line-height: 1.6;
 }
 
 /* Mobile responsive */
