@@ -130,7 +130,20 @@ const ZigZagConceptPopup = ({ isBackground = false, onClose }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              Elle avance en zigzag. ZigZag crée et partage des projets, ancrés dans les territoires, qui échappent aux cadre classiques
+              Elle avance en zigzag. ZigZag crée et partage des projets, ancrés dans les territoires, qui échappent aux cadres classiques
+              <motion.button 
+                className={styles.expandButton} 
+                onClick={() => setIsExpanded(!isExpanded)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label={isExpanded ? "Voir moins" : "En savoir plus"}
+              >
+                {isExpanded ? (
+                  <ExpandLessIcon className={styles.expandIcon} />
+                ) : (
+                  <ExpandMoreIcon className={styles.expandIcon} />
+                )}
+              </motion.button>
             </motion.p>
           </motion.div>
 
@@ -151,26 +164,6 @@ const ZigZagConceptPopup = ({ isBackground = false, onClose }) => {
             </motion.div>
           )}
 
-          {/* Expand/Collapse button */}
-          <motion.button 
-            className={styles.expandButton} 
-            onClick={() => setIsExpanded(!isExpanded)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {isExpanded ? (
-              <>
-                <span>Voir moins</span>
-                <ExpandLessIcon className={styles.expandIcon} />
-              </>
-            ) : (
-              <>
-                <span>En savoir plus</span>
-                <ExpandMoreIcon className={styles.expandIcon} />
-              </>
-            )}
-          </motion.button>
-
           {/* Advice section */}
           <motion.div 
             className={styles.adviceSection}
@@ -183,7 +176,7 @@ const ZigZagConceptPopup = ({ isBackground = false, onClose }) => {
             </p>
             <ul className={styles.adviceList}>
               <li>Créez un compte via le panneau de gauche</li>
-              <li>Consultez la section d'aide (?) dans le panneau de gauche pour apprendre à utiliser l'app</li>
+              <li>Pour apprendre à utiliser l'app, consultez la section d'aide (?)</li>
             </ul>
           </motion.div>
         </div>
