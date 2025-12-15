@@ -37,6 +37,7 @@
     "axios": "^1.7.9",
     "capacitor-calendar": "^1.0.6",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.26",
     "ical.js": "^2.2.1",
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.0.0",

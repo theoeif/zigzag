@@ -31,10 +31,38 @@
   width: 90%;
   max-width: 500px;
   max-height: 85vh;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
   animation: slideUp 0.3s ease-out;
   border: 1px solid rgba(64, 145, 108, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.zigzagBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.zigzagRow {
+  position: absolute;
+  width: 200%;
+  height: 24px;
+  left: 0;
+}
+
+.zigzagPattern {
+  width: 100%;
+  height: 100%;
+  color: #40916c;
+  display: block;
 }
 
 @keyframes slideUp {
@@ -52,7 +80,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: none;
+  background: rgba(255, 255, 255, 0.9);
   border: none;
   cursor: pointer;
   color: #666;
@@ -67,6 +95,7 @@
   height: 32px;
   min-width: 32px;
   min-height: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .closeButton:hover {
@@ -84,6 +113,12 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.75);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .mainText {
@@ -93,18 +128,52 @@
 }
 
 .introText {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: 800;
   color: #1b4332;
-  line-height: 1.4;
-  margin: 0;
+  line-height: 0.9;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.highlightWord {
+  position: relative;
+  display: inline-block;
+  color: #1b4332;
+  /* Effet glitch subtil */
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0%, 100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+}
+
+.primaryText {
+  color: #40916c;
+  font-weight: 800;
 }
 
 .descriptionText {
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #333;
   line-height: 1.6;
   margin: 0;
+  font-weight: 400;
 }
 
 .expandedContent {
@@ -209,11 +278,11 @@
   }
 
   .introText {
-    font-size: 1.1rem;
+    font-size: 2rem;
   }
-
+  
   .descriptionText {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .expandedText {
