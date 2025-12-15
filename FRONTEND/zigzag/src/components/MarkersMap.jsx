@@ -7,6 +7,7 @@ import "leaflet.markercluster/dist/leaflet.markercluster.js";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@maplibre/maplibre-gl-leaflet";
 import { MAPTILER_API_KEY } from "../config";
+import { App } from '@capacitor/app';
 
 import { fetchMarkers, fetchMyTags, persistSelectedTags, fetchMyLocations } from "../api/api";
 import {
@@ -24,6 +25,8 @@ import CreateEventForm from "./Project/CreateEventForm";
 import MapControls from "./MapControls/MapControls";
 import { shouldShowAppBanner } from '../utils/mobileDetection';
 import AppRedirectBanner from './AppRedirectBanner/AppRedirectBanner';
+import ZigZagConceptPopup from './Map/ZigZagConceptPopup';
+import reopenButtonStyles from './Map/ReopenPopupButton.module.css';
 
 const MarkersMap = ({ eventCoordinates = null }) => {
   const isBackground = !!eventCoordinates;
@@ -39,6 +42,12 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const location = useLocation();
   const eventIdFromState = location.state?.eventId;
   const fromEvent = location.state?.fromEvent;
+
+  // ZigZag concept popup state
+  const [showConceptPopup, setShowConceptPopup] = useState(false);
+  const [popupDismissed, setPopupDismissed] = useState(() => {
+    return localStorage.getItem('zigzag_concept_popup_dismissed') === 'true';
+  });
 
   // Toggle state for projects and my locations
   const [showProjects, setShowProjects] = useState(true);
@@ -1308,6 +1317,35 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     }
   }, [fromEvent, eventIdFromState]);
 
+  // Check if concept popup should be shown (only for disconnected users)
+  useEffect(() => {
+    if (isBackground || isConnected) {
+      setShowConceptPopup(false);
+      return;
+    }
+
+    // Check localStorage to see if popup was dismissed
+    const dismissed = localStorage.getItem('zigzag_concept_popup_dismissed') === 'true';
+    setPopupDismissed(dismissed);
+    setShowConceptPopup(!dismissed);
+  }, [isConnected, isBackground]);
+
+  // Function to reopen the popup
+  const handleReopenPopup = () => {
+    localStorage.removeItem('zigzag_concept_popup_dismissed');
+    setPopupDismissed(false);
+    setShowConceptPopup(true);
+  };
+
+  // Handle popup close
+  const handlePopupClose = () => {
+    setShowConceptPopup(false);
+    setPopupDismissed(true);
+  };
+
+  // Check if reopen button should be shown
+  const shouldShowReopenButton = !isConnected && !isBackground && popupDismissed;
+
   // Set up global handler for tooltip clicks - navigate and setMapState are stable
   useEffect(() => {
     window.handleTooltipNavigation = (eventId, lat, lng) => {
@@ -1332,6 +1370,31 @@ const MarkersMap = ({ eventCoordinates = null }) => {
       delete window.handleTooltipNavigation;
     };
   }, []); // Empty deps - navigate and setMapState are stable, location uses ref
+
+  // Refresh markers when app comes to foreground
+  useEffect(() => {
+    // Only set up listener in Capacitor native app
+    if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    const handleResume = () => {
+      // This ONLY fires when app comes to foreground in 'resume' mode
+
+      if (isConnected && !isBackground && selectedTags !== null) {
+        refreshMarkersForSelectedTags();
+        loadFriendLocations();
+      }
+    };
+
+    // Listen for 'resume' event (simpler than 'appStateChange')
+    const listener = App.addListener('resume', handleResume);
+
+    // Cleanup on unmount
+    return () => {
+      listener.then(l => l.remove());
+    };
+  }, [isConnected, isBackground, selectedTags, refreshMarkersForSelectedTags]);
 
   return (
     <>
@@ -1430,6 +1493,25 @@ const MarkersMap = ({ eventCoordinates = null }) => {
           }}
           onClose={() => setShowCreateForm(false)}
         />
+      )}
+
+      {/* ZigZag Concept Popup */}
+      {showConceptPopup && (
+        <ZigZagConceptPopup 
+          isBackground={isBackground}
+          onClose={handlePopupClose}
+        />
+      )}
+
+      {/* Reopen popup button - bottom right */}
+      {shouldShowReopenButton && (
+        <button
+          onClick={handleReopenPopup}
+          className={reopenButtonStyles.reopenButton}
+          title="En savoir plus sur ZigZag"
+        >
+          Z
+        </button>
       )}
     </>
   );

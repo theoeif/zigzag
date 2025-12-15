@@ -1,0 +1,65 @@
+/* ReopenPopupButton.module.css */
+
+.reopenButton {
+  position: fixed;
+  bottom: 40px;
+  right: 30px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.reopenButton:hover {
+  background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(64, 145, 108, 0.4);
+  animation: none;
+}
+
+.reopenButton:active {
+  transform: scale(0.95);
+}
+
+/* Subtle breathing animation */
+@keyframes breathe {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
+  }
+  50% {
+    box-shadow: 0 5px 16px rgba(64, 145, 108, 0.35);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 599px) {
+  .reopenButton {
+    bottom: 40px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+}
+
+/* iOS specific adjustments */
+@supports (-webkit-touch-callout: none) {
+  .reopenButton {
+    /* Ensure consistent rendering on iOS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
