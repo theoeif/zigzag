@@ -1,0 +1,237 @@
+/* ZigZagConceptPopup.module.css */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.popup {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  width: 90%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease-out;
+  border: 1px solid rgba(64, 145, 108, 0.1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.closeButton:hover {
+  background-color: #f5f5f5;
+  color: #333;
+  transform: scale(1.1);
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+}
+
+.content {
+  padding: 32px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mainText {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.introText {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1b4332;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.descriptionText {
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.expandedContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #40916c;
+  animation: expandContent 0.3s ease-out;
+}
+
+@keyframes expandContent {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.expandedText {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #40916c;
+  color: #40916c;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+
+.expandButton:hover {
+  background-color: #f0fdf4;
+  border-color: #2d6a4f;
+  color: #2d6a4f;
+}
+
+.expandButton:active {
+  transform: scale(0.98);
+}
+
+.expandIcon {
+  font-size: 1.2rem;
+}
+
+.adviceSection {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.adviceText {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.adviceList {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adviceList li {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Mobile responsive */
+@media (max-width: 599px) {
+  .popup {
+    width: 95%;
+    max-width: none;
+    border-radius: 12px;
+    max-height: 90vh;
+  }
+
+  .content {
+    padding: 28px 20px 20px;
+    gap: 16px;
+  }
+
+  .introText {
+    font-size: 1.1rem;
+  }
+
+  .descriptionText {
+    font-size: 0.95rem;
+  }
+
+  .expandedText {
+    font-size: 0.9rem;
+  }
+
+  .closeButton {
+    top: 10px;
+    right: 10px;
+    padding: 6px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+}
+
+/* Prevent body scroll when popup is open */
+:global(body.popup-open) {
+  overflow: hidden;
+}
