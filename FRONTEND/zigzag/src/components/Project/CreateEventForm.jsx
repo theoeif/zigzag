@@ -142,7 +142,11 @@ const CreateEventForm = ({ projectId, onEventCreated, onClose }) => {
       try {
         const circlesData = await fetchCircles();
         if (circlesData) {
-          setAllCircles(circlesData);
+          // Sort circles alphabetically by name (case-insensitive)
+          const sortedCircles = [...circlesData].sort((a, b) => 
+            a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+          );
+          setAllCircles(sortedCircles);
         }
       } catch (err) {
         console.error("Error fetching circles:", err);
