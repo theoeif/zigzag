@@ -11,9 +11,9 @@ import { App } from '@capacitor/app';
 
 import { fetchMarkers, fetchMyTags, persistSelectedTags, fetchMyLocations } from "../api/api";
 import {
-  redMarkerIcon,
-  whiteFriendsEventlocationMarkerIcon
+  redMarkerIcon
 } from "../assets/customMarkers";
+import greyPinImage from "../assets/grey-pin.png";
 
 import Header from "./Header/Header";
 import LeftMenu from "./LeftMenu/LeftMenu";
@@ -27,6 +27,14 @@ import { shouldShowAppBanner } from '../utils/mobileDetection';
 import AppRedirectBanner from './AppRedirectBanner/AppRedirectBanner';
 import ZigZagConceptPopup from './Map/ZigZagConceptPopup';
 import reopenButtonStyles from './Map/ReopenPopupButton.module.css';
+
+// Red pin icon for friend locations
+const redPinIcon = L.icon({
+  iconUrl: greyPinImage,
+  iconSize: [18, 18],
+  iconAnchor: [14, 14],
+  popupAnchor: [0, -12]
+});
 
 const MarkersMap = ({ eventCoordinates = null }) => {
   const isBackground = !!eventCoordinates;
@@ -924,7 +932,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         const displayName = hasValidName ? markerData.title : '';
 
         const marker = L.marker([markerData.lat, markerData.lng], {
-          icon: whiteFriendsEventlocationMarkerIcon,
+          icon: redPinIcon,
           alt: 'closeFriendMarker'
         });
 
@@ -984,7 +992,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
         const displayName = hasValidName ? markerData.title : '';
 
         const marker = L.marker([markerData.lat, markerData.lng], {
-          icon: whiteFriendsEventlocationMarkerIcon,
+          icon: redPinIcon,
           alt: 'normalFriendMarker'
         });
 
