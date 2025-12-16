@@ -10,6 +10,7 @@ import MarkdownIt from "markdown-it";
 export default function Help() {
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [expandedFAQ, setExpandedFAQ] = useState(null);
+  const [expandedQuickStart, setExpandedQuickStart] = useState(false);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
@@ -22,7 +23,7 @@ export default function Help() {
   const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
   const md = useMemo(() => new MarkdownIt({ linkify: true, breaks: true }), []);
   
-  const quickStartMarkdown = `
+  const quickStartMarkdownPart1 = `
 # 1. Créer un cercle
 
 Les cercles vous permettent d'organiser des projets, des équipes ou des communautés.  
@@ -33,13 +34,15 @@ Allez dans "Cercles" sur le panneau de gauche → Créer un cercle, puis ajoutez
 Allez dans "Projets" sur le panneau de gauche puis le bouton +  
 ou le bouton + directement sur la carte  
 → définissez le titre (par exemple "J'arrive sur ZIGZAG !"),  
-la date, la localisation et la visibilité 
+la localisation, la date et la visibilité 
 (Rq : Le lien d'invitation rend un événement accessible à d'autres utilisateurs que ceux du cercle s'ils cliquent sur le lien partagé).
 
 # 3. Rejoindre des cercles
 
 Demandez par message privé de rejoindre un cercle dont vous avez entendu parler et communiquez votre pseudo au créateur du cercle.
+`;
 
+  const quickStartMarkdownPart2 = `
 # 4. Mettre à jour votre profil
 
 Pour ajouter une localisation en privée sur la carte que vous symbolisez fortement et vos disponibilités.
@@ -172,11 +175,75 @@ ZIGZAG utilise les services et technologies suivants :
             line-height: 1.6;
             color: #555;
           }
+          .quickstart-expand-button {
+            width: 100%;
+            background: none;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+          }
+          .quickstart-expand-button:hover {
+            background-color: #f8f9fa;
+            border-color: #40916c;
+          }
+          .quickstart-expand-arrow {
+            font-size: 0.8rem;
+            color: #666;
+            transition: transform 0.3s ease;
+          }
+          .quickstart-expand-arrow.expanded {
+            transform: rotate(180deg);
+          }
+          .quickstart-expanded-content {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+          }
         `}</style>
         <div
           className="quickstart-markdown"
-          dangerouslySetInnerHTML={{ __html: md.render(quickStartMarkdown) }}
+          dangerouslySetInnerHTML={{ __html: md.render(quickStartMarkdownPart1) }}
         />
+        {!expandedQuickStart && (
+          <button
+            className="quickstart-expand-button"
+            onClick={() => setExpandedQuickStart(!expandedQuickStart)}
+            aria-expanded={expandedQuickStart}
+          >
+            <span>Voir plus</span>
+            <span className="quickstart-expand-arrow">
+              ▼
+            </span>
+          </button>
+        )}
+        {expandedQuickStart && (
+          <div className="quickstart-expanded-content">
+            <div
+              className="quickstart-markdown"
+              dangerouslySetInnerHTML={{ __html: md.render(quickStartMarkdownPart2) }}
+            />
+            <button
+              className="quickstart-expand-button"
+              onClick={() => setExpandedQuickStart(!expandedQuickStart)}
+              aria-expanded={expandedQuickStart}
+            >
+              <span>Masquer</span>
+              <span className="quickstart-expand-arrow expanded">
+                ▼
+              </span>
+            </button>
+          </div>
+        )}
       </section>
 
       <section className={settingsStyles.faqSection}>
