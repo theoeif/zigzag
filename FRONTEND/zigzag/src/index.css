@@ -1796,14 +1796,14 @@ input:checked + .slider:before {
   border-radius: 20px;
 }
 
-/* Friend location marker cluster styles - using Leaflet default appearance with dark red color */
+/* Friend location marker cluster styles - using Leaflet default appearance with light grey color */
 .friend-cluster-marker {
-  background-color: rgba(178, 34, 34, 0.6);
+  background-color: rgba(150, 150, 150, 0.6);
   border-radius: 20px;
 }
 
 .close-friend-cluster-marker {
-  background-color: rgba(178, 34, 34, 0.6);
+  background-color: rgba(150, 150, 150, 0.6);
   border-radius: 20px;
 }
 
@@ -1835,7 +1835,7 @@ input:checked + .slider:before {
 }
 
 .marker-cluster.friend-cluster div {
-  background-color:rgba(178, 34, 34, 0.8); /* Increased opacity  */
+  background-color:rgba(150, 150, 150, 0.8); /* Increased opacity  */
   color: white;
 }
 
@@ -1846,7 +1846,7 @@ input:checked + .slider:before {
 }
 
 .marker-cluster.close-friend-cluster div {
-  background-color: rgba(178, 34, 34, 0.7); /* Increased opacity */
+  background-color: rgba(150, 150, 150, 0.7); /* Increased opacity */
   color: white;
   font-size: 10px;
 }
@@ -1954,14 +1954,14 @@ input:checked + .slider:before {
   border-radius: 20px;
 }
 
-/* Friend location marker cluster styles - using Leaflet default appearance with dark red color */
+/* Friend location marker cluster styles - using Leaflet default appearance with light grey color */
 .friend-cluster-marker {
-  background-color: rgba(178, 34, 34, 0.6);
+  background-color: rgba(150, 150, 150, 0.6);
   border-radius: 20px;
 }
 
 .close-friend-cluster-marker {
-  background-color: rgba(178, 34, 34, 0.6);
+  background-color: rgba(150, 150, 150, 0.6);
   border-radius: 20px;
 }
 
@@ -1993,7 +1993,7 @@ input:checked + .slider:before {
 }
 
 .marker-cluster.friend-cluster div {
-  background-color:rgba(178, 34, 34, 0.8); /* Increased opacity  */
+  background-color:rgba(150, 150, 150, 0.8); /* Increased opacity  */
   color: white;
 }
 
@@ -2004,7 +2004,7 @@ input:checked + .slider:before {
 }
 
 .marker-cluster.close-friend-cluster div {
-  background-color: rgba(178, 34, 34, 0.7); /* Increased opacity */
+  background-color: rgba(150, 150, 150, 0.7); /* Increased opacity */
   color: white;
   font-size: 10px;
 }
