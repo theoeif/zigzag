@@ -33,13 +33,13 @@ Allez dans "Cercles" sur le panneau de gauche → Créer un cercle, puis ajoutez
 
 Allez dans "Projets" sur le panneau de gauche puis le bouton +  
 ou le bouton + directement sur la carte  
-→ définissez le titre (par exemple "J'arrive sur ZIGZAG !"),  
+→ définissez le titre (par exemple #mon_pseudo arrive sur ZIGZAG !"),  
 la localisation, la date et la visibilité 
-(Rq : Le lien d'invitation rend un événement accessible à d'autres utilisateurs que ceux du cercle s'ils cliquent sur le lien partagé).
+Le lien d'invitation rend un événement accessible à d'autres utilisateurs en dehors de vos cercles.
 
 # 3. Rejoindre des cercles
 
-Demandez par message privé de rejoindre un cercle dont vous avez entendu parler et communiquez votre pseudo au créateur du cercle.
+Demandez en privé sur votre messagerie préférée de rejoindre un cercle dont vous avez entendu parler et communiquez votre pseudo au créateur du cercle.
 `;
 
   const quickStartMarkdownPart2 = `

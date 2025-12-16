@@ -5,6 +5,9 @@
   "server": {
     "androidScheme": "https"
   },
+  "ios": {
+    "overrideUserAgent": "ZIGZAG-WebView"
+  },
   "plugins": {
     "StatusBar": {
       "overlaysWebView": false,
