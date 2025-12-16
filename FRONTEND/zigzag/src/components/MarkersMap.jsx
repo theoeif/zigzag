@@ -13,7 +13,7 @@ import { fetchMarkers, fetchMyTags, persistSelectedTags, fetchMyLocations } from
 import {
   redMarkerIcon
 } from "../assets/customMarkers";
-import redPinImage from "../assets/red-pin.png";
+import greyPinImage from "../assets/grey-pin.png";
 
 import Header from "./Header/Header";
 import LeftMenu from "./LeftMenu/LeftMenu";
@@ -30,8 +30,8 @@ import reopenButtonStyles from './Map/ReopenPopupButton.module.css';
 
 // Red pin icon for friend locations
 const redPinIcon = L.icon({
-  iconUrl: redPinImage,
-  iconSize: [24, 24],
+  iconUrl: greyPinImage,
+  iconSize: [18, 18],
   iconAnchor: [14, 14],
   popupAnchor: [0, -12]
 });
