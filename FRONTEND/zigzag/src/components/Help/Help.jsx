@@ -27,7 +27,7 @@ export default function Help() {
 # 1. Créer un cercle
 
 Les cercles vous permettent d'organiser des projets, des équipes ou des communautés.  
-Allez dans "Cercles" sur le panneau de gauche → Créer un cercle, puis ajoutez un nom + un tag (pour filtrer ensuite).
+Allez dans "Cercles" sur le panneau de gauche → Créer un cercle, puis ajoutez un nom + un tag.
 
 # 2. Créer votre premier marqueur
 
