@@ -22,6 +22,41 @@ export default function Help() {
   const toggleLeftMenu = () => setIsLeftMenuOpen(prev => !prev);
   const md = useMemo(() => new MarkdownIt({ linkify: true, breaks: true }), []);
   
+  const quickStartMarkdown = `
+# 1. Créer un cercle
+
+Les cercles vous permettent d'organiser des projets, des équipes ou des communautés.  
+Allez dans "Cercles" sur le panneau de gauche → Créer un cercle, puis ajoutez un nom + un tag (pour filtrer ensuite).
+
+# 2. Créer votre premier marqueur
+
+Allez dans "Projets" sur le panneau de gauche puis le bouton +  
+ou le bouton + directement sur la carte  
+→ définissez le titre (par exemple "J'arrive sur ZIGZAG !"),  
+la date, la localisation et la visibilité 
+(Rq : Le lien d'invitation rend un événement accessible à d'autres utilisateurs que ceux du cercle s'ils cliquent sur le lien partagé).
+
+# 3. Rejoindre des cercles
+
+Demandez par message privé de rejoindre un cercle dont vous avez entendu parler et communiquez votre pseudo au créateur du cercle.
+
+# 4. Mettre à jour votre profil
+
+Pour ajouter une localisation en privée sur la carte que vous symbolisez fortement et vos disponibilités.
+
+# 5. Calendrier
+
+Pour vous organiser et trouver des dates communes et préparer votre prochain grand événement.
+
+# 6. Personnaliser vos réglages
+
+Changer votre pseudo, changer votre mot de passe, et à venir (changer votre centre-ville).
+
+# 7. Découvrir des projets près de chez vous
+
+Utilisez la carte ou la liste pour explorer les projets dans votre région.
+`;
+
   const creditsMarkdown = `
 ZIGZAG utilise les services et technologies suivants :
 
@@ -114,6 +149,35 @@ ZIGZAG utilise les services et technologies suivants :
       <p>
         Bienvenue sur ZIGZAG. Cette page regroupe une FAQ rapide et des liens utiles.
       </p>
+
+      <section className={settingsStyles.passwordSection}>
+        <h2 className={settingsStyles.faqTitle}>ZigZag — Guide de démarrage rapide</h2>
+        <style>{`
+          .quickstart-markdown {
+            line-height: 1.65;
+            width: 100%;
+          }
+          .quickstart-markdown h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d6a4f;
+            margin-top: 24px;
+            margin-bottom: 8px;
+          }
+          .quickstart-markdown h1:first-of-type {
+            margin-top: 0;
+          }
+          .quickstart-markdown p {
+            margin-bottom: 0;
+            line-height: 1.6;
+            color: #555;
+          }
+        `}</style>
+        <div
+          className="quickstart-markdown"
+          dangerouslySetInnerHTML={{ __html: md.render(quickStartMarkdown) }}
+        />
+      </section>
 
       <section className={settingsStyles.faqSection}>
         <h2 className={settingsStyles.faqTitle}>FAQ</h2>

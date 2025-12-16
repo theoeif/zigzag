@@ -2,7 +2,7 @@ export const faqData = [
   {
     question: "Comment fonctionne le partage des événements ?",
     answer:
-      "Vous créez des projets/événements et choisissez avec quels cercles d’amis vous les partagez. Seules les personnes de ces cercles peuvent voir les événements partagés.",
+      "Vous créez des projets/événements et choisissez avec quels cercles d’amis vous les partagez. Seules les personnes de ces cercles peuvent voir les événements partagés. Si le lien d'invitation est activé, les personnes qui ont le lien d'invitation peuvent aussi voir l'événement.",
   },
   {
     question: "Ma localisation est‑elle partagée ?",
@@ -31,8 +31,8 @@ Bien que les invitations aient du sens, elles compliquent aussi l'interface.
 2 Ajouter ces Cercles à un autre évènement/projet existant.
 Cette feature n'est pas encore disponible. N'hésitez pas à le faire remonter aux développeurs !
 
-3. Faire un "Lien d'invitation" lors de la creation d'un projet/évènement.
-Cela Créee un cercle temporaire pour cet événement uniquement. 
+3. Faire un "Lien d'invitation" lors de la création d'un projet/évènement.
+Permet de créer un cercle temporaire pour cet événement uniquement, caché de vos cercles classiques.
 Cela est utile pour invtiter des gens que vous ne connaissez pas encore ou qui n'appartiennent pas à vos Cercles.
 
 <strong>Conclusion : Les Cercles doivent rester des noyaux durs où les gens travaillent sur des vrais projets.</strong>`,
