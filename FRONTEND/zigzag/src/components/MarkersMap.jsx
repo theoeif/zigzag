@@ -40,7 +40,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   const isBackground = !!eventCoordinates;
   const isSmallScreen = useMediaQuery('(max-width:599px)');
   // Authentication and header state
-  const { isConnected } = useContext(AuthContext);
+  const { isConnected, isLoading } = useContext(AuthContext);
   const [isFilterOpen, setisFilterOpen] = useState(false);
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [isClustered, setIsClustered] = useState(false);
@@ -1327,7 +1327,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
 
   // Check if concept popup should be shown (only for disconnected users)
   useEffect(() => {
-    if (isBackground || isConnected) {
+    if (isLoading || isBackground || isConnected) {
       setShowConceptPopup(false);
       return;
     }
@@ -1336,7 +1336,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
     const dismissed = localStorage.getItem('zigzag_concept_popup_dismissed') === 'true';
     setPopupDismissed(dismissed);
     setShowConceptPopup(!dismissed);
-  }, [isConnected, isBackground]);
+  }, [isConnected, isBackground, isLoading]);
 
   // Function to reopen the popup
   const handleReopenPopup = () => {
@@ -1352,7 +1352,7 @@ const MarkersMap = ({ eventCoordinates = null }) => {
   };
 
   // Check if reopen button should be shown
-  const shouldShowReopenButton = !isConnected && !isBackground && popupDismissed;
+  const shouldShowReopenButton = !isLoading && !isConnected && !isBackground && popupDismissed;
 
   // Set up global handler for tooltip clicks - navigate and setMapState are stable
   useEffect(() => {

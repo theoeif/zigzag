@@ -25,13 +25,13 @@ const ZigzagPattern = ({ className = '', animate = true }) => {
 };
 
 const ZigZagConceptPopup = ({ isBackground = false, onClose }) => {
-  const { isConnected } = useContext(AuthContext);
+  const { isConnected, isLoading } = useContext(AuthContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   // Check if popup should be shown
   useEffect(() => {
-    if (isBackground || isConnected) {
+    if (isLoading || isBackground || isConnected) {
       setIsVisible(false);
       return;
     }
@@ -39,7 +39,7 @@ const ZigZagConceptPopup = ({ isBackground = false, onClose }) => {
     // Check localStorage to see if popup was dismissed
     const dismissed = localStorage.getItem('zigzag_concept_popup_dismissed') === 'true';
     setIsVisible(!dismissed);
-  }, [isConnected, isBackground]);
+  }, [isConnected, isBackground, isLoading]);
 
   // Lock body scroll when popup is visible
   useEffect(() => {
